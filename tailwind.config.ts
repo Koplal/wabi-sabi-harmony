@@ -57,6 +57,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        bone: "hsl(var(--bone))",
+        "warm-stone": "hsl(var(--warm-stone))",
+        driftwood: "hsl(var(--driftwood))",
+        charcoal: "hsl(var(--charcoal))",
+        sage: "hsl(var(--sage))",
+      },
+      fontFamily: {
+        serif: ["var(--font-serif)"],
+        sans: ["var(--font-sans)"],
       },
       borderRadius: {
         lg: "var(--radius)",
