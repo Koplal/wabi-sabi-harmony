@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,19 +18,35 @@ const Contact = () => {
     cadence: "",
     notes: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Thank you! We'll reply within one business day.");
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      serviceType: "",
-      cadence: "",
-      notes: ""
-    });
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      toast.success("Thank you! We'll reply within one business day.");
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        serviceType: "",
+        cadence: "",
+        notes: ""
+      });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Something went wrong. Please try emailing us directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,8 +155,8 @@ const Contact = () => {
             </div>
 
             <div className="text-center">
-              <Button type="submit" size="lg">
-                Send Inquiry
+              <Button type="submit" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Send Inquiry"}
               </Button>
               <p className="text-xs text-muted-foreground mt-4">
                 We'll reply within one business day.
