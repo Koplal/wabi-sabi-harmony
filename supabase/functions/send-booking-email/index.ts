@@ -29,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to your business inbox
     const emailResponse = await resend.emails.send({
-      from: "Wabi-Sabi Booking <onboarding@resend.dev>",
+      from: "Wabi-Sabi Booking <onboarding@wabisabiservices.ca>",
       to: ["hello@wabisabiservices.ca"],
       subject: "New Booking Request",
       html: `
