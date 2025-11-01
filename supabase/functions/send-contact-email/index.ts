@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to your business inbox
     const emailResponse = await resend.emails.send({
-      from: "Wabi-Sabi Contact Form <onboarding@resend.dev>",
+      from: "Wabi-Sabi Contact Form <onboarding@wabisabiservices.ca>",
       to: ["hello@wabisabiservices.com"], // Your business email
       replyTo: formData.email,
       subject: `New Contact Form Submission from ${formData.name}`,
