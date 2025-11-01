@@ -16,7 +16,7 @@ const Contact = () => {
     address: "",
     serviceType: "",
     cadence: "",
-    notes: ""
+    notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,8 +25,8 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.functions.invoke('send-contact-email', {
-        body: formData
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: formData,
       });
 
       if (error) throw error;
@@ -39,7 +39,7 @@ const Contact = () => {
         address: "",
         serviceType: "",
         cadence: "",
-        notes: ""
+        notes: "",
       });
     } catch (error) {
       console.error("Error sending email:", error);
@@ -53,9 +53,7 @@ const Contact = () => {
     <Layout>
       <div className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-3xl">
-          <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">
-            Contact
-          </h1>
+          <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">Contact</h1>
 
           <p className="text-xl text-center text-muted-foreground mb-12 leading-relaxed">
             Let's discuss how we can care for your space.
@@ -64,7 +62,9 @@ const Contact = () => {
           <form onSubmit={handleSubmit} className="space-y-8 mb-16">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-xs uppercase tracking-wider">Name</Label>
+                <Label htmlFor="name" className="text-xs uppercase tracking-wider">
+                  Name
+                </Label>
                 <Input
                   id="name"
                   required
@@ -75,7 +75,9 @@ const Contact = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs uppercase tracking-wider">Email</Label>
+                <Label htmlFor="email" className="text-xs uppercase tracking-wider">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -89,7 +91,9 @@ const Contact = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-xs uppercase tracking-wider">Phone</Label>
+                <Label htmlFor="phone" className="text-xs uppercase tracking-wider">
+                  Phone
+                </Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -100,7 +104,9 @@ const Contact = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address" className="text-xs uppercase tracking-wider">Address / Neighbourhood</Label>
+                <Label htmlFor="address" className="text-xs uppercase tracking-wider">
+                  Address / Neighbourhood
+                </Label>
                 <Input
                   id="address"
                   value={formData.address}
@@ -112,8 +118,13 @@ const Contact = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="serviceType" className="text-xs uppercase tracking-wider">Service Type</Label>
-                <Select value={formData.serviceType} onValueChange={(value) => setFormData({ ...formData, serviceType: value })}>
+                <Label htmlFor="serviceType" className="text-xs uppercase tracking-wider">
+                  Service Type
+                </Label>
+                <Select
+                  value={formData.serviceType}
+                  onValueChange={(value) => setFormData({ ...formData, serviceType: value })}
+                >
                   <SelectTrigger className="rounded-none border-border">
                     <SelectValue placeholder="Select service" />
                   </SelectTrigger>
@@ -127,8 +138,13 @@ const Contact = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cadence" className="text-xs uppercase tracking-wider">Ideal Cadence</Label>
-                <Select value={formData.cadence} onValueChange={(value) => setFormData({ ...formData, cadence: value })}>
+                <Label htmlFor="cadence" className="text-xs uppercase tracking-wider">
+                  Ideal Cadence
+                </Label>
+                <Select
+                  value={formData.cadence}
+                  onValueChange={(value) => setFormData({ ...formData, cadence: value })}
+                >
                   <SelectTrigger className="rounded-none border-border">
                     <SelectValue placeholder="Select frequency" />
                   </SelectTrigger>
@@ -143,7 +159,9 @@ const Contact = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-xs uppercase tracking-wider">Notes</Label>
+              <Label htmlFor="notes" className="text-xs uppercase tracking-wider">
+                Notes
+              </Label>
               <Textarea
                 id="notes"
                 rows={5}
@@ -158,18 +176,13 @@ const Contact = () => {
               <Button type="submit" size="lg" disabled={isSubmitting}>
                 {isSubmitting ? "Sending..." : "Send Inquiry"}
               </Button>
-              <p className="text-xs text-muted-foreground mt-4">
-                We'll reply within one business day.
-              </p>
+              <p className="text-xs text-muted-foreground mt-4">We'll reply within one business day.</p>
             </div>
           </form>
 
           <div className="text-center border-t border-border pt-12">
             <p className="text-muted-foreground mb-2">Or reach us directly:</p>
-            <a
-              href="mailto:hello@wabisabiservices.com"
-              className="text-lg hover:text-primary transition-colors"
-            >
+            <a href="mailto:hello@wabisabiservices.ca" className="text-lg hover:text-primary transition-colors">
               hello@wabisabiservices.com
             </a>
             <p className="text-sm text-muted-foreground mt-6">Victoria, BC</p>
