@@ -25,7 +25,7 @@ const Careers = () => {
 
             <div className="text-center mt-20">
               <Button asChild size="lg">
-                <a href="mailto:hello@wabisabiservices.ca">Get In Touch</a>
+                <a href="/contact">Get In Touch</a>
               </Button>
             </div>
           </div>

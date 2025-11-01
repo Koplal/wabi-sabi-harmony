@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Book = () => {
   const [formData, setFormData] = useState({
@@ -15,18 +16,34 @@ const Book = () => {
     preferredTime2: "",
     preferredTime3: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Booking request received! We'll confirm your appointment shortly.");
-    setFormData({
-      address: "",
-      serviceType: "",
-      cadence: "",
-      preferredTime1: "",
-      preferredTime2: "",
-      preferredTime3: ""
-    });
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('send-booking-email', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      toast.success("Booking request received! We'll confirm your appointment shortly.");
+      setFormData({
+        address: "",
+        serviceType: "",
+        cadence: "",
+        preferredTime1: "",
+        preferredTime2: "",
+        preferredTime3: ""
+      });
+    } catch (error) {
+      console.error("Error sending booking:", error);
+      toast.error("Something went wrong. Please try emailing us directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -121,8 +138,8 @@ const Book = () => {
             </div>
 
             <div className="text-center">
-              <Button type="submit" size="lg">
-                Submit Booking Request
+              <Button type="submit" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Submit Booking Request"}
               </Button>
             </div>
           </form>
