@@ -5,8 +5,7 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface ContactFormData {
@@ -32,18 +31,18 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email to your business inbox
     const emailResponse = await resend.emails.send({
       from: "Wabi-Sabi Contact Form <onboarding@wabisabiservices.ca>",
-      to: ["hello@wabisabiservices.com"], // Your business email
+      to: ["hello@wabisabiservices.ca"], // Your business email
       replyTo: formData.email,
       subject: `New Contact Form Submission from ${formData.name}`,
       html: `
         <h2>New Contact Form Submission</h2>
         <p><strong>Name:</strong> ${formData.name}</p>
         <p><strong>Email:</strong> ${formData.email}</p>
-        ${formData.phone ? `<p><strong>Phone:</strong> ${formData.phone}</p>` : ''}
-        ${formData.address ? `<p><strong>Address/Neighbourhood:</strong> ${formData.address}</p>` : ''}
-        ${formData.serviceType ? `<p><strong>Service Type:</strong> ${formData.serviceType}</p>` : ''}
-        ${formData.cadence ? `<p><strong>Ideal Cadence:</strong> ${formData.cadence}</p>` : ''}
-        ${formData.notes ? `<p><strong>Notes:</strong></p><p>${formData.notes.replace(/\n/g, '<br>')}</p>` : ''}
+        ${formData.phone ? `<p><strong>Phone:</strong> ${formData.phone}</p>` : ""}
+        ${formData.address ? `<p><strong>Address/Neighbourhood:</strong> ${formData.address}</p>` : ""}
+        ${formData.serviceType ? `<p><strong>Service Type:</strong> ${formData.serviceType}</p>` : ""}
+        ${formData.cadence ? `<p><strong>Ideal Cadence:</strong> ${formData.cadence}</p>` : ""}
+        ${formData.notes ? `<p><strong>Notes:</strong></p><p>${formData.notes.replace(/\n/g, "<br>")}</p>` : ""}
       `,
     });
 
@@ -58,13 +57,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Error in send-contact-email function:", error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 
