@@ -7,21 +7,26 @@ const Services = () => {
     <Layout>
       <div className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-5xl">
-          <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">
-            Services
-          </h1>
+          <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">Services</h1>
 
           <p className="text-xl text-center text-muted-foreground mb-20 max-w-3xl mx-auto leading-relaxed">
             Tailored care for every space—residential, commercial, and post-construction.
+          </p>
+
+          <p className="text-lg text-center text-muted-foreground mb-20 max-w-4xl mx-auto leading-relaxed">
+            Wabi Sabi Services offers elevated home care for discerning clients throughout Greater Victoria. We focus on
+            three core services: meticulous cleaning, thoughtful organization, and the small tasks that keep a household
+            running smoothly.
           </p>
 
           {/* Residential */}
           <section className="mb-24">
             <h2 className="font-serif text-4xl mb-4">Residential Cleaning</h2>
             <p className="text-muted-foreground mb-10 max-w-3xl">
-              Your home is your sanctuary. We treat it with the respect and care it deserves, using mindful cleaning practices that create a healthy, peaceful environment for you and your family.
+              Your home is your sanctuary. We treat it with the respect and care it deserves, using mindful cleaning
+              practices that create a healthy, peaceful environment for you and your family.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
                 <h3 className="font-serif text-2xl mb-4 text-center">Regular Maintenance</h3>
@@ -155,9 +160,11 @@ const Services = () => {
           <section className="mb-24">
             <h2 className="font-serif text-4xl mb-4">Commercial Cleaning</h2>
             <p className="text-muted-foreground mb-10 max-w-3xl">
-              Create a professional environment that impresses clients and inspires productivity. Our commercial cleaning services are designed to maintain the highest standards while minimizing disruption to your business.
+              Create a professional environment that impresses clients and inspires productivity. Our commercial
+              cleaning services are designed to maintain the highest standards while minimizing disruption to your
+              business.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
                 <h3 className="font-serif text-2xl mb-4 text-center">Office Spaces</h3>
@@ -293,7 +300,7 @@ const Services = () => {
             <p className="text-muted-foreground mb-10 max-w-3xl">
               Beyond regular cleaning, we offer specialized services for unique situations and requirements.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
                 <h3 className="font-serif text-2xl mb-4 text-center">Post-Construction Cleaning</h3>
