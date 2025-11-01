@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const About = () => {
   return (
@@ -63,6 +64,66 @@ const About = () => {
             </p>
 
             <div className="my-20" />
+
+            <h2 className="font-serif text-3xl md:text-4xl mb-8 text-center">Our Core Values</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+              <Card className="border-accent/20">
+                <CardHeader>
+                  <CardTitle className="flex items-start gap-3">
+                    <span className="text-3xl">🧘</span>
+                    <span className="font-serif text-xl">Mindful Presence</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    We approach every space with focused attention and care, treating your home with the same respect we'd give our own.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-accent/20">
+                <CardHeader>
+                  <CardTitle className="flex items-start gap-3">
+                    <span className="text-3xl">🌿</span>
+                    <span className="font-serif text-xl">Environmental Care</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    We use eco-conscious products and methods that are safe for your family, pets, and the planet.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-accent/20">
+                <CardHeader>
+                  <CardTitle className="flex items-start gap-3">
+                    <span className="text-3xl">🤝</span>
+                    <span className="font-serif text-xl">Trust & Discretion</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Your privacy is paramount. We maintain the highest standards of professionalism and confidentiality.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-accent/20">
+                <CardHeader>
+                  <CardTitle className="flex items-start gap-3">
+                    <span className="text-3xl">✨</span>
+                    <span className="font-serif text-xl">Excellence in Detail</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Quality over speed, always. We believe thoughtful care creates lasting impact.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
             <p className="text-center text-muted-foreground italic">
               Wabi Sabi Services serves discerning clients throughout Greater Victoria, including Oak Bay, Uplands, Rockland, Fairfield, and Bear Mountain.
