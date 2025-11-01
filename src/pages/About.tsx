@@ -35,34 +35,55 @@ const About = () => {
 
             <div className="my-20" />
 
-            <h2 className="font-serif text-3xl md:text-4xl mb-8 text-center">Our Values</h2>
+            <h2 className="font-serif text-3xl md:text-4xl mb-4 text-center">Our Core Values</h2>
+            <p className="text-center text-muted-foreground mb-12">These principles guide every aspect of our service</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
-              <div className="text-center p-8">
-                <h3 className="font-serif text-2xl mb-3">Discretion</h3>
-                <p className="text-sm text-muted-foreground">
-                  We work quietly in the background, respecting your privacy and peace.
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-12">
+              <div className="bg-card border border-border rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                <div className="text-5xl mb-4">🌿</div>
+                <h3 className="font-serif text-xl mb-3">Environmental Mindfulness</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  We use only eco-friendly, non-toxic cleaning products that are safe for your family, pets, and our planet. Every product is carefully selected for its effectiveness and environmental responsibility.
                 </p>
               </div>
 
-              <div className="text-center p-8">
-                <h3 className="font-serif text-2xl mb-3">Consistency</h3>
-                <p className="text-sm text-muted-foreground">
-                  Gallery-ready results, every time, through our proven ritual.
+              <div className="bg-card border border-border rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                <div className="text-5xl mb-4">💎</div>
+                <h3 className="font-serif text-xl mb-3">Excellence in Service</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Every cleaning is performed with meticulous attention to detail and a commitment to exceeding expectations. We don't just clean—we transform spaces.
                 </p>
               </div>
 
-              <div className="text-center p-8">
-                <h3 className="font-serif text-2xl mb-3">Respect for Materials</h3>
-                <p className="text-sm text-muted-foreground">
-                  Each surface receives specialized care to preserve its beauty.
+              <div className="bg-card border border-border rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                <div className="text-5xl mb-4">🤝</div>
+                <h3 className="font-serif text-xl mb-3">Trust & Reliability</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Fully bonded, insured, and background-checked team members you can trust in your space. Your security and peace of mind are paramount.
                 </p>
               </div>
 
-              <div className="text-center p-8">
-                <h3 className="font-serif text-2xl mb-3">Wellbeing</h3>
-                <p className="text-sm text-muted-foreground">
-                  Sustainable practices that protect people, pets, and the planet.
+              <div className="bg-card border border-border rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                <div className="text-5xl mb-4">🕊️</div>
+                <h3 className="font-serif text-xl mb-3">Peaceful Presence</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  We work quietly and respectfully, maintaining the tranquility of your home or business. Our presence should enhance your space's serenity, not disrupt it.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                <div className="text-5xl mb-4">⚖️</div>
+                <h3 className="font-serif text-xl mb-3">Work-Life Harmony</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  We value our team's wellbeing, ensuring they bring positive energy to every space they clean. Happy cleaners create happier spaces.
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                <div className="text-5xl mb-4">🏡</div>
+                <h3 className="font-serif text-xl mb-3">Local Community</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Proudly serving Greater Victoria with personalized care and deep roots in our community. We're your neighbors, committed to making our city shine.
                 </p>
               </div>
             </div>
