@@ -1,80 +1,110 @@
 import { Layout } from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Ritual = () => {
-  const steps = [
-    {
-      number: "01",
-      title: "Consult",
-      description: "Listen first, understand your space, needs, sensitivities, materials, and access requirements."
-    },
-    {
-      number: "02",
-      title: "Walk-Through",
-      description: "Observe light, flow, traffic patterns, surfaces, and priorities in your environment."
-    },
-    {
-      number: "03",
-      title: "Proposal",
-      description: "Curate a tailored care plan with clear scope, cadence, and investment details."
-    },
-    {
-      number: "04",
-      title: "Preparation",
-      description: "Assemble the right tools, products, protection measures, and scheduling coordination."
-    },
-    {
-      number: "05",
-      title: "Care in Action",
-      description: "Methodical, calm, exact execution using zone sequencing, top-down method, and double-inspection."
-    },
-    {
-      number: "06",
-      title: "Finishing Touch",
-      description: "A quiet reset with leave-behind notes, product guidance, and next visit planning for gallery-ready results."
-    }
-  ];
-
   return (
     <Layout>
       <div className="py-32 px-6 lg:px-12">
-        <div className="container mx-auto max-w-5xl">
-          <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">
+        <div className="container mx-auto max-w-4xl">
+          <h1 className="font-serif text-5xl md:text-6xl mb-8 text-center">
             The Ritual
           </h1>
-
-          <p className="text-xl text-center text-muted-foreground mb-20 max-w-3xl mx-auto leading-relaxed">
-            Our six-step process ensures consistent, serene, gallery-ready results every time.
+          <p className="text-xl text-center text-muted-foreground mb-20 leading-relaxed">
+            Our Approach to Caring for Your Home
           </p>
 
-          <div className="space-y-16">
-            {steps.map((step, index) => (
-              <div
-                key={step.number}
-                className="border-l-2 border-accent pl-8 py-4 animate-in fade-in duration-700"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-start gap-6">
-                  <span className="font-serif text-5xl text-accent opacity-40 leading-none">
-                    {step.number}
-                  </span>
-                  <div className="flex-1 pt-2">
-                    <h2 className="font-serif text-3xl mb-4">{step.title}</h2>
-                    <p className="text-muted-foreground text-lg leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <p className="text-lg text-muted-foreground leading-relaxed mb-12">
+            At Wabi Sabi Services, we don't follow checklists. We follow a rhythm—one that's informed by environmental psychology, refined through hospitality standards, and tailored to how you actually live.
+          </p>
+
+          <p className="text-lg text-muted-foreground leading-relaxed mb-20">
+            Every service is designed to reduce your mental load while creating the kind of calm that comes from knowing your home is genuinely cared for.
+          </p>
+
+          {/* The Foundation */}
+          <div className="mb-20">
+            <h2 className="font-serif text-3xl md:text-4xl mb-6">The Foundation: Your Consultation</h2>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              We begin every client relationship with a complimentary home consultation. This isn't a quote—it's a conversation.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              We walk through your space together, discuss what's working and what isn't, and understand your priorities. Do you need consistent weekly maintenance? Help organizing a specific area? Support with daily tasks that pile up?
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              From this visit, we design a service plan specific to your household—one that's flexible enough to adapt as your needs change.
+            </p>
           </div>
 
-          <div className="mt-24 p-12 bg-secondary/30 text-center rounded-sm">
-            <h3 className="font-serif text-3xl mb-6">What We Use</h3>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Fragrance-free and aromatherapy options · Wood and stone-safe products · 
-              Professional-grade microfiber and HEPA equipment · Protective gloves and booties · 
-              Conscious, sustainable materials
+          {/* What to Expect */}
+          <div className="mb-20">
+            <h2 className="font-serif text-3xl md:text-4xl mb-8 text-center">What to Expect</h2>
+
+            <div className="space-y-12">
+              <div>
+                <h3 className="font-serif text-2xl mb-4">Consistency</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  You'll work with the same professional each visit. We believe relationships matter, and familiarity means we understand your home's rhythm, your preferences, and the small details that make a difference.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-serif text-2xl mb-4">Thoughtful Care</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Our approach goes beyond cleaning surfaces. Towels are presented thoughtfully. Products are placed with intention. Seasonal details—like subtle scents or how light moves through your space—are considered. These aren't add-ons; they're how we work.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-serif text-2xl mb-4">Communication</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  After each service, you'll receive a brief update. If something needs your attention—a burnt-out bulb, a delivery that arrived—we let you know. If you have preferences or adjustments, we adapt. This is a partnership, not a transaction.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-serif text-2xl mb-4">Discretion</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  What we see in your home stays private. Always. Your trust is the foundation of everything we do.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Our Philosophy */}
+          <div className="mb-20 bg-secondary/30 rounded-lg p-10">
+            <h2 className="font-serif text-3xl md:text-4xl mb-6">Our Philosophy</h2>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              We're informed by research showing that organized environments reduce stress and improve focus—but we're also practical. Perfection isn't sustainable.
             </p>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              Our goal isn't to create a showroom. It's to create a home that functions smoothly, feels calm, and supports your life without requiring constant attention.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Small, consistent care compounds over time. That's the ritual.
+            </p>
+          </div>
+
+          {/* Seasonal Transitions */}
+          <div className="mb-20">
+            <h2 className="font-serif text-3xl md:text-4xl mb-6">Seasonal Transitions</h2>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              Throughout the year, we adjust our approach to align with how you live. Lighter linens in summer. Attention to entryways during rainy season. Suggestions for when it's time to rotate outdoor furniture or refresh storage systems.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              These aren't upsells—they're part of understanding that homes are living spaces that shift with the seasons.
+            </p>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <h2 className="font-serif text-3xl md:text-4xl mb-6">Ready to Begin?</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              If this approach resonates with you, we'd love to meet your home.
+            </p>
+            <Button asChild size="lg">
+              <Link to="/book">Book Your Consultation</Link>
+            </Button>
           </div>
         </div>
       </div>

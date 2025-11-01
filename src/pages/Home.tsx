@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import heroImage from "@/assets/hero-image.jpg";
-import cleaningMaterials from "@/assets/cleaning-materials.jpg";
+import commercialService from "@/assets/commercial-service.jpg";
+import postConstructionService from "@/assets/post-construction-service.jpg";
 import residentialService from "@/assets/residential-service.jpg";
 
 const Home = () => {
@@ -101,10 +102,12 @@ const Home = () => {
 
             <Card className="overflow-hidden group cursor-pointer border-none shadow-none">
               <Link to="/services">
-                <div className="aspect-[4/3] overflow-hidden bg-secondary">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="font-serif text-4xl text-muted">Commercial</span>
-                  </div>
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={commercialService}
+                    alt="Commercial cleaning service"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="font-serif text-2xl mb-2">Commercial</h3>
@@ -119,7 +122,7 @@ const Home = () => {
               <Link to="/services">
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
-                    src={cleaningMaterials}
+                    src={postConstructionService}
                     alt="Post-construction cleaning"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
