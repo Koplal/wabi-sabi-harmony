@@ -2,11 +2,21 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import servicesHero from "@/assets/services-hero.jpg";
 
 const Services = () => {
   return (
     <Layout>
-      <div className="py-32 px-6 lg:px-12">
+      <div className="relative">
+        <div className="w-full h-[500px] overflow-hidden">
+          <img 
+            src={servicesHero} 
+            alt="Beautifully maintained home with organized shelving and natural light" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <div className="py-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl">
           <h1 className="font-serif text-5xl md:text-6xl mb-8 text-center">
             Our Services
