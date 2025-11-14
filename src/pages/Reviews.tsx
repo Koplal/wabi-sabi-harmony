@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import reviewsHero from "@/assets/reviews-hero.jpg";
 
 const Reviews = () => {
   const reviews = [
@@ -22,7 +23,16 @@ const Reviews = () => {
 
   return (
     <Layout>
-      <div className="py-32 px-6 lg:px-12">
+      <div className="relative">
+        <div className="w-full h-[500px] overflow-hidden">
+          <img 
+            src={reviewsHero} 
+            alt="Handwritten client testimonials on natural wood surface" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <div className="py-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-5xl">
           <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">
             Client Reviews
