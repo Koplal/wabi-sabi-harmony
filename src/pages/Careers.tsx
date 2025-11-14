@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import careersHero from "@/assets/careers-hero.jpg";
 
 const Careers = () => {
   const { toast } = useToast();
@@ -59,7 +60,16 @@ const Careers = () => {
 
   return (
     <Layout>
-      <div className="py-32 px-6 lg:px-12">
+      <div className="relative">
+        <div className="w-full h-[500px] overflow-hidden">
+          <img 
+            src={careersHero} 
+            alt="Professional team member in clean apron with welcoming expression" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <div className="py-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-4xl">
           <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">
             Careers

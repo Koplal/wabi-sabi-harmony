@@ -9,7 +9,6 @@ import {
 import { ChevronDown } from "lucide-react";
 
 const navigation = [
-  { name: "About", href: "/about" },
   { name: "The Ritual", href: "/ritual" },
   { name: "Reviews", href: "/reviews" },
   { name: "Careers", href: "/careers" },
@@ -36,17 +35,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             </Link>
 
             <div className="hidden lg:flex items-center gap-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`text-sm tracking-wide transition-colors hover:text-primary ${
-                    location.pathname === item.href ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              <Link
+                to="/about"
+                className={`text-sm tracking-wide transition-colors hover:text-primary ${
+                  location.pathname === "/about" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                About
+              </Link>
               
               <DropdownMenu>
                 <DropdownMenuTrigger className={`flex items-center gap-1 text-sm tracking-wide transition-colors hover:text-primary ${
@@ -70,6 +66,18 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`text-sm tracking-wide transition-colors hover:text-primary ${
+                    location.pathname === item.href ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
 
               <Button asChild size="sm">
                 <Link to="/book">Book Now</Link>
