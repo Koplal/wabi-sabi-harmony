@@ -1,417 +1,133 @@
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 const Services = () => {
   return (
     <Layout>
       <div className="py-32 px-6 lg:px-12">
-        <div className="container mx-auto max-w-5xl">
-          <h1 className="font-serif text-5xl md:text-6xl mb-12 text-center">Services</h1>
-
-          <p className="text-xl text-center text-muted-foreground mb-20 max-w-3xl mx-auto leading-relaxed">
-            Tailored care for every space—residential, commercial, and post-construction.
+        <div className="container mx-auto max-w-6xl">
+          <h1 className="font-serif text-5xl md:text-6xl mb-8 text-center">
+            Our Services
+          </h1>
+          <p className="text-xl text-center text-muted-foreground mb-20 leading-relaxed max-w-3xl mx-auto">
+            From regular cleaning to comprehensive organization and household support, we offer tailored solutions that make your life easier
           </p>
 
-          <p className="text-lg text-center text-muted-foreground mb-20 max-w-4xl mx-auto leading-relaxed">
-            Wabi Sabi Services offers elevated home care for discerning clients throughout Greater Victoria. We focus on
-            three core services: meticulous cleaning, thoughtful organization, and the small tasks that keep a household
-            running smoothly.
-          </p>
+          <div className="grid md:grid-cols-3 gap-8 mb-20">
+            <Link to="/services/cleaning" className="group">
+              <Card className="h-full transition-all hover:shadow-lg">
+                <CardHeader>
+                  <CardTitle className="font-serif text-2xl group-hover:text-sage transition-colors">
+                    Cleaning Services
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Residential, commercial, and specialty cleaning solutions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    From regular maintenance to deep cleans and post-construction cleanup.
+                  </p>
+                  <Button variant="link" className="p-0">
+                    Explore Cleaning Services →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
 
-          {/* Residential */}
-          <section className="mb-24">
-            <h2 className="font-serif text-4xl mb-4">Residential Cleaning</h2>
-            <p className="text-muted-foreground mb-10 max-w-3xl">
-              Your home is your sanctuary. We treat it with the respect and care it deserves, using mindful cleaning
-              practices that create a healthy, peaceful environment for you and your family.
-            </p>
+            <Link to="/services/organizing" className="group">
+              <Card className="h-full transition-all hover:shadow-lg">
+                <CardHeader>
+                  <CardTitle className="font-serif text-2xl group-hover:text-sage transition-colors">
+                    Professional Organizing
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Decluttering and systems that actually work
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Create functional spaces that reduce mental load and support your daily life.
+                  </p>
+                  <Button variant="link" className="p-0">
+                    Explore Organizing Services →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Regular Maintenance</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Keep your home consistently fresh and inviting with our scheduled cleaning services.
-                </p>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Weekly, bi-weekly, or monthly schedules</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Full home cleaning including all rooms</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Kitchen deep clean and sanitization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Bathroom disinfection and shine</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Dusting all surfaces and baseboards</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Vacuuming carpets and rugs</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Mopping all hard floors</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Trash removal and recycling</span>
-                  </li>
-                </ul>
-                <p className="font-semibold text-center">Starting at $120 for apartments</p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Deep Cleaning</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Comprehensive seasonal cleaning that reaches every corner and refreshes your entire home.
-                </p>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Everything in regular cleaning plus:</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Inside appliances (oven, refrigerator)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Window sills and tracks</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Light fixtures and ceiling fans</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Behind and under furniture</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Detailed baseboard cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Door frames and switch plates</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Vent and register cleaning</span>
-                  </li>
-                </ul>
-                <p className="font-semibold text-center">Starting at $250 for apartments</p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Move-In/Move-Out</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Ensure your new beginning starts fresh or leave your space pristine for the next occupants.
-                </p>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Complete empty-home deep clean</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Cabinet interiors and exteriors</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>All appliances inside and out</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Complete wall washing</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Detailed bathroom sanitization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Carpet edge detailing</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Garage and storage areas</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Final inspection walkthrough</span>
-                  </li>
-                </ul>
-                <p className="font-semibold text-center">Starting at $350 for apartments</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Commercial */}
-          <section className="mb-24">
-            <h2 className="font-serif text-4xl mb-4">Commercial Cleaning</h2>
-            <p className="text-muted-foreground mb-10 max-w-3xl">
-              Create a professional environment that impresses clients and inspires productivity. Our commercial
-              cleaning services are designed to maintain the highest standards while minimizing disruption to your
-              business.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Office Spaces</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Keep your workplace pristine and professional with regular cleaning services.
-                </p>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Desk and workstation sanitization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Conference room detailing</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Kitchen and break room cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Restroom sanitization and restocking</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Floor care (vacuum, mop, polish)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Trash removal and recycling</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Window and glass cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>High-touch surface disinfection</span>
-                  </li>
-                </ul>
-                <p className="font-semibold text-center">Custom pricing based on square footage</p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Retail Spaces</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Maintain an inviting atmosphere that encourages customers to browse and buy.
-                </p>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Sales floor maintenance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Display case and shelf cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Storefront window cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Fitting room sanitization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Customer area maintenance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Back office cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Storage area organization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Entrance and exit detailing</span>
-                  </li>
-                </ul>
-                <p className="font-semibold text-center">Flexible scheduling available</p>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Medical & Wellness</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Specialized cleaning for healthcare facilities requiring the highest hygiene standards.
-                </p>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Medical-grade sanitization protocols</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Waiting room deep cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Treatment room disinfection</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Reception area maintenance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Restroom hospital-grade cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Proper biohazard disposal</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Equipment and surface sanitization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>HEPA filtration vacuuming</span>
-                  </li>
-                </ul>
-                <p className="font-semibold text-center">Compliant with health regulations</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Specialty Services */}
-          <section className="mb-24">
-            <h2 className="font-serif text-4xl mb-4">Specialty Services</h2>
-            <p className="text-muted-foreground mb-10 max-w-3xl">
-              Beyond regular cleaning, we offer specialized services for unique situations and requirements.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Post-Construction Cleaning</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Remove dust, debris, and construction residue to reveal your beautiful new space.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Construction dust removal</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Window and frame cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Floor preparation and cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Fixture and fitting polishing</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Paint overspray removal</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>HVAC vent cleaning</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Event Cleaning</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Pre and post-event cleaning to ensure your venue is perfect for guests.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Pre-event preparation</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>During-event maintenance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Post-event restoration</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Kitchen and catering cleanup</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Furniture arrangement</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Decoration removal assistance</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-card border border-border rounded-lg p-8 hover:shadow-lg transition-shadow">
-                <h3 className="font-serif text-2xl mb-4 text-center">Vacation Rental Cleaning</h3>
-                <p className="text-sm text-muted-foreground mb-6 text-center">
-                  Quick turnaround cleaning for Airbnb and vacation properties.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Between-guest deep cleaning</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Linen service available</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Restocking supplies</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Property inspection</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Key management services</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>24/7 emergency cleaning</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          {/* CTA */}
-          <div className="text-center space-x-4">
-            <Button asChild size="lg">
-              <Link to="/contact">Request a Quote</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link to="/book">Book Now</Link>
-            </Button>
+            <Link to="/services/errands" className="group">
+              <Card className="h-full transition-all hover:shadow-lg">
+                <CardHeader>
+                  <CardTitle className="font-serif text-2xl group-hover:text-sage transition-colors">
+                    Household Errands
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    We handle life's details for you
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    From grocery shopping to prescription pickups and home maintenance coordination.
+                  </p>
+                  <Button variant="link" className="p-0">
+                    Explore Errand Services →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
+
+          <section className="mb-20 bg-secondary/30 rounded-lg p-10">
+            <h2 className="font-serif text-4xl mb-8 text-center">Why Wabi Sabi Services?</h2>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div>
+                <h3 className="font-serif text-xl mb-3">Holistic Approach</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  We don't just clean—we create environments informed by psychology and hospitality standards that reduce your mental load.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-serif text-xl mb-3">Consistent Care</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  You work with the same professional each visit, ensuring familiarity with your preferences and home.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-serif text-xl mb-3">Flexible Solutions</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Every service plan is tailored to your needs—whether that's weekly maintenance, one-time organizing, or ongoing errand support.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-serif text-xl mb-3">Complete Discretion</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Your privacy is paramount. What we see in your home stays private, always.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="text-center bg-accent/20 rounded-lg p-12">
+            <h2 className="font-serif text-3xl md:text-4xl mb-6">Ready to Get Started?</h2>
+            <p className="text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+              Every service begins with a complimentary consultation. We'll discuss your needs and create a plan that works for your home and schedule.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/book">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Book a Consultation
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Contact Us
+                </Button>
+              </Link>
+            </div>
+          </section>
         </div>
       </div>
     </Layout>
