@@ -1,7 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import ritualHero from "@/assets/ritual-hero.jpg";
+import ritualHero from "@/assets/ritual-hero-v2.jpg";
 
 const Ritual = () => {
   return (
@@ -10,7 +10,7 @@ const Ritual = () => {
         <div className="w-full h-[500px] overflow-hidden">
           <img 
             src={ritualHero} 
-            alt="Hands arranging fresh sage and natural elements on wooden surface" 
+            alt="Professional consultation with client in clean home interior" 
             className="w-full h-full object-cover"
           />
         </div>

@@ -52,6 +52,20 @@ const Errands = () => {
                 </div>
 
                 <div>
+                  <h3 className="font-serif text-2xl mb-4">Meal Preparation</h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    Take the stress out of daily cooking with personalized meal preparation services. We handle the planning, shopping, and cooking so you can enjoy nutritious, home-cooked meals without the time investment.
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li>Weekly meal planning based on dietary preferences</li>
+                    <li>Batch cooking and portioning for busy weeks</li>
+                    <li>Specialty diet accommodation (gluten-free, vegan, keto, etc.)</li>
+                    <li>Meal packaging and refrigerator organization</li>
+                    <li>Preparation of family dinners or entertaining menus</li>
+                  </ul>
+                </div>
+
+                <div>
                   <h3 className="font-serif text-2xl mb-4">Prescription & Pharmacy Runs</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     We pick up prescriptions, over-the-counter items, and health supplies so you don't have to make the trip.
