@@ -41,12 +41,16 @@ const frequencies = [
 export const PriceEstimator = () => {
   const [serviceType, setServiceType] = useState<string>("");
   const [bathrooms, setBathrooms] = useState<number>(1);
+  const [workers, setWorkers] = useState<number>(1);
+  const [hours, setHours] = useState<number>(3);
   const [frequency, setFrequency] = useState<string>("onetime");
   const [estimatedPrice, setEstimatedPrice] = useState<number>(0);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const isHourlyService = serviceType === "hourly";
 
   useEffect(() => {
     if (!serviceType) return;
@@ -56,19 +60,24 @@ export const PriceEstimator = () => {
 
     let price = service.basePrice;
 
-    // Add bathroom costs (first bathroom is included)
-    if (bathrooms > 1) {
-      price += (bathrooms - 1) * 20;
-    }
+    if (isHourlyService) {
+      // For hourly service, multiply by hours
+      price = price * hours;
+    } else {
+      // Add bathroom costs (first bathroom is included)
+      if (bathrooms > 1) {
+        price += (bathrooms - 1) * 20;
+      }
 
-    // Apply frequency discount
-    const freq = frequencies.find(f => f.value === frequency);
-    if (freq && freq.discount > 0) {
-      price = price * (1 - freq.discount);
+      // Apply frequency discount
+      const freq = frequencies.find(f => f.value === frequency);
+      if (freq && freq.discount > 0) {
+        price = price * (1 - freq.discount);
+      }
     }
 
     setEstimatedPrice(Math.round(price));
-  }, [serviceType, bathrooms, frequency]);
+  }, [serviceType, bathrooms, frequency, hours, isHourlyService]);
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,8 +99,8 @@ export const PriceEstimator = () => {
           lastName,
           email,
           serviceType: serviceLabel,
-          bathrooms,
-          frequency: frequencyLabel,
+          bathrooms: isHourlyService ? workers : bathrooms,
+          frequency: isHourlyService ? `${hours} hours` : frequencyLabel,
           estimatedPrice
         }
       });
@@ -104,6 +113,8 @@ export const PriceEstimator = () => {
       setEmail("");
       setServiceType("");
       setBathrooms(1);
+      setWorkers(1);
+      setHours(3);
       setFrequency("onetime");
     } catch (error) {
       console.error("Error sending booking:", error);
@@ -115,7 +126,7 @@ export const PriceEstimator = () => {
 
   return (
     <Card className="p-6 bg-background/95 backdrop-blur-sm">
-      <h3 className="font-serif text-2xl mb-6">Get Your Price Estimate</h3>
+      <h3 className="font-serif text-2xl mb-6">Book your peace of mind now</h3>
       
       <form onSubmit={handleBooking} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -169,56 +180,94 @@ export const PriceEstimator = () => {
           </Select>
         </div>
 
-        <div>
-          <Label htmlFor="bathrooms" className="mb-2 block">
-            Number of Bathrooms: {bathrooms}
-          </Label>
-          <Slider
-            id="bathrooms"
-            min={1}
-            max={5}
-            step={1}
-            value={[bathrooms]}
-            onValueChange={(value) => setBathrooms(value[0])}
-            className="mt-2"
-          />
-        </div>
+        {isHourlyService ? (
+          <>
+            <div>
+              <Label htmlFor="workers" className="mb-2 block">
+                Number of Workers: {workers}
+              </Label>
+              <Slider
+                id="workers"
+                min={1}
+                max={5}
+                step={1}
+                value={[workers]}
+                onValueChange={(value) => setWorkers(value[0])}
+                className="mt-2"
+              />
+            </div>
 
-        <div>
-          <Label htmlFor="frequency" className="mb-2 block">Cleaning Frequency</Label>
-          <Select value={frequency} onValueChange={setFrequency}>
-            <SelectTrigger id="frequency">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {frequencies.map((freq) => (
-                <SelectItem key={freq.value} value={freq.value}>
-                  {freq.label} {freq.discount > 0 && `(${freq.discount * 100}% off)`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            <div>
+              <Label htmlFor="hours" className="mb-2 block">
+                Number of Hours: {hours}
+              </Label>
+              <Slider
+                id="hours"
+                min={3}
+                max={8}
+                step={0.5}
+                value={[hours]}
+                onValueChange={(value) => setHours(value[0])}
+                className="mt-2"
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <Label htmlFor="bathrooms" className="mb-2 block">
+                Number of Bathrooms: {bathrooms}
+              </Label>
+              <Slider
+                id="bathrooms"
+                min={1}
+                max={5}
+                step={1}
+                value={[bathrooms]}
+                onValueChange={(value) => setBathrooms(value[0])}
+                className="mt-2"
+              />
+            </div>
 
-        <div className="pt-4 border-t">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-lg font-semibold">Estimated Price:</span>
-            <span className="font-serif text-3xl text-primary">
-              ${estimatedPrice}
-            </span>
+            <div>
+              <Label htmlFor="frequency" className="mb-2 block">Cleaning Frequency</Label>
+              <Select value={frequency} onValueChange={setFrequency}>
+                <SelectTrigger id="frequency">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {frequencies.map((freq) => (
+                    <SelectItem key={freq.value} value={freq.value}>
+                      {freq.label} {freq.discount > 0 && `(${freq.discount * 100}% off)`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
+
+        {serviceType && (
+          <div className="pt-4 border-t">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-lg font-semibold">Estimated Price:</span>
+              <span className="font-serif text-3xl text-primary">
+                ${estimatedPrice}
+              </span>
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              size="lg"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Book Now"}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Final price may vary based on home condition and specific requirements
+            </p>
           </div>
-          <Button 
-            type="submit" 
-            className="w-full" 
-            size="lg"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Sending..." : "Book Now"}
-          </Button>
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            Final price may vary based on home condition and specific requirements
-          </p>
-        </div>
+        )}
       </form>
     </Card>
   );
