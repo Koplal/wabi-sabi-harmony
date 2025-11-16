@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -10,12 +11,14 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const serviceTypes = [
-  { value: "studio", label: "Studio or 1 bedroom", basePrice: 145 },
+  { value: "studio", label: "Studio or 1 bedroom", basePrice: 140 },
   { value: "2bed", label: "2 Bedroom Apartment", basePrice: 175 },
   { value: "3bed", label: "3 bedroom Apartment or Townhome", basePrice: 205 },
+  { value: "2bed-house", label: "2 bedroom house 1000 sq ft-1700 sq ft", basePrice: 220 },
   { value: "3-4house", label: "3 or 4 bedroom House (1700-1999 sq ft)", basePrice: 235 },
   { value: "2000-2499", label: "Between 2000 and 2499 square feet", basePrice: 265 },
   { value: "2500-2999", label: "Between 2500 and 2999 square feet", basePrice: 295 },
@@ -40,6 +43,10 @@ export const PriceEstimator = () => {
   const [bathrooms, setBathrooms] = useState<number>(1);
   const [frequency, setFrequency] = useState<string>("onetime");
   const [estimatedPrice, setEstimatedPrice] = useState<number>(0);
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!serviceType) return;
@@ -63,11 +70,89 @@ export const PriceEstimator = () => {
     setEstimatedPrice(Math.round(price));
   }, [serviceType, bathrooms, frequency]);
 
+  const handleBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!firstName || !lastName || !email || !serviceType) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const serviceLabel = serviceTypes.find(s => s.value === serviceType)?.label;
+      const frequencyLabel = frequencies.find(f => f.value === frequency)?.label;
+
+      const { error } = await supabase.functions.invoke('send-booking-email', {
+        body: {
+          firstName,
+          lastName,
+          email,
+          serviceType: serviceLabel,
+          bathrooms,
+          frequency: frequencyLabel,
+          estimatedPrice
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Booking request sent! We'll contact you shortly.");
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setServiceType("");
+      setBathrooms(1);
+      setFrequency("onetime");
+    } catch (error) {
+      console.error("Error sending booking:", error);
+      toast.error("Failed to send booking request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Card className="p-6 bg-background/95 backdrop-blur-sm">
       <h3 className="font-serif text-2xl mb-6">Get Your Price Estimate</h3>
       
-      <div className="space-y-6">
+      <form onSubmit={handleBooking} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="firstName" className="mb-2 block">First Name</Label>
+            <Input
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="John"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="lastName" className="mb-2 block">Last Name</Label>
+            <Input
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Doe"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="email" className="mb-2 block">Email Address</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="john@example.com"
+            required
+          />
+        </div>
+
         <div>
           <Label htmlFor="service-type" className="mb-2 block">Choose Your Service</Label>
           <Select value={serviceType} onValueChange={setServiceType}>
@@ -97,9 +182,6 @@ export const PriceEstimator = () => {
             onValueChange={(value) => setBathrooms(value[0])}
             className="mt-2"
           />
-          <p className="text-xs text-muted-foreground mt-2">
-            First bathroom included, +$20 for each additional
-          </p>
         </div>
 
         <div>
@@ -118,23 +200,26 @@ export const PriceEstimator = () => {
           </Select>
         </div>
 
-        {serviceType && (
-          <div className="pt-4 border-t">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold">Estimated Price:</span>
-              <span className="font-serif text-3xl text-primary">
-                ${estimatedPrice}
-              </span>
-            </div>
-            <Button asChild className="w-full" size="lg">
-              <Link to="/book">Book Now</Link>
-            </Button>
-            <p className="text-xs text-muted-foreground text-center mt-2">
-              Final price may vary based on home condition and specific requirements
-            </p>
+        <div className="pt-4 border-t">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-lg font-semibold">Estimated Price:</span>
+            <span className="font-serif text-3xl text-primary">
+              ${estimatedPrice}
+            </span>
           </div>
-        )}
-      </div>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            size="lg"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Sending..." : "Book Now"}
+          </Button>
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            Final price may vary based on home condition and specific requirements
+          </p>
+        </div>
+      </form>
     </Card>
   );
 };

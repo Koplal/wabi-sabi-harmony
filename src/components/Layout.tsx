@@ -11,6 +11,7 @@ import { ChevronDown } from "lucide-react";
 const navigation = [
   { name: "The Ritual", href: "/ritual" },
   { name: "Reviews", href: "/reviews" },
+  { name: "Seasoning", href: "/seasoning" },
   { name: "Blog", href: "/blog" },
   { name: "FAQ", href: "/faq" },
   { name: "Careers", href: "/careers" },

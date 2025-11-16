@@ -22,6 +22,7 @@ import August from "./pages/blog/August";
 import September from "./pages/blog/September";
 import October from "./pages/blog/October";
 import November from "./pages/blog/November";
+import Seasoning from "./pages/Seasoning";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/blog/september" element={<September />} />
           <Route path="/blog/october" element={<October />} />
           <Route path="/blog/november" element={<November />} />
+          <Route path="/seasoning" element={<Seasoning />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
