@@ -16,6 +16,12 @@ import Reviews from "./pages/Reviews";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 import Book from "./pages/Book";
+import FAQ from "./pages/FAQ";
+import Blog from "./pages/Blog";
+import August from "./pages/blog/August";
+import September from "./pages/blog/September";
+import October from "./pages/blog/October";
+import November from "./pages/blog/November";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +55,12 @@ const App = () => (
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/book" element={<Book />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/august" element={<August />} />
+          <Route path="/blog/september" element={<September />} />
+          <Route path="/blog/october" element={<October />} />
+          <Route path="/blog/november" element={<November />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
