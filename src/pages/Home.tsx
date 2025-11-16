@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PriceEstimator } from "@/components/PriceEstimator";
 import heroImage from "@/assets/hero-image.jpg";
 import commercialService from "@/assets/commercial-service.jpg";
 import postConstructionService from "@/assets/post-construction-service.jpg";
@@ -10,7 +11,7 @@ const Home = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center">
+      <section className="relative min-h-screen flex items-center justify-center py-20">
         <div
           className="absolute inset-0 z-0"
           style={{
@@ -20,20 +21,27 @@ const Home = () => {
             opacity: 0.4,
           }}
         />
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-6 animate-in fade-in duration-1000">
-            Quiet luxury,<br />immaculately kept.
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-in fade-in duration-1000 delay-200">
-            Mindful cleaning for intentional homes and businesses.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in duration-1000 delay-300">
-            <Button asChild size="lg">
-              <Link to="/book">Book Now</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link to="/services">Explore Services</Link>
-            </Button>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-center lg:text-left">
+              <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-6 animate-in fade-in duration-1000">
+                Quiet luxury,<br />immaculately kept.
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 animate-in fade-in duration-1000 delay-200">
+                Mindful cleaning for intentional homes and businesses.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in duration-1000 delay-300">
+                <Button asChild size="lg">
+                  <Link to="/book">Book Now</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link to="/services">Explore Services</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="animate-in fade-in duration-1000 delay-400">
+              <PriceEstimator />
+            </div>
           </div>
         </div>
       </section>
