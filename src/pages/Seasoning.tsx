@@ -221,6 +221,17 @@ const Seasoning = () => {
           </div>
         </section>
 
+        {/* Fall Pumpkins Link */}
+        <section className="py-12 px-6 lg:px-12 bg-primary/10">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 className="font-serif text-3xl mb-4">Autumn Pumpkin Packages</h2>
+            <p className="text-muted-foreground mb-6">View our curated pumpkin collections for fall</p>
+            <Button asChild size="lg">
+              <Link to="/seasoning/fall-pumpkins">View Pumpkin Packages</Link>
+            </Button>
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
