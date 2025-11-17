@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-professional-welcome-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const ProfessionalWelcome = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'professional-welcome',
+    name: 'The Professional Welcome',
+    price: 799,
+    description: 'Fresh Spring Presentation for Your Business',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

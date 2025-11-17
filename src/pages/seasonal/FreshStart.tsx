@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-fresh-start-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const FreshStart = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'fresh-start',
+    name: 'The Fresh Start',
+    price: 474,
+    description: 'Light and Airy Spring Refresh',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

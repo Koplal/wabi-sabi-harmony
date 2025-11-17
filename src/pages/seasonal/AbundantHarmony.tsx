@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-abundant-harmony-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const AbundantHarmony = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'abundant-harmony',
+    name: 'The Abundant Harmony',
+    price: 899,
+    description: "Celebrate Autumn's Generous Spirit",
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

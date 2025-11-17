@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-grand-celebration-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const GrandCelebration = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'grand-celebration',
+    name: 'The Grand Celebration',
+    price: 1924,
+    description: 'Spectacular Holiday Transformation',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

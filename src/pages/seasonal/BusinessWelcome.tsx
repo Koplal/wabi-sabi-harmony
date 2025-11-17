@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-business-welcome-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const BusinessWelcome = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'business-welcome',
+    name: 'The Business Welcome',
+    price: 799,
+    description: 'Professional Holiday Décor for Your Business',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-summer-storefront-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const SummerStorefront = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'summer-storefront',
+    name: 'The Summer Storefront',
+    price: 799,
+    description: 'Fresh Summer Presentation for Your Business',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

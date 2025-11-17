@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-botanical-estate-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const BotanicalEstate = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'botanical-estate',
+    name: 'The Botanical Estate',
+    price: 1424,
+    description: 'Expansive Spring Garden Aesthetic',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

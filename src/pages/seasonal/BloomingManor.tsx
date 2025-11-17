@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-blooming-manor-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const BloomingManor = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'blooming-manor',
+    name: 'The Blooming Manor',
+    price: 1924,
+    description: 'Grand Spring Transformation',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

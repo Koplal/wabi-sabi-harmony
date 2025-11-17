@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-beachside-manor-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const BeachsideManor = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'beachside-manor',
+    name: 'The Beachside Manor',
+    price: 1424,
+    description: 'Expansive Coastal-Luxe Summer',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

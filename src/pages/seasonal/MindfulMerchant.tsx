@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-mindful-merchant-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const MindfulMerchant = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'mindful-merchant',
+    name: 'The Mindful Merchant',
+    price: 799,
+    description: 'Make Your Business the Heart of Autumn',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

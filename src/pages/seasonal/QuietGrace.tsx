@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-quiet-grace-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const QuietGrace = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'quiet-grace',
+    name: 'The Quiet Grace',
+    price: 399,
+    description: "Find Beauty in Autumn's Imperfection",
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-estate-collection-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const EstateCollection = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'estate-collection',
+    name: 'The Estate Collection',
+    price: 1899,
+    description: 'Where Grandeur Meets Grace',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">
