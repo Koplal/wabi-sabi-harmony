@@ -62,8 +62,12 @@ const FestiveEstate = () => {
                   <div className="text-4xl font-serif mb-2">$1,424</div>
                   <p className="text-muted-foreground">Includes professional installation & lighting</p>
                 </div>
-                <Button size="lg" className="w-full mb-4" disabled>
-                  Sold Out for 2025
+                <Button 
+                  size="lg" 
+                  className="w-full mb-4"
+                  onClick={() => addToCart(packageItem)}
+                >
+                  Add to Cart
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
