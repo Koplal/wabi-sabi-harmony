@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-gathered-abundance-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const GatheredAbundance = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'gathered-abundance',
+    name: 'The Gathered Abundance',
+    price: 1399,
+    description: 'When Autumn Arrives in Full Splendor',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

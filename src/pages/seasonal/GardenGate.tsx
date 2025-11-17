@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-garden-gate-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const GardenGate = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'garden-gate',
+    name: 'The Garden Gate',
+    price: 924,
+    description: 'Abundant Spring Celebration',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">
@@ -51,8 +62,12 @@ const GardenGate = () => {
                   <div className="text-4xl font-serif mb-2">$924</div>
                   <p className="text-muted-foreground">Includes professional installation & design</p>
                 </div>
-                <Button size="lg" className="w-full mb-4" disabled>
-                  Sold Out for 2025
+                <Button 
+                  size="lg" 
+                  className="w-full mb-4"
+                  onClick={() => addToCart(packageItem)}
+                >
+                  Add to Cart
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">

@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-coastal-cottage-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const CoastalCottage = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'coastal-cottage',
+    name: 'The Coastal Cottage',
+    price: 474,
+    description: 'Breezy Beach-Inspired Summer Welcome',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">
@@ -51,8 +62,12 @@ const CoastalCottage = () => {
                   <div className="text-4xl font-serif mb-2">$474</div>
                   <p className="text-muted-foreground">Complete package with installation</p>
                 </div>
-                <Button size="lg" className="w-full mb-4" disabled>
-                  Sold Out for 2025
+                <Button 
+                  size="lg" 
+                  className="w-full mb-4"
+                  onClick={() => addToCart(packageItem)}
+                >
+                  Add to Cart
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
@@ -143,21 +158,63 @@ const CoastalCottage = () => {
                     <h4 className="font-semibold">Post-Season Removal</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and disposal</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'coastal-cottage-removal',
+                      name: 'Post-Season Removal',
+                      price: 99,
+                      description: 'Complete cleanup and disposal',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Planter Display</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Extra coastal plants to enhance display</p>
+                  <p className="text-muted-foreground mb-4">Extra coastal plants to enhance display</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'coastal-cottage-planter',
+                      name: 'Additional Planter Display',
+                      price: 75,
+                      description: 'Extra coastal plants to enhance display',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Ocean-inspired scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Ocean-inspired scent to complement display</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'coastal-cottage-aromatherapy',
+                      name: 'Seasonal Aromatherapy Spray',
+                      price: 35,
+                      description: 'Ocean-inspired scent to complement display',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>

@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-cozy-cabin-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const CozyCabin = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'cozy-cabin',
+    name: 'The Cozy Cabin',
+    price: 474,
+    description: 'Warm Winter Welcome with Natural Elements',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

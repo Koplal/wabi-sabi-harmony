@@ -11,6 +11,7 @@ import budapestImage from "@/assets/pumpkin-grand-budapest-1.jpg";
 import babylonImage from "@/assets/pumpkin-babylon-1.jpg";
 import gatsbyImage from "@/assets/pumpkin-full-gatsby-1.jpg";
 import businessImage from "@/assets/pumpkin-business-stand-1.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const packages = [
   {

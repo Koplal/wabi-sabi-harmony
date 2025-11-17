@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-festive-estate-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const FestiveEstate = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'festive-estate',
+    name: 'The Festive Estate',
+    price: 1424,
+    description: 'Grand Holiday Display for Larger Homes',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">

@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-island-retreat-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const IslandRetreat = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'island-retreat',
+    name: 'The Island Retreat',
+    price: 924,
+    description: 'Relaxed Tropical-Inspired Summer',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">
