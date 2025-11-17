@@ -1,10 +1,29 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import blogHero from "@/assets/blog-hero.jpg";
 
 const February2026 = () => {
   return (
     <Layout>
+      {/* Hero Section */}
+      <section className="relative h-[50vh] flex items-center justify-center mb-12">
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url(${blogHero})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: 0.4,
+          }}
+        />
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+          <h1 className="font-serif text-5xl md:text-7xl">
+            Mindful Living Blog
+          </h1>
+        </div>
+      </section>
+
       <div className="min-h-screen py-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-4xl">
           <Link to="/blog">

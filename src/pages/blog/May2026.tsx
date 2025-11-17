@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import mayHero from "@/assets/may-mindfulness-hero.jpg";
+import blogHero from "@/assets/blog-hero.jpg";
 
 const May2026 = () => {
   return (
@@ -11,7 +11,7 @@ const May2026 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${mayHero})`,
+            backgroundImage: `url(${blogHero})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,
@@ -19,7 +19,7 @@ const May2026 = () => {
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
           <h1 className="font-serif text-5xl md:text-7xl">
-            May Mindfulness
+            Mindful Living Blog
           </h1>
         </div>
       </section>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import ritualHeroV2 from "@/assets/ritual-hero-v2.jpg";
+import blogHero from "@/assets/blog-hero.jpg";
 
 const allBlogArticles = [
   {
@@ -115,8 +115,8 @@ const Blog = () => {
         <section className="relative h-[50vh] flex items-center justify-center">
           <div
             className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `url(${ritualHeroV2})`,
+          style={{
+            backgroundImage: `url(${blogHero})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               opacity: 0.4,
