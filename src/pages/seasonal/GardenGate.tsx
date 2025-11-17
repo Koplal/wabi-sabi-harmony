@@ -160,21 +160,63 @@ const GardenGate = () => {
                     <h4 className="font-semibold">Post-Season Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'garden-gate-removal',
+                      name: 'Post-Season Removal & Composting',
+                      price: 99,
+                      description: 'Complete cleanup and eco-friendly disposal',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Seasonal Wreath</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Extend styling to additional entrances</p>
+                  <p className="text-muted-foreground mb-4">Extend styling to additional entrances</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'garden-gate-wreath',
+                      name: 'Additional Seasonal Wreath',
+                      price: 75,
+                      description: 'Extend styling to additional entrances',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Natural spring scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Natural spring scent to complement your display</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'garden-gate-aromatherapy',
+                      name: 'Seasonal Aromatherapy Spray',
+                      price: 35,
+                      description: 'Natural spring scent to complement your display',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>

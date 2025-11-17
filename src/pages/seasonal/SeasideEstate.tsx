@@ -169,7 +169,11 @@ const SeasideEstate = () => {
                     <h4 className="font-semibold">Post-Season Removal</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and disposal</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'seaside-estate-removal', name: 'Post-Season Removal', price: 99, description: 'Complete cleanup and disposal', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
