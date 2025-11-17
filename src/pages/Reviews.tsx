@@ -4,7 +4,7 @@ import reviewsHero from "@/assets/reviews-hero.jpg";
 const Reviews = () => {
   const reviews = [
     {
-      quote: "Listing went live at 10am and sold in 48 hours. The house felt like a boutique hotel.",
+      quote: "The attention to detail was remarkable. Our home has never looked this pristine.",
       author: "S.K., Uplands"
     },
     {
