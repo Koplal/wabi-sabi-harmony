@@ -58,6 +58,8 @@ import SummerStorefront from "./pages/seasonal/SummerStorefront";
 import KeyTakeaways from "./pages/KeyTakeaways";
 import TermsOfService from "./pages/TermsOfService";
 import ClientAgreement from "./pages/ClientAgreement";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -133,8 +135,8 @@ const App = () => (
           <Route path="/seasoning/the-beachside-manor" element={<BeachsideManor />} />
           <Route path="/seasoning/the-seaside-estate" element={<SeasideEstate />} />
           <Route path="/seasoning/the-summer-storefront" element={<SummerStorefront />} />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/seasoning/summer-serenity" element={<SummerSerenity />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
