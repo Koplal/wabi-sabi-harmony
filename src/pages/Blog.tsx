@@ -4,12 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ritualHeroV2 from "@/assets/ritual-hero-v2.jpg";
 
-const blogArticles = [
+const allBlogArticles = [
   {
     slug: "august-2025",
     title: "August Awakening: Transitioning from Summer's Freedom to Fall's Focus",
     excerpt: "As August unfolds in Victoria, morning mists hint at autumn's approach. Embrace mindful home renewal as we transition from summer's relaxed energy to fall's structure.",
     date: "August 2025",
+    publishDate: new Date(2025, 7, 1), // August 1, 2025
     readTime: "6 min read"
   },
   {
@@ -17,6 +18,7 @@ const blogArticles = [
     title: "Back-to-School Serenity: Creating Calm in September's Chaos",
     excerpt: "September brings the return of routines, homework stations, and packed lunches. Create a home sanctuary that naturally supports learning and growth.",
     date: "September 2025",
+    publishDate: new Date(2025, 8, 1), // September 1, 2025
     readTime: "6 min read"
   },
   {
@@ -24,6 +26,7 @@ const blogArticles = [
     title: "Embracing Autumn's Transition: Your Mindful Fall Cleaning Guide",
     excerpt: "As maple leaves paint Victoria's streets in amber and gold, nature reminds us of the beauty in letting go. Discover autumn cleaning as meditation on transition.",
     date: "October 2025",
+    publishDate: new Date(2025, 9, 1), // October 1, 2025
     readTime: "5 min read"
   },
   {
@@ -31,6 +34,7 @@ const blogArticles = [
     title: "The Gratitude Home: Preparing Thankful Spaces for Connection",
     excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude transforms routine maintenance into mindful practice.",
     date: "November 2025",
+    publishDate: new Date(2025, 10, 1), // November 1, 2025
     readTime: "7 min read"
   },
   {
@@ -38,6 +42,7 @@ const blogArticles = [
     title: "Holiday Harmony: Mindful Cleaning for December's Magic",
     excerpt: "December in Victoria sparkles with boat parades and twinkling lights. Create sacred spaces for memory-making without sacrificing your sanity or environmental values.",
     date: "December 2025",
+    publishDate: new Date(2025, 11, 1), // December 1, 2025
     readTime: "6 min read"
   },
   {
@@ -45,6 +50,7 @@ const blogArticles = [
     title: "The Art of Minimalism: How Less Stuff Means Less Stress",
     excerpt: "New Year, new perspective. As we settle into 2026, many Victorians are embracing minimalism – not as deprivation, but as liberation. Discover why less truly is more.",
     date: "January 2026",
+    publishDate: new Date(2026, 0, 1), // January 1, 2026
     readTime: "5 min read"
   },
   {
@@ -52,6 +58,7 @@ const blogArticles = [
     title: "Love Your Home: Creating Spaces That Nurture Relationships",
     excerpt: "February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms. Explore how cleaning and organizing can deepen our capacity for connection.",
     date: "February 2026",
+    publishDate: new Date(2026, 1, 1), // February 1, 2026
     readTime: "6 min read"
   },
   {
@@ -59,6 +66,7 @@ const blogArticles = [
     title: "Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians",
     excerpt: "As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Your complete guide to sustainable spring cleaning that honors our Island's pristine environment.",
     date: "March 2026",
+    publishDate: new Date(2026, 2, 1), // March 1, 2026
     readTime: "6 min read"
   },
   {
@@ -66,6 +74,7 @@ const blogArticles = [
     title: "Earth Month Excellence: Cleaning with Climate Consciousness",
     excerpt: "April brings Earth Day and a global focus on environmental stewardship. Align your cleaning practices with our planet's needs while maintaining a pristine home.",
     date: "April 2026",
+    publishDate: new Date(2026, 3, 1), // April 1, 2026
     readTime: "7 min read"
   },
   {
@@ -73,6 +82,7 @@ const blogArticles = [
     title: "May Mindfulness: Creating Wellness Sanctuaries for Modern Families",
     excerpt: "May in Victoria blooms with rhododendrons and Mother's Day celebrations. Discover how a clean, organized home supports physical health, mental clarity, and emotional balance.",
     date: "May 2026",
+    publishDate: new Date(2026, 4, 1), // May 1, 2026
     readTime: "7 min read"
   },
   {
@@ -80,6 +90,7 @@ const blogArticles = [
     title: "Pet-Friendly Cleaning: Keeping Your Home Fresh and Your Furry Friends Safe",
     excerpt: "Victoria's pet-loving community knows the joy our four-legged friends bring. Maintain a clean, fresh home while ensuring pet safety with our complete guide.",
     date: "June 2026",
+    publishDate: new Date(2026, 5, 1), // June 1, 2026
     readTime: "7 min read"
   },
   {
@@ -87,11 +98,16 @@ const blogArticles = [
     title: "Summer Sanctuary: Mastering Indoor-Outdoor Living in Victoria",
     excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create seamless indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
     date: "July 2026",
+    publishDate: new Date(2026, 6, 1), // July 1, 2026
     readTime: "8 min read"
   }
 ];
 
 const Blog = () => {
+  // Filter articles to only show published ones
+  const today = new Date();
+  const blogArticles = allBlogArticles.filter(article => article.publishDate <= today);
+
   return (
     <Layout>
       <div className="min-h-screen">
