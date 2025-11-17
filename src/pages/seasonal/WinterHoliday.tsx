@@ -5,6 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import servicesHero from "@/assets/services-hero.jpg";
+import cozyCabinHero from "@/assets/package-cozy-cabin-hero.jpg";
+import winterWonderlandHero from "@/assets/package-winter-wonderland-hero.jpg";
+import festiveEstateHero from "@/assets/package-festive-estate-hero.jpg";
+import grandCelebrationHero from "@/assets/package-grand-celebration-hero.jpg";
+import businessWelcomeHero from "@/assets/package-business-welcome-hero.jpg";
 
 const packages = [
   {
@@ -13,6 +18,7 @@ const packages = [
     basePrice: 349,
     decoratingFee: 125,
     popular: true,
+    image: cozyCabinHero,
     description: "Warm and inviting winter welcome with natural evergreen elements.",
     includes: [
       "Fresh evergreen wreath (24-inch)",
@@ -28,6 +34,7 @@ const packages = [
     price: 924,
     basePrice: 799,
     decoratingFee: 125,
+    image: winterWonderlandHero,
     description: "Elegant frost-inspired display with sophisticated touches.",
     includes: [
       "Premium evergreen wreath (30-inch)",
@@ -45,6 +52,7 @@ const packages = [
     price: 1424,
     basePrice: 1299,
     decoratingFee: 125,
+    image: festiveEstateHero,
     description: "Grand holiday display for larger homes and multi-level entries.",
     includes: [
       "Premium wreath collection (multiple sizes)",
@@ -62,6 +70,7 @@ const packages = [
     price: 1924,
     basePrice: 1799,
     decoratingFee: 125,
+    image: grandCelebrationHero,
     description: "Spectacular holiday transformation for estate-style properties.",
     includes: [
       "Multiple premium wreaths (3+)",
@@ -81,6 +90,7 @@ const packages = [
     basePrice: 799,
     decoratingFee: 0,
     business: true,
+    image: businessWelcomeHero,
     description: "Professional holiday décor to welcome clients and customers.",
     includes: [
       "Commercial-grade wreath (36-inch)",
@@ -149,6 +159,12 @@ const WinterHoliday = () => {
                           Business Package
                         </Badge>
                       )}
+                      <div
+                        className="h-48 bg-cover bg-center"
+                        style={{
+                          backgroundImage: `url(${pkg.image})`,
+                        }}
+                      />
                       <div className="p-6 flex flex-col flex-grow">
                         <h3 className="font-serif text-2xl mb-2">{pkg.name}</h3>
                         <p className="text-muted-foreground text-sm mb-4">

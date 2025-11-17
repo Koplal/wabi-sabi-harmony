@@ -75,7 +75,6 @@ const BusinessWelcome = () => {
                   "Professional installation",
                   "Seasonal consultation",
                   "Brand-aligned design",
-                  "Liability insurance coverage ($2M)",
                   "Flexible installation scheduling",
                   "Mid-season maintenance visit",
                   "Complete removal & cleanup"
@@ -145,8 +144,8 @@ const BusinessWelcome = () => {
                   <p className="text-muted-foreground">Full season (6-8 weeks)</p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-semibold mb-2">Insurance</h4>
-                  <p className="text-muted-foreground">$2M liability coverage included</p>
+                  <h4 className="font-semibold mb-2">Service Area</h4>
+                  <p className="text-muted-foreground">Greater Victoria</p>
                 </Card>
               </div>
             </div>
