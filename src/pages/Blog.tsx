@@ -6,41 +6,6 @@ import ritualHeroV2 from "@/assets/ritual-hero-v2.jpg";
 
 const blogArticles = [
   {
-    slug: "january-2025",
-    title: "The Art of Minimalism: How Less Stuff Means Less Stress",
-    excerpt: "New Year, new perspective. As we settle into 2025, many Victorians are embracing minimalism – not as deprivation, but as liberation. Discover why less truly is more.",
-    date: "January 2025",
-    readTime: "5 min read"
-  },
-  {
-    slug: "february-2025",
-    title: "Love Your Home: Creating Spaces That Nurture Relationships",
-    excerpt: "February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms. Explore how cleaning and organizing can deepen our capacity for connection.",
-    date: "February 2025",
-    readTime: "6 min read"
-  },
-  {
-    slug: "march-2025",
-    title: "Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians",
-    excerpt: "As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Your complete guide to sustainable spring cleaning that honors our Island's pristine environment.",
-    date: "March 2025",
-    readTime: "6 min read"
-  },
-  {
-    slug: "april-2025",
-    title: "Earth Month Excellence: Cleaning with Climate Consciousness",
-    excerpt: "April brings Earth Day and a global focus on environmental stewardship. Align your cleaning practices with our planet's needs while maintaining a pristine home.",
-    date: "April 2025",
-    readTime: "7 min read"
-  },
-  {
-    slug: "may-2025",
-    title: "May Mindfulness: Creating Wellness Sanctuaries for Modern Families",
-    excerpt: "May in Victoria blooms with rhododendrons and Mother's Day celebrations. Discover how a clean, organized home supports physical health, mental clarity, and emotional balance.",
-    date: "May 2025",
-    readTime: "7 min read"
-  },
-  {
     slug: "august-2025",
     title: "August Awakening: Transitioning from Summer's Freedom to Fall's Focus",
     excerpt: "As August unfolds in Victoria, morning mists hint at autumn's approach. Embrace mindful home renewal as we transition from summer's relaxed energy to fall's structure.",
@@ -74,6 +39,55 @@ const blogArticles = [
     excerpt: "December in Victoria sparkles with boat parades and twinkling lights. Create sacred spaces for memory-making without sacrificing your sanity or environmental values.",
     date: "December 2025",
     readTime: "6 min read"
+  },
+  {
+    slug: "january-2026",
+    title: "The Art of Minimalism: How Less Stuff Means Less Stress",
+    excerpt: "New Year, new perspective. As we settle into 2026, many Victorians are embracing minimalism – not as deprivation, but as liberation. Discover why less truly is more.",
+    date: "January 2026",
+    readTime: "5 min read"
+  },
+  {
+    slug: "february-2026",
+    title: "Love Your Home: Creating Spaces That Nurture Relationships",
+    excerpt: "February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms. Explore how cleaning and organizing can deepen our capacity for connection.",
+    date: "February 2026",
+    readTime: "6 min read"
+  },
+  {
+    slug: "march-2026",
+    title: "Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians",
+    excerpt: "As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Your complete guide to sustainable spring cleaning that honors our Island's pristine environment.",
+    date: "March 2026",
+    readTime: "6 min read"
+  },
+  {
+    slug: "april-2026",
+    title: "Earth Month Excellence: Cleaning with Climate Consciousness",
+    excerpt: "April brings Earth Day and a global focus on environmental stewardship. Align your cleaning practices with our planet's needs while maintaining a pristine home.",
+    date: "April 2026",
+    readTime: "7 min read"
+  },
+  {
+    slug: "may-2026",
+    title: "May Mindfulness: Creating Wellness Sanctuaries for Modern Families",
+    excerpt: "May in Victoria blooms with rhododendrons and Mother's Day celebrations. Discover how a clean, organized home supports physical health, mental clarity, and emotional balance.",
+    date: "May 2026",
+    readTime: "7 min read"
+  },
+  {
+    slug: "june-2026",
+    title: "Pet-Friendly Cleaning: Keeping Your Home Fresh and Your Furry Friends Safe",
+    excerpt: "Victoria's pet-loving community knows the joy our four-legged friends bring. Maintain a clean, fresh home while ensuring pet safety with our complete guide.",
+    date: "June 2026",
+    readTime: "7 min read"
+  },
+  {
+    slug: "july-2026",
+    title: "Summer Sanctuary: Mastering Indoor-Outdoor Living in Victoria",
+    excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create seamless indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
+    date: "July 2026",
+    readTime: "8 min read"
   }
 ];
 

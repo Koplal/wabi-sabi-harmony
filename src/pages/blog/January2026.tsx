@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 
-const January2025 = () => {
+const January2026 = () => {
   return (
     <Layout>
       <div className="min-h-screen py-20 px-6 lg:px-12">
@@ -17,10 +17,10 @@ const January2025 = () => {
             <h1 className="font-serif text-4xl md:text-5xl mb-4">
               The Art of Minimalism: How Less Stuff Means Less Stress
             </h1>
-            <p className="text-muted-foreground mb-8">Published: January 2025</p>
+            <p className="text-muted-foreground mb-8">Published: January 2026</p>
 
             <p className="lead">
-              New Year, new perspective. As we settle into 2025, many Victorians are embracing minimalism – not as deprivation, but as liberation. At Wabi Sabi Services, we've witnessed firsthand how simplified spaces transform lives. Here's why less truly is more.
+              New Year, new perspective. As we settle into 2026, many Victorians are embracing minimalism – not as deprivation, but as liberation. At Wabi Sabi Services, we've witnessed firsthand how simplified spaces transform lives. Here's why less truly is more.
             </p>
 
             <h2>Understanding Minimalism Through Wabi-Sabi</h2>
@@ -104,7 +104,7 @@ const January2025 = () => {
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">Ready to start your minimalist journey?</h3>
               <p className="mb-6">
-                At Wabi Sabi Services, we honor the beauty of simplified spaces. Start 2025 with clarity.
+                At Wabi Sabi Services, we honor the beauty of simplified spaces. Start 2026 with clarity.
               </p>
               <Link to="/book">
                 <Button size="lg">Book Your Minimalist Clean</Button>
@@ -117,4 +117,4 @@ const January2025 = () => {
   );
 };
 
-export default January2025;
+export default January2026;

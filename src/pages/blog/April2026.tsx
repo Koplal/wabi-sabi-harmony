@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 
-const April2025 = () => {
+const April2026 = () => {
   return (
     <Layout>
       <div className="min-h-screen py-20 px-6 lg:px-12">
@@ -17,7 +17,7 @@ const April2025 = () => {
             <h1 className="font-serif text-4xl md:text-5xl mb-4">
               Earth Month Excellence: Cleaning with Climate Consciousness
             </h1>
-            <p className="text-muted-foreground mb-8">Published: April 2025</p>
+            <p className="text-muted-foreground mb-8">Published: April 2026</p>
 
             <p className="lead">
               April brings Earth Day and a global focus on environmental stewardship. Here in Victoria, where ocean meets forest and sustainability shapes our culture, this month offers the perfect opportunity to align our cleaning practices with our planet's needs.
@@ -152,4 +152,4 @@ const April2025 = () => {
   );
 };
 
-export default April2025;
+export default April2026;

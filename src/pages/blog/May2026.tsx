@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 
-const May2025 = () => {
+const May2026 = () => {
   return (
     <Layout>
       <div className="min-h-screen py-20 px-6 lg:px-12">
@@ -17,7 +17,7 @@ const May2025 = () => {
             <h1 className="font-serif text-4xl md:text-5xl mb-4">
               May Mindfulness: Creating Wellness Sanctuaries for Modern Families
             </h1>
-            <p className="text-muted-foreground mb-8">Published: May 2025</p>
+            <p className="text-muted-foreground mb-8">Published: May 2026</p>
 
             <p className="lead">
               May in Victoria blooms with rhododendrons, Mother's Day celebrations, and the promise of summer. It's a month that honors nurturing in all forms. At Wabi Sabi Services, we believe a clean, organized home is fundamental to family wellness.
@@ -149,4 +149,4 @@ const May2025 = () => {
   );
 };
 
-export default May2025;
+export default May2026;
