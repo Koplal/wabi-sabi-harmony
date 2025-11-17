@@ -1,0 +1,182 @@
+import { Layout } from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { Check } from "lucide-react";
+import heroImage from "@/assets/package-grand-celebration-hero.jpg";
+
+const GrandCelebration = () => {
+  return (
+    <Layout>
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <section className="relative h-[70vh] flex items-center justify-center">
+          <div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `url(${heroImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              opacity: 0.5,
+            }}
+          />
+          <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+            <h1 className="font-serif text-5xl md:text-7xl mb-4">
+              The Grand Celebration
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-6">
+              Spectacular Holiday Transformation
+            </p>
+            <p className="text-lg text-muted-foreground">
+              Estate-level artistry. Breathtaking beauty. Mindfully magnificent.
+            </p>
+          </div>
+        </section>
+
+        {/* Package Details */}
+        <section className="py-20 px-6 lg:px-12">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid md:grid-cols-2 gap-12 mb-16">
+              <div>
+                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Holiday Artistry</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-4">
+                  The Grand Celebration represents the zenith of our winter styling - a masterwork designed for estate-style properties. This comprehensive installation transforms your home into a seasonal landmark, combining extensive greenery, professional lighting, and luxurious details.
+                </p>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Created for those who host grand celebrations and appreciate the impact of museum-quality holiday design. Each element is precisely placed through collaboration with our design team to create a cohesive, breathtaking display that honors both tradition and your home's unique character.
+                </p>
+              </div>
+              <Card className="p-8">
+                <div className="mb-6">
+                  <div className="text-4xl font-serif mb-2">$1,924</div>
+                  <p className="text-muted-foreground">Complete concierge service with full documentation</p>
+                </div>
+                <Button size="lg" className="w-full mb-4" disabled>
+                  Sold Out for 2025
+                </Button>
+                <Link to="/contact">
+                  <Button variant="outline" size="lg" className="w-full">
+                    Join 2026 Waitlist
+                  </Button>
+                </Link>
+              </Card>
+            </div>
+
+            {/* What's Included */}
+            <div className="mb-16">
+              <h3 className="font-serif text-3xl mb-8">What's Included</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                {[
+                  "Multiple premium wreaths (3+, custom-designed)",
+                  "Extensive garland installation (up to 50 feet)",
+                  "12 Luxury planter arrangements",
+                  "Professional light installation (up to 500 bulbs)",
+                  "Natural & ornamental accents throughout",
+                  "Elegant ribbon & bow details",
+                  "16 LED candles & lanterns",
+                  "Topiary accents (2, premium quality)",
+                  "Complete design & installation",
+                  "Dedicated project manager",
+                  "2-week design consultation process",
+                  "Weekly maintenance visits",
+                  "Professional photo & video documentation",
+                  "Opening ceremony with seasonal blessing",
+                  "Pressed botanical keepsake"
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                    <span className="text-muted-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Design Philosophy */}
+            <div className="mb-16">
+              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <div className="grid md:grid-cols-2 gap-8">
+                <Card className="p-6">
+                  <h4 className="font-serif text-xl mb-3">Ichigo ichie</h4>
+                  <p className="text-muted-foreground">
+                    Once in a lifetime - treasure this unique moment
+                  </p>
+                </Card>
+                <Card className="p-6">
+                  <h4 className="font-serif text-xl mb-3">Mono no aware</h4>
+                  <p className="text-muted-foreground">
+                    Pathos of things - appreciating fleeting beauty
+                  </p>
+                </Card>
+                <Card className="p-6">
+                  <h4 className="font-serif text-xl mb-3">Gei</h4>
+                  <p className="text-muted-foreground">
+                    Artistic accomplishment - mastery in execution
+                  </p>
+                </Card>
+                <Card className="p-6">
+                  <h4 className="font-serif text-xl mb-3">Kodawari</h4>
+                  <p className="text-muted-foreground">
+                    Uncompromising dedication - pursuit of perfection
+                  </p>
+                </Card>
+              </div>
+            </div>
+
+            {/* Package Features */}
+            <div className="mb-16">
+              <h3 className="font-serif text-3xl mb-8">The Complete Estate Experience</h3>
+              <div className="grid md:grid-cols-4 gap-6">
+                <Card className="p-6">
+                  <h4 className="font-semibold mb-2">Discovery Phase</h4>
+                  <p className="text-muted-foreground text-sm">2 weeks before installation</p>
+                </Card>
+                <Card className="p-6">
+                  <h4 className="font-semibold mb-2">Design Phase</h4>
+                  <p className="text-muted-foreground text-sm">1 week before installation</p>
+                </Card>
+                <Card className="p-6">
+                  <h4 className="font-semibold mb-2">Installation</h4>
+                  <p className="text-muted-foreground text-sm">Full day with 4-person team</p>
+                </Card>
+                <Card className="p-6">
+                  <h4 className="font-semibold mb-2">Maintenance</h4>
+                  <p className="text-muted-foreground text-sm">Weekly throughout season</p>
+                </Card>
+              </div>
+            </div>
+
+            {/* Optional Add-ons */}
+            <div>
+              <h3 className="font-serif text-3xl mb-8">Optional Add-ons</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold">Post-Holiday Removal & Composting</h4>
+                    <span className="text-2xl font-serif">$99</span>
+                  </div>
+                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
+                </Card>
+                <Card className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold">Additional Premium Wreath</h4>
+                    <span className="text-2xl font-serif">$75</span>
+                  </div>
+                  <p className="text-muted-foreground">Extend styling to additional entrances</p>
+                </Card>
+                <Card className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
+                    <span className="text-2xl font-serif">$35</span>
+                  </div>
+                  <p className="text-muted-foreground">Natural winter scent to complement your display</p>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </Layout>
+  );
+};
+
+export default GrandCelebration;

@@ -134,49 +134,52 @@ const WinterHoliday = () => {
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {packages.map((pkg) => (
-                <Card key={pkg.name} className="overflow-hidden flex flex-col relative">
-                  {pkg.popular && (
-                    <Badge className="absolute top-4 left-4 z-10 bg-primary">
-                      Most Popular
-                    </Badge>
-                  )}
-                  {pkg.business && (
-                    <Badge variant="secondary" className="absolute top-4 left-4 z-10">
-                      Business Package
-                    </Badge>
-                  )}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="font-serif text-2xl mb-2">{pkg.name}</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      {pkg.description}
-                    </p>
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-serif text-3xl">${pkg.price}</span>
-                        <span className="text-sm text-muted-foreground">CAD</span>
-                      </div>
-                      {pkg.decoratingFee > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Includes ${pkg.decoratingFee} decorating fee
-                        </p>
+              {packages.map((pkg) => {
+                const packageSlug = pkg.name.toLowerCase().replace(/\s+/g, '-');
+                return (
+                  <Link key={pkg.name} to={`/seasoning/${packageSlug}`}>
+                    <Card className="overflow-hidden flex flex-col relative h-full hover:shadow-lg transition-shadow">
+                      {pkg.popular && (
+                        <Badge className="absolute top-4 left-4 z-10 bg-primary">
+                          Most Popular
+                        </Badge>
                       )}
-                    </div>
-                    <div className="space-y-2 mb-6 flex-grow">
-                      <p className="text-sm font-semibold mb-3">What's Included:</p>
-                      {pkg.includes.map((item, index) => (
-                        <div key={index} className="flex items-start gap-2 text-sm">
-                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span className="text-muted-foreground">{item}</span>
+                      {pkg.business && (
+                        <Badge variant="secondary" className="absolute top-4 left-4 z-10">
+                          Business Package
+                        </Badge>
+                      )}
+                      <div className="p-6 flex flex-col flex-grow">
+                        <h3 className="font-serif text-2xl mb-2">{pkg.name}</h3>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          {pkg.description}
+                        </p>
+                        <div className="mb-4">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-serif text-3xl">${pkg.price}</span>
+                            <span className="text-sm text-muted-foreground">CAD</span>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/contact">Book Package</Link>
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                        <div className="space-y-2 mb-6 flex-grow">
+                          <p className="text-sm font-semibold mb-3">What's Included:</p>
+                          {pkg.includes.slice(0, 5).map((item, index) => (
+                            <div key={index} className="flex items-start gap-2 text-sm">
+                              <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                              <span className="text-muted-foreground">{item}</span>
+                            </div>
+                          ))}
+                          {pkg.includes.length > 5 && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              +{pkg.includes.length - 5} more items...
+                            </p>
+                          )}
+                        </div>
+                        <Button className="w-full">View Package Details</Button>
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
