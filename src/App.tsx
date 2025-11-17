@@ -38,6 +38,11 @@ import GatheredAbundance from "./pages/seasonal/GatheredAbundance";
 import EstateCollection from "./pages/seasonal/EstateCollection";
 import MindfulMerchant from "./pages/seasonal/MindfulMerchant";
 import WinterHoliday from "./pages/seasonal/WinterHoliday";
+import CozyCabin from "./pages/seasonal/CozyCabin";
+import WinterWonderland from "./pages/seasonal/WinterWonderland";
+import FestiveEstate from "./pages/seasonal/FestiveEstate";
+import GrandCelebration from "./pages/seasonal/GrandCelebration";
+import BusinessWelcome from "./pages/seasonal/BusinessWelcome";
 import SpringRefresh from "./pages/seasonal/SpringRefresh";
 import SummerSerenity from "./pages/seasonal/SummerSerenity";
 import NotFound from "./pages/NotFound";
@@ -95,6 +100,11 @@ const App = () => (
           <Route path="/seasoning/estate-collection" element={<EstateCollection />} />
           <Route path="/seasoning/mindful-merchant" element={<MindfulMerchant />} />
           <Route path="/seasoning/winter-holiday" element={<WinterHoliday />} />
+          <Route path="/seasoning/the-cozy-cabin" element={<CozyCabin />} />
+          <Route path="/seasoning/the-winter-wonderland" element={<WinterWonderland />} />
+          <Route path="/seasoning/the-festive-estate" element={<FestiveEstate />} />
+          <Route path="/seasoning/the-grand-celebration" element={<GrandCelebration />} />
+          <Route path="/seasoning/the-business-welcome" element={<BusinessWelcome />} />
           <Route path="/seasoning/spring-refresh" element={<SpringRefresh />} />
           <Route path="/seasoning/summer-serenity" element={<SummerSerenity />} />
           <Route path="*" element={<NotFound />} />
