@@ -55,6 +55,9 @@ import IslandRetreat from "./pages/seasonal/IslandRetreat";
 import BeachsideManor from "./pages/seasonal/BeachsideManor";
 import SeasideEstate from "./pages/seasonal/SeasideEstate";
 import SummerStorefront from "./pages/seasonal/SummerStorefront";
+import KeyTakeaways from "./pages/KeyTakeaways";
+import TermsOfService from "./pages/TermsOfService";
+import ClientAgreement from "./pages/ClientAgreement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -89,6 +92,9 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/book" element={<Book />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/key-takeaways" element={<KeyTakeaways />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/client-agreement" element={<ClientAgreement />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/august-2025" element={<August2025 />} />
           <Route path="/blog/september-2025" element={<September2025 />} />

@@ -6,6 +6,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import faqHero from "@/assets/faq-hero.jpg";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FileText, ScrollText, ClipboardCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FAQ = () => {
   return (
@@ -325,6 +329,67 @@ const FAQ = () => {
                 </AccordionItem>
               </div>
             </Accordion>
+
+            {/* Important Documents Section */}
+            <div className="mt-16 pt-12 border-t">
+              <h2 className="font-serif text-3xl mb-4 text-center">Important Documents & Resources</h2>
+              <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Learn more about our services, policies, and commitments through these comprehensive documents.
+              </p>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <FileText className="h-6 w-6 text-primary" />
+                      <CardTitle>Key Takeaways</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Discover what makes Wabi Sabi Services unique - our philosophy, values, and commitment to eco-luxury cleaning.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/key-takeaways">
+                      <Button className="w-full">View Key Takeaways</Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <ClipboardCheck className="h-6 w-6 text-primary" />
+                      <CardTitle>Client Agreement</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Review our service guidelines, scheduling policies, and what to expect when working with us.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/client-agreement">
+                      <Button className="w-full">View Client Agreement</Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <ScrollText className="h-6 w-6 text-primary" />
+                      <CardTitle>Terms of Service</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Read our complete terms and conditions, including pricing, cancellation policies, and legal information.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/terms-of-service">
+                      <Button className="w-full">View Terms of Service</Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         </section>
       </div>
