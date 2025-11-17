@@ -150,61 +150,63 @@ const FallPumpkins = () => {
           <div className="container mx-auto max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {packages.map((pkg) => (
-                <Card key={pkg.name} className="overflow-hidden flex flex-col relative">
-                  {pkg.soldOut && (
-                    <Badge variant="destructive" className="absolute top-4 right-4 z-10">
-                      Sold Out
-                    </Badge>
-                  )}
-                  {pkg.popular && (
-                    <Badge className="absolute top-4 left-4 z-10 bg-primary">
-                      Most Popular
-                    </Badge>
-                  )}
-                  {pkg.business && (
-                    <Badge variant="secondary" className="absolute top-4 left-4 z-10">
-                      Business Package
-                    </Badge>
-                  )}
-                  <div className="relative h-64 overflow-hidden">
-                    <img
-                      src={pkg.image}
-                      alt={pkg.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="font-serif text-2xl mb-2">{pkg.name}</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      {pkg.description}
-                    </p>
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-serif text-3xl">${pkg.price}</span>
-                        <span className="text-sm text-muted-foreground">CAD</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Complete package with installation
+                <Link key={pkg.name} to={`/seasoning/${pkg.slug}`}>
+                  <Card className="overflow-hidden flex flex-col relative hover:shadow-xl transition-shadow cursor-pointer">
+                    {pkg.soldOut && (
+                      <Badge variant="destructive" className="absolute top-4 right-4 z-10">
+                        Sold Out
+                      </Badge>
+                    )}
+                    {pkg.popular && (
+                      <Badge className="absolute top-4 left-4 z-10 bg-primary">
+                        Most Popular
+                      </Badge>
+                    )}
+                    {pkg.business && (
+                      <Badge variant="secondary" className="absolute top-4 left-4 z-10">
+                        Business Package
+                      </Badge>
+                    )}
+                    <div className="relative h-64 overflow-hidden">
+                      <img
+                        src={pkg.image}
+                        alt={pkg.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="font-serif text-2xl mb-2">{pkg.name}</h3>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        {pkg.description}
                       </p>
-                    </div>
-                    <div className="space-y-2 mb-6 flex-grow">
-                      <p className="text-sm font-semibold mb-3">What's Included:</p>
-                      {pkg.includes.map((item, index) => (
-                        <div key={index} className="flex items-start gap-2 text-sm">
-                          <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          <span className="text-muted-foreground">{item}</span>
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-serif text-3xl">${pkg.price}</span>
+                          <span className="text-sm text-muted-foreground">CAD</span>
                         </div>
-                      ))}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Complete package with installation
+                        </p>
+                      </div>
+                      <div className="space-y-2 mb-6 flex-grow">
+                        <p className="text-sm font-semibold mb-3">What's Included:</p>
+                        {pkg.includes.map((item, index) => (
+                          <div key={index} className="flex items-start gap-2 text-sm">
+                            <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <Button 
+                        disabled 
+                        className="w-full" 
+                        variant={pkg.soldOut ? "secondary" : "default"}
+                      >
+                        {pkg.soldOut ? "Sold Out for 2024" : "Reserve Package"}
+                      </Button>
                     </div>
-                    <Button 
-                      disabled 
-                      className="w-full" 
-                      variant={pkg.soldOut ? "secondary" : "default"}
-                    >
-                      {pkg.soldOut ? "Sold Out for 2024" : "Reserve Package"}
-                    </Button>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
