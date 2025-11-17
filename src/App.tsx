@@ -50,6 +50,11 @@ import BotanicalEstate from "./pages/seasonal/BotanicalEstate";
 import BloomingManor from "./pages/seasonal/BloomingManor";
 import ProfessionalWelcome from "./pages/seasonal/ProfessionalWelcome";
 import SummerSerenity from "./pages/seasonal/SummerSerenity";
+import CoastalCottage from "./pages/seasonal/CoastalCottage";
+import IslandRetreat from "./pages/seasonal/IslandRetreat";
+import BeachsideManor from "./pages/seasonal/BeachsideManor";
+import SeasideEstate from "./pages/seasonal/SeasideEstate";
+import SummerStorefront from "./pages/seasonal/SummerStorefront";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -117,6 +122,12 @@ const App = () => (
           <Route path="/seasoning/the-blooming-manor" element={<BloomingManor />} />
           <Route path="/seasoning/the-professional-welcome" element={<ProfessionalWelcome />} />
           <Route path="/seasoning/summer-serenity" element={<SummerSerenity />} />
+          <Route path="/seasoning/the-coastal-cottage" element={<CoastalCottage />} />
+          <Route path="/seasoning/the-island-retreat" element={<IslandRetreat />} />
+          <Route path="/seasoning/the-beachside-manor" element={<BeachsideManor />} />
+          <Route path="/seasoning/the-seaside-estate" element={<SeasideEstate />} />
+          <Route path="/seasoning/the-summer-storefront" element={<SummerStorefront />} />
+          <Route path="*" element={<NotFound />} />
           <Route path="/seasoning/summer-serenity" element={<SummerSerenity />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
