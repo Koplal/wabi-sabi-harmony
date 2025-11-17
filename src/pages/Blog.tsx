@@ -6,31 +6,73 @@ import ritualHeroV2 from "@/assets/ritual-hero-v2.jpg";
 
 const blogArticles = [
   {
-    slug: "august",
-    title: "The Hidden Health Benefits of a Clean Home: What Science Tells Us",
-    excerpt: "As we embrace the colder months in Victoria, we spend more time indoors, making the cleanliness of our living spaces more important than ever. Discover the science-backed health advantages of maintaining a pristine living environment.",
-    date: "August 2024",
+    slug: "january-2025",
+    title: "The Art of Minimalism: How Less Stuff Means Less Stress",
+    excerpt: "New Year, new perspective. As we settle into 2025, many Victorians are embracing minimalism – not as deprivation, but as liberation. Discover why less truly is more.",
+    date: "January 2025",
     readTime: "5 min read"
   },
   {
-    slug: "september",
-    title: "Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians",
-    excerpt: "As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Here's your complete guide to sustainable spring cleaning that honors our Island's pristine environment.",
-    date: "September 2024",
+    slug: "february-2025",
+    title: "Love Your Home: Creating Spaces That Nurture Relationships",
+    excerpt: "February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms. Explore how cleaning and organizing can deepen our capacity for connection.",
+    date: "February 2025",
     readTime: "6 min read"
   },
   {
-    slug: "october",
-    title: "The Art of Minimalism: How Less Stuff Means Less Stress",
-    excerpt: "Many Victorians are embracing minimalism – not as deprivation, but as liberation. At Wabi Sabi Services, we've witnessed firsthand how simplified spaces transform lives. Here's why less truly is more.",
-    date: "October 2024",
+    slug: "march-2025",
+    title: "Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians",
+    excerpt: "As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Your complete guide to sustainable spring cleaning that honors our Island's pristine environment.",
+    date: "March 2025",
+    readTime: "6 min read"
+  },
+  {
+    slug: "april-2025",
+    title: "Earth Month Excellence: Cleaning with Climate Consciousness",
+    excerpt: "April brings Earth Day and a global focus on environmental stewardship. Align your cleaning practices with our planet's needs while maintaining a pristine home.",
+    date: "April 2025",
+    readTime: "7 min read"
+  },
+  {
+    slug: "may-2025",
+    title: "May Mindfulness: Creating Wellness Sanctuaries for Modern Families",
+    excerpt: "May in Victoria blooms with rhododendrons and Mother's Day celebrations. Discover how a clean, organized home supports physical health, mental clarity, and emotional balance.",
+    date: "May 2025",
+    readTime: "7 min read"
+  },
+  {
+    slug: "august-2025",
+    title: "August Awakening: Transitioning from Summer's Freedom to Fall's Focus",
+    excerpt: "As August unfolds in Victoria, morning mists hint at autumn's approach. Embrace mindful home renewal as we transition from summer's relaxed energy to fall's structure.",
+    date: "August 2025",
+    readTime: "6 min read"
+  },
+  {
+    slug: "september-2025",
+    title: "Back-to-School Serenity: Creating Calm in September's Chaos",
+    excerpt: "September brings the return of routines, homework stations, and packed lunches. Create a home sanctuary that naturally supports learning and growth.",
+    date: "September 2025",
+    readTime: "6 min read"
+  },
+  {
+    slug: "october-2025",
+    title: "Embracing Autumn's Transition: Your Mindful Fall Cleaning Guide",
+    excerpt: "As maple leaves paint Victoria's streets in amber and gold, nature reminds us of the beauty in letting go. Discover autumn cleaning as meditation on transition.",
+    date: "October 2025",
     readTime: "5 min read"
   },
   {
-    slug: "november",
-    title: "Living Clean with Furry Friends: A Pet Owner's Guide to Pristine Homes",
-    excerpt: "As fellow pet lovers in Victoria, we understand the joy our furry companions bring – and the unique cleaning challenges they present. Here's how to maintain a spotless home while living with pets.",
-    date: "November 2024",
+    slug: "november-2025",
+    title: "The Gratitude Home: Preparing Thankful Spaces for Connection",
+    excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude transforms routine maintenance into mindful practice.",
+    date: "November 2025",
+    readTime: "7 min read"
+  },
+  {
+    slug: "december-2025",
+    title: "Holiday Harmony: Mindful Cleaning for December's Magic",
+    excerpt: "December in Victoria sparkles with boat parades and twinkling lights. Create sacred spaces for memory-making without sacrificing your sanity or environmental values.",
+    date: "December 2025",
     readTime: "6 min read"
   }
 ];
