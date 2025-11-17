@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const navigation = [
   { name: "The Ritual", href: "/ritual" },
@@ -27,6 +28,7 @@ const servicesLinks = [
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const { itemCount } = useCart();
 
   return (
     <div className="min-h-screen">
@@ -81,6 +83,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   {item.name}
                 </Link>
               ))}
+
+              <Link to="/cart" className="relative">
+                <Button variant="ghost" size="sm" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                      {itemCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
 
               <Button asChild size="sm">
                 <Link to="/book">Book Now</Link>

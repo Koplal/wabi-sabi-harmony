@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import heroImage from "@/assets/package-winter-wonderland-hero.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const WinterWonderland = () => {
+  const { addToCart } = useCart();
+
+  const packageItem = {
+    id: 'winter-wonderland',
+    name: 'The Winter Wonderland',
+    price: 924,
+    description: 'Elegant Frost-Inspired Sophistication',
+    image: heroImage,
+  };
+
   return (
     <Layout>
       <div className="min-h-screen">
@@ -51,8 +62,12 @@ const WinterWonderland = () => {
                   <div className="text-4xl font-serif mb-2">$924</div>
                   <p className="text-muted-foreground">Includes professional installation & lighting</p>
                 </div>
-                <Button size="lg" className="w-full mb-4" disabled>
-                  Sold Out for 2025
+                <Button 
+                  size="lg" 
+                  className="w-full mb-4"
+                  onClick={() => addToCart(packageItem)}
+                >
+                  Add to Cart
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
