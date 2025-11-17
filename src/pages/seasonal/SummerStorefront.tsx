@@ -185,14 +185,22 @@ const SummerStorefront = () => {
                     <h4 className="font-semibold">Additional Planter Display</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Extend styling for larger storefronts</p>
+                  <p className="text-muted-foreground mb-4">Extend styling for larger storefronts</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'summer-storefront-planter', name: 'Additional Planter Display', price: 75, description: 'Extend styling for larger storefronts', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Ocean breeze scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Ocean breeze scent to complement display</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'summer-storefront-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Ocean breeze scent to complement display', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>
