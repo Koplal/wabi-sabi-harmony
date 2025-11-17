@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import servicesHero from "@/assets/services-hero.jpg";
+import budapestImage from "@/assets/pumpkin-grand-budapest-1.jpg";
+import cozyCabinHero from "@/assets/package-cozy-cabin-hero.jpg";
+import freshStartHero from "@/assets/package-fresh-start-hero.jpg";
+import coastalCottageHero from "@/assets/package-coastal-cottage-hero.jpg";
 
 const Seasoning = () => {
   return (
@@ -45,122 +49,154 @@ const Seasoning = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               {/* Fall */}
-              <Card className="p-8 group cursor-pointer hover:shadow-lg transition-shadow">
+              <Card className="overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow">
                 <Link to="/seasoning/fall-pumpkins">
-                  <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Autumn Warmth</h3>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">
-                    Welcome the season of harvest with thoughtful touches that celebrate nature's abundance. 
-                    We curate displays that bring the warmth of autumn indoors.
-                  </p>
-                  <ul className="space-y-3 text-muted-foreground mb-6">
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Elegant pumpkin arrangements in muted, natural tones</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Seasonal foliage displays with maple leaves and branches</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Subtle autumn wreaths for doors and mantels</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Cozy table settings with natural elements</span>
-                    </li>
-                  </ul>
-                  <Button variant="outline">View Pumpkin Packages</Button>
+                  <div
+                    className="h-48 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${budapestImage})`,
+                    }}
+                  />
+                  <div className="p-8">
+                    <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Autumn Warmth</h3>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                      Welcome the season of harvest with thoughtful touches that celebrate nature's abundance. 
+                      We curate displays that bring the warmth of autumn indoors.
+                    </p>
+                    <ul className="space-y-3 text-muted-foreground mb-6">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Elegant pumpkin arrangements in muted, natural tones</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Seasonal foliage displays with maple leaves and branches</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Subtle autumn wreaths for doors and mantels</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Cozy table settings with natural elements</span>
+                      </li>
+                    </ul>
+                    <Button variant="outline">View Pumpkin Packages</Button>
+                  </div>
                 </Link>
               </Card>
 
               {/* Winter/Christmas */}
-              <Card className="p-8 group cursor-pointer hover:shadow-lg transition-shadow">
+              <Card className="overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow">
                 <Link to="/seasoning/winter-holiday">
-                  <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Winter Elegance</h3>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">
-                    Transform your home into a serene winter sanctuary with sophisticated holiday touches 
-                    that honor tradition while embracing minimalist beauty.
-                  </p>
-                  <ul className="space-y-3 text-muted-foreground mb-6">
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Handcrafted wreaths with natural evergreen and eucalyptus</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Thoughtfully placed garlands and greenery</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Elegant candle arrangements for warm ambiance</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Curated ornamental displays in muted metallics</span>
-                    </li>
-                  </ul>
-                  <Button variant="outline">View Winter Packages</Button>
+                  <div
+                    className="h-48 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${cozyCabinHero})`,
+                    }}
+                  />
+                  <div className="p-8">
+                    <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Winter Elegance</h3>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                      Transform your home into a serene winter sanctuary with sophisticated holiday touches 
+                      that honor tradition while embracing minimalist beauty.
+                    </p>
+                    <ul className="space-y-3 text-muted-foreground mb-6">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Handcrafted wreaths with natural evergreen and eucalyptus</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Thoughtfully placed garlands and greenery</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Elegant candle arrangements for warm ambiance</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Curated ornamental displays in muted metallics</span>
+                      </li>
+                    </ul>
+                    <Button variant="outline">View Winter Packages</Button>
+                  </div>
                 </Link>
               </Card>
 
               {/* Spring */}
-              <Card className="p-8 group cursor-pointer hover:shadow-lg transition-shadow">
+              <Card className="overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow">
                 <Link to="/seasoning/spring-refresh">
-                  <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Spring Renewal</h3>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">
-                    Celebrate new beginnings with fresh, vibrant touches that bring the awakening of nature 
-                    into your living spaces.
-                  </p>
-                  <ul className="space-y-3 text-muted-foreground mb-6">
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Delicate floral arrangements with seasonal blooms</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Cherry blossom branch displays</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Light, airy wreaths with pastel accents</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Fresh herb and botanical arrangements</span>
-                    </li>
-                  </ul>
-                  <Button variant="outline">View Spring Packages</Button>
+                  <div
+                    className="h-48 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${freshStartHero})`,
+                    }}
+                  />
+                  <div className="p-8">
+                    <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Spring Renewal</h3>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                      Celebrate new beginnings with fresh, vibrant touches that bring the awakening of nature 
+                      into your living spaces.
+                    </p>
+                    <ul className="space-y-3 text-muted-foreground mb-6">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Delicate floral arrangements with seasonal blooms</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Cherry blossom branch displays</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Light, airy wreaths with pastel accents</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Fresh herb and botanical arrangements</span>
+                      </li>
+                    </ul>
+                    <Button variant="outline">View Spring Packages</Button>
+                  </div>
                 </Link>
               </Card>
 
               {/* Summer */}
-              <Card className="p-8 group cursor-pointer hover:shadow-lg transition-shadow">
+              <Card className="overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow">
                 <Link to="/seasoning/summer-serenity">
-                  <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Summer Serenity</h3>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">
-                    Embrace the lightness of summer with coastal-inspired touches and natural elements 
-                    that create a breezy, relaxed atmosphere.
-                  </p>
-                  <ul className="space-y-3 text-muted-foreground mb-6">
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Driftwood and sea glass displays</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Light, tropical greenery arrangements</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Natural fiber wreaths and wall hangings</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>Outdoor entertaining area styling</span>
-                    </li>
-                  </ul>
-                  <Button variant="outline">View Summer Packages</Button>
+                  <div
+                    className="h-48 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${coastalCottageHero})`,
+                    }}
+                  />
+                  <div className="p-8">
+                    <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Summer Serenity</h3>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                      Embrace the lightness of summer with coastal-inspired touches and natural elements 
+                      that create a breezy, relaxed atmosphere.
+                    </p>
+                    <ul className="space-y-3 text-muted-foreground mb-6">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Driftwood and sea glass displays</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Light, tropical greenery arrangements</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Natural fiber wreaths and wall hangings</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Outdoor entertaining area styling</span>
+                      </li>
+                    </ul>
+                    <Button variant="outline">View Summer Packages</Button>
+                  </div>
                 </Link>
               </Card>
             </div>
