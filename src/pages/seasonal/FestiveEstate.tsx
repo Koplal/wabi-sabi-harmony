@@ -162,21 +162,63 @@ const FestiveEstate = () => {
                     <h4 className="font-semibold">Post-Holiday Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'festive-estate-removal',
+                      name: 'Post-Holiday Removal & Composting',
+                      price: 99,
+                      description: 'Complete cleanup and eco-friendly disposal',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Garland (10 feet)</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Extend garland coverage for larger spaces</p>
+                  <p className="text-muted-foreground mb-4">Extend garland coverage for larger spaces</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'festive-estate-garland',
+                      name: 'Additional Garland (10 feet)',
+                      price: 75,
+                      description: 'Extend garland coverage for larger spaces',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Natural winter scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Natural winter scent to complement your display</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'festive-estate-aromatherapy',
+                      name: 'Seasonal Aromatherapy Spray',
+                      price: 35,
+                      description: 'Natural winter scent to complement your display',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>

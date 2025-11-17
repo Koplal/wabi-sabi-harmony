@@ -162,21 +162,33 @@ const BeachsideManor = () => {
                     <h4 className="font-semibold">Post-Season Removal</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and disposal</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'beachside-manor-removal', name: 'Post-Season Removal', price: 99, description: 'Complete cleanup and disposal', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Planter Arrangements (2)</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Extend coastal display to additional areas</p>
+                  <p className="text-muted-foreground mb-4">Extend coastal display to additional areas</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'beachside-manor-planters', name: 'Additional Planter Arrangements (2)', price: 75, description: 'Extend coastal display to additional areas', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Ocean breeze scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Ocean breeze scent to complement display</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'beachside-manor-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Ocean breeze scent to complement display', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>

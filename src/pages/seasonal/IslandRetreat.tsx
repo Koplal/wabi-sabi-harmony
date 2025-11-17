@@ -160,21 +160,63 @@ const IslandRetreat = () => {
                     <h4 className="font-semibold">Post-Season Removal</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and disposal</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'island-retreat-removal',
+                      name: 'Post-Season Removal',
+                      price: 99,
+                      description: 'Complete cleanup and disposal',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Hurricane Lantern</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Extend ambient lighting throughout display</p>
+                  <p className="text-muted-foreground mb-4">Extend ambient lighting throughout display</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'island-retreat-lantern',
+                      name: 'Additional Hurricane Lantern',
+                      price: 75,
+                      description: 'Extend ambient lighting throughout display',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Tropical coconut scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Tropical coconut scent to complement display</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => addToCart({
+                      id: 'island-retreat-aromatherapy',
+                      name: 'Seasonal Aromatherapy Spray',
+                      price: 35,
+                      description: 'Tropical coconut scent to complement display',
+                      image: heroImage,
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>

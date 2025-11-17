@@ -34,39 +34,30 @@ const Checkout = () => {
     setIsProcessing(true);
 
     try {
-      // Create Stripe payment intent via edge function
-      const { data, error } = await supabase.functions.invoke('create-payment-intent', {
+      // Create Stripe Checkout session
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
-          amount: total,
-          customerInfo: formData,
           items: items.map(item => ({
             name: item.name,
             price: item.price,
+            description: item.description,
+            image: item.image,
           })),
+          customerInfo: formData,
         },
       });
 
       if (error) throw error;
 
-      // In a real implementation, you would redirect to Stripe Checkout here
-      // For now, we'll simulate a successful payment
-      toast.success("Order placed successfully! You'll receive a confirmation email shortly.");
-      
-      // Send confirmation email
-      await supabase.functions.invoke('send-booking-email', {
-        body: {
-          ...formData,
-          serviceType: items.map(i => i.name).join(', '),
-          estimatedPrice: total,
-        },
-      });
-
-      clearCart();
-      navigate('/');
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error("There was an error processing your order. Please try again.");
-    } finally {
+      toast.error("There was an error creating the checkout session. Please try again.");
       setIsProcessing(false);
     }
   };

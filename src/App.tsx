@@ -60,6 +60,7 @@ import TermsOfService from "./pages/TermsOfService";
 import ClientAgreement from "./pages/ClientAgreement";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -137,6 +138,7 @@ const App = () => (
           <Route path="/seasoning/the-summer-storefront" element={<SummerStorefront />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout-success" element={<CheckoutSuccess />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

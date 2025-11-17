@@ -161,21 +161,33 @@ const AbundantHarmony = () => {
                     <h4 className="font-semibold">Post-Halloween Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
+                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'abundant-harmony-removal', name: 'Post-Halloween Removal & Composting', price: 99, description: 'Complete cleanup and eco-friendly disposal', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">24 Mini Pumpkins</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground">Additional miniature pumpkins for enhanced detail</p>
+                  <p className="text-muted-foreground mb-4">Additional miniature pumpkins for enhanced detail</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'abundant-harmony-pumpkins', name: '24 Mini Pumpkins', price: 75, description: 'Additional miniature pumpkins for enhanced detail', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground">Natural autumn scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Natural autumn scent to complement your display</p>
+                  <Button size="sm" variant="outline" className="w-full"
+                    onClick={() => addToCart({id: 'abundant-harmony-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural autumn scent to complement your display', image: heroImage})}>
+                    Add to Cart
+                  </Button>
                 </Card>
               </div>
             </div>
