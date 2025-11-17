@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import contactHero from "@/assets/contact-hero.jpg";
+import faqHero from "@/assets/faq-hero.jpg";
 
 const FAQ = () => {
   return (
@@ -16,7 +16,7 @@ const FAQ = () => {
           <div
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: `url(${contactHero})`,
+              backgroundImage: `url(${faqHero})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               opacity: 0.4,

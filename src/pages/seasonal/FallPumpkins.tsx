@@ -14,109 +14,95 @@ import businessImage from "@/assets/pumpkin-business-stand-1.jpg";
 
 const packages = [
   {
-    name: "The Sense & Sensibility",
-    price: 474,
-    basePrice: 349,
-    decoratingFee: 125,
-    popular: true,
+    name: "The Quiet Grace",
+    slug: "quiet-grace",
+    price: 399,
     soldOut: true,
     image: senseImage1,
-    image2: senseImage2,
-    description: "Perfect for welcoming porches and creating that warm autumn feeling.",
+    description: "Perfect for intimate porches and those who appreciate that less can indeed be more.",
     includes: [
-      "6 Large Orange pumpkins",
-      "4 Medium Orange pumpkins",
-      "4 White pumpkins",
-      "12 Sugar Pie pumpkins",
-      "4 Specialty pumpkins",
-      "Professional styling & placement",
-      "Decorating consultation included"
+      "6 Large Heritage Pumpkins",
+      "4 Medium Heirloom Pumpkins",
+      "4 White Ghost Pumpkins",
+      "12 Small Pie Pumpkins",
+      "4 Specialty Pumpkins",
+      "Natural jute or hemp rope accents",
+      "Dried botanical elements",
+      "Mindful arrangement and blessing"
     ]
   },
   {
-    name: "The Grand Budapest",
-    price: 924,
-    basePrice: 799,
-    decoratingFee: 125,
-    popular: false,
+    name: "The Abundant Harmony",
+    slug: "abundant-harmony",
+    price: 899,
+    popular: true,
     soldOut: true,
     image: budapestImage,
-    description: "An elevated display with elegant variety and impressive scale.",
+    description: "The perfect middle path - generous enough to impress, refined enough to inspire tranquility.",
     includes: [
-      "8 Large Jack-O'-Lantern pumpkins",
-      "6 Medium Jack-O'-Lantern pumpkins",
-      "6 White Ghost pumpkins",
-      "Assorted Pie pumpkins",
-      "8 Specialty pumpkins (heirlooms)",
-      "1 Hay bale for elevation",
-      "Ornamental gourds throughout",
-      "Professional layout & styling"
+      "8 Large Heritage Pumpkins",
+      "8 Medium Heirloom Pumpkins",
+      "6 White Ghost Pumpkins",
+      "12 Small Pie Pumpkins",
+      "12 Specialty Pumpkins",
+      "2 Locally-sourced hay bales",
+      "Ornamental gourds & botanicals",
+      "Professional design & installation"
     ]
   },
   {
-    name: "The Babylon",
-    price: 1424,
-    basePrice: 1299,
-    decoratingFee: 125,
-    popular: false,
+    name: "The Gathered Abundance",
+    slug: "gathered-abundance",
+    price: 1399,
     soldOut: true,
     image: babylonImage,
-    description: "A show-stopping statement for wide porches and multi-level entries.",
+    description: "A show-stopping statement for those who honor both the season and their guests.",
     includes: [
-      "2 Grand Prize pumpkins (XL showstoppers)",
-      "10 Large Jack-O'-Lantern pumpkins",
-      "8 Medium Jack-O'-Lantern pumpkins",
-      "8 White Ghost pumpkins",
-      "Assorted Pie pumpkins",
-      "16 Specialty pumpkins",
-      "24 Mini pumpkins",
-      "2 Hay bales for dramatic elevation",
-      "Ornamental gourds woven throughout",
-      "Full professional styling & installation"
+      "2 Grand Prize Pumpkins (30-50 lbs each)",
+      "10 Large Heritage Pumpkins",
+      "8 Medium Heirloom Pumpkins",
+      "8 White Ghost Pumpkins",
+      "16 Rare Specialty Pumpkins",
+      "24 Miniature Pumpkins",
+      "2 Premium hay bales",
+      "Full professional installation"
     ]
   },
   {
-    name: "The Full Gatsby",
-    price: 1924,
-    basePrice: 1799,
-    decoratingFee: 125,
-    popular: false,
+    name: "The Estate Collection",
+    slug: "estate-collection",
+    price: 1899,
     soldOut: true,
     image: gatsbyImage,
-    description: "Magazine-worthy luxury for estate-style homes and sweeping entries.",
+    description: "Museum-quality curation for properties where grandeur meets grace.",
     includes: [
-      "3 Grand Prize pumpkins (jaw-dropping scale)",
-      "10 Large Jack-O'-Lantern pumpkins",
-      "12 Medium Jack-O'-Lantern pumpkins",
-      "16 Heirloom pumpkins (rare varieties)",
-      "12 Assorted Pie pumpkins",
-      "12 White Ghost pumpkins",
-      "24 Mini pumpkins",
-      "3 Hay bales for height & structure",
-      "Multiple ornamental gourds",
-      "Full editorial-level styling & installation"
+      "3 Museum-Grade Grand Prize Pumpkins",
+      "10 Large Heritage Pumpkins",
+      "16 Antique White Pumpkins",
+      "20+ Rare Specimen Pumpkins",
+      "24 Miniature Pumpkins",
+      "3 Premium hay bales",
+      "Dedicated project manager",
+      "Professional photo & video"
     ]
   },
   {
-    name: "The Business Selfie Stand",
+    name: "The Mindful Merchant",
+    slug: "mindful-merchant",
     price: 799,
-    basePrice: 799,
-    decoratingFee: 0,
-    popular: false,
     soldOut: true,
     business: true,
     image: businessImage,
-    description: "Create an Instagram-worthy backdrop for your storefront or business.",
+    description: "Transform your business into a destination this autumn with strategic placemaking.",
     includes: [
-      "8 Large Jack-O'-Lantern pumpkins",
-      "8 Medium Jack-O'-Lantern pumpkins",
-      "8 White Ghost pumpkins",
-      "Assorted Pie pumpkins",
-      "12 Specialty pumpkins",
-      "2 Hay Bales for structure",
-      "Ornamental gourds throughout",
-      "Professional design & installation",
-      "Business branding consultation"
+      "8 Large Commercial-Grade Pumpkins",
+      "8 Medium Heritage Pumpkins",
+      "8 White Ghost Pumpkins",
+      "12 Specialty Pumpkins",
+      "24 Mini pumpkins",
+      "2 Commercial hay bales",
+      "Professional installation",
+      "Marketing support & insurance"
     ]
   }
 ];
@@ -197,11 +183,9 @@ const FallPumpkins = () => {
                         <span className="font-serif text-3xl">${pkg.price}</span>
                         <span className="text-sm text-muted-foreground">CAD</span>
                       </div>
-                      {pkg.decoratingFee > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Includes ${pkg.decoratingFee} decorating fee
-                        </p>
-                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Complete package with installation
+                      </p>
                     </div>
                     <div className="space-y-2 mb-6 flex-grow">
                       <p className="text-sm font-semibold mb-3">What's Included:</p>

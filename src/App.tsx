@@ -32,6 +32,11 @@ import June2026 from "./pages/blog/June2026";
 import July2026 from "./pages/blog/July2026";
 import Seasoning from "./pages/Seasoning";
 import FallPumpkins from "./pages/seasonal/FallPumpkins";
+import QuietGrace from "./pages/seasonal/QuietGrace";
+import AbundantHarmony from "./pages/seasonal/AbundantHarmony";
+import GatheredAbundance from "./pages/seasonal/GatheredAbundance";
+import EstateCollection from "./pages/seasonal/EstateCollection";
+import MindfulMerchant from "./pages/seasonal/MindfulMerchant";
 import WinterHoliday from "./pages/seasonal/WinterHoliday";
 import SpringRefresh from "./pages/seasonal/SpringRefresh";
 import SummerSerenity from "./pages/seasonal/SummerSerenity";
@@ -84,6 +89,11 @@ const App = () => (
           <Route path="/blog/july-2026" element={<July2026 />} />
           <Route path="/seasoning" element={<Seasoning />} />
           <Route path="/seasoning/fall-pumpkins" element={<FallPumpkins />} />
+          <Route path="/seasoning/quiet-grace" element={<QuietGrace />} />
+          <Route path="/seasoning/abundant-harmony" element={<AbundantHarmony />} />
+          <Route path="/seasoning/gathered-abundance" element={<GatheredAbundance />} />
+          <Route path="/seasoning/estate-collection" element={<EstateCollection />} />
+          <Route path="/seasoning/mindful-merchant" element={<MindfulMerchant />} />
           <Route path="/seasoning/winter-holiday" element={<WinterHoliday />} />
           <Route path="/seasoning/spring-refresh" element={<SpringRefresh />} />
           <Route path="/seasoning/summer-serenity" element={<SummerSerenity />} />
