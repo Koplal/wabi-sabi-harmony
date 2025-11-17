@@ -1,0 +1,15 @@
+name: Monthly Blog SEO Generation
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"  # Runs at midnight UTC on the 1st of every month
+  workflow_dispatch:      # Allows manual triggering for testing
+
+jobs:
+  call-seo-function:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger SEO Generation Function
+        run: |
+          curl -X GET https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
