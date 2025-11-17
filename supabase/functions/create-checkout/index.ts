@@ -59,6 +59,11 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
+    // Calculate subtotal
+    const subtotal = items.reduce((sum: number, item: any) => sum + item.price, 0);
+    const gstRate = 0.05; // 5% GST for Canada
+    const gstAmount = Math.round(subtotal * gstRate * 100); // Convert to cents
+
     // Create line items for Stripe Checkout
     const lineItems = items.map((item: any) => ({
       price_data: {
@@ -73,6 +78,19 @@ serve(async (req) => {
       quantity: 1,
     }));
 
+    // Add GST as a separate line item
+    lineItems.push({
+      price_data: {
+        currency: 'cad',
+        product_data: {
+          name: 'GST (5%)',
+          description: 'Canadian Goods and Services Tax',
+        },
+        unit_amount: gstAmount,
+      },
+      quantity: 1,
+    });
+
     const origin = req.headers.get('origin') || 'http://localhost:8080';
 
     // Create Stripe Checkout Session
@@ -81,11 +99,7 @@ serve(async (req) => {
       'mode': 'payment',
       'success_url': `${origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
       'cancel_url': `${origin}/cart`,
-      'automatic_tax[enabled]': 'true', // Enable automatic tax calculation
-      'customer_update[address]': 'auto', // Allow address updates
-      'customer_update[shipping]': 'auto', // Allow shipping updates
       'billing_address_collection': 'required',
-      'shipping_address_collection[allowed_countries][0]': 'CA',
     });
 
     // Add line items
