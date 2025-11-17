@@ -11,7 +11,6 @@ import { ChevronDown } from "lucide-react";
 const navigation = [
   { name: "The Ritual", href: "/ritual" },
   { name: "Reviews", href: "/reviews" },
-  { name: "Seasoning", href: "/seasoning" },
   { name: "Blog", href: "/blog" },
   { name: "FAQ", href: "/faq" },
   { name: "Careers", href: "/careers" },
@@ -23,6 +22,7 @@ const servicesLinks = [
   { name: "Cleaning", href: "/services/cleaning" },
   { name: "Organizing", href: "/services/organizing" },
   { name: "Errands", href: "/services/errands" },
+  { name: "Seasonal Services", href: "/seasoning" },
 ];
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
