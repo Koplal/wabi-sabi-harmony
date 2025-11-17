@@ -119,7 +119,7 @@ const AbundantHarmony = () => {
             </div>
 
             {/* Package Features */}
-            <div>
+            <div className="mb-16">
               <h3 className="font-serif text-3xl mb-8">Package Features</h3>
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
@@ -128,11 +128,39 @@ const AbundantHarmony = () => {
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Display Longevity</h4>
-                  <p className="text-muted-foreground">4-6 weeks with maintenance</p>
+                  <p className="text-muted-foreground">4-6 weeks with care</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Service Area</h4>
                   <p className="text-muted-foreground">Greater Victoria</p>
+                </Card>
+              </div>
+            </div>
+
+            {/* Optional Add-ons */}
+            <div>
+              <h3 className="font-serif text-3xl mb-8">Optional Add-ons</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold">Post-Halloween Removal & Composting</h4>
+                    <span className="text-2xl font-serif">$99</span>
+                  </div>
+                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
+                </Card>
+                <Card className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold">24 Mini Pumpkins</h4>
+                    <span className="text-2xl font-serif">$75</span>
+                  </div>
+                  <p className="text-muted-foreground">Additional miniature pumpkins for enhanced detail</p>
+                </Card>
+                <Card className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
+                    <span className="text-2xl font-serif">$35</span>
+                  </div>
+                  <p className="text-muted-foreground">Natural autumn scent to complement your display</p>
                 </Card>
               </div>
             </div>
