@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 
-const February2025 = () => {
+const February2026 = () => {
   return (
     <Layout>
       <div className="min-h-screen py-20 px-6 lg:px-12">
@@ -17,7 +17,7 @@ const February2025 = () => {
             <h1 className="font-serif text-4xl md:text-5xl mb-4">
               Love Your Home: Creating Spaces That Nurture Relationships
             </h1>
-            <p className="text-muted-foreground mb-8">Published: February 2025</p>
+            <p className="text-muted-foreground mb-8">Published: February 2026</p>
 
             <p className="lead">
               February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms, starting with the sanctuary we call home. At Wabi Sabi Services, we believe a mindfully maintained home nurtures not just romance, but self-love, family bonds, and friendships.
@@ -121,4 +121,4 @@ const February2025 = () => {
   );
 };
 
-export default February2025;
+export default February2026;

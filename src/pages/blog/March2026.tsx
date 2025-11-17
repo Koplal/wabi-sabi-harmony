@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 
-const March2025 = () => {
+const March2026 = () => {
   return (
     <Layout>
       <div className="min-h-screen py-20 px-6 lg:px-12">
@@ -17,7 +17,7 @@ const March2025 = () => {
             <h1 className="font-serif text-4xl md:text-5xl mb-4">
               Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians
             </h1>
-            <p className="text-muted-foreground mb-8">Published: March 2025</p>
+            <p className="text-muted-foreground mb-8">Published: March 2026</p>
 
             <p className="lead">
               As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Spring cleaning is a time-honored tradition, but how can we honor this ritual while staying true to our environmental values? Here's your complete guide to sustainable spring cleaning.
@@ -128,4 +128,4 @@ const March2025 = () => {
   );
 };
 
-export default March2025;
+export default March2026;
