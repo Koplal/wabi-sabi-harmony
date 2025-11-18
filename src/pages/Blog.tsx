@@ -104,9 +104,11 @@ const allBlogArticles = [
 ];
 
 const Blog = () => {
-  // Filter articles to only show published ones
+  // Filter articles to only show published ones, then sort newest first
   const today = new Date();
-  const blogArticles = allBlogArticles.filter(article => article.publishDate <= today);
+  const blogArticles = allBlogArticles
+    .filter(article => article.publishDate <= today)
+    .sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime());
 
   return (
     <Layout>
