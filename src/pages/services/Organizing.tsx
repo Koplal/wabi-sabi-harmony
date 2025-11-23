@@ -1,11 +1,23 @@
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { ServiceSchema } from "@/components/structured-data";
 import organizingHero from "@/assets/organizing-hero.jpg";
 
 const Organizing = () => {
   return (
     <Layout>
+      <SEO 
+        title="Professional Organizing Services Victoria BC"
+        description="Expert home and office organizing services in Victoria, BC. Decluttering, space planning, closet systems, seasonal transitions, and move coordination."
+        keywords="professional organizing Victoria BC, home organizer Victoria, decluttering services Victoria, closet organization Victoria"
+      />
+      <ServiceSchema 
+        name="Professional Organizing Services"
+        description="Transform your space with expert organizing services. From closets to entire homes, we create functional, beautiful systems that make daily life easier."
+        serviceType="Organizing Service"
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 

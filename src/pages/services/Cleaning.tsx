@@ -1,11 +1,23 @@
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { ServiceSchema } from "@/components/structured-data";
 import cleaningImage from "@/assets/residential-service.jpg";
 
 const Cleaning = () => {
   return (
     <Layout>
+      <SEO 
+        title="Professional Cleaning Services Victoria BC"
+        description="Residential, commercial, and specialty cleaning services in Victoria, BC. Deep cleaning, maintenance cleaning, move-in/out, post-construction, and vacation rental turnover."
+        keywords="house cleaning Victoria BC, residential cleaning Victoria, commercial cleaning Victoria, deep cleaning Victoria, move out cleaning Victoria"
+      />
+      <ServiceSchema 
+        name="Professional Cleaning Services"
+        description="Comprehensive cleaning solutions for homes and businesses in Victoria, BC. Including residential maintenance, deep cleaning, commercial spaces, and specialty cleaning services."
+        serviceType="Cleaning Service"
+      />
       <div className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl">
           <h1 className="font-serif text-5xl md:text-6xl mb-8 text-center">

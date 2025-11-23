@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import reviewsHero from "@/assets/reviews-hero.jpg";
 
 const Reviews = () => {
@@ -23,6 +24,11 @@ const Reviews = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Client Reviews & Testimonials"
+        description="Read what clients in Victoria, BC say about Wabi Sabi Services. Luxury cleaning reviews from Uplands, Oak Bay, and Bear Mountain."
+        keywords="cleaning reviews Victoria BC, cleaning testimonials Victoria, best cleaners Victoria, luxury cleaning reviews"
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 
