@@ -1,11 +1,23 @@
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { ServiceSchema } from "@/components/structured-data";
 import errandsHero from "@/assets/errands-hero.jpg";
 
 const Errands = () => {
   return (
     <Layout>
+      <SEO 
+        title="Concierge & Errand Services Victoria BC"
+        description="Professional errand and concierge services in Victoria, BC. Grocery shopping, home restocking, mail services, pet care coordination, and household management."
+        keywords="errand service Victoria BC, concierge service Victoria, personal assistant Victoria, grocery delivery Victoria"
+      />
+      <ServiceSchema 
+        name="Concierge & Errand Services"
+        description="Save time with professional errand services. We handle grocery shopping, household restocking, dry cleaning, mail services, and more in Victoria, BC."
+        serviceType="Concierge Service"
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 

@@ -1,11 +1,18 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const August2025 = () => {
   return (
     <Layout>
+      <SEO 
+        title="August Awakening: Transitioning from Summer to Fall"
+        description="As August unfolds in Victoria, embrace mindful home renewal. Tips for transitioning from summer's relaxed energy to fall's structure with outdoor space care and organization."
+        ogType="article"
+        publishedTime="2025-08-01T00:00:00-07:00"
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div

@@ -5,7 +5,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://wabisabiservices.ca/</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -13,7 +13,7 @@
   <!-- About Page -->
   <url>
     <loc>https://wabisabiservices.ca/about</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -21,7 +21,7 @@
   <!-- Services Main Page -->
   <url>
     <loc>https://wabisabiservices.ca/services</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -29,47 +29,47 @@
   <!-- Cleaning Services -->
   <url>
     <loc>https://wabisabiservices.ca/services/cleaning</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   
   <!-- Organizing Services -->
   <url>
     <loc>https://wabisabiservices.ca/services/organizing</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   
   <!-- Errands Services -->
   <url>
     <loc>https://wabisabiservices.ca/services/errands</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   
   <!-- The Ritual Page -->
   <url>
     <loc>https://wabisabiservices.ca/ritual</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   
   <!-- Reviews Page -->
   <url>
     <loc>https://wabisabiservices.ca/reviews</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   
   <!-- Careers Page -->
   <url>
     <loc>https://wabisabiservices.ca/careers</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -77,17 +77,313 @@
   <!-- Contact Page -->
   <url>
     <loc>https://wabisabiservices.ca/contact</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   
   <!-- Book Page -->
   <url>
     <loc>https://wabisabiservices.ca/book</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- FAQ Page -->
+  <url>
+    <loc>https://wabisabiservices.ca/faq</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog Main Page -->
+  <url>
+    <loc>https://wabisabiservices.ca/blog</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Posts -->
+  <url>
+    <loc>https://wabisabiservices.ca/blog/august-2025</loc>
+    <lastmod>2025-08-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/september-2025</loc>
+    <lastmod>2025-09-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/october-2025</loc>
+    <lastmod>2025-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/november-2025</loc>
+    <lastmod>2025-11-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/december-2025</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/january-2026</loc>
+    <lastmod>2026-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/february-2026</loc>
+    <lastmod>2026-02-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/march-2026</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/april-2026</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/may-2026</loc>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/june-2026</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/blog/july-2026</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Seasonal Services Main Page -->
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Fall Seasonal Services -->
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/fall-pumpkins</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/quiet-grace</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/abundant-harmony</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/gathered-abundance</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/estate-collection</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/mindful-merchant</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Winter Seasonal Services -->
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/winter-holiday</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-cozy-cabin</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-winter-wonderland</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-festive-estate</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-grand-celebration</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-business-welcome</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Spring Seasonal Services -->
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/spring-refresh</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-fresh-start</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-garden-gate</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-botanical-estate</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-blooming-manor</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-professional-welcome</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Summer Seasonal Services -->
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/summer-serenity</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-coastal-cottage</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-island-retreat</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-beachside-manor</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-seaside-estate</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/seasoning/the-summer-storefront</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Legal Pages -->
+  <url>
+    <loc>https://wabisabiservices.ca/terms-of-service</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://wabisabiservices.ca/client-agreement</loc>
+    <lastmod>2025-11-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 
 </urlset>

@@ -10,10 +10,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { FileText, ScrollText, ClipboardCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
 
 const FAQ = () => {
   return (
     <Layout>
+      <SEO 
+        title="Frequently Asked Questions"
+        description="Get answers to common questions about Wabi Sabi Services' luxury cleaning, organizing, and concierge services in Victoria, BC. Pricing, scheduling, and service details."
+        keywords="cleaning FAQ Victoria BC, cleaning service questions, professional cleaning pricing Victoria, house cleaning FAQs"
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[50vh] flex items-center justify-center">

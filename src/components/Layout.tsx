@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { LocalBusinessSchema, OrganizationSchema } from "./structured-data";
 
 const navigation = [
   { name: "The Ritual", href: "/ritual" },
@@ -32,6 +33,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen">
+      <LocalBusinessSchema />
+      <OrganizationSchema />
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <nav className="container mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-20">

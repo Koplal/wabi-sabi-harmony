@@ -1,10 +1,16 @@
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SEO } from "@/components/SEO";
 import aboutHero from "@/assets/about-hero.jpg";
 
 const About = () => {
   return (
     <Layout>
+      <SEO 
+        title="About Us"
+        description="Learn about Wabi Sabi Services and our approach to mindful luxury cleaning in Victoria, BC. Founded on environmental psychology principles and hospitality standards."
+        keywords="about Wabi Sabi Services, cleaning company Victoria BC, professional cleaners Victoria"
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 

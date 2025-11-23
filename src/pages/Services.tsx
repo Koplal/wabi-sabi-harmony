@@ -2,11 +2,16 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
 import servicesHero from "@/assets/services-hero.jpg";
 
 const Services = () => {
   return (
     <Layout>
+      <SEO 
+        title="Our Services"
+        description="Professional cleaning, organizing, and concierge services in Victoria, BC. Residential cleaning, commercial cleaning, home organizing, and errand services."
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 

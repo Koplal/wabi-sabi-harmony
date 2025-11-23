@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PriceEstimator } from "@/components/PriceEstimator";
+import { SEO } from "@/components/SEO";
 import heroImage from "@/assets/hero-image.jpg";
 import commercialService from "@/assets/commercial-service.jpg";
 import postConstructionService from "@/assets/post-construction-service.jpg";
@@ -10,6 +11,11 @@ import residentialService from "@/assets/residential-service.jpg";
 const Home = () => {
   return (
     <div>
+      <SEO 
+        title="Mindful Luxury Cleaning Victoria BC"
+        description="Quiet luxury, immaculately kept. Professional cleaning, organizing, and household services in Victoria, BC. Museum-level precision, discreet service, sustainable care."
+        keywords="luxury cleaning Victoria BC, professional cleaning Victoria, house cleaning Victoria, commercial cleaning Victoria, mindful cleaning services"
+      />
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center py-20">
         <div
