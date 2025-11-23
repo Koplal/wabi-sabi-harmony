@@ -94,7 +94,7 @@ export const PriceEstimator = () => {
       const serviceLabel = serviceTypes.find(s => s.value === serviceType)?.label;
       const frequencyLabel = frequencies.find(f => f.value === frequency)?.label;
 
-      const { error } = await supabase.functions.invoke('send-booking-email', {
+      const { error } = await supabase.functions.invoke('send-price-estimate-email', {
         body: {
           firstName,
           lastName,
