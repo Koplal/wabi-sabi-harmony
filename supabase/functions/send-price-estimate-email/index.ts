@@ -16,6 +16,8 @@ interface PriceEstimateFormData {
   bathrooms: number;
   frequency: string;
   estimatedPrice: number;
+  preferredDays: string[];
+  preferredTimes: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -32,6 +34,9 @@ const handler = async (req: Request): Promise<Response> => {
       serviceType: formData.serviceType
     });
 
+    // Determine if this is an hourly service based on frequency containing "hours"
+    const isHourlyService = formData.frequency.includes('hours');
+
     // Send email to your business inbox
     const emailResponse = await resend.emails.send({
       from: "Wabi-Sabi Price Estimate <onboarding@wabisabiservices.ca>",
@@ -43,8 +48,20 @@ const handler = async (req: Request): Promise<Response> => {
         <p><strong>Name:</strong> ${formData.firstName} ${formData.lastName}</p>
         <p><strong>Email:</strong> ${formData.email}</p>
         <p><strong>Service Type:</strong> ${formData.serviceType}</p>
-        <p><strong>Bathrooms/Workers:</strong> ${formData.bathrooms}</p>
-        <p><strong>Frequency/Hours:</strong> ${formData.frequency}</p>
+        ${isHourlyService
+          ? `<p><strong>Number of Workers:</strong> ${formData.bathrooms}</p>
+             <p><strong>Requested Hours:</strong> ${formData.frequency}</p>`
+          : `<p><strong>Number of Bathrooms:</strong> ${formData.bathrooms}</p>
+             <p><strong>Cleaning Frequency:</strong> ${formData.frequency}</p>`
+        }
+        ${formData.preferredDays && formData.preferredDays.length > 0
+          ? `<p><strong>Preferred Days:</strong> ${formData.preferredDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}</p>`
+          : ''
+        }
+        ${formData.preferredTimes && formData.preferredTimes.length > 0
+          ? `<p><strong>Preferred Time:</strong> ${formData.preferredTimes.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')}</p>`
+          : ''
+        }
         <p><strong>Estimated Price:</strong> $${formData.estimatedPrice}</p>
       `,
     });

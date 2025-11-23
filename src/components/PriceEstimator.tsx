@@ -11,8 +11,26 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const daysOfWeek = [
+  { value: "monday", label: "Mon" },
+  { value: "tuesday", label: "Tue" },
+  { value: "wednesday", label: "Wed" },
+  { value: "thursday", label: "Thu" },
+  { value: "friday", label: "Fri" },
+  { value: "saturday", label: "Sat" },
+  { value: "sunday", label: "Sun" },
+];
+
+const timesOfDay = [
+  { value: "morning", label: "Morning (8am-12pm)" },
+  { value: "afternoon", label: "Afternoon (12pm-5pm)" },
+  { value: "evening", label: "Evening (5pm-8pm)" },
+  { value: "anytime", label: "Anytime" },
+];
 
 const serviceTypes = [
   { value: "studio", label: "Studio or 1 bedroom", basePrice: 140 },
@@ -48,9 +66,24 @@ export const PriceEstimator = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const [preferredDays, setPreferredDays] = useState<string[]>([]);
+  const [preferredTimes, setPreferredTimes] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isHourlyService = serviceType === "hourly";
+  const isRecurring = frequency !== "onetime" && !isHourlyService;
+
+  const toggleDay = (day: string) => {
+    setPreferredDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const toggleTime = (time: string) => {
+    setPreferredTimes(prev =>
+      prev.includes(time) ? prev.filter(t => t !== time) : [...prev, time]
+    );
+  };
 
   useEffect(() => {
     if (!serviceType) return;
@@ -102,7 +135,9 @@ export const PriceEstimator = () => {
           serviceType: serviceLabel,
           bathrooms: isHourlyService ? workers : bathrooms,
           frequency: isHourlyService ? `${hours} hours` : frequencyLabel,
-          estimatedPrice
+          estimatedPrice,
+          preferredDays: isRecurring ? preferredDays : [],
+          preferredTimes: isRecurring ? preferredTimes : []
         }
       });
 
@@ -117,6 +152,8 @@ export const PriceEstimator = () => {
       setWorkers(1);
       setHours(3);
       setFrequency("onetime");
+      setPreferredDays([]);
+      setPreferredTimes([]);
     } catch (error) {
       console.error("Error sending booking:", error);
       toast.error("Failed to send booking request. Please try again.");
@@ -245,6 +282,52 @@ export const PriceEstimator = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {isRecurring && (
+              <>
+                <div>
+                  <Label className="mb-2 block">Preferred Days</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {daysOfWeek.map((day) => (
+                      <div key={day.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`day-${day.value}`}
+                          checked={preferredDays.includes(day.value)}
+                          onCheckedChange={() => toggleDay(day.value)}
+                        />
+                        <label
+                          htmlFor={`day-${day.value}`}
+                          className="text-sm cursor-pointer"
+                        >
+                          {day.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">Preferred Time of Day</Label>
+                  <div className="flex flex-wrap gap-3">
+                    {timesOfDay.map((time) => (
+                      <div key={time.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`time-${time.value}`}
+                          checked={preferredTimes.includes(time.value)}
+                          onCheckedChange={() => toggleTime(time.value)}
+                        />
+                        <label
+                          htmlFor={`time-${time.value}`}
+                          className="text-sm cursor-pointer"
+                        >
+                          {time.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </>
         )}
 
