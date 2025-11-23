@@ -11,7 +11,7 @@ import residentialService from "@/assets/residential-service.jpg";
 const Home = () => {
   return (
     <div>
-      <SEO 
+      <SEO
         title="Mindful Luxury Cleaning Victoria BC"
         description="Quiet luxury, immaculately kept. Professional cleaning, organizing, and household services in Victoria, BC. Museum-level precision, discreet service, sustainable care."
         keywords="luxury cleaning Victoria BC, professional cleaning Victoria, house cleaning Victoria, commercial cleaning Victoria, mindful cleaning services"
@@ -29,12 +29,14 @@ const Home = () => {
         />
         <div className="relative z-10 w-full max-w-4xl mx-auto px-6 text-center">
           <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-6 animate-in fade-in duration-1000">
-            Quiet luxury,<br />immaculately kept.
+            Quiet luxury,
+            <br />
+            immaculately kept.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-12 animate-in fade-in duration-1000 delay-200">
             Mindful cleaning for intentional homes and businesses.
           </p>
-          
+
           <div className="max-w-2xl mx-auto mb-8 animate-in fade-in duration-1000 delay-300">
             <PriceEstimator />
           </div>
@@ -50,33 +52,31 @@ const Home = () => {
       {/* Why Wabi Sabi Services */}
       <section className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">
-            Why Wabi Sabi Services
-          </h2>
-          
+          <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">Why Wabi Sabi Services</h2>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center">
               <h3 className="font-serif text-2xl mb-4">Calm Precision</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Every detail matters—from museum-level dusting and edge-to-edge floors to curated resets 
-                that leave your home styled and serene. Conscious products and subtle seasonal scents complete the finish.
+                Every detail matters—from museum-level dusting and edge-to-edge floors to curated resets that leave your
+                home styled and serene. Conscious products and subtle seasonal scents complete the finish.
               </p>
             </div>
 
             <div className="text-center">
               <h3 className="font-serif text-2xl mb-4">Discreet & Trustworthy</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Your privacy and peace of mind come first. Our team is carefully vetted, fully insured, 
-                and trained to work quietly in the background—leaving your space flawless without disruption.
+                Your privacy and peace of mind come first. Our team is carefully vetted, fully insured, and trained to
+                work quietly in the background—leaving your space flawless without disruption.
               </p>
             </div>
 
             <div className="text-center">
               <h3 className="font-serif text-2xl mb-4">Sustainable Care</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Luxury should never come at the expense of well-being. We offer fragrance-free options 
-                as well as aromatherapy enhancements, always using surface-safe products and practices that 
-                protect your children, pets, and the planet.
+                Luxury should never come at the expense of well-being. We offer fragrance-free options as well as
+                aromatherapy enhancements, always using surface-safe products and practices that protect your children,
+                pets, and the planet.
               </p>
             </div>
           </div>
@@ -86,9 +86,7 @@ const Home = () => {
       {/* Featured Services */}
       <section className="py-32 px-6 lg:px-12 bg-secondary/30">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">
-            Featured Services
-          </h2>
+          <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">Featured Cleaning Services</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="overflow-hidden group cursor-pointer border-none shadow-none">
@@ -120,9 +118,7 @@ const Home = () => {
                 </div>
                 <div className="p-6">
                   <h3 className="font-serif text-2xl mb-2">Commercial</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Boutique offices, studios, and wellness spaces.
-                  </p>
+                  <p className="text-sm text-muted-foreground">Boutique offices, studios, and wellness spaces.</p>
                 </div>
               </Link>
             </Card>
@@ -166,9 +162,8 @@ const Home = () => {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="font-serif text-3xl md:text-4xl mb-6">Curated Care Plan</h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-            Our in-home consultation is <span className="text-foreground font-medium">$150</span>, 
-            fully credited toward your first booking. This ensures your home receives a tailored plan 
-            designed for precision and care.
+            Our in-home consultation is <span className="text-foreground font-medium">$150</span>, fully credited toward
+            your first booking. This ensures your home receives a tailored plan designed for precision and care.
           </p>
           <Button asChild>
             <Link to="/contact">Request Consultation</Link>
@@ -179,9 +174,7 @@ const Home = () => {
       {/* Reviews */}
       <section className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">
-            What Clients Say
-          </h2>
+          <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">What Clients Say</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="border-l-2 border-accent pl-6">
@@ -192,9 +185,7 @@ const Home = () => {
             </div>
 
             <div className="border-l-2 border-accent pl-6">
-              <p className="text-lg mb-4 leading-relaxed">
-                "They care for our marble like it's their own."
-              </p>
+              <p className="text-lg mb-4 leading-relaxed">"They care for our marble like it's their own."</p>
               <p className="text-sm text-muted-foreground">— M.D., Bear Mountain</p>
             </div>
           </div>
