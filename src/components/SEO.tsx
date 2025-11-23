@@ -7,7 +7,6 @@ interface SEOProps {
   ogType?: "website" | "article";
   ogImage?: string;
   publishedTime?: string;
-  keywords?: string;
 }
 
 /**
@@ -19,7 +18,6 @@ interface SEOProps {
  * @param ogType - Open Graph type (website or article)
  * @param ogImage - Open Graph image URL
  * @param publishedTime - Article published time (ISO format)
- * @param keywords - Page keywords for SEO
  */
 export const SEO = ({
   title,
@@ -28,7 +26,6 @@ export const SEO = ({
   ogType = "website",
   ogImage = "/og-image.png",
   publishedTime,
-  keywords,
 }: SEOProps) => {
   const siteUrl = "https://wabisabiservices.ca";
   const fullTitle = `${title} | Wabi Sabi Services`;
@@ -41,7 +38,6 @@ export const SEO = ({
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
       <meta name="description" content={description} />
-      {keywords && <meta name="keywords" content={keywords} />}
       
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />

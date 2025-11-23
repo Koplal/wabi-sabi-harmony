@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { BreadcrumbSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 
 const Services = () => {
@@ -12,12 +11,7 @@ const Services = () => {
       <SEO 
         title="Our Services"
         description="Professional cleaning, organizing, and concierge services in Victoria, BC. Residential cleaning, commercial cleaning, home organizing, and errand services."
-        keywords="cleaning services Victoria BC, organizing services Victoria, concierge services Victoria, professional cleaning"
       />
-      <BreadcrumbSchema items={[
-        { name: "Home", url: "/" },
-        { name: "Services", url: "/services" }
-      ]} />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 
