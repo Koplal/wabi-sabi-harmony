@@ -61,8 +61,9 @@ export const PriceEstimator = () => {
     let price = service.basePrice;
 
     if (isHourlyService) {
-      // For hourly service, multiply by hours
-      price = price * hours;
+      // For hourly service, multiply by hours and workers
+      // Base price is per worker per hour, so we multiply by both
+      price = price * hours * workers;
     } else {
       // Add bathroom costs (first bathroom is included)
       if (bathrooms > 1) {
@@ -77,7 +78,7 @@ export const PriceEstimator = () => {
     }
 
     setEstimatedPrice(Math.round(price));
-  }, [serviceType, bathrooms, frequency, hours, isHourlyService]);
+  }, [serviceType, bathrooms, frequency, hours, isHourlyService, workers]);
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
