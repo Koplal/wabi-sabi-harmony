@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import aboutHero from "@/assets/about-hero.jpg";
 
@@ -64,6 +65,18 @@ const About = () => {
             </p>
 
             <p className="text-muted-foreground leading-relaxed">
+              For estate and second-home owners, we serve as a discreet concierge—keeping a watchful eye while you're away, coordinating the household, and ensuring your home is immaculate and ready the moment you return. Many of our clients entrust us with keys, schedules, and the care of homes they cannot always be present to manage themselves.
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed">
+              Victoria's most distinguished homes are built of irreplaceable materials—marble and limestone, heritage windows, fine millwork, and natural stone weathered by salt air. We bring genuine material and heritage expertise to their care, choosing surface-safe methods that protect both the finish and the character that makes each home singular.
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed">
+              And through all of it, discretion is absolute. We work quietly, respect your privacy without exception, and treat everything we encounter in your home as entirely confidential.
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed">
               We're here to handle what needs handling, so your home supports your life instead of adding to it.
             </p>
 
@@ -116,12 +129,12 @@ const About = () => {
                 <CardHeader>
                   <CardTitle className="flex items-start gap-3">
                     <span className="text-3xl">🤝</span>
-                    <span className="font-serif text-xl">Trust & Discretion</span>
+                    <span className="font-serif text-xl">Discretion & Trust</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    Your privacy is paramount. We maintain the highest standards of professionalism and confidentiality.
+                    Your privacy is absolute. Each member of our team is carefully vetted and fully insured, and what we see in your home stays entirely confidential—the soul of discretion for homes where it matters most.
                   </p>
                 </CardContent>
               </Card>
@@ -130,19 +143,23 @@ const About = () => {
                 <CardHeader>
                   <CardTitle className="flex items-start gap-3">
                     <span className="text-3xl">✨</span>
-                    <span className="font-serif text-xl">Excellence in Detail</span>
+                    <span className="font-serif text-xl">Heritage & Material Mastery</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    Quality over speed, always. We believe thoughtful care creates lasting impact.
+                    Quality over speed, always. From marble and limestone to heritage windows and fine millwork, we bring museum-level, surface-safe care to the materials that make a home irreplaceable.
                   </p>
                 </CardContent>
               </Card>
             </div>
 
             <p className="text-center text-muted-foreground italic">
-              Wabi Sabi Services serves discerning clients throughout Greater Victoria, including Oak Bay, Uplands, Rockland, Fairfield, and Bear Mountain.
+              Wabi Sabi Services serves discerning clients throughout Greater Victoria, including Oak Bay, Uplands,
+              Rockland, North Saanich, and Fairfield.{" "}
+              <Link to="/areas" className="not-italic underline underline-offset-4 hover:text-foreground transition-colors">
+                Explore all of our service areas →
+              </Link>
             </p>
           </div>
         </div>

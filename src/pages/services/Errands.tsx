@@ -39,10 +39,10 @@ const Errands = () => {
           <div className="prose prose-lg max-w-none space-y-12">
             <div>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Your time is valuable. Let us handle the errands and household tasks that eat into your day.
+                Your time is your most considered luxury. Let us serve as your discreet concierge for the errands and household details that quietly consume the day.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mt-6">
-                From grocery shopping to prescription pickups, we provide reliable, discreet support with the details that keep your household running smoothly.
+                From sourcing fine groceries to managing a household in your absence, we provide reliable, vetted, white-glove support—particularly for estate and second-home owners who need a trusted presence keeping everything in seamless order.
               </p>
             </div>
 
@@ -236,6 +236,12 @@ const Errands = () => {
                 </Link>
               </div>
             </section>
+
+            <p className="text-center text-muted-foreground">
+              <Link to="/areas" className="underline underline-offset-4 hover:text-foreground transition-colors">
+                Serving Victoria's finest neighbourhoods →
+              </Link>
+            </p>
           </div>
         </div>
       </div>

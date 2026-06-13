@@ -39,10 +39,10 @@ const Organizing = () => {
           <div className="prose prose-lg max-w-none space-y-12">
             <div>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                You don't need more storage solutions. You need a system that actually works for how you live.
+                You don't need more storage solutions. You need a system, quietly and bespokely composed, that works for the way you actually live.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mt-6">
-                Our organizing services go beyond just tidying up. We help you create functional spaces that reduce decision fatigue, minimize visual clutter, and genuinely make your daily routines easier.
+                Our organizing service is a concierge engagement, not a tidy-up. We compose functional, beautiful spaces that reduce decision fatigue, minimize visual clutter, and genuinely make your daily routines easier—all with the same vetted discretion we bring to every home we tend.
               </p>
             </div>
 
@@ -165,6 +165,12 @@ const Organizing = () => {
                 </Link>
               </div>
             </section>
+
+            <p className="text-center text-muted-foreground">
+              <Link to="/areas" className="underline underline-offset-4 hover:text-foreground transition-colors">
+                Serving Victoria's finest neighbourhoods →
+              </Link>
+            </p>
           </div>
         </div>
       </div>

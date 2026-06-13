@@ -13,17 +13,23 @@ export const OrganizationSchema = () => {
     "url": "https://wabisabiservices.ca",
     "logo": "https://wabisabiservices.ca/og-image.png",
     "description": "Mindful luxury cleaning services in Victoria, BC. Museum-level precision, discreet service, and sustainable care for intentional homes and businesses.",
-    "email": "hello@wabisabiservices.com",
+    "email": "hello@wabisabiservices.ca",
+    "telephone": "+1-250-896-5971",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Victoria",
       "addressRegion": "BC",
       "addressCountry": "CA"
     },
+    "sameAs": [
+      "https://www.instagram.com/wabisabiservices/",
+      "https://share.google/qpmn3a6VHcDFweao6"
+    ],
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "Customer Service",
-      "email": "hello@wabisabiservices.com",
+      "telephone": "+1-250-896-5971",
+      "email": "hello@wabisabiservices.ca",
       "availableLanguage": ["English"]
     }
   };

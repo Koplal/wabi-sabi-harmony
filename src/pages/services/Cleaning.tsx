@@ -24,7 +24,7 @@ const Cleaning = () => {
             Professional Cleaning Services
           </h1>
           <p className="text-xl text-center text-muted-foreground mb-16 leading-relaxed max-w-3xl mx-auto">
-            Comprehensive cleaning solutions for homes and businesses throughout Vancouver
+            Comprehensive cleaning solutions for homes and businesses throughout Victoria
           </p>
 
           <div className="mb-20">
@@ -133,6 +133,22 @@ const Cleaning = () => {
               </div>
             </section>
 
+            {/* Heritage & Fine-Materials Care */}
+            <section>
+              <h2 className="font-serif text-4xl mb-8">Heritage &amp; Fine-Materials Care</h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                Victoria's most distinguished homes are built of materials that cannot be replaced. We bring genuine
+                expertise to their care—choosing surface-safe methods that protect the finish and preserve the character
+                that makes each residence singular.
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                <li>Marble, limestone, and natural stone—cleaned and protected without etching or dulling</li>
+                <li>Heritage windows, leaded glass, and original millwork handled with conservation-minded care</li>
+                <li>Salt-air remediation for waterfront and oceanfront estates, where corrosion and residue accumulate</li>
+                <li>Period finishes, hardwood, and fine fixtures tended to gallery standards</li>
+              </ul>
+            </section>
+
             {/* Specialty Cleaning */}
             <section>
               <h2 className="font-serif text-4xl mb-8">Specialty Cleaning Services</h2>
@@ -193,6 +209,12 @@ const Cleaning = () => {
                 </Link>
               </div>
             </section>
+
+            <p className="text-center text-muted-foreground">
+              <Link to="/areas" className="underline underline-offset-4 hover:text-foreground transition-colors">
+                Serving Victoria's finest neighbourhoods →
+              </Link>
+            </p>
           </div>
         </div>
       </div>

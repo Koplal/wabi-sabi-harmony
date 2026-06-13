@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PriceEstimator } from "@/components/PriceEstimator";
 import { SEO } from "@/components/SEO";
 import heroImage from "@/assets/hero-image.jpg";
 import commercialService from "@/assets/commercial-service.jpg";
@@ -34,14 +33,13 @@ const Home = () => {
             immaculately kept.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-12 animate-in fade-in duration-1000 delay-200">
-            Mindful cleaning for intentional homes and businesses.
+            A bespoke concierge for Victoria's most discerning homes.
           </p>
 
-          <div className="max-w-2xl mx-auto mb-8 animate-in fade-in duration-1000 delay-300">
-            <PriceEstimator />
-          </div>
-
-          <div className="animate-in fade-in duration-1000 delay-400">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in duration-1000 delay-400">
+            <Button asChild size="lg">
+              <Link to="/contact">Request a Private Consultation</Link>
+            </Button>
             <Button asChild variant="outline" size="lg">
               <Link to="/services">Explore Services</Link>
             </Button>
@@ -56,27 +54,29 @@ const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center">
-              <h3 className="font-serif text-2xl mb-4">Calm Precision</h3>
+              <h3 className="font-serif text-2xl mb-4">Museum-Level Precision</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Every detail matters—from museum-level dusting and edge-to-edge floors to curated resets that leave your
-                home styled and serene. Conscious products and subtle seasonal scents complete the finish.
+                Every detail is considered—from gallery-grade dusting and edge-to-edge floors to the heritage-aware care
+                of marble, limestone, and fine millwork. Conscious products and subtle seasonal scents complete the
+                finish.
               </p>
             </div>
 
             <div className="text-center">
-              <h3 className="font-serif text-2xl mb-4">Discreet & Trustworthy</h3>
+              <h3 className="font-serif text-2xl mb-4">Vetted & Discreet</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Your privacy and peace of mind come first. Our team is carefully vetted, fully insured, and trained to
-                work quietly in the background—leaving your space flawless without disruption.
+                Your privacy is paramount. Each member of our team is carefully vetted, fully insured, and trained to
+                work quietly in the background—the soul of discretion for households where confidentiality is
+                non-negotiable.
               </p>
             </div>
 
             <div className="text-center">
-              <h3 className="font-serif text-2xl mb-4">Sustainable Care</h3>
+              <h3 className="font-serif text-2xl mb-4">Heritage-Aware Care</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Luxury should never come at the expense of well-being. We offer fragrance-free options as well as
-                aromatherapy enhancements, always using surface-safe products and practices that protect your children,
-                pets, and the planet.
+                Victoria's finest homes carry irreplaceable materials and histories. We treat heritage windows, natural
+                stone, and salt-air-exposed surfaces with the considered, surface-safe methods they deserve—protecting
+                your home, your family, and the character that makes it singular.
               </p>
             </div>
           </div>
@@ -144,6 +144,34 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Where We Serve */}
+      <section className="py-32 px-6 lg:px-12">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="font-serif text-4xl md:text-5xl mb-8">Where We Serve</h2>
+          <p className="text-lg text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto">
+            Bespoke concierge care across Greater Victoria's most distinguished neighbourhoods—from heritage estates to
+            waterfront retreats, each tended with the same quiet precision.
+          </p>
+          <nav aria-label="Featured service areas" className="flex flex-wrap gap-3 justify-center mb-12">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/areas/uplands">Uplands</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/areas/oak-bay">Oak Bay</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/areas/rockland">Rockland</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/areas/north-saanich">North Saanich</Link>
+            </Button>
+          </nav>
+          <Button asChild variant="ghost">
+            <Link to="/areas">View All Service Areas →</Link>
+          </Button>
+        </div>
+      </section>
+
       {/* The Ritual Teaser */}
       <section className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-4xl text-center">
@@ -162,8 +190,9 @@ const Home = () => {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="font-serif text-3xl md:text-4xl mb-6">Curated Care Plan</h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-            Our in-home consultation is <span className="text-foreground font-medium">$150</span>, fully credited toward
-            your first booking. This ensures your home receives a tailored plan designed for precision and care.
+            It begins with a private in-home consultation—<span className="text-foreground font-medium">$150</span>,
+            credited in full toward your first service. We listen, study your home and its materials, and design a
+            tailored plan built around precision, discretion, and care.
           </p>
           <Button asChild>
             <Link to="/contact">Request Consultation</Link>
@@ -181,12 +210,12 @@ const Home = () => {
               <p className="text-lg mb-4 leading-relaxed">
                 "Listing went live at 10am and sold in 48 hours. The house felt like a boutique hotel."
               </p>
-              <p className="text-sm text-muted-foreground">— S.K., Uplands</p>
+              <p className="text-sm text-muted-foreground">— A discerning Victoria client</p>
             </div>
 
             <div className="border-l-2 border-accent pl-6">
               <p className="text-lg mb-4 leading-relaxed">"They care for our marble like it's their own."</p>
-              <p className="text-sm text-muted-foreground">— M.D., Bear Mountain</p>
+              <p className="text-sm text-muted-foreground">— A Greater Victoria homeowner</p>
             </div>
           </div>
 

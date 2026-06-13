@@ -27,7 +27,7 @@ const Services = () => {
             Our Services
           </h1>
           <p className="text-xl text-center text-muted-foreground mb-20 leading-relaxed max-w-3xl mx-auto">
-            From regular cleaning to comprehensive organization and household support, we offer tailored solutions that make your life easier
+            White-glove cleaning, considered organization, and discreet household support for Victoria's most distinguished homes. Every engagement is bespoke, estate-capable, and tailored to the way you live.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-20">
@@ -99,36 +99,36 @@ const Services = () => {
             <h2 className="font-serif text-4xl mb-8 text-center">Why Wabi Sabi Services?</h2>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div>
-                <h3 className="font-serif text-xl mb-3">Holistic Approach</h3>
+                <h3 className="font-serif text-xl mb-3">Estate-Capable Expertise</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  We don't just clean—we create environments informed by psychology and hospitality standards that reduce your mental load.
+                  From heritage residences to waterfront estates, we are equipped for fine materials and demanding homes—marble, limestone, heritage windows, and salt-air-exposed surfaces handled with museum-level care.
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-3">Consistent Care</h3>
+                <h3 className="font-serif text-xl mb-3">A Dedicated, Vetted Professional</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  You work with the same professional each visit, ensuring familiarity with your preferences and home.
+                  You are paired with the same carefully vetted, fully insured professional each visit—someone who comes to know your home, your preferences, and your standards intimately.
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-3">Flexible Solutions</h3>
+                <h3 className="font-serif text-xl mb-3">Bespoke Solutions</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Every service plan is tailored to your needs—whether that's weekly maintenance, one-time organizing, or ongoing errand support.
+                  Every engagement is composed around your home and cadence—ongoing care plans, seasonal resets, or full concierge support for absentee and estate owners.
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-3">Complete Discretion</h3>
+                <h3 className="font-serif text-xl mb-3">NDA-Grade Discretion</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your privacy is paramount. What we see in your home stays private, always.
+                  Your privacy is absolute. Our team works quietly in the background, and what we see in your home remains entirely confidential—always.
                 </p>
               </div>
             </div>
           </section>
 
           <section className="text-center bg-accent/20 rounded-lg p-12">
-            <h2 className="font-serif text-3xl md:text-4xl mb-6">Ready to Get Started?</h2>
+            <h2 className="font-serif text-3xl md:text-4xl mb-6">Begin with a Private Consultation</h2>
             <p className="text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Every service begins with a complimentary consultation. We'll discuss your needs and create a plan that works for your home and schedule.
+              Every engagement opens with a private consultation. We listen, study your home and its materials, and compose a plan tailored to your standards and your schedule.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/book">
@@ -143,6 +143,12 @@ const Services = () => {
               </Link>
             </div>
           </section>
+
+          <p className="text-center text-muted-foreground mt-16">
+            <Link to="/areas" className="underline underline-offset-4 hover:text-foreground transition-colors">
+              Serving Victoria's finest neighbourhoods →
+            </Link>
+          </p>
         </div>
       </div>
     </Layout>

@@ -198,8 +198,11 @@ const Contact = () => {
 
           <div className="text-center border-t border-border pt-12">
             <p className="text-muted-foreground mb-2">Or reach us directly:</p>
-            <a href="mailto:hello@wabisabiservices.ca" className="text-lg hover:text-primary transition-colors">
-              hello@wabisabiservices.com
+            <a href="mailto:hello@wabisabiservices.ca" className="text-lg hover:text-primary transition-colors block">
+              hello@wabisabiservices.ca
+            </a>
+            <a href="tel:+12508965971" className="text-lg hover:text-primary transition-colors block mt-2">
+              (250) 896-5971
             </a>
             <p className="text-sm text-muted-foreground mt-6">Victoria, BC</p>
           </div>

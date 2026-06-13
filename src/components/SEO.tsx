@@ -7,6 +7,7 @@ interface SEOProps {
   ogType?: "website" | "article";
   ogImage?: string;
   publishedTime?: string;
+  keywords?: string;
 }
 
 /**
@@ -26,6 +27,7 @@ export const SEO = ({
   ogType = "website",
   ogImage = "/og-image.png",
   publishedTime,
+  keywords,
 }: SEOProps) => {
   const siteUrl = "https://wabisabiservices.ca";
   const fullTitle = `${title} | Wabi Sabi Services`;
@@ -38,7 +40,8 @@ export const SEO = ({
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
       <meta name="description" content={description} />
-      
+      {keywords && <meta name="keywords" content={keywords} />}
+
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />
       

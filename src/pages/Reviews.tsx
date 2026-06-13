@@ -6,19 +6,19 @@ const Reviews = () => {
   const reviews = [
     {
       quote: "The attention to detail was remarkable. Our home has never looked this pristine.",
-      author: "S.K., Uplands"
+      author: "A discerning Victoria client"
     },
     {
       quote: "They care for our marble like it's their own.",
-      author: "M.D., Bear Mountain"
+      author: "A Greater Victoria homeowner"
     },
     {
       quote: "Wabi Sabi Services elevated our home beyond clean—it felt like a boutique retreat.",
-      author: "A.L., Oak Bay"
+      author: "An Oak Bay homeowner"
     },
     {
       quote: "Professional, discreet, and meticulous. We trust them completely.",
-      author: "J.R., Bear Mountain"
+      author: "A longtime estate client"
     }
   ];
 
@@ -26,7 +26,7 @@ const Reviews = () => {
     <Layout>
       <SEO 
         title="Client Reviews & Testimonials"
-        description="Read what clients in Victoria, BC say about Wabi Sabi Services. Luxury cleaning reviews from Uplands, Oak Bay, and Bear Mountain."
+        description="Read what discerning clients across Greater Victoria, BC say about Wabi Sabi Services. Luxury concierge cleaning reviews from Uplands, Oak Bay, and beyond."
         keywords="cleaning reviews Victoria BC, cleaning testimonials Victoria, best cleaners Victoria, luxury cleaning reviews"
       />
       <div className="relative">

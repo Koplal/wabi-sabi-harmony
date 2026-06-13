@@ -3,6 +3,9 @@ import { JsonLd } from "./JsonLd";
 /**
  * LocalBusiness schema for Wabi Sabi Services.
  * Helps with local SEO and "near me" searches in Victoria, BC.
+ *
+ * Note: this node intentionally shares @id "...#organization" with OrganizationSchema;
+ * Organization + LocalBusiness co-type a single entity (valid schema.org co-typing).
  */
 export const LocalBusinessSchema = () => {
   const schema = {
@@ -12,10 +15,14 @@ export const LocalBusinessSchema = () => {
     "name": "Wabi Sabi Services",
     "description": "Quiet luxury, immaculately kept. Mindful cleaning for intentional homes and businesses in Victoria, BC. Museum-level precision, discreet service, sustainable care.",
     "url": "https://wabisabiservices.ca",
-    "telephone": "+1-250-XXX-XXXX",
-    "email": "hello@wabisabiservices.com",
+    "telephone": "+1-250-896-5971",
+    "email": "hello@wabisabiservices.ca",
     "priceRange": "$$-$$$",
     "image": "https://wabisabiservices.ca/og-image.png",
+    "sameAs": [
+      "https://www.instagram.com/wabisabiservices/",
+      "https://share.google/qpmn3a6VHcDFweao6"
+    ],
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Victoria",
@@ -51,12 +58,7 @@ export const LocalBusinessSchema = () => {
         "opens": "08:00",
         "closes": "18:00"
       }
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "5.0",
-      "reviewCount": "24"
-    }
+    ]
   };
 
   return <JsonLd data={schema} />;

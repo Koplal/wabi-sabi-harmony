@@ -62,6 +62,9 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
+import AreasIndex from "./pages/areas/Index";
+import { NeighborhoodPage } from "@/components/NeighborhoodPage";
+import { neighborhoods } from "@/data/neighborhoods";
 
 const queryClient = new QueryClient();
 
@@ -139,6 +142,10 @@ const App = () => (
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          <Route path="/areas" element={<AreasIndex />} />
+          {Object.values(neighborhoods).map((n) => (
+            <Route key={n.slug} path={`/areas/${n.slug}`} element={<NeighborhoodPage data={n} />} />
+          ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
