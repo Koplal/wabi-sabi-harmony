@@ -539,6 +539,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Willis Point", slug: "willis-point" },
       { name: "Broadmead", slug: "broadmead" },
       { name: "Gordon Head", slug: "gordon-head" },
+      { name: "Bear Mountain", slug: "bear-mountain" },
     ],
   },
 
@@ -614,6 +615,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Whole-property resets tailored to rural living.",
     ],
     nearbyAreas: [
+      { name: "Bear Mountain", slug: "bear-mountain" },
       { name: "Downtown Victoria", slug: "downtown-victoria" },
       { name: "James Bay", slug: "james-bay" },
       { name: "Fairfield", slug: "fairfield" },
@@ -736,6 +738,45 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Uplands", slug: "uplands" },
       { name: "Fairfield", slug: "fairfield" },
       { name: "Rockland", slug: "rockland" },
+    ],
+  },
+  "bear-mountain": {
+    name: "Bear Mountain",
+    slug: "bear-mountain",
+    tier: 2,
+    metaDescription:
+      "Bespoke concierge cleaning for Bear Mountain, Langford — golf-resort estates and modern luxury homes in the Westshore. Discreet, white-glove care.",
+    heroTagline: "White-glove care for the Westshore's premier golf-resort community.",
+    intro:
+      "Bear Mountain is the Westshore's flagship luxury address — a master-planned mountainside resort community above Langford, built around 36 holes of Nicklaus Design golf and the Westin Bear Mountain resort. We bring discreet, white-glove care to its custom estates, golf-frontage residences, and lock-and-leave resort homes, where presentation and privacy matter in equal measure.",
+    localContext: [
+      "Set on the slopes of Skirt Mountain, Bear Mountain is unlike anywhere else in Greater Victoria: a purpose-built resort community where luxury homes share the hillside with two Nicklaus Design golf courses — the Mountain and the Valley — a tennis and pickleball centre, the Westin resort and spa, and an arena. The result is a polished, amenity-rich enclave that draws executives, athletes, and second-home owners who expect the same resort-grade standards inside their homes.",
+      "Architecture here is modern rather than heritage — West Coast contemporary estates, golf-course-frontage residences, and luxury condominiums and townhomes, many with large-format glazing framing sweeping city, ocean, and mountain views. Those expansive glass walls and the manicured presentation of golf-frontage homes set a high bar for upkeep, where streak-free glass and immaculate finishes are part of the lifestyle, not an afterthought.",
+      "A significant share of Bear Mountain residences are second homes and lock-and-leave properties for owners who travel between Victoria, Vancouver, and beyond. That rhythm calls for trusted, vetted care: return-to-pristine resets before arrivals, discreet oversight during absences, and event-ready turnovers for entertaining on the mountain.",
+    ],
+    whyLuxuryHere: [
+      "Resort-grade, white-glove standards for custom estates and golf-frontage homes.",
+      "Streak-free care for the large-format glazing that frames city, ocean, and mountain views.",
+      "Lock-and-leave oversight and return-to-pristine resets for second-home and travelling owners.",
+      "Event-ready turnovers for entertaining on the mountain.",
+      "Discreet, fully vetted teams comfortable in a high-amenity resort community.",
+    ],
+    heritageMaterials: [
+      "Large-format glazing and view walls kept immaculate and streak-free.",
+      "Engineered stone, quartz, and hardwood finishes cared for with material-specific methods.",
+      "Modern stone, stucco, and cedar exteriors maintained against mountain weather.",
+      "Smart-home and integrated systems respected and worked around with care.",
+    ],
+    conciergeServices: [
+      "Return-to-pristine resets for second-home and lock-and-leave owners.",
+      "Recurring white-glove maintenance for estates and golf-frontage residences.",
+      "Event-ready turnovers and discreet absentee oversight.",
+    ],
+    nearbyAreas: [
+      { name: "Metchosin", slug: "metchosin" },
+      { name: "Prospect Lake", slug: "prospect-lake" },
+      { name: "Willis Point", slug: "willis-point" },
+      { name: "Downtown Victoria", slug: "downtown-victoria" },
     ],
   },
 };
