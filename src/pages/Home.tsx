@@ -210,12 +210,12 @@ const Home = () => {
               <p className="text-lg mb-4 leading-relaxed">
                 "Listing went live at 10am and sold in 48 hours. The house felt like a boutique hotel."
               </p>
-              <p className="text-sm text-muted-foreground">— A discerning Victoria client</p>
+              <p className="text-sm text-muted-foreground">— S.K., Uplands</p>
             </div>
 
             <div className="border-l-2 border-accent pl-6">
               <p className="text-lg mb-4 leading-relaxed">"They care for our marble like it's their own."</p>
-              <p className="text-sm text-muted-foreground">— A Greater Victoria homeowner</p>
+              <p className="text-sm text-muted-foreground">— M.D., Bear Mountain</p>
             </div>
           </div>
 
