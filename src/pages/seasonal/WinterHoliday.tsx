@@ -73,7 +73,7 @@ const packages = [
     basePrice: 1799,
     decoratingFee: 125,
     image: grandCelebrationHero,
-    description: "Spectacular holiday transformation for estate-style properties.",
+    description: "Spectacular holiday styling for estate-style properties.",
     includes: [
       "Multiple premium wreaths (3+)",
       "Extensive garland installation (up to 50 feet)",

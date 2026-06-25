@@ -15,7 +15,7 @@ const GrandCelebration = () => {
     id: 'grand-celebration',
     name: 'The Grand Celebration',
     price: 1924,
-    description: 'Spectacular Holiday Transformation',
+    description: 'Spectacular Holiday Display',
     image: heroImage,
   };
 
@@ -60,7 +60,7 @@ const GrandCelebration = () => {
               The Grand Celebration
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-6">
-              Spectacular Holiday Transformation
+              Spectacular Holiday Display
             </p>
             <p className="text-lg text-muted-foreground">
               Up to five hundred lights and fifty feet of garland, all kept in hand all season.

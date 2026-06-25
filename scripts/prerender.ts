@@ -255,10 +255,14 @@ function renderPage(meta: RouteMeta): string {
   const fullTitle = `${meta.title} | ${BRAND}`;
   const canonical = meta.path === "/" ? `${SITE}/` : `${SITE}${meta.path}`;
 
-  html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(fullTitle)}</title>`);
+  // NOTE: all replacements use FUNCTION replacers so that "$" sequences in the
+  // replacement (e.g. priceRange "$$-$$$", or any "$" in copy) are inserted
+  // literally — String.replace treats "$$"/"$&" in a string replacement as
+  // special patterns, which previously corrupted priceRange to "$-$$".
+  html = html.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${escAttr(fullTitle)}</title>`);
   html = html.replace(
     /<meta\s+name="description"\s+content="[\s\S]*?"\s*\/?>/,
-    `<meta name="description" content="${escAttr(meta.description)}" />`
+    () => `<meta name="description" content="${escAttr(meta.description)}" />`
   );
 
   const repl: Array<[RegExp, string]> = [
@@ -270,7 +274,7 @@ function renderPage(meta: RouteMeta): string {
     [/<meta\s+name="twitter:description"\s+content="[\s\S]*?"\s*\/?>/, `<meta name="twitter:description" content="${escAttr(meta.description)}" />`],
     [/<meta\s+name="twitter:url"\s+content="[\s\S]*?"\s*\/?>/, `<meta name="twitter:url" content="${canonical}" />`],
   ];
-  for (const [re, val] of repl) html = html.replace(re, val);
+  for (const [re, val] of repl) html = html.replace(re, () => val);
 
   let inject = `\n    <link rel="canonical" href="${canonical}" />`;
   if (meta.publishedTime) {
@@ -282,7 +286,7 @@ function renderPage(meta: RouteMeta): string {
   // routes (like "/") whose own jsonLdBlocks array is empty.
   const blocks = [orgGraph(), ...meta.jsonLdBlocks];
   inject += "\n    " + blocks.map(jsonLd).join("\n    ") + "\n  ";
-  html = html.replace("</head>", `${inject}</head>`);
+  html = html.replace("</head>", () => `${inject}</head>`);
   return html;
 }
 

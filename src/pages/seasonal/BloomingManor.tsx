@@ -15,7 +15,7 @@ const BloomingManor = () => {
     id: 'blooming-manor',
     name: 'The Blooming Manor',
     price: 1924,
-    description: 'Grand Spring Transformation',
+    description: 'Grand Spring Display',
     image: heroImage,
   };
 
@@ -60,7 +60,7 @@ const BloomingManor = () => {
               The Blooming Manor
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-6">
-              Grand Spring Transformation
+              Grand Spring Display
             </p>
             <p className="text-lg text-muted-foreground">
               Our most generous spring installation, planned around your home over several weeks.
