@@ -23,7 +23,7 @@ const BloomingManor = () => {
     <Layout>
       <SEO
         title="The Blooming Manor | Spring Styling | Victoria"
-        description="The Blooming Manor: our most generous spring installation, with custom wreaths, twelve statement planters, lighting, and a dedicated design process. $1,924 CAD, Greater Victoria."
+        description="The Blooming Manor: our most generous spring installation for Victoria estates, with custom wreaths, twelve statement planters, and lighting."
         canonical="https://wabisabiservices.ca/seasoning/the-blooming-manor"
       />
       <BreadcrumbSchema
@@ -78,7 +78,7 @@ const BloomingManor = () => {
                   The Blooming Manor is the largest spring installation we offer, made for estate properties and the people who host in them. It begins weeks ahead with a design process built around your architecture, then arrives as abundant florals, garden lighting, and structural accents that carry the season across the whole front of the house.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  A dedicated project manager stays with you from the first walkthrough through the final maintenance visit. We place every element by hand and adjust on site, so the result reads as one composition rather than a collection of pieces.
+                  One project manager runs the job end to end, from the first walkthrough to the last maintenance visit. Every stem and planter is set by hand and adjusted in place, so the front of the house holds together as a single garden scene.
                 </p>
               </div>
               <Card className="p-8">
@@ -130,32 +130,32 @@ const BloomingManor = () => {
               </div>
             </div>
 
-            {/* Design Philosophy */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ichigo ichie</h4>
+                  <h4 className="font-serif text-xl mb-3">Florals across the whole front</h4>
                   <p className="text-muted-foreground">
-                    Once in a lifetime - treasure this unique spring moment
+                    Custom wreaths and twelve statement planters carry the season the length of the house, not just the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Hanami</h4>
+                  <h4 className="font-serif text-xl mb-3">Designed to your architecture</h4>
                   <p className="text-muted-foreground">
-                    Flower viewing - celebrating the beauty of blossoms
+                    The plan is drawn weeks ahead around your home's lines, entrances, and the way you host.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Gei</h4>
+                  <h4 className="font-serif text-xl mb-3">Fresh and preserved together</h4>
                   <p className="text-muted-foreground">
-                    Artistic accomplishment - mastery in floral execution
+                    Living blooms are paired with preserved stems and structural accents so the look holds up across the spring.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kodawari</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended every week</h4>
                   <p className="text-muted-foreground">
-                    Uncompromising dedication - pursuit of botanical perfection
+                    Weekly visits refresh the flowers and lighting, so the front stays in full bloom through the season.
                   </p>
                 </Card>
               </div>

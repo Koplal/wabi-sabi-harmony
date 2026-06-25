@@ -78,7 +78,7 @@ const BeachsideManor = () => {
                   The Beachside Manor brings coastal styling to larger properties at the scale they deserve. Statement planters, driftwood sculpture, and ambient lighting run across the entrance and grounds, settling the whole front of the house into a relaxed beach-house mood.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  It suits homes that carry estate-level presentation with ease. We place each element by hand to build layers of texture and depth that hold their composure through the long summer weeks.
+                  It is for larger waterfront and view homes where a small display would simply disappear. We work along the entrance and grounds by hand, layering driftwood, lanterns, and greenery until the front of the house reads as one relaxed beach-house scene across the whole summer.
                 </p>
               </div>
               <Card className="p-8">

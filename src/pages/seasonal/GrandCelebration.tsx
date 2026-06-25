@@ -130,32 +130,32 @@ const GrandCelebration = () => {
               </div>
             </div>
 
-            {/* Design Philosophy */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ichigo ichie</h4>
+                  <h4 className="font-serif text-xl mb-3">Lighting that reads from the road</h4>
                   <p className="text-muted-foreground">
-                    Once in a lifetime - treasure this unique moment
+                    Up to five hundred bulbs and fifty feet of garland are run to suit long rooflines and mature trees.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mono no aware</h4>
+                  <h4 className="font-serif text-xl mb-3">Mapped to your property</h4>
                   <p className="text-muted-foreground">
-                    Pathos of things - appreciating fleeting beauty
+                    We plan the run over two weeks around your grounds, sightlines, and how the house sits from the street.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Gei</h4>
+                  <h4 className="font-serif text-xl mb-3">Installed by a crew</h4>
                   <p className="text-muted-foreground">
-                    Artistic accomplishment - mastery in execution
+                    A professional team handles the heights and the wiring across a full day, with one manager seeing it through.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kodawari</h4>
+                  <h4 className="font-serif text-xl mb-3">Even all season</h4>
                   <p className="text-muted-foreground">
-                    Uncompromising dedication - pursuit of perfection
+                    Weekly visits swap tired greens and keep the lighting consistent through December's hosting.
                   </p>
                 </Card>
               </div>

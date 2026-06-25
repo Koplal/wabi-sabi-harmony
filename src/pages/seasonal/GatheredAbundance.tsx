@@ -75,10 +75,10 @@ const GatheredAbundance = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">A Celebration of Harvest's Peak</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Gathered Abundance is for those who understand that true luxury lies in thoughtful detail and natural beauty. This substantial display creates a powerful yet peaceful presence, transforming your entry into a destination that honors both the season and your guests.
+                  The Gathered Abundance is our statement autumn display. Two grand-prize pumpkins anchor the design, with heritage and rare specialty varieties set around them so the whole arrangement reads as a single, generous gesture rather than a pile of produce. It is built for the homes that guests remember.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Like a perfectly orchestrated tea ceremony, every element is placed with intention - the largest pumpkins anchor the design while smaller varieties dance between them, creating rhythm and visual poetry that evolves as viewers approach.
+                  We arrange it on site and return each week to keep the centerpieces sound and the smaller varieties looking fresh. The result is an entrance that holds its own from the road and rewards a closer look on the way to your door.
                 </p>
               </div>
               <Card className="p-8">

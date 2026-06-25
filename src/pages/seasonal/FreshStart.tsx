@@ -73,12 +73,12 @@ const FreshStart = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Embracing Spring's Awakening</h2>
+                <h2 className="font-serif text-4xl mb-6">A Light Welcome for Spring</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Fresh Start package welcomes spring with delicate floral touches and garden-inspired elements. Thoughtfully designed to celebrate renewal, this display brings the gentle beauty of the season to your entrance with fresh blooms and natural textures.
+                  The Fresh Start is our smallest spring display, and the easiest to live with. A handcrafted wreath, two seasonal planters, and a few natural touches give the front of the house a soft lift after winter, without crowding the entrance.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who appreciate understated elegance and the hopeful energy of spring. Each element is carefully selected to create a light, airy atmosphere that invites warmth and new beginnings.
+                  It suits people who would rather have one well-made arrangement than a lot of decoration. We choose the blooms and textures to sit comfortably with your door and the colour of the house.
                 </p>
               </div>
               <Card className="p-8">

@@ -21,7 +21,7 @@ const packages = [
     slug: "quiet-grace",
     price: 399,
     image: senseImage1,
-    description: "Perfect for intimate porches and those who appreciate that less can indeed be more.",
+    description: "A small, considered display for a townhome entry or a single front step.",
     includes: [
       "6 Large Heritage Pumpkins",
       "4 Medium Heirloom Pumpkins",
@@ -39,7 +39,7 @@ const packages = [
     price: 899,
     popular: true,
     image: budapestImage,
-    description: "The perfect middle path - generous enough to impress, refined enough to inspire tranquility.",
+    description: "Generous enough for a larger porch, restrained enough to still feel calm.",
     includes: [
       "8 Large Heritage Pumpkins",
       "8 Medium Heirloom Pumpkins",
@@ -56,7 +56,7 @@ const packages = [
     slug: "gathered-abundance",
     price: 1399,
     image: babylonImage,
-    description: "A show-stopping statement for those who honor both the season and their guests.",
+    description: "Our statement display, with grand-prize centerpieces that read from the road.",
     includes: [
       "2 Grand Prize Pumpkins (30-50 lbs each)",
       "10 Large Heritage Pumpkins",
@@ -233,21 +233,21 @@ const FallPumpkins = () => {
             <h2 className="font-serif text-3xl text-center mb-8">What to Expect</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <h3 className="font-serif text-xl mb-3">Professional Styling</h3>
+                <h3 className="font-serif text-xl mb-3">Styled by Hand</h3>
                 <p className="text-muted-foreground text-sm">
-                  Our team arranges each pumpkin with intention, creating balanced, beautiful displays.
+                  Our team sets every piece on site, adjusting to your steps, light, and front door until it sits right.
                 </p>
               </div>
               <div className="text-center">
-                <h3 className="font-serif text-xl mb-3">Quality Selection</h3>
+                <h3 className="font-serif text-xl mb-3">Chosen, Not Ordered</h3>
                 <p className="text-muted-foreground text-sm">
-                  Hand-picked pumpkins in various sizes, colors, and textures for visual interest.
+                  We hand-pick heritage and heirloom pumpkins, including the odd shapes and uneven colour the season is known for.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Start to Finish</h3>
                 <p className="text-muted-foreground text-sm">
-                  We deliver, arrange, and return to remove your display once the season has passed.
+                  We deliver, arrange, and come back to clear everything away once the season has passed.
                 </p>
               </div>
             </div>
@@ -259,8 +259,8 @@ const FallPumpkins = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="font-serif text-3xl mb-6">Planning for Next Season?</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Our autumn calendar fills early. Tell us about your home and we will hold a place for you on
-              the 2026 waitlist, then plan the details together.
+              Our autumn calendar fills early. Start with a $150 in-home consultation, credited in full toward your
+              first service, and we will plan a display for your home and hold your place on the 2026 waitlist.
             </p>
             <Button asChild size="lg">
               <Link to="/contact">Request a Private Consultation</Link>

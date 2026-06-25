@@ -73,12 +73,12 @@ const AbundantHarmony = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Perfect Middle Path</h2>
+                <h2 className="font-serif text-4xl mb-6">Generous, Without the Crowd</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Abundant Harmony represents the perfect middle path - generous enough to impress, refined enough to inspire tranquility. Each pumpkin is chosen not for perfection, but for character, creating a display that tells the story of nature's beautiful irregularities.
+                  The Abundant Harmony sits in the middle of our autumn range, and it is the package most people land on. There is enough here to fill a larger porch or a set of front steps, but the pieces are chosen and spaced so the result still feels calm rather than crowded.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for larger porches, stepped entries, and homes that host with heart. The collection turns your entrance into a quiet study of autumn's fleeting beauty, asking everyone who arrives to slow down for a moment.
+                  We choose each pumpkin for its character, including the lopsided ones, then arrange and install the whole display and check in mid-season to keep it looking its best. It is a good fit for homes that entertain through the autumn and want the entrance to match.
                 </p>
               </div>
               <Card className="p-8">

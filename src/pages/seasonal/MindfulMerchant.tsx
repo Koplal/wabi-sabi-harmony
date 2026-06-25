@@ -130,21 +130,25 @@ const MindfulMerchant = () => {
               </div>
             </div>
 
-            {/* Business Benefits */}
+            {/* What It Does for Your Space */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Business Benefits & ROI</h3>
-              <div className="grid md:grid-cols-3 gap-6">
+              <h3 className="font-serif text-3xl mb-8">What It Does for Your Space</h3>
+              <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">35%</div>
-                  <p className="text-muted-foreground">Average foot traffic increase</p>
+                  <h4 className="font-serif text-xl mb-3">For Your Storefront</h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li>• An entrance that gives people on the sidewalk a reason to slow down</li>
+                    <li>• Commercial-scale materials sized to a high-street frontage</li>
+                    <li>• A cared-for look that holds through a full autumn of foot traffic</li>
+                  </ul>
                 </Card>
                 <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">150%</div>
-                  <p className="text-muted-foreground">Social media engagement boost</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">200%</div>
-                  <p className="text-muted-foreground">Instagram check-ins increased</p>
+                  <h4 className="font-serif text-xl mb-3">For Your Customers</h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li>• A warm seasonal welcome the moment they reach your door</li>
+                    <li>• A photo-worthy frontage that fits your brand, not against it</li>
+                    <li>• Quiet hospitality, with no upkeep on your part</li>
+                  </ul>
                 </Card>
               </div>
             </div>

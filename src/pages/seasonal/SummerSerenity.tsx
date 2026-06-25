@@ -55,7 +55,7 @@ const packages = [
     basePrice: 1299,
     decoratingFee: 125,
     image: beachsideManorHero,
-    description: "Expansive coastal-luxe summer transformation.",
+    description: "Resort-scale coastal styling for the largest waterfront properties.",
     includes: [
       "Multiple coastal wreaths",
       "8 Statement summer planters",
@@ -163,8 +163,9 @@ const SummerSerenity = () => {
         <section className="py-12 px-6 lg:px-12 bg-secondary/30">
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Embrace summer's relaxed elegance with coastal wreaths, driftwood accents, and breezy arrangements 
-              that capture the essence of island living.
+              Summers on the Island are long and easy, and a doorway can be made to feel that way too.
+              Our summer packages lean on driftwood, sea glass, and weathered natural materials, sized
+              and placed to suit your entrance and worn in for the season ahead.
             </p>
           </div>
         </section>
@@ -235,19 +236,19 @@ const SummerSerenity = () => {
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Coastal Elegance</h3>
                 <p className="text-muted-foreground text-sm">
-                  Natural materials like driftwood, shells, and rope create an authentic seaside atmosphere.
+                  Driftwood, shells, and rope, used sparingly so the seaside reference feels real rather than themed.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Relaxed Luxury</h3>
                 <p className="text-muted-foreground text-sm">
-                  Sophisticated yet effortless designs that capture summer's easygoing spirit.
+                  Considered work that reads as effortless, which is harder to get right than it looks.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Island Living</h3>
                 <p className="text-muted-foreground text-sm">
-                  Tropical touches and breezy elements that celebrate Vancouver Island summers.
+                  Light, breezy touches drawn from Vancouver Island summers and the water that surrounds us.
                 </p>
               </div>
             </div>

@@ -126,45 +126,24 @@ const BusinessWelcome = () => {
               </div>
             </div>
 
-            {/* Business Benefits */}
+            {/* What It Does for Your Space */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Business Benefits & ROI</h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">30%</div>
-                  <p className="text-muted-foreground">Average customer sentiment increase</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">85%</div>
-                  <p className="text-muted-foreground">Clients notice and appreciate décor</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">100%</div>
-                  <p className="text-muted-foreground">Professional brand impression</p>
-                </Card>
-              </div>
-            </div>
-
-            {/* Marketing Amplification */}
-            <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Professional Advantages</h3>
+              <h3 className="font-serif text-3xl mb-8">What It Does for Your Space</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Brand Enhancement</h4>
+                  <h4 className="font-serif text-xl mb-3">For Your Brand</h4>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Reinforces commitment to quality</li>
-                    <li>• Shows attention to detail</li>
-                    <li>• Creates memorable first impressions</li>
-                    <li>• Differentiates from competitors</li>
+                    <li>• A measured holiday note that suits a professional setting</li>
+                    <li>• Palette and materials chosen to sit with your identity</li>
+                    <li>• Attention to detail that clients read without it being said</li>
                   </ul>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Client Experience</h4>
+                  <h4 className="font-serif text-xl mb-3">For Your Visitors</h4>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Welcoming, professional atmosphere</li>
-                    <li>• Seasonal celebration connection</li>
-                    <li>• Thoughtful hospitality message</li>
-                    <li>• Enhanced loyalty and goodwill</li>
+                    <li>• A welcoming entrance the moment they arrive</li>
+                    <li>• A quiet sense of the season at your door</li>
+                    <li>• Thoughtful hospitality, with no upkeep on your part</li>
                   </ul>
                 </Card>
               </div>

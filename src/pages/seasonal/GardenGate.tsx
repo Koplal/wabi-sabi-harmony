@@ -73,12 +73,12 @@ const GardenGate = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Celebrating Renewal and Growth</h2>
+                <h2 className="font-serif text-4xl mb-6">A Fuller Spring Display</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Garden Gate package brings abundant spring energy to your entrance with lush florals and charming garden accents. This substantial display creates a welcoming atmosphere that celebrates nature's renewal with fresh blooms, preserved elements, and whimsical touches.
+                  The Garden Gate is a generous step up. A designer wreath, four seasonal planters, and a handful of garden accents give the entrance real presence, with fresh and preserved flowers carrying the look through the season.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for those who love garden aesthetics and appreciate the beauty of seasonal transitions. Each element works together to create a cohesive, inviting display that evolves beautifully as spring progresses.
+                  It is the package for people who genuinely garden, or wish they had more time to. We build it to settle and shift a little as spring moves on, so it never looks fixed in place.
                 </p>
               </div>
               <Card className="p-8">

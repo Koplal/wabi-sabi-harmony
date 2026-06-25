@@ -151,7 +151,7 @@ const WinterHoliday = () => {
               Winter Holiday Packages
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Elegant seasonal décor that celebrates winter's beauty
+              Fresh wreaths, garland, and lighting, designed and installed at your door
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               Available: November through December
@@ -162,8 +162,9 @@ const WinterHoliday = () => {
         <section className="py-12 px-6 lg:px-12 bg-secondary/30">
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Welcome the season with sophisticated wreaths, fresh evergreen arrangements, and thoughtfully placed 
-              lighting. Each package brings natural elegance to your home's entrance.
+              Five winter packages, from a single welcoming doorway to a full estate facade. We source the greens,
+              build the arrangements, and install everything ourselves, then take it all down once the season is over.
+              Choose a package below, or talk with us about a display shaped to your home.
             </p>
           </div>
         </section>
@@ -255,9 +256,10 @@ const WinterHoliday = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Ready to Welcome the Holidays?</h2>
+            <h2 className="font-serif text-3xl mb-6">Planning Your Holidays?</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Let us create a welcoming winter display that reflects your home's unique character.
+              The December calendar fills quickly. Start with a $150 in-home consultation, credited in full toward
+              your first service, and we will walk your entrance together and plan the season's display.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">

@@ -75,10 +75,10 @@ const WinterWonderland = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Where Frost Meets Sophistication</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Winter Wonderland package transforms your entrance into an elegant frost-kissed sanctuary. With premium evergreens, subtle lighting, and sophisticated accents, this display captures the magic of winter's crystalline beauty.
+                  The Winter Wonderland leans cool and quiet. Premium evergreens, frosted branches, and a warm string of lights give the entrance a pale, wintry palette that holds up against grey afternoons and earns its keep once the light goes down.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for those who appreciate refined details and natural elements paired with gentle light. Each piece is placed to read as one display, one that changes character as the afternoon turns to evening.
+                  Every piece is placed to read as one display rather than a row of pieces, and we set the lighting in the evening so we can see exactly how it lands after dark. A mid-season visit keeps the greens fresh through the holidays.
                 </p>
               </div>
               <Card className="p-8">

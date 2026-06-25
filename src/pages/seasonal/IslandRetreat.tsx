@@ -73,12 +73,12 @@ const IslandRetreat = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Creating Your Summer Sanctuary</h2>
+                <h2 className="font-serif text-4xl mb-6">A Resort Mood for the Front Step</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Island Retreat turns your entrance into a tropical escape with lush plants, natural materials, and resort-inspired accents. Bamboo, rattan, and coastal elements come together into a welcoming display that carries the ease of a vacation home.
+                  The Island Retreat is our mid-size summer display, and the most relaxed of the three. A palm-element wreath, four tropical planters, bamboo and rattan accents, and a pair of hurricane lanterns give the entrance the easy feel of a place you go to slow down.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for those who love tropical aesthetics and appreciate the laid-back luxury of island living. Each element works together to create a cohesive, inviting display that feels like a permanent vacation.
+                  It is for people who want their home to feel like time away. We keep some open space among the greenery so the display breathes instead of crowding the door.
                 </p>
               </div>
               <Card className="p-8">

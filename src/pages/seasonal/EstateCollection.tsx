@@ -135,32 +135,32 @@ const EstateCollection = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shu-Ha-Ri</h4>
+                  <h4 className="font-serif text-xl mb-3">Rare specimens at the centre</h4>
                   <p className="text-muted-foreground">
-                    Learning journey - each year builds upon the last
+                    Competition-grade and heritage pumpkins anchor the display, with unusual varieties chosen so no two entrances look alike.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kintsugi</h4>
+                  <h4 className="font-serif text-xl mb-3">Built for your sightlines</h4>
                   <p className="text-muted-foreground">
-                    Golden repair - celebrating imperfections as features
+                    The plan is drawn to your grounds, light, and architecture rather than dropped from a template.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mushin</h4>
+                  <h4 className="font-serif text-xl mb-3">Layered, not piled</h4>
                   <p className="text-muted-foreground">
-                    No-mind - creating spaces for meditation
+                    Branches, gourds, and dried arrangements are set in scale so large and small pieces read together.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ichi-go ichi-e</h4>
+                  <h4 className="font-serif text-xl mb-3">Kept at its best</h4>
                   <p className="text-muted-foreground">
-                    One time, one meeting - unique, unrepeatable beauty
+                    Twice-weekly visits replace anything past its prime, so the entrance looks freshly done all season.
                   </p>
                 </Card>
               </div>

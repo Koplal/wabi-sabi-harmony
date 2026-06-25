@@ -75,10 +75,10 @@ const BotanicalEstate = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Creating a Living Garden Sanctuary</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Botanical Estate brings garden-scale spring styling to larger properties. Fresh seasonal flowers, cherry blossom branches, and sculptural elements come together across your entrance, planters, and grounds, so the season reads at a distance and rewards a closer look.
+                  The Botanical Estate brings garden-scale spring styling to larger properties. Fresh seasonal flowers, cherry blossom branches, and sculptural accents run across the entrance, planters, and grounds, with the cherry blossom carrying the spring note that the rest of the display settles around.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  It suits homes that carry estate-level presentation with ease. We place each element by hand to build layers of texture and depth that hold their composure through spring's fullest weeks.
+                  It is built for properties with grounds to fill and the standard to match. Every wreath, branch, and planter is placed by hand, then stepped back from and adjusted until the whole composition holds together from the gate as well as the front step.
                 </p>
               </div>
               <Card className="p-8">

@@ -73,12 +73,12 @@ const CoastalCottage = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Embracing Summer's Ease</h2>
+                <h2 className="font-serif text-4xl mb-6">A Day by the Water, at Your Door</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Coastal Cottage package brings the relaxed beauty of the coast to your entrance with nautical accents and natural beach elements. Thoughtfully designed to capture summer's carefree spirit, this display creates an inviting atmosphere with shells, driftwood, and organic textures.
+                  The Coastal Cottage is our smallest summer display. A handcrafted wreath of shells and rope, two coastal planters, and weathered driftwood give the entrance a quiet seaside feel, the kind that comes from real materials rather than a theme.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who appreciate understated coastal elegance and the calming energy of the sea. Each element is carefully selected to evoke peaceful summer days by the water.
+                  It suits people who want a touch of the coast without turning the porch into a postcard. The sea glass and natural fibres are chosen in ocean tones that read soft against most front doors.
                 </p>
               </div>
               <Card className="p-8">

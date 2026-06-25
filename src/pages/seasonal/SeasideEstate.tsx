@@ -23,7 +23,7 @@ const SeasideEstate = () => {
     <Layout>
       <SEO
         title="The Seaside Estate | Summer Styling | Victoria"
-        description="The Seaside Estate: our largest summer installation for waterfront homes, with custom coastal wreaths, twelve arrangements, driftwood art, and a dedicated design process. $1,924 CAD."
+        description="The Seaside Estate: our largest summer installation for Victoria waterfront homes, with custom coastal wreaths, driftwood art, and weekly care."
         canonical="https://wabisabiservices.ca/seasoning/the-seaside-estate"
       />
       <BreadcrumbSchema
@@ -78,7 +78,7 @@ const SeasideEstate = () => {
                   The Seaside Estate is the largest summer installation we offer, made for waterfront homes and the way they entertain. It begins weeks ahead with a design process built around your site and its sightlines, then arrives as tropical plantings, ambient lighting, and architectural driftwood that read against the water from morning through the long evenings.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  A dedicated project manager stays with you from the first walkthrough through the final maintenance visit. We place every element by hand and adjust on site, so the display works with the light off the sea rather than against it.
+                  A single project manager carries the work from the opening site visit to the last refresh of the season. Each piece is placed and tuned on site, so the display works with the light off the sea rather than against it.
                 </p>
               </div>
               <Card className="p-8">
@@ -130,32 +130,32 @@ const SeasideEstate = () => {
               </div>
             </div>
 
-            {/* Design Philosophy */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ichigo ichie</h4>
+                  <h4 className="font-serif text-xl mb-3">Shaped to the water</h4>
                   <p className="text-muted-foreground">
-                    Once in a lifetime - treasure this unique summer moment
+                    Plantings, lighting, and driftwood are placed to read against the sea from morning through the long evenings.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Umi no Hi</h4>
+                  <h4 className="font-serif text-xl mb-3">Designed to your site</h4>
                   <p className="text-muted-foreground">
-                    Ocean day - celebrating the beauty of the sea
+                    The plan is drawn weeks ahead around your sightlines and the way the property entertains.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Gei</h4>
+                  <h4 className="font-serif text-xl mb-3">Built for sun and salt</h4>
                   <p className="text-muted-foreground">
-                    Artistic accomplishment - mastery in coastal execution
+                    Materials and tropical plantings are chosen to take coastal weather without fading through the summer.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kodawari</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended every week</h4>
                   <p className="text-muted-foreground">
-                    Uncompromising dedication - pursuit of resort perfection
+                    Weekly visits keep the plantings and lighting fresh, so the display stays at its best all season.
                   </p>
                 </Card>
               </div>

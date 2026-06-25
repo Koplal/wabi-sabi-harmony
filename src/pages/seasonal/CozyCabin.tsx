@@ -75,10 +75,10 @@ const CozyCabin = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Embracing Winter's Warmth</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Cozy Cabin package brings the essence of winter's comfort to your doorstep. Built from fresh evergreens and natural materials, it creates an inviting entrance that welcomes guests with warmth and a sense of place.
+                  The Cozy Cabin is our most pared-back winter display, and it is built entirely from fresh greens: a handmade evergreen wreath, a door swag, two planters, and a few warm candles. Nothing flashy, just the kind of doorway that smells of cedar and looks like someone is home.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who appreciate understated elegance and the beauty of natural materials. Each element is carefully selected to create harmony between your home and the winter landscape.
+                  It is a natural fit for a smaller home or a single front entrance. We handle the placement and styling, leave you with care instructions, and return mid-season to refresh the fragrance so the greens still feel alive in late December.
                 </p>
               </div>
               <Card className="p-8">

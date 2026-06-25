@@ -78,7 +78,7 @@ const FestiveEstate = () => {
                   The Festive Estate package is designed for homes with multi-level entries and expansive facades. It brings together premium wreaths, extensive garland work, and abundant planter arrangements so the whole front of the house reads as a single, considered holiday scene.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who entertain during the holidays and appreciate the impact of thoughtful, professional holiday styling. Each element works in harmony to welcome guests with warmth and festive elegance.
+                  It is built for homes that entertain through December. We design it with you, install across a day, and return twice through the season to keep the greens fresh and the lighting even, so the front of the house looks as good for your last party as it did for your first.
                 </p>
               </div>
               <Card className="p-8">
