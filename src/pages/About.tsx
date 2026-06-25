@@ -2,15 +2,24 @@ import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
+import { Leaf, Lock, Gem, Wind } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
 
 const About = () => {
   return (
     <Layout>
-      <SEO 
+      <SEO
         title="About Us"
         description="Learn about Wabi Sabi Services and our approach to mindful luxury cleaning in Victoria, BC. Founded on environmental psychology principles and hospitality standards."
         keywords="about Wabi Sabi Services, cleaning company Victoria BC, professional cleaners Victoria"
+        canonical="https://wabisabiservices.ca/about"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "About", url: "https://wabisabiservices.ca/about" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
@@ -65,7 +74,7 @@ const About = () => {
             </p>
 
             <p className="text-muted-foreground leading-relaxed">
-              For estate and second-home owners, we serve as a discreet concierge—keeping a watchful eye while you're away, coordinating the household, and ensuring your home is immaculate and ready the moment you return. Many of our clients entrust us with keys, schedules, and the care of homes they cannot always be present to manage themselves.
+              For estate and second-home owners, we serve as a discreet concierge—keeping a watchful eye while you're away, coordinating the household, and keeping your home immaculate and ready for the moment you return. Many of our clients entrust us with keys, schedules, and the care of homes they cannot always be present to manage themselves.
             </p>
 
             <p className="text-muted-foreground leading-relaxed">
@@ -89,7 +98,7 @@ const About = () => {
             </p>
 
             <p className="text-muted-foreground leading-relaxed">
-              That's what we create: not just clean surfaces, but environments that actively work for you. Because you deserve more than a clean house. You deserve a home that feels like the sanctuary it was meant to be.
+              That is what we create: environments that work for you, not only clean surfaces. You deserve more than a tidy house. You deserve a home that gives something back.
             </p>
 
             <div className="my-20" />
@@ -100,7 +109,7 @@ const About = () => {
               <Card className="border-accent/20">
                 <CardHeader>
                   <CardTitle className="flex items-start gap-3">
-                    <span className="text-3xl">🧘</span>
+                    <Wind className="h-6 w-6 shrink-0 text-accent" aria-hidden="true" />
                     <span className="font-serif text-xl">Mindful Presence</span>
                   </CardTitle>
                 </CardHeader>
@@ -114,7 +123,7 @@ const About = () => {
               <Card className="border-accent/20">
                 <CardHeader>
                   <CardTitle className="flex items-start gap-3">
-                    <span className="text-3xl">🌿</span>
+                    <Leaf className="h-6 w-6 shrink-0 text-accent" aria-hidden="true" />
                     <span className="font-serif text-xl">Environmental Care</span>
                   </CardTitle>
                 </CardHeader>
@@ -128,7 +137,7 @@ const About = () => {
               <Card className="border-accent/20">
                 <CardHeader>
                   <CardTitle className="flex items-start gap-3">
-                    <span className="text-3xl">🤝</span>
+                    <Lock className="h-6 w-6 shrink-0 text-accent" aria-hidden="true" />
                     <span className="font-serif text-xl">Discretion & Trust</span>
                   </CardTitle>
                 </CardHeader>
@@ -142,7 +151,7 @@ const About = () => {
               <Card className="border-accent/20">
                 <CardHeader>
                   <CardTitle className="flex items-start gap-3">
-                    <span className="text-3xl">✨</span>
+                    <Gem className="h-6 w-6 shrink-0 text-accent" aria-hidden="true" />
                     <span className="font-serif text-xl">Heritage & Material Mastery</span>
                   </CardTitle>
                 </CardHeader>

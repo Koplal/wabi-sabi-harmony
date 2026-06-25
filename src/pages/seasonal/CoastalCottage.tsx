@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-coastal-cottage-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const CoastalCottage = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Coastal Cottage | Summer Styling | Victoria"
+        description="The Coastal Cottage: a breezy summer display of shells, driftwood, and sea glass in ocean tones for your Victoria entrance. $474 CAD, designed and installed."
+        canonical="https://wabisabiservices.ca/seasoning/the-coastal-cottage"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Coastal Cottage", url: "https://wabisabiservices.ca/seasoning/the-coastal-cottage" },
+        ]}
+      />
+      <ProductSchema
+        name="The Coastal Cottage"
+        description="Breezy beach-inspired summer welcome with a nautical wreath, coastal planters, driftwood accents, and sea glass touches in ocean tones."
+        offers={{
+          price: "474",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-coastal-cottage",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const CoastalCottage = () => {
               Breezy Beach-Inspired Summer Welcome
             </p>
             <p className="text-lg text-muted-foreground">
-              Coastal charm. Natural beauty. Mindful simplicity.
+              The calm of a day by the water, brought to your front step.
             </p>
           </div>
         </section>
@@ -89,7 +113,7 @@ const CoastalCottage = () => {
                   "Sea glass touches in ocean tones",
                   "Professional styling",
                   "Seasonal care instructions",
-                  "Complimentary refresh consultation"
+                  "Mid-season refresh consultation"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />

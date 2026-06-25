@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 import freshStartHero from "@/assets/package-fresh-start-hero.jpg";
 import gardenGateHero from "@/assets/package-garden-gate-hero.jpg";
@@ -109,6 +111,31 @@ const packages = [
 const SpringRefresh = () => {
   return (
     <Layout>
+      <SEO
+        title="Spring Refresh Seasonal Packages | Victoria, BC"
+        description="Spring floral styling for Victoria homes and businesses. Five thoughtfully composed packages of fresh blooms, garden accents, and natural textures, designed and installed for you."
+        canonical="https://wabisabiservices.ca/seasoning/spring-refresh"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Spring Refresh", url: "https://wabisabiservices.ca/seasoning/spring-refresh" },
+        ]}
+      />
+      {packages.map((pkg) => (
+        <ProductSchema
+          key={pkg.name}
+          name={pkg.name}
+          description={pkg.description}
+          offers={{
+            price: String(pkg.price),
+            priceCurrency: "CAD",
+            availability: "https://schema.org/InStock",
+            url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
+          }}
+        />
+      ))}
       <div className="min-h-screen">
         <section className="relative h-[50vh] flex items-center justify-center">
           <div
@@ -125,7 +152,7 @@ const SpringRefresh = () => {
               Spring Refresh Packages
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Celebrate renewal with fresh florals and garden-inspired touches
+              Fresh florals and garden-inspired styling for the season of renewal
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               Available: March through May
@@ -229,13 +256,13 @@ const SpringRefresh = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Celebrate Spring's Arrival</h2>
+            <h2 className="font-serif text-3xl mb-6">Welcome Spring to Your Door</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Let us create a fresh, inspiring display that welcomes the season of renewal.
+              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request Consultation</Link>
+                <Link to="/contact">Request a Private Consultation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/seasoning">View All Seasonal Services</Link>

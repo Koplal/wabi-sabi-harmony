@@ -3,68 +3,71 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Layout } from "@/components/Layout";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Cleaning from "./pages/services/Cleaning";
-import Organizing from "./pages/services/Organizing";
-import Errands from "./pages/services/Errands";
-import Ritual from "./pages/Ritual";
-import Reviews from "./pages/Reviews";
-import Careers from "./pages/Careers";
-import Contact from "./pages/Contact";
-import Book from "./pages/Book";
-import FAQ from "./pages/FAQ";
-import Blog from "./pages/Blog";
-import August2025 from "./pages/blog/August2025";
-import September2025 from "./pages/blog/September2025";
-import October2025 from "./pages/blog/October2025";
-import November2025 from "./pages/blog/November2025";
-import December2025 from "./pages/blog/December2025";
-import January2026 from "./pages/blog/January2026";
-import February2026 from "./pages/blog/February2026";
-import March2026 from "./pages/blog/March2026";
-import April2026 from "./pages/blog/April2026";
-import May2026 from "./pages/blog/May2026";
-import June2026 from "./pages/blog/June2026";
-import July2026 from "./pages/blog/July2026";
-import Seasoning from "./pages/Seasoning";
-import FallPumpkins from "./pages/seasonal/FallPumpkins";
-import QuietGrace from "./pages/seasonal/QuietGrace";
-import AbundantHarmony from "./pages/seasonal/AbundantHarmony";
-import GatheredAbundance from "./pages/seasonal/GatheredAbundance";
-import EstateCollection from "./pages/seasonal/EstateCollection";
-import MindfulMerchant from "./pages/seasonal/MindfulMerchant";
-import WinterHoliday from "./pages/seasonal/WinterHoliday";
-import CozyCabin from "./pages/seasonal/CozyCabin";
-import WinterWonderland from "./pages/seasonal/WinterWonderland";
-import FestiveEstate from "./pages/seasonal/FestiveEstate";
-import GrandCelebration from "./pages/seasonal/GrandCelebration";
-import BusinessWelcome from "./pages/seasonal/BusinessWelcome";
-import SpringRefresh from "./pages/seasonal/SpringRefresh";
-import FreshStart from "./pages/seasonal/FreshStart";
-import GardenGate from "./pages/seasonal/GardenGate";
-import BotanicalEstate from "./pages/seasonal/BotanicalEstate";
-import BloomingManor from "./pages/seasonal/BloomingManor";
-import ProfessionalWelcome from "./pages/seasonal/ProfessionalWelcome";
-import SummerSerenity from "./pages/seasonal/SummerSerenity";
-import CoastalCottage from "./pages/seasonal/CoastalCottage";
-import IslandRetreat from "./pages/seasonal/IslandRetreat";
-import BeachsideManor from "./pages/seasonal/BeachsideManor";
-import SeasideEstate from "./pages/seasonal/SeasideEstate";
-import SummerStorefront from "./pages/seasonal/SummerStorefront";
-import KeyTakeaways from "./pages/KeyTakeaways";
-import TermsOfService from "./pages/TermsOfService";
-import ClientAgreement from "./pages/ClientAgreement";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
-import AreasIndex from "./pages/areas/Index";
-import { NeighborhoodPage } from "@/components/NeighborhoodPage";
 import { neighborhoods } from "@/data/neighborhoods";
+
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Services = lazy(() => import("./pages/Services"));
+const Cleaning = lazy(() => import("./pages/services/Cleaning"));
+const Organizing = lazy(() => import("./pages/services/Organizing"));
+const Errands = lazy(() => import("./pages/services/Errands"));
+const Ritual = lazy(() => import("./pages/Ritual"));
+const Reviews = lazy(() => import("./pages/Reviews"));
+const Careers = lazy(() => import("./pages/Careers"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Book = lazy(() => import("./pages/Book"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Blog = lazy(() => import("./pages/Blog"));
+const August2025 = lazy(() => import("./pages/blog/August2025"));
+const September2025 = lazy(() => import("./pages/blog/September2025"));
+const October2025 = lazy(() => import("./pages/blog/October2025"));
+const November2025 = lazy(() => import("./pages/blog/November2025"));
+const December2025 = lazy(() => import("./pages/blog/December2025"));
+const January2026 = lazy(() => import("./pages/blog/January2026"));
+const February2026 = lazy(() => import("./pages/blog/February2026"));
+const March2026 = lazy(() => import("./pages/blog/March2026"));
+const April2026 = lazy(() => import("./pages/blog/April2026"));
+const May2026 = lazy(() => import("./pages/blog/May2026"));
+const June2026 = lazy(() => import("./pages/blog/June2026"));
+const July2026 = lazy(() => import("./pages/blog/July2026"));
+const Seasoning = lazy(() => import("./pages/Seasoning"));
+const FallPumpkins = lazy(() => import("./pages/seasonal/FallPumpkins"));
+const QuietGrace = lazy(() => import("./pages/seasonal/QuietGrace"));
+const AbundantHarmony = lazy(() => import("./pages/seasonal/AbundantHarmony"));
+const GatheredAbundance = lazy(() => import("./pages/seasonal/GatheredAbundance"));
+const EstateCollection = lazy(() => import("./pages/seasonal/EstateCollection"));
+const MindfulMerchant = lazy(() => import("./pages/seasonal/MindfulMerchant"));
+const WinterHoliday = lazy(() => import("./pages/seasonal/WinterHoliday"));
+const CozyCabin = lazy(() => import("./pages/seasonal/CozyCabin"));
+const WinterWonderland = lazy(() => import("./pages/seasonal/WinterWonderland"));
+const FestiveEstate = lazy(() => import("./pages/seasonal/FestiveEstate"));
+const GrandCelebration = lazy(() => import("./pages/seasonal/GrandCelebration"));
+const BusinessWelcome = lazy(() => import("./pages/seasonal/BusinessWelcome"));
+const SpringRefresh = lazy(() => import("./pages/seasonal/SpringRefresh"));
+const FreshStart = lazy(() => import("./pages/seasonal/FreshStart"));
+const GardenGate = lazy(() => import("./pages/seasonal/GardenGate"));
+const BotanicalEstate = lazy(() => import("./pages/seasonal/BotanicalEstate"));
+const BloomingManor = lazy(() => import("./pages/seasonal/BloomingManor"));
+const ProfessionalWelcome = lazy(() => import("./pages/seasonal/ProfessionalWelcome"));
+const SummerSerenity = lazy(() => import("./pages/seasonal/SummerSerenity"));
+const CoastalCottage = lazy(() => import("./pages/seasonal/CoastalCottage"));
+const IslandRetreat = lazy(() => import("./pages/seasonal/IslandRetreat"));
+const BeachsideManor = lazy(() => import("./pages/seasonal/BeachsideManor"));
+const SeasideEstate = lazy(() => import("./pages/seasonal/SeasideEstate"));
+const SummerStorefront = lazy(() => import("./pages/seasonal/SummerStorefront"));
+const KeyTakeaways = lazy(() => import("./pages/KeyTakeaways"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const ClientAgreement = lazy(() => import("./pages/ClientAgreement"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
+const AreasIndex = lazy(() => import("./pages/areas/Index"));
+const NeighborhoodPage = lazy(() =>
+  import("@/components/NeighborhoodPage").then((m) => ({ default: m.NeighborhoodPage }))
+);
 
 const queryClient = new QueryClient();
 
@@ -85,6 +88,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
         <Routes>
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/about" element={<About />} />
@@ -148,6 +152,7 @@ const App = () => (
           ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

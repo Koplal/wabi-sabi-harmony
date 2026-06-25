@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-estate-collection-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const EstateCollection = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Estate Collection | Autumn Pumpkin Package"
+        description="Our most involved autumn pumpkin installation: rare specimen varieties, a dedicated project manager, and twice-weekly care for Greater Victoria estates."
+        canonical="https://wabisabiservices.ca/seasoning/estate-collection"
+      />
+      <ProductSchema
+        name="The Estate Collection"
+        description="Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and twice-weekly seasonal care."
+        offers={{
+          price: "1899",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/estate-collection",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Estate Collection", url: "https://wabisabiservices.ca/seasoning/estate-collection" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const EstateCollection = () => {
               Where Grandeur Meets Grace
             </p>
             <p className="text-lg text-muted-foreground">
-              Museum-quality curation. Estate-level presentation. Mindfully magnificent.
+              Planned over weeks, installed in a day, and tended through the season.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const EstateCollection = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Seasonal Artistry</h2>
+                <h2 className="font-serif text-4xl mb-6">A Display Built Over Weeks</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Estate Collection represents the zenith of our seasonal artistry - a masterwork that transforms your property into a living gallery. Each installation is a bespoke creation, designed in collaboration with landscape architects and executed with the precision of a Japanese garden.
+                  The Estate Collection is the most involved autumn display we offer. It begins two weeks before installation, with a walk of your grounds and a plan drawn for your specific sightlines, light, and architecture. On the day itself, a four-person team works through to dusk so the result reads as one composition rather than a set of arrangements.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  This is for those who understand that true luxury whispers rather than shouts, that the most profound beauty often lies in the interplay between the monumental and the minute, the perfect and the imperfect.
+                  Once it is in place, we return twice a week to keep every specimen at its best. It suits owners who would rather oversee nothing and simply walk up to a finished, well-kept entrance each morning.
                 </p>
               </div>
               <Card className="p-8">
@@ -144,7 +168,7 @@ const EstateCollection = () => {
 
             {/* Package Features */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">The Complete Estate Experience</h3>
+              <h3 className="font-serif text-3xl mb-8">How the Season Unfolds</h3>
               <div className="grid md:grid-cols-4 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Discovery Phase</h4>

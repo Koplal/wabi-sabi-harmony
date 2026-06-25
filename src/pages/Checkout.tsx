@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -69,6 +70,7 @@ const Checkout = () => {
 
   return (
     <Layout>
+      <SEO title="Checkout" description="Complete your seasonal service request." noindex />
       <div className="min-h-screen pt-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl py-12">
           <h1 className="font-serif text-5xl mb-8">Checkout</h1>
@@ -114,7 +116,7 @@ const Checkout = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="address">Installation Address *</Label>
+                      <Label htmlFor="address">Service Address *</Label>
                       <Input
                         id="address"
                         value={formData.address}
@@ -177,12 +179,12 @@ const Checkout = () => {
                         Processing...
                       </>
                     ) : (
-                      'Place Order'
+                      'Confirm'
                     )}
                   </Button>
-                  
+
                   <p className="text-xs text-muted-foreground mt-4 text-center">
-                    By placing your order, you agree to our Terms of Service
+                    By confirming, you agree to our Terms of Service
                   </p>
                 </Card>
               </div>

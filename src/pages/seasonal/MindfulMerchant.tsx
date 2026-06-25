@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-mindful-merchant-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const MindfulMerchant = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Mindful Merchant | Autumn Storefront Styling"
+        description="Autumn storefront styling for Victoria businesses. Commercial-grade pumpkins, insured installation, and seasonal maintenance for shops and studios."
+        canonical="https://wabisabiservices.ca/seasoning/mindful-merchant"
+      />
+      <ProductSchema
+        name="The Mindful Merchant"
+        description="Autumn storefront styling for Victoria businesses, with commercial-grade pumpkins, insured installation, and seasonal maintenance."
+        offers={{
+          price: "799",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/mindful-merchant",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Mindful Merchant", url: "https://wabisabiservices.ca/seasoning/mindful-merchant" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const MindfulMerchant = () => {
               Make Your Business the Heart of Autumn
             </p>
             <p className="text-lg text-muted-foreground">
-              Attract. Delight. Remember. Return.
+              A storefront that gives passersby a reason to slow down and step inside.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const MindfulMerchant = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Strategic Placemaking for Business</h2>
+                <h2 className="font-serif text-4xl mb-6">An Autumn Welcome for the Sidewalk</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Mindful Merchant package is designed for Victoria businesses that understand the power of seasonal storytelling. More than decoration, this is strategic placemaking that transforms your storefront into a community landmark and social media sensation.
+                  The Mindful Merchant is built for shops, studios, and offices along Victoria's high streets. We work to the scale of a commercial entrance, using larger, hardier varieties and fire-retardant bales so the display holds up through six to eight weeks of foot traffic and Island weather.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  In the spirit of 'omotenashi' (Japanese hospitality), we create displays that welcome customers before they even enter your door, setting the stage for exceptional experiences and organic social sharing.
+                  Installation is scheduled around your hours, including after close, and we return on a bi-weekly visit to keep everything tidy. The aim is simple: an entrance that reads as cared-for, and gives people walking by a reason to stop.
                 </p>
               </div>
               <Card className="p-8">

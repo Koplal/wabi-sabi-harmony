@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 import reviewsHero from "@/assets/reviews-hero.jpg";
 
 const Reviews = () => {
@@ -17,17 +18,24 @@ const Reviews = () => {
       author: "A.L., Oak Bay"
     },
     {
-      quote: "Professional, discreet, and meticulous. We trust them completely.",
+      quote: "Discreet to a fault, and exacting about the things most people miss. We trust them completely.",
       author: "J.R., Bear Mountain"
     }
   ];
 
   return (
     <Layout>
-      <SEO 
+      <SEO
         title="Client Reviews & Testimonials"
         description="Read what discerning clients across Greater Victoria, BC say about Wabi Sabi Services. Luxury concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain."
         keywords="cleaning reviews Victoria BC, cleaning testimonials Victoria, best cleaners Victoria, luxury cleaning reviews"
+        canonical="https://wabisabiservices.ca/reviews"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Reviews", url: "https://wabisabiservices.ca/reviews" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">

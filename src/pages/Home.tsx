@@ -36,6 +36,7 @@ const Home = () => {
             A bespoke concierge for Victoria's most discerning homes.
           </p>
 
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in duration-1000 delay-400">
             <Button asChild size="lg">
               <Link to="/contact">Request a Private Consultation</Link>
@@ -101,7 +102,7 @@ const Home = () => {
                 <div className="p-6">
                   <h3 className="font-serif text-2xl mb-2">Residential</h3>
                   <p className="text-sm text-muted-foreground">
-                    Maintenance cleans, deep resets, and move prep for your sanctuary.
+                    Maintenance cleans, deep resets, and move prep for your home.
                   </p>
                 </div>
               </Link>
@@ -148,9 +149,21 @@ const Home = () => {
       <section className="py-32 px-6 lg:px-12">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="font-serif text-4xl md:text-5xl mb-8">Where We Serve</h2>
-          <p className="text-lg text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto">
-            Bespoke concierge care across Greater Victoria's most distinguished neighbourhoods—from heritage estates to
-            waterfront retreats, each tended with the same quiet precision.
+          <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-2xl mx-auto">
+            Wabi Sabi Services is a luxury cleaning, organizing, and concierge company serving Greater
+            Victoria, BC — fully insured and bonded. We tend the region's most distinguished
+            neighbourhoods, from heritage estates to waterfront retreats, with the same quiet precision.
+          </p>
+          <p className="text-base text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto">
+            Request a private consultation at{" "}
+            <a href="tel:+12508965971" className="hover:text-foreground transition-colors">
+              (250) 896-5971
+            </a>{" "}
+            or{" "}
+            <a href="mailto:hello@wabisabiservices.ca" className="hover:text-foreground transition-colors">
+              hello@wabisabiservices.ca
+            </a>
+            .
           </p>
           <nav aria-label="Featured service areas" className="flex flex-wrap gap-3 justify-center mb-12">
             <Button asChild variant="outline" size="sm">
@@ -177,7 +190,7 @@ const Home = () => {
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="font-serif text-4xl md:text-5xl mb-8">The Ritual</h2>
           <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-            From first consult to final touch, our six-step ritual ensures serene, gallery-ready results.
+            From first consult to final touch, our six-step ritual brings serene, gallery-ready results.
           </p>
           <Button asChild variant="ghost">
             <Link to="/ritual">See the Ritual →</Link>
@@ -188,14 +201,15 @@ const Home = () => {
       {/* Consultation */}
       <section className="py-32 px-6 lg:px-12 bg-secondary/30">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="font-serif text-3xl md:text-4xl mb-6">Curated Care Plan</h2>
+          <h2 className="font-serif text-3xl md:text-4xl mb-6">Your Care Plan</h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-            It begins with a private in-home consultation—<span className="text-foreground font-medium">$150</span>,
-            credited in full toward your first service. We listen, study your home and its materials, and design a
-            tailored plan built around precision, discretion, and care.
+            It begins with a{" "}
+            <span className="text-foreground font-medium">$150 in-home consultation, credited in full toward your
+            first service</span>. We listen, study your home and its materials, and design a tailored plan built
+            around precision, discretion, and care.
           </p>
           <Button asChild>
-            <Link to="/contact">Request Consultation</Link>
+            <Link to="/contact">Request a Private Consultation</Link>
           </Button>
         </div>
       </section>

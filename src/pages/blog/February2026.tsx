@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const February2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="Love Your Home: Spaces That Nurture Relationships"
+        description="February is for tending love in all its forms, beginning with home. How a calm, cared-for Victoria space supports romance, family bonds, and self-care."
+        canonical="https://wabisabiservices.ca/blog/february-2026"
+        ogType="article"
+        publishedTime="2026-02-01T00:00:00-08:00"
+      />
+      <ArticleSchema
+        headline="Love Your Home: Creating Spaces That Nurture Relationships"
+        description="How a calm, cared-for Victoria home supports romance, family bonds, and self-care in February and beyond."
+        datePublished="2026-02-01"
+        url="https://wabisabiservices.ca/blog/february-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Love Your Home", url: "https://wabisabiservices.ca/blog/february-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const February2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -39,11 +61,11 @@ const February2026 = () => {
             <p className="text-muted-foreground mb-8">Published: February 2026</p>
 
             <p className="lead">
-              February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms, starting with the sanctuary we call home. At Wabi Sabi Services, we believe a mindfully maintained home nurtures not just romance, but self-love, family bonds, and friendships.
+              February in Victoria is about more than Valentine's Day. It is a season for tending love in all its forms, beginning with the place we call home. At Wabi Sabi Services, we find that a home cared for with intention nurtures romance, yes, and also self-respect, family bonds, and friendship.
             </p>
 
             <h2>The Psychology of Loving Spaces</h2>
-            <p>Research from Cornell University reveals that couples living in cluttered homes experience 27% more relationship stress. A thoughtfully maintained home:</p>
+            <p>Anyone who has argued over a pile of unsorted mail knows that a cluttered home adds friction to a relationship. A thoughtfully maintained home tends to do the opposite:</p>
             <ul>
               <li>Reduces cortisol, allowing for emotional availability</li>
               <li>Creates welcoming atmospheres for connection</li>
@@ -74,7 +96,7 @@ const February2026 = () => {
             </ul>
 
             <h2>Couple's Cleaning: Strengthening Bonds</h2>
-            <p>Transform cleaning from chore to connection:</p>
+            <p>Done together, cleaning can become less of a chore and more of a shared hour:</p>
 
             <h3>The Mindful Clean Together:</h3>
             <ul>
@@ -125,12 +147,12 @@ const February2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Show love through a clean home</h3>
+              <h3 className="text-2xl font-serif mb-4">A home that holds the people you love</h3>
               <p className="mb-6">
-                This February, give the gift of a mindfully maintained home that nurtures all forms of love.
+                Consider giving someone the quiet luxury of a home kept beautifully by our concierge team. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Love-Filled Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

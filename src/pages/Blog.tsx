@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const allBlogArticles = [
@@ -113,6 +114,17 @@ const Blog = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Wabi Sabi Journal: Mindful Home Notes"
+        description="Seasonal notes on caring for a Victoria home with intention — cleaning, organizing, and the quiet rituals that keep a household calm through the year."
+        canonical="https://wabisabiservices.ca/blog"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[50vh] flex items-center justify-center">
@@ -127,10 +139,10 @@ const Blog = () => {
           />
           <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
             <h1 className="font-serif text-5xl md:text-7xl mb-4">
-              Mindful Living Blog
+              The Wabi Sabi Journal
             </h1>
             <p className="text-lg text-muted-foreground">
-              Insights on creating harmonious, healthy spaces
+              Notes on mindful homes, written month by month
             </p>
           </div>
         </section>

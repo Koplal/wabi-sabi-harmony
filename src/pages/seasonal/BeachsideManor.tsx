@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-beachside-manor-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const BeachsideManor = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Beachside Manor | Summer Styling | Victoria"
+        description="The Beachside Manor: an expansive coastal summer display with multiple wreaths, eight statement planters, driftwood sculpture, and lanterns for larger Victoria properties. $1,424 CAD."
+        canonical="https://wabisabiservices.ca/seasoning/the-beachside-manor"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Beachside Manor", url: "https://wabisabiservices.ca/seasoning/the-beachside-manor" },
+        ]}
+      />
+      <ProductSchema
+        name="The Beachside Manor"
+        description="Expansive coastal-luxe summer styling for larger properties, with multiple coastal wreaths, eight statement planters, driftwood sculpture accents, and large hurricane lanterns."
+        offers={{
+          price: "1424",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-beachside-manor",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const BeachsideManor = () => {
               Expansive Coastal-Luxe Summer
             </p>
             <p className="text-lg text-muted-foreground">
-              Sophisticated coastal. Natural grandeur. Mindfully luxurious.
+              Coastal summer styling at the scale of a beach house.
             </p>
           </div>
         </section>
@@ -51,10 +75,10 @@ const BeachsideManor = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Creating Coastal Grandeur</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Beachside Manor package transforms larger properties into coastal sanctuaries with expansive displays of nautical elements and natural materials. This comprehensive installation combines statement planters, driftwood sculptures, and ambient lighting to create a sophisticated beach house atmosphere.
+                  The Beachside Manor brings coastal styling to larger properties at the scale they deserve. Statement planters, driftwood sculpture, and ambient lighting run across the entrance and grounds, settling the whole front of the house into a relaxed beach-house mood.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Designed for those who appreciate estate-level presentation and coastal luxury. Each element is carefully curated and placed to create layers of interest and natural elegance that celebrates summer's abundance.
+                  It suits homes that carry estate-level presentation with ease. We place each element by hand to build layers of texture and depth that hold their composure through the long summer weeks.
                 </p>
               </div>
               <Card className="p-8">

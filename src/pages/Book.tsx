@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +50,11 @@ const Book = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Book a Service"
+        description="Request a service date with Wabi Sabi Services in Victoria, BC. Share your address, service type, and preferred times, and we'll confirm within 24 hours."
+        canonical="https://wabisabiservices.ca/book"
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 
@@ -142,7 +148,7 @@ const Book = () => {
 
             <div className="bg-secondary/30 p-6 rounded-sm">
               <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> Final rate will be confirmed after your complimentary walk-through. 
+                <strong>Note:</strong> Final rate is confirmed after your $150 in-home consultation, credited in full toward your first service.
                 Most appointments are confirmed within 24 hours.
               </p>
             </div>

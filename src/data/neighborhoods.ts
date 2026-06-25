@@ -59,6 +59,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Rockland", slug: "rockland" },
       { name: "Ten Mile Point", slug: "ten-mile-point" },
     ],
+    geo: { lat: "48.4480", lng: "-123.2980" },
   },
 
   "oak-bay": {
@@ -80,7 +81,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Vetted, discreet teams comfortable in homes of significant value and history.",
       "Salt-air protection for oceanfront marble, limestone, and original windows.",
       "Tailored cadence that fits a household's privacy and entertaining calendar.",
-      "Seamless coordination of cleaning, organizing, and errand support.",
+      "One household manager handling cleaning, organizing, and errands together.",
     ],
     heritageMaterials: [
       "Cast limestone fireplaces and wrought-iron detailing cleaned with conservation care.",
@@ -100,6 +101,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Fairfield", slug: "fairfield" },
       { name: "Cadboro Bay", slug: "cadboro-bay" },
     ],
+    geo: { lat: "48.4262", lng: "-123.3120" },
   },
 
   rockland: {
@@ -121,7 +123,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Masonry-aware methods for Victorian stonework, chimneys, and original windows.",
       "Quiet, vetted teams suited to landmark residences and refined neighbours.",
       "Care calibrated to Maclure- and Rattenbury-era craftsmanship.",
-      "Coordinated household support across cleaning, organizing, and errands.",
+      "A single point of contact for cleaning, organizing, and household errands.",
     ],
     heritageMaterials: [
       "Stone masonry and half-timbering maintained with conservation-grade technique.",
@@ -141,6 +143,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "James Bay", slug: "james-bay" },
       { name: "Gonzales", slug: "gonzales" },
     ],
+    geo: { lat: "48.4220", lng: "-123.3440" },
   },
 
   "ten-mile-point": {
@@ -181,6 +184,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Uplands", slug: "uplands" },
       { name: "Oak Bay", slug: "oak-bay" },
     ],
+    geo: { lat: "48.4630", lng: "-123.2740" },
   },
 
   "cadboro-bay": {
@@ -202,7 +206,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Salt-spray window and exterior maintenance for waterfront properties.",
       "Discreet teams trusted by an academic and professional clientele.",
       "Tailored cadence for both full-time residents and seasonal owners.",
-      "Coordinated cleaning, organizing, and errand support across the household.",
     ],
     heritageMaterials: [
       "Heritage and character-home finishes maintained with period-appropriate care.",
@@ -221,6 +224,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Uplands", slug: "uplands" },
       { name: "Oak Bay", slug: "oak-bay" },
     ],
+    geo: { lat: "48.4560", lng: "-123.2920" },
   },
 
   "north-saanich": {
@@ -261,6 +265,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Cordova Bay", slug: "cordova-bay" },
       { name: "Willis Point", slug: "willis-point" },
     ],
+    geo: { lat: "48.6590", lng: "-123.4150" },
   },
 
   "willis-point": {
@@ -301,6 +306,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Cordova Bay", slug: "cordova-bay" },
       { name: "North Saanich", slug: "north-saanich" },
     ],
+    geo: { lat: "48.5470", lng: "-123.4760" },
   },
 
   fairfield: {
@@ -322,7 +328,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Salt-spray maintenance for homes near the Dallas Road oceanfront.",
       "Discreet, vetted teams suited to an established, refined community.",
       "Flexible cadence for walkable in-town estates and family residences.",
-      "Coordinated cleaning, organizing, and errand support throughout the home.",
+      "Cleaning, organizing, and errands run by one familiar team.",
     ],
     heritageMaterials: [
       "Original Craftsman woodwork and built-ins finished with surface-safe care.",
@@ -342,6 +348,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Downtown Victoria", slug: "downtown-victoria" },
       { name: "Gonzales", slug: "gonzales" },
     ],
+    geo: { lat: "48.4160", lng: "-123.3460" },
   },
 
   "gordon-head": {
@@ -363,7 +370,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Reliable, low-disruption service for busy professional households.",
       "Discreet, vetted teams suited to a settled, established neighbourhood.",
       "Tailored cadence for empty-nesters and dual-income families alike.",
-      "Coordinated cleaning, organizing, and errand support across the home.",
     ],
     heritageMaterials: [
       "Engineered and old-growth fir hardwood cleaned with surface-safe methods.",
@@ -382,6 +388,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Broadmead", slug: "broadmead" },
       { name: "Cordova Bay", slug: "cordova-bay" },
     ],
+    geo: { lat: "48.4730", lng: "-123.3120" },
   },
 
   broadmead: {
@@ -422,6 +429,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Gordon Head", slug: "gordon-head" },
       { name: "Willis Point", slug: "willis-point" },
     ],
+    geo: { lat: "48.4870", lng: "-123.3690" },
   },
 
   "cordova-bay": {
@@ -462,6 +470,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Dean Park", slug: "dean-park" },
       { name: "North Saanich", slug: "north-saanich" },
     ],
+    geo: { lat: "48.5130", lng: "-123.3760" },
   },
 
   "dean-park": {
@@ -483,7 +492,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Absentee management for executive commuters who travel often.",
       "Finish-aware care for timber, stone, and oak surfaces.",
       "Discreet, vetted teams suited to elevated, private estates.",
-      "Coordinated cleaning, organizing, and errands across larger homes.",
+      "Cleaning, organizing, and errands handled under one trusted arrangement.",
     ],
     heritageMaterials: [
       "Large-format view-glass kept streak-free for panoramic outlooks.",
@@ -501,6 +510,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Sidney", slug: "sidney" },
       { name: "Cordova Bay", slug: "cordova-bay" },
     ],
+    geo: { lat: "48.6310", lng: "-123.4250" },
   },
 
   "prospect-lake": {
@@ -522,7 +532,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Seasonal opening and closing for waterfront homes and docks.",
       "Finish-aware care for cedar, fieldstone, and wide-plank oak.",
       "Discreet, vetted teams suited to private lakeside estates.",
-      "Coordinated cleaning, organizing, and errands across the property.",
     ],
     heritageMaterials: [
       "Cedar and fir finishes maintained against lakefront moisture and pollen.",
@@ -541,6 +550,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Gordon Head", slug: "gordon-head" },
       { name: "Bear Mountain", slug: "bear-mountain" },
     ],
+    geo: { lat: "48.5170", lng: "-123.4470" },
   },
 
   sidney: {
@@ -562,7 +572,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Reliable oversight for second-home owners who travel often.",
       "Discreet, vetted teams suited to an affluent retiree community.",
       "Flexible cadence that keeps a busy social calendar unburdened.",
-      "Coordinated cleaning, organizing, and errand support.",
+      "Cleaning, organizing, and errands managed through one point of contact.",
     ],
     heritageMaterials: [
       "Oceanfront condo glass kept clear against persistent salt air.",
@@ -580,6 +590,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Dean Park", slug: "dean-park" },
       { name: "Cordova Bay", slug: "cordova-bay" },
     ],
+    geo: { lat: "48.6506", lng: "-123.3986" },
   },
 
   metchosin: {
@@ -620,6 +631,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "James Bay", slug: "james-bay" },
       { name: "Fairfield", slug: "fairfield" },
     ],
+    geo: { lat: "48.3810", lng: "-123.5360" },
   },
 
   "james-bay": {
@@ -660,6 +672,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Rockland", slug: "rockland" },
       { name: "Oak Bay", slug: "oak-bay" },
     ],
+    geo: { lat: "48.4150", lng: "-123.3720" },
   },
 
   "downtown-victoria": {
@@ -673,7 +686,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Downtown Victoria blends restored heritage conversions with sleek luxury towers around the Inner Harbour. From the Customs House to The Pearl Residences, its refined urban homes suit lock-and-leave, pied-à-terre, and corporate owners who expect genuinely white-glove care.",
     localContext: [
       "The downtown core layers history and modernity: the Empire-style Customs House reborn as luxury condos, the Morley Soda Factory of 1875 restored in 2009, and contemporary towers like The Pearl Residences and The Falls. These homes carry marble baths, granite and quartz surfaces, and floor-to-ceiling glass that present beautifully when kept impeccably.",
-      "The setting is the Inner Harbour and the David Foster Harbour Pathway — a walkable, vibrant edge to the city that makes downtown living both convenient and elevated. Heritage-conversion finishes sit alongside modern luxury throughout the district.",
+      "The setting is the Inner Harbour and the David Foster Harbour Pathway — a walkable edge to the city, busy with cafes and galleries, that makes downtown living both convenient and elevated. Heritage-conversion finishes sit alongside modern luxury throughout the district.",
       "Many downtown residences are lock-and-leave: pied-à-terre and corporate homes occupied part of the year. Our concierge programs provide discreet, secure oversight and white-glove cleaning, keeping these urban residences pristine and ready whenever their owners return.",
     ],
     whyLuxuryHere: [
@@ -699,6 +712,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Fairfield", slug: "fairfield" },
       { name: "Rockland", slug: "rockland" },
     ],
+    geo: { lat: "48.4284", lng: "-123.3656" },
   },
 
   gonzales: {
@@ -720,7 +734,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Discreet care suited to a tranquil, affluent enclave.",
       "Heritage-aware methods for established character homes.",
       "Vetted teams comfortable in high-value oceanfront residences.",
-      "Coordinated cleaning, organizing, and errands across the household.",
+      "Cleaning, organizing, and errands looked after by one steady team.",
     ],
     heritageMaterials: [
       "Marble surfaces protected against salt-air degradation.",
@@ -739,6 +753,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Fairfield", slug: "fairfield" },
       { name: "Rockland", slug: "rockland" },
     ],
+    geo: { lat: "48.4110", lng: "-123.3210" },
   },
   "bear-mountain": {
     name: "Bear Mountain",
@@ -778,5 +793,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       { name: "Willis Point", slug: "willis-point" },
       { name: "Downtown Victoria", slug: "downtown-victoria" },
     ],
+    geo: { lat: "48.4640", lng: "-123.5260" },
   },
 };

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-abundant-harmony-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const AbundantHarmony = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Abundant Harmony | Autumn Pumpkin Package"
+        description="A generous autumn pumpkin display for larger porches and stepped entries. Heritage varieties, botanicals, and full installation across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/abundant-harmony"
+      />
+      <ProductSchema
+        name="The Abundant Harmony"
+        description="A generous autumn pumpkin display for larger porches and stepped entries, with heritage varieties, seasonal botanicals, and full installation."
+        offers={{
+          price: "899",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/abundant-harmony",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Abundant Harmony", url: "https://wabisabiservices.ca/seasoning/abundant-harmony" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const AbundantHarmony = () => {
               Celebrate Autumn's Generous Spirit
             </p>
             <p className="text-lg text-muted-foreground">
-              Thoughtfully abundant. Naturally balanced. Beautifully imperfect.
+              Generous enough to greet your guests, quiet enough to feel at ease.
             </p>
           </div>
         </section>
@@ -54,7 +78,7 @@ const AbundantHarmony = () => {
                   The Abundant Harmony represents the perfect middle path - generous enough to impress, refined enough to inspire tranquility. Each pumpkin is chosen not for perfection, but for character, creating a display that tells the story of nature's beautiful irregularities.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for larger porches, stepped entries, and homes that host with heart. This curated collection transforms your entrance into a meditation on autumn's fleeting beauty, reminding all who enter to pause and appreciate the present moment.
+                  Ideal for larger porches, stepped entries, and homes that host with heart. The collection turns your entrance into a quiet study of autumn's fleeting beauty, asking everyone who arrives to slow down for a moment.
                 </p>
               </div>
               <Card className="p-8">

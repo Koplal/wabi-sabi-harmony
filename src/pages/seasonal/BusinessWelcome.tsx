@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-business-welcome-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const BusinessWelcome = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Business Welcome | Holiday Storefront Styling"
+        description="Holiday styling for Victoria business entrances. A commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained for the season."
+        canonical="https://wabisabiservices.ca/seasoning/the-business-welcome"
+      />
+      <ProductSchema
+        name="The Business Welcome"
+        description="Holiday styling for a Victoria business entrance, with a commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained."
+        offers={{
+          price: "799",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-business-welcome",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Business Welcome", url: "https://wabisabiservices.ca/seasoning/the-business-welcome" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const BusinessWelcome = () => {
               Professional Holiday Décor for Your Business
             </p>
             <p className="text-lg text-muted-foreground">
-              Professional elegance. Welcoming presence. Brand-aligned beauty.
+              A measured, brand-appropriate welcome for the people who walk through your door.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const BusinessWelcome = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Strategic Holiday Placemaking</h2>
+                <h2 className="font-serif text-4xl mb-6">A Quiet Holiday Welcome at the Door</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Business Welcome package is designed for Victoria businesses that understand the power of seasonal ambiance. More than decoration, this is strategic placemaking that transforms your entrance into a welcoming landmark that reflects your brand's values.
+                  The Business Welcome is the restrained option for professional entrances: law and design offices, clinics, galleries, and showrooms where the holiday note should be present but never loud. We work to your brand's palette and keep the materials weatherproof and low-maintenance.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  In the spirit of 'omotenashi' (Japanese hospitality), we create displays that welcome clients and customers before they even enter your door, setting the tone for exceptional experiences and strengthening brand loyalty.
+                  Installation is arranged around your hours, and we return mid-season to refresh the greens before taking everything down in the new year. The result tells clients you pay attention to detail, without the display ever doing the talking for you.
                 </p>
               </div>
               <Card className="p-8">

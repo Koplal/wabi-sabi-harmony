@@ -82,6 +82,7 @@ export const NeighborhoodPage = ({ data }: NeighborhoodPageProps) => {
         serviceType="Luxury House Cleaning & Concierge"
         areaServed={`${data.name}, Victoria, BC`}
         areaServedType="Place"
+        geo={data.geo}
       />
       <BreadcrumbSchema
         items={[

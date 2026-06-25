@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-gathered-abundance-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const GatheredAbundance = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Gathered Abundance | Autumn Pumpkin Package"
+        description="A statement autumn pumpkin display with grand-prize centerpieces, rare varieties, and professional installation across Victoria and the Saanich Peninsula."
+        canonical="https://wabisabiservices.ca/seasoning/gathered-abundance"
+      />
+      <ProductSchema
+        name="The Gathered Abundance"
+        description="A statement autumn pumpkin display with grand-prize centerpieces, rare varieties, and landscape-level installation."
+        offers={{
+          price: "1399",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/gathered-abundance",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Gathered Abundance", url: "https://wabisabiservices.ca/seasoning/gathered-abundance" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const GatheredAbundance = () => {
               When Autumn Arrives in Full Splendor
             </p>
             <p className="text-lg text-muted-foreground">
-              Generous hospitality. Natural grandeur. Mindful abundance.
+              The kind of entrance that becomes a destination in itself.
             </p>
           </div>
         </section>

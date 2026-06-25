@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 import coastalCottageHero from "@/assets/package-coastal-cottage-hero.jpg";
 import islandRetreatHero from "@/assets/package-island-retreat-hero.jpg";
@@ -109,6 +111,31 @@ const packages = [
 const SummerSerenity = () => {
   return (
     <Layout>
+      <SEO
+        title="Summer Serenity Seasonal Packages | Victoria, BC"
+        description="Coastal summer styling for Victoria homes and businesses. Five packages of driftwood, sea glass, and breezy arrangements, designed and installed to suit your entrance."
+        canonical="https://wabisabiservices.ca/seasoning/summer-serenity"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Summer Serenity", url: "https://wabisabiservices.ca/seasoning/summer-serenity" },
+        ]}
+      />
+      {packages.map((pkg) => (
+        <ProductSchema
+          key={pkg.name}
+          name={pkg.name}
+          description={pkg.description}
+          offers={{
+            price: String(pkg.price),
+            priceCurrency: "CAD",
+            availability: "https://schema.org/InStock",
+            url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
+          }}
+        />
+      ))}
       <div className="min-h-screen">
         <section className="relative h-[50vh] flex items-center justify-center">
           <div
@@ -125,7 +152,7 @@ const SummerSerenity = () => {
               Summer Serenity Packages
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Coastal-inspired elegance for the season of sunshine
+              Coastal-inspired styling for the long days of the season
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               Available: June through August
@@ -229,13 +256,13 @@ const SummerSerenity = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Create Your Summer Sanctuary</h2>
+            <h2 className="font-serif text-3xl mb-6">A Coastal Welcome for Summer</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Transform your entrance into a coastal retreat that welcomes the season's warmth.
+              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request Consultation</Link>
+                <Link to="/contact">Request a Private Consultation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/seasoning">View All Seasonal Services</Link>

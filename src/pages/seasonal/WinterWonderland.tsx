@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-winter-wonderland-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const WinterWonderland = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Winter Wonderland | Winter Holiday Package"
+        description="A frost-inspired holiday entrance with premium evergreens, frosted branches, and warm lighting, installed across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/the-winter-wonderland"
+      />
+      <ProductSchema
+        name="The Winter Wonderland"
+        description="A frost-inspired holiday entrance with premium evergreens, frosted branches, and warm lighting, installed on site."
+        offers={{
+          price: "924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-winter-wonderland",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Winter Wonderland", url: "https://wabisabiservices.ca/seasoning/the-winter-wonderland" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const WinterWonderland = () => {
               Elegant Frost-Inspired Sophistication
             </p>
             <p className="text-lg text-muted-foreground">
-              Refined elegance. Illuminated beauty. Mindful luxury.
+              An entrance that shifts gently from daylight to a soft evening glow.
             </p>
           </div>
         </section>
@@ -54,7 +78,7 @@ const WinterWonderland = () => {
                   The Winter Wonderland package transforms your entrance into an elegant frost-kissed sanctuary. With premium evergreens, subtle lighting, and sophisticated accents, this display captures the magic of winter's crystalline beauty.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for those who appreciate refined details and the interplay of natural elements with gentle illumination. Each component is thoughtfully positioned to create a cohesive, enchanting display that evolves beautifully from day to evening.
+                  Ideal for those who appreciate refined details and natural elements paired with gentle light. Each piece is placed to read as one display, one that changes character as the afternoon turns to evening.
                 </p>
               </div>
               <Card className="p-8">

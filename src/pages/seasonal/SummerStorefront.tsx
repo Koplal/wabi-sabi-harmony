@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-summer-storefront-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const SummerStorefront = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Summer Storefront | Commercial Styling | Victoria"
+        description="The Summer Storefront: coastal-inspired summer styling for Victoria businesses, with weather-resistant planters and flexible installation. $799 CAD, installed and maintained."
+        canonical="https://wabisabiservices.ca/seasoning/the-summer-storefront"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Summer Storefront", url: "https://wabisabiservices.ca/seasoning/the-summer-storefront" },
+        ]}
+      />
+      <ProductSchema
+        name="The Summer Storefront"
+        description="Fresh summer presentation for Victoria businesses, with a commercial wreath, four weather-resistant planter displays, coastal-inspired styling, and flexible installation."
+        offers={{
+          price: "799",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-summer-storefront",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const SummerStorefront = () => {
               Fresh Summer Presentation for Your Business
             </p>
             <p className="text-lg text-muted-foreground">
-              Professional elegance. Seasonal vibrancy. Brand-aligned beauty.
+              Coastal summer styling for the front your customers walk through.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const SummerStorefront = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Strategic Summer Placemaking</h2>
+                <h2 className="font-serif text-4xl mb-6">A Summer Welcome at the Door</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Summer Storefront package is designed for Victoria businesses that understand the power of seasonal ambiance. More than decoration, this is strategic placemaking that transforms your entrance into a welcoming summer destination that reflects your brand's commitment to quality and attention to seasonal detail.
+                  The Summer Storefront is for Victoria businesses that want their entrance to feel like the season. Driftwood, sea glass, and breezy planters read as summer the moment customers arrive, styled to your brand colours and the rhythm of your foot traffic.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  In the spirit of 'omotenashi' (Japanese hospitality), we create fresh summer displays that welcome clients and customers, setting the tone for exceptional experiences while reinforcing your professional brand identity with coastal-inspired elements.
+                  The materials are chosen to take coastal sun and wind without fading, and to ask nothing of your team. We schedule installation around your hours, return mid-season for a refresh, and take everything down when the season turns.
                 </p>
               </div>
               <Card className="p-8">
@@ -102,45 +126,24 @@ const SummerStorefront = () => {
               </div>
             </div>
 
-            {/* Business Benefits */}
+            {/* What It Does for Your Space */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Business Benefits & ROI</h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">40%</div>
-                  <p className="text-muted-foreground">Average customer sentiment increase in summer</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">92%</div>
-                  <p className="text-muted-foreground">Clients notice and appreciate seasonal décor</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">100%</div>
-                  <p className="text-muted-foreground">Professional brand impression</p>
-                </Card>
-              </div>
-            </div>
-
-            {/* Professional Advantages */}
-            <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Professional Advantages</h3>
+              <h3 className="font-serif text-3xl mb-8">What It Does for Your Space</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Brand Enhancement</h4>
+                  <h4 className="font-serif text-xl mb-3">For Your Brand</h4>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Reinforces commitment to quality</li>
-                    <li>• Shows attention to seasonal detail</li>
-                    <li>• Creates memorable summer impressions</li>
-                    <li>• Differentiates from competitors</li>
+                    <li>• A storefront that feels current and cared for</li>
+                    <li>• Coastal styling matched to your identity</li>
+                    <li>• A look that holds up to a summer of sun and salt air</li>
                   </ul>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Client Experience</h4>
+                  <h4 className="font-serif text-xl mb-3">For Your Visitors</h4>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Welcoming, fresh summer atmosphere</li>
-                    <li>• Seasonal vacation connection</li>
-                    <li>• Thoughtful hospitality message</li>
-                    <li>• Enhanced loyalty and goodwill</li>
+                    <li>• An easy, summery welcome at the entrance</li>
+                    <li>• The feel of the season the moment they arrive</li>
+                    <li>• Quiet hospitality with no upkeep on your part</li>
                   </ul>
                 </Card>
               </div>

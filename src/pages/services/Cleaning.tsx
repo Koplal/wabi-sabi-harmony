@@ -10,12 +10,12 @@ const Cleaning = () => {
     <Layout>
       <SEO 
         title="Professional Cleaning Services Victoria BC"
-        description="Residential, commercial, and specialty cleaning services in Victoria, BC. Deep cleaning, maintenance cleaning, move-in/out, post-construction, and vacation rental turnover."
+        description="Residential, commercial, and specialty cleaning in Victoria, BC. Deep cleaning, maintenance, move-in/out, post-construction, and vacation rental turnover."
         keywords="house cleaning Victoria BC, residential cleaning Victoria, commercial cleaning Victoria, deep cleaning Victoria, move out cleaning Victoria"
       />
       <ServiceSchema 
         name="Professional Cleaning Services"
-        description="Comprehensive cleaning solutions for homes and businesses in Victoria, BC. Including residential maintenance, deep cleaning, commercial spaces, and specialty cleaning services."
+        description="Cleaning for homes and businesses in Victoria, BC: residential maintenance, deep cleaning, commercial spaces, and specialty services."
         serviceType="Cleaning Service"
       />
       <div className="py-32 px-6 lg:px-12">
@@ -24,7 +24,7 @@ const Cleaning = () => {
             Professional Cleaning Services
           </h1>
           <p className="text-xl text-center text-muted-foreground mb-16 leading-relaxed max-w-3xl mx-auto">
-            Comprehensive cleaning solutions for homes and businesses throughout Victoria
+            Considered cleaning for homes and businesses throughout Victoria
           </p>
 
           <div className="mb-20">
@@ -192,19 +192,19 @@ const Cleaning = () => {
 
             {/* CTA Section */}
             <section className="bg-secondary/30 rounded-lg p-10 text-center">
-              <h2 className="font-serif text-3xl mb-6">Ready to Experience the Difference?</h2>
+              <h2 className="font-serif text-3xl mb-6">Begin with a Conversation</h2>
               <p className="text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-                Every cleaning service is tailored to your specific needs. Schedule a complimentary consultation to discuss how we can support your space.
+                Every cleaning is shaped to your home and the way you live in it. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/book">
+                <Link to="/contact">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Book a Service
+                    Request a Private Consultation
                   </Button>
                 </Link>
-                <Link to="/contact">
+                <Link to="/book">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Request a Quote
+                    Book a Service
                   </Button>
                 </Link>
               </div>

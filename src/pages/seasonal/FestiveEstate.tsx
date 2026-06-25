@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-festive-estate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const FestiveEstate = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Festive Estate | Winter Holiday Package"
+        description="A holiday display for multi-level entries and wide facades, with coordinated wreaths, railing garland, and planter arrangements across Victoria and the Saanich Peninsula."
+        canonical="https://wabisabiservices.ca/seasoning/the-festive-estate"
+      />
+      <ProductSchema
+        name="The Festive Estate"
+        description="A holiday display for multi-level entries and wide facades, with coordinated wreaths, railing garland, and abundant planter arrangements."
+        offers={{
+          price: "1424",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-festive-estate",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Festive Estate", url: "https://wabisabiservices.ca/seasoning/the-festive-estate" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const FestiveEstate = () => {
               Grand Holiday Display for Larger Homes
             </p>
             <p className="text-lg text-muted-foreground">
-              Abundant beauty. Elegant presence. Mindfully grand.
+              Wreaths, garland, and greenery that carry across a wide facade.
             </p>
           </div>
         </section>
@@ -51,7 +75,7 @@ const FestiveEstate = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Celebrating the Season in Full Splendor</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Festive Estate package is designed for homes with multi-level entries and expansive facades. This comprehensive display combines premium wreaths, extensive garland work, and abundant planter arrangements to create a cohesive, impressive holiday transformation.
+                  The Festive Estate package is designed for homes with multi-level entries and expansive facades. It brings together premium wreaths, extensive garland work, and abundant planter arrangements so the whole front of the house reads as a single, considered holiday scene.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   Perfect for those who entertain during the holidays and appreciate the impact of thoughtful, professional holiday styling. Each element works in harmony to welcome guests with warmth and festive elegance.

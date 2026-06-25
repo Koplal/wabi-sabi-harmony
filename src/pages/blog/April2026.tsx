@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const April2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="Earth Month: Cleaning with Climate Consciousness"
+        description="April brings Earth Day to Victoria. A four-week plan for lower-impact cleaning, ocean-safe choices, and a near zero-waste home routine."
+        canonical="https://wabisabiservices.ca/blog/april-2026"
+        ogType="article"
+        publishedTime="2026-04-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="Earth Month Excellence: Cleaning with Climate Consciousness"
+        description="A four-week plan for lower-impact cleaning, ocean-safe choices, and a near zero-waste routine, for a Victoria home."
+        datePublished="2026-04-01"
+        url="https://wabisabiservices.ca/blog/april-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Earth Month", url: "https://wabisabiservices.ca/blog/april-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const April2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -43,13 +65,13 @@ const April2026 = () => {
             </p>
 
             <h2>The Climate Cost of Conventional Cleaning</h2>
-            <p>Traditional cleaning impacts our planet more than most realize:</p>
+            <p>Traditional cleaning touches the planet more than most of us realize:</p>
             <ul>
-              <li>Average household uses 8 gallons of hazardous chemicals annually</li>
-              <li>Single-use cleaning products generate 230 pounds of waste per year</li>
-              <li>Synthetic fragrances contribute to indoor air pollution</li>
-              <li>Microplastics from synthetic cloths enter our oceans</li>
-              <li>Energy-intensive cleaning methods increase carbon footprints</li>
+              <li>A typical household runs through a surprising volume of hazardous chemicals each year</li>
+              <li>Single-use cleaning products leave behind a steady stream of packaging waste</li>
+              <li>Synthetic fragrances add to indoor air pollution</li>
+              <li>Microplastics shed by synthetic cloths make their way into our oceans</li>
+              <li>Energy-hungry cleaning methods raise a home's carbon footprint</li>
             </ul>
 
             <h2>Your Earth Month Action Plan</h2>
@@ -156,12 +178,12 @@ const April2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Clean with climate consciousness</h3>
+              <h3 className="text-2xl font-serif mb-4">Care for your home and the coast it sits on</h3>
               <p className="mb-6">
-                Celebrate Earth Month with Wabi Sabi Services' eco-certified cleaning that protects our planet while maintaining your pristine home.
+                Our concierge team cleans with eco-certified products and methods chosen with the Island in mind. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Earth-Friendly Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

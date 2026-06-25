@@ -6,6 +6,7 @@ interface ServiceSchemaProps {
   serviceType: string;
   areaServed?: string;
   areaServedType?: "City" | "Place";
+  geo?: { lat: string; lng: string };
 }
 
 /**
@@ -18,14 +19,31 @@ interface ServiceSchemaProps {
  * @param areaServedType - schema.org type for areaServed: "City" (default, used by
  *   /services/* pages) or "Place" (used by neighborhood/area pages). Backward
  *   compatible: omitting it produces a "City" areaServed identical to prior output.
+ * @param geo - Optional centroid coordinates. When provided (area pages), a
+ *   GeoCoordinates node is attached to the areaServed Place so search engines can
+ *   place the served neighbourhood precisely.
  */
 export const ServiceSchema = ({
   name,
   description,
   serviceType,
   areaServed = "Victoria, BC",
-  areaServedType = "City"
+  areaServedType = "City",
+  geo
 }: ServiceSchemaProps) => {
+  const areaServedNode: Record<string, unknown> = {
+    "@type": areaServedType,
+    "name": areaServed
+  };
+
+  if (geo) {
+    areaServedNode.geo = {
+      "@type": "GeoCoordinates",
+      "latitude": geo.lat,
+      "longitude": geo.lng
+    };
+  }
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -37,10 +55,7 @@ export const ServiceSchema = ({
     "provider": {
       "@id": "https://wabisabiservices.ca/#organization"
     },
-    "areaServed": {
-      "@type": areaServedType,
-      "name": areaServed
-    },
+    "areaServed": areaServedNode,
     "availableChannel": {
       "@type": "ServiceChannel",
       "serviceUrl": "https://wabisabiservices.ca/book",

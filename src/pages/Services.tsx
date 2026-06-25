@@ -3,14 +3,44 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ItemListSchema, ServiceSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 
 const Services = () => {
   return (
     <Layout>
-      <SEO 
+      <SEO
         title="Our Services"
         description="Professional cleaning, organizing, and concierge services in Victoria, BC. Residential cleaning, commercial cleaning, home organizing, and errand services."
+        canonical="https://wabisabiservices.ca/services"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+        ]}
+      />
+      <ItemListSchema
+        items={[
+          { name: "Cleaning Services", url: "https://wabisabiservices.ca/services/cleaning" },
+          { name: "Professional Organizing", url: "https://wabisabiservices.ca/services/organizing" },
+          { name: "Household Errands", url: "https://wabisabiservices.ca/services/errands" },
+        ]}
+      />
+      <ServiceSchema
+        name="Cleaning Services"
+        description="Residential, commercial, and specialty cleaning for Victoria's most distinguished homes, from regular maintenance to deep cleans and post-construction care."
+        serviceType="House Cleaning"
+      />
+      <ServiceSchema
+        name="Professional Organizing"
+        description="Decluttering and household systems that reduce mental load and support daily life across Greater Victoria, BC."
+        serviceType="Home Organizing"
+      />
+      <ServiceSchema
+        name="Household Errands"
+        description="Discreet errand running and household coordination for clients across Greater Victoria, BC."
+        serviceType="Concierge Service"
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
@@ -128,17 +158,17 @@ const Services = () => {
           <section className="text-center bg-accent/20 rounded-lg p-12">
             <h2 className="font-serif text-3xl md:text-4xl mb-6">Begin with a Private Consultation</h2>
             <p className="text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Every engagement opens with a private consultation. We listen, study your home and its materials, and compose a plan tailored to your standards and your schedule.
+              Every engagement opens with a $150 in-home consultation, credited in full toward your first service. We listen, study your home and its materials, and compose a plan tailored to your standards and your schedule.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/book">
+              <Link to="/contact">
                 <Button size="lg" className="w-full sm:w-auto">
-                  Book a Consultation
+                  Request a Private Consultation
                 </Button>
               </Link>
-              <Link to="/contact">
+              <Link to="/book">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Contact Us
+                  Book Online
                 </Button>
               </Link>
             </div>

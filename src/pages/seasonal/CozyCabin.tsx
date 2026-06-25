@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-cozy-cabin-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const CozyCabin = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Cozy Cabin | Winter Holiday Package"
+        description="A warm winter entrance with a fresh evergreen wreath, door swag, and planter greens, styled and installed across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/the-cozy-cabin"
+      />
+      <ProductSchema
+        name="The Cozy Cabin"
+        description="A warm winter entrance with a fresh evergreen wreath, door swag, and planter greens, styled and installed on site."
+        offers={{
+          price: "474",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-cozy-cabin",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Cozy Cabin", url: "https://wabisabiservices.ca/seasoning/the-cozy-cabin" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const CozyCabin = () => {
               Warm Winter Welcome with Natural Elements
             </p>
             <p className="text-lg text-muted-foreground">
-              Inviting warmth. Natural beauty. Mindful simplicity.
+              Fresh greens and quiet light for a doorway that feels like coming home.
             </p>
           </div>
         </section>
@@ -51,7 +75,7 @@ const CozyCabin = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Embracing Winter's Warmth</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Cozy Cabin package brings the essence of winter's comfort to your doorstep. Thoughtfully curated with fresh evergreens and natural elements, this display creates an inviting atmosphere that welcomes guests with warmth and authenticity.
+                  The Cozy Cabin package brings the essence of winter's comfort to your doorstep. Built from fresh evergreens and natural materials, it creates an inviting entrance that welcomes guests with warmth and a sense of place.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   Perfect for those who appreciate understated elegance and the beauty of natural materials. Each element is carefully selected to create harmony between your home and the winter landscape.
@@ -89,7 +113,7 @@ const CozyCabin = () => {
                   "Natural birch log accents",
                   "Professional placement & styling",
                   "Seasonal care instructions",
-                  "Complimentary fragrance refresh"
+                  "Mid-season fragrance refresh"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />

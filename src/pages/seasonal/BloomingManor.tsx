@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-blooming-manor-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const BloomingManor = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Blooming Manor | Spring Styling | Victoria"
+        description="The Blooming Manor: our most generous spring installation, with custom wreaths, twelve statement planters, lighting, and a dedicated design process. $1,924 CAD, Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/the-blooming-manor"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Blooming Manor", url: "https://wabisabiservices.ca/seasoning/the-blooming-manor" },
+        ]}
+      />
+      <ProductSchema
+        name="The Blooming Manor"
+        description="Our most generous spring installation for estate properties, with a custom floral wreath collection, twelve statement planters, garden lighting, and a dedicated design process."
+        offers={{
+          price: "1924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-blooming-manor",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const BloomingManor = () => {
               Grand Spring Transformation
             </p>
             <p className="text-lg text-muted-foreground">
-              Editorial-level artistry. Abundant florals. Mindfully spectacular.
+              Our most generous spring installation, planned around your home over several weeks.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const BloomingManor = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Spring Artistry</h2>
+                <h2 className="font-serif text-4xl mb-6">Spring, Planned Around Your Home</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Blooming Manor represents the zenith of our spring styling - a masterwork designed for estate-style properties. This grand installation transforms your home into a botanical showplace with abundant florals, architectural elements, and sophisticated garden artistry that creates an unforgettable seasonal statement.
+                  The Blooming Manor is the largest spring installation we offer, made for estate properties and the people who host in them. It begins weeks ahead with a design process built around your architecture, then arrives as abundant florals, garden lighting, and structural accents that carry the season across the whole front of the house.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Created for those who entertain in style and appreciate museum-quality botanical design. Each element is precisely placed through collaboration with our design team to create a cohesive, breathtaking display that honors both the season and your property's unique character.
+                  A dedicated project manager stays with you from the first walkthrough through the final maintenance visit. We place every element by hand and adjust on site, so the result reads as one composition rather than a collection of pieces.
                 </p>
               </div>
               <Card className="p-8">

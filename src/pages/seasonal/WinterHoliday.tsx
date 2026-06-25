@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 import cozyCabinHero from "@/assets/package-cozy-cabin-hero.jpg";
 import winterWonderlandHero from "@/assets/package-winter-wonderland-hero.jpg";
@@ -108,6 +110,31 @@ const packages = [
 const WinterHoliday = () => {
   return (
     <Layout>
+      <SEO
+        title="Winter Holiday Packages | Seasonal Styling"
+        description="Fresh evergreen wreaths, garlands, and lighting for the holidays, designed and installed across Greater Victoria. Five winter packages for homes and businesses."
+        canonical="https://wabisabiservices.ca/seasoning/winter-holiday"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Winter Holiday Packages", url: "https://wabisabiservices.ca/seasoning/winter-holiday" },
+        ]}
+      />
+      {packages.map((pkg) => (
+        <ProductSchema
+          key={pkg.name}
+          name={pkg.name}
+          description={pkg.description}
+          offers={{
+            price: String(pkg.price),
+            priceCurrency: "CAD",
+            availability: "https://schema.org/PreOrder",
+            url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
+          }}
+        />
+      ))}
       <div className="min-h-screen">
         <section className="relative h-[50vh] flex items-center justify-center">
           <div
@@ -217,7 +244,7 @@ const WinterHoliday = () => {
                 </p>
               </div>
               <div className="text-center">
-                <h3 className="font-serif text-xl mb-3">Complete Service</h3>
+                <h3 className="font-serif text-xl mb-3">Start to Finish</h3>
                 <p className="text-muted-foreground text-sm">
                   Installation, maintenance guidance, and removal when the season concludes.
                 </p>
@@ -228,13 +255,13 @@ const WinterHoliday = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Ready to Transform Your Space?</h2>
+            <h2 className="font-serif text-3xl mb-6">Ready to Welcome the Holidays?</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Let us create a welcoming winter display that reflects your home's unique character.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request Consultation</Link>
+                <Link to="/contact">Request a Private Consultation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/seasoning">View All Seasonal Services</Link>

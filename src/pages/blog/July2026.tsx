@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const July2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="Summer Sanctuary: Indoor-Outdoor Living in Victoria"
+        description="July in Victoria means long days and outdoor living. How to open your home to the garden, manage sand and sun, and keep cool without losing the calm."
+        canonical="https://wabisabiservices.ca/blog/july-2026"
+        ogType="article"
+        publishedTime="2026-07-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="Summer Sanctuary: Mastering Indoor-Outdoor Living in Victoria"
+        description="How to open your home to the garden, manage sand and sun, and keep cool without losing the calm, through a Victoria July."
+        datePublished="2026-07-01"
+        url="https://wabisabiservices.ca/blog/july-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Summer Sanctuary", url: "https://wabisabiservices.ca/blog/july-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const July2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -39,7 +61,7 @@ const July2026 = () => {
             <p className="text-muted-foreground mb-8">Published: July 2026</p>
 
             <p className="lead">
-              July in Victoria is pure magic – long sunny days, ocean breezes, and outdoor living at its finest. This month, your home becomes a launching pad for summer adventures and a cool retreat from afternoon heat. At Wabi Sabi Services, we help you create seamless indoor-outdoor living spaces that celebrate our spectacular West Coast summer.
+              July in Victoria is pure magic. Long sunny days, ocean breezes, and outdoor living at its finest. This month, your home becomes a launching pad for summer adventures and a cool retreat from the afternoon heat. At Wabi Sabi Services, we help you open the house to the garden and back again, so the rhythm of a West Coast summer flows easily through your rooms.
             </p>
 
             <h2>The Art of Summer Flow</h2>
@@ -67,7 +89,7 @@ const July2026 = () => {
             </ul>
 
             <h2>Outdoor Living Room Creation</h2>
-            <p>Transform your deck or patio into Victoria's best room:</p>
+            <p>With a little care, your deck or patio can become the best room in the house:</p>
 
             <h3>Deep Clean for Comfort:</h3>
             <ul>
@@ -181,12 +203,12 @@ const July2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Embrace seamless indoor-outdoor summer living</h3>
+              <h3 className="text-2xl font-serif mb-4">Spend the summer enjoying your home</h3>
               <p className="mb-6">
-                Let Wabi Sabi Services create your perfect summer sanctuary – clean, organized spaces that celebrate Victoria's spectacular July weather.
+                Let our concierge team keep your indoor and outdoor spaces ready for every spontaneous gathering. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Summer Sanctuary Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

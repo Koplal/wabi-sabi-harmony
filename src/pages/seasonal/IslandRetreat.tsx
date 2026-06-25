@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-island-retreat-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const IslandRetreat = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Island Retreat | Summer Styling | Victoria"
+        description="The Island Retreat: a relaxed summer display with a tropical wreath, four planters, bamboo and rattan accents, and hurricane lanterns for your Victoria home. $924 CAD."
+        canonical="https://wabisabiservices.ca/seasoning/the-island-retreat"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Island Retreat", url: "https://wabisabiservices.ca/seasoning/the-island-retreat" },
+        ]}
+      />
+      <ProductSchema
+        name="The Island Retreat"
+        description="Relaxed summer aesthetic with tropical-inspired touches, a palm-element wreath, four summer planters, bamboo and rattan accents, and hurricane lanterns."
+        offers={{
+          price: "924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-island-retreat",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const IslandRetreat = () => {
               Relaxed Tropical-Inspired Summer
             </p>
             <p className="text-lg text-muted-foreground">
-              Resort elegance. Tropical beauty. Mindful escape.
+              A relaxed, resort-inspired entrance that feels like time away.
             </p>
           </div>
         </section>
@@ -51,7 +75,7 @@ const IslandRetreat = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Creating Your Summer Sanctuary</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Island Retreat package transforms your entrance into a tropical escape with lush plants, natural materials, and resort-inspired accents. This substantial display combines bamboo, rattan, and coastal elements to create a welcoming atmosphere that evokes vacation memories and relaxation.
+                  The Island Retreat turns your entrance into a tropical escape with lush plants, natural materials, and resort-inspired accents. Bamboo, rattan, and coastal elements come together into a welcoming display that carries the ease of a vacation home.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   Ideal for those who love tropical aesthetics and appreciate the laid-back luxury of island living. Each element works together to create a cohesive, inviting display that feels like a permanent vacation.

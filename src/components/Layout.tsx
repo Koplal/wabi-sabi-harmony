@@ -237,7 +237,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
       <footer className="border-t border-border mt-32">
         <div className="container mx-auto px-6 lg:px-12 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
             <div>
               <h3 className="font-serif text-lg mb-4">Wabi Sabi Services</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -296,6 +296,36 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                     className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
                   >
                     All Service Areas
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-sans text-xs uppercase tracking-wider mb-4">Resources</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to="/key-takeaways"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Key Takeaways
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/terms-of-service"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/client-agreement"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Client Agreement
                   </Link>
                 </li>
               </ul>

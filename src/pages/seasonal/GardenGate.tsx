@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-garden-gate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const GardenGate = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Garden Gate | Spring Styling Package | Victoria"
+        description="The Garden Gate: an abundant spring display with a designer floral wreath, four seasonal planters, and garden accents for your Victoria home. $924 CAD, fully installed."
+        canonical="https://wabisabiservices.ca/seasoning/the-garden-gate"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Garden Gate", url: "https://wabisabiservices.ca/seasoning/the-garden-gate" },
+        ]}
+      />
+      <ProductSchema
+        name="The Garden Gate"
+        description="Abundant spring display celebrating renewal and growth, with a 26-inch floral wreath, four seasonal planters, and natural wood and moss accents."
+        offers={{
+          price: "924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-garden-gate",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const GardenGate = () => {
               Abundant Spring Celebration
             </p>
             <p className="text-lg text-muted-foreground">
-              Lush beauty. Joyful renewal. Mindful abundance.
+              A generous spring display that deepens and settles as the season unfolds.
             </p>
           </div>
         </section>

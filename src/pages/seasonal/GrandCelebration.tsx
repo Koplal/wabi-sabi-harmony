@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-grand-celebration-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const GrandCelebration = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Grand Celebration | Winter Holiday Package"
+        description="Our most involved holiday installation for estate properties: extensive lighting, garland, and a dedicated project manager with weekly care across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/the-grand-celebration"
+      />
+      <ProductSchema
+        name="The Grand Celebration"
+        description="Our most involved holiday installation for estate properties, with extensive lighting and garland, a dedicated project manager, and weekly seasonal care."
+        offers={{
+          price: "1924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-grand-celebration",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Grand Celebration", url: "https://wabisabiservices.ca/seasoning/the-grand-celebration" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const GrandCelebration = () => {
               Spectacular Holiday Transformation
             </p>
             <p className="text-lg text-muted-foreground">
-              Estate-level artistry. Breathtaking beauty. Mindfully magnificent.
+              Up to five hundred lights and fifty feet of garland, all kept in hand all season.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const GrandCelebration = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Holiday Artistry</h2>
+                <h2 className="font-serif text-4xl mb-6">Lighting on an Estate Scale</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Grand Celebration represents the zenith of our winter styling - a masterwork designed for estate-style properties. This comprehensive installation transforms your home into a seasonal landmark, combining extensive greenery, professional lighting, and luxurious details.
+                  The Grand Celebration is our largest holiday installation, built for properties with long rooflines, mature trees, and grounds that read from the road. Up to five hundred bulbs and fifty feet of garland are run by a professional crew, with a dedicated project manager seeing the whole thing through from the first site visit.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Created for those who host grand celebrations and appreciate the impact of museum-quality holiday design. Each element is precisely placed through collaboration with our design team to create a cohesive, breathtaking display that honors both tradition and your home's unique character.
+                  We plan it over two weeks, install across a full day, and return each week to swap tired greens and keep the lighting even. For homes that host through December, it removes every part of the holiday set-up except the welcome.
                 </p>
               </div>
               <Card className="p-8">
@@ -139,7 +163,7 @@ const GrandCelebration = () => {
 
             {/* Package Features */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">The Complete Estate Experience</h3>
+              <h3 className="font-serif text-3xl mb-8">How the Season Unfolds</h3>
               <div className="grid md:grid-cols-4 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Discovery Phase</h4>

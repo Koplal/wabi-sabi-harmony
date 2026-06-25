@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-seaside-estate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const SeasideEstate = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Seaside Estate | Summer Styling | Victoria"
+        description="The Seaside Estate: our largest summer installation for waterfront homes, with custom coastal wreaths, twelve arrangements, driftwood art, and a dedicated design process. $1,924 CAD."
+        canonical="https://wabisabiservices.ca/seasoning/the-seaside-estate"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Seaside Estate", url: "https://wabisabiservices.ca/seasoning/the-seaside-estate" },
+        ]}
+      />
+      <ProductSchema
+        name="The Seaside Estate"
+        description="Resort-style summer elegance for waterfront properties, with a custom coastal wreath collection, twelve luxury arrangements, large driftwood installations, and a dedicated design process."
+        offers={{
+          price: "1924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-seaside-estate",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const SeasideEstate = () => {
               Resort-Style Summer Elegance
             </p>
             <p className="text-lg text-muted-foreground">
-              Editorial-level artistry. Waterfront luxury. Mindfully spectacular.
+              Our largest summer installation, shaped to the water and the light.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const SeasideEstate = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Summer Artistry</h2>
+                <h2 className="font-serif text-4xl mb-6">Summer at the Water's Edge</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Seaside Estate represents the zenith of our summer styling - a masterwork designed for waterfront estate properties. This grand installation transforms your home into a luxury resort destination with abundant tropical elements, sophisticated lighting, and architectural driftwood installations that create an unforgettable summer statement.
+                  The Seaside Estate is the largest summer installation we offer, made for waterfront homes and the way they entertain. It begins weeks ahead with a design process built around your site and its sightlines, then arrives as tropical plantings, ambient lighting, and architectural driftwood that read against the water from morning through the long evenings.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Created for those who entertain in style and appreciate resort-quality design. Each element is precisely placed through collaboration with our design team to create a cohesive, breathtaking display that honors both the season and your property's waterfront character.
+                  A dedicated project manager stays with you from the first walkthrough through the final maintenance visit. We place every element by hand and adjust on site, so the display works with the light off the sea rather than against it.
                 </p>
               </div>
               <Card className="p-8">

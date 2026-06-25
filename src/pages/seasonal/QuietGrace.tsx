@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-quiet-grace-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const QuietGrace = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Quiet Grace | Autumn Pumpkin Package"
+        description="A restrained autumn pumpkin display for intimate porches and townhome entries. Heritage and heirloom varieties, arranged and installed across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/quiet-grace"
+      />
+      <ProductSchema
+        name="The Quiet Grace"
+        description="A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties arranged on site."
+        offers={{
+          price: "399",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/quiet-grace",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Quiet Grace", url: "https://wabisabiservices.ca/seasoning/quiet-grace" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const QuietGrace = () => {
               Find Beauty in Autumn's Imperfection
             </p>
             <p className="text-lg text-muted-foreground">
-              Mindfully curated. Naturally elegant. Authentically yours.
+              A small, considered display that lets each pumpkin keep its own character.
             </p>
           </div>
         </section>
@@ -51,7 +75,7 @@ const QuietGrace = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Embracing Subtle Beauty</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  In the spirit of wabi-sabi, we believe true beauty lies not in abundance, but in thoughtful curation. The Quiet Grace brings intentional autumn charm to compact spaces, celebrating each pumpkin's unique character and natural imperfections.
+                  In the spirit of wabi-sabi, we believe true beauty lies not in abundance, but in restraint. The Quiet Grace brings intentional autumn charm to compact spaces, letting each pumpkin's character and natural imperfections show.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   Perfect for intimate porches, townhome entries, and those who appreciate that less can indeed be more. Each display is arranged with mindful attention to balance, texture, and the inherent beauty of seasonal transitions.

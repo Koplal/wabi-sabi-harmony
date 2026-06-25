@@ -98,6 +98,14 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- What to Expect Page -->
+  <url>
+    <loc>https://wabisabiservices.ca/key-takeaways</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
   <!-- Blog Main Page -->
   <url>
     <loc>https://wabisabiservices.ca/blog</loc>

@@ -42,7 +42,7 @@ const Errands = () => {
                 Your time is your most considered luxury. Let us serve as your discreet concierge for the errands and household details that quietly consume the day.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mt-6">
-                From sourcing fine groceries to managing a household in your absence, we provide reliable, vetted, white-glove support—particularly for estate and second-home owners who need a trusted presence keeping everything in seamless order.
+                From sourcing fine groceries to managing a household in your absence, we provide reliable, vetted, white-glove support—particularly for estate and second-home owners who need a trusted presence keeping everything in quiet order.
               </p>
             </div>
 
@@ -221,17 +221,17 @@ const Errands = () => {
             <section className="bg-secondary/30 rounded-lg p-10 text-center">
               <h2 className="font-serif text-3xl mb-6">Let Us Handle the Details</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                Schedule a consultation to discuss how we can support your household.
+                We begin with a $150 in-home consultation, credited in full toward your first service, to learn how your household runs and where we can lighten the load.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/book">
+                <Link to="/contact">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Get Started
+                    Request a Private Consultation
                   </Button>
                 </Link>
-                <Link to="/contact">
+                <Link to="/book">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Learn More
+                    Book a Service
                   </Button>
                 </Link>
               </div>

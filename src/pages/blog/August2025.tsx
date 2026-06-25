@@ -2,16 +2,31 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const August2025 = () => {
   return (
     <Layout>
-      <SEO 
-        title="August Awakening: Transitioning from Summer to Fall"
-        description="As August unfolds in Victoria, embrace mindful home renewal. Tips for transitioning from summer's relaxed energy to fall's structure with outdoor space care and organization."
+      <SEO
+        title="August Awakening: From Summer's Ease to Fall's Focus"
+        description="As August settles over Victoria, renew your home with intention. Move outdoor living, beach gear, and kitchen routines from summer ease into autumn order."
+        canonical="https://wabisabiservices.ca/blog/august-2025"
         ogType="article"
         publishedTime="2025-08-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="August Awakening: Transitioning from Summer's Freedom to Fall's Focus"
+        description="As August settles over Victoria, renew your home with intention as summer's ease gives way to autumn's order."
+        datePublished="2025-08-01"
+        url="https://wabisabiservices.ca/blog/august-2025"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "August Awakening", url: "https://wabisabiservices.ca/blog/august-2025" },
+        ]}
       />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
@@ -25,9 +40,9 @@ const August2025 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -147,12 +162,12 @@ const August2025 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Embrace the transition</h3>
+              <h3 className="text-2xl font-serif mb-4">Ease into the season</h3>
               <p className="mb-6">
-                Let Wabi Sabi Services help you mindfully transition your home from summer's freedom to fall's focused energy.
+                If you would rather hand the seasonal reset to someone who treats your home with care, our concierge team can carry it for you. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Transitional Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

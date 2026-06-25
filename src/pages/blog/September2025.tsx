@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const September2025 = () => {
   return (
     <Layout>
+      <SEO
+        title="Back-to-School Serenity: Calm in September's Chaos"
+        description="September brings routines, homework stations, and packed lunches. How a calm, well-ordered Victoria home supports learning, focus, and easier mornings."
+        canonical="https://wabisabiservices.ca/blog/september-2025"
+        ogType="article"
+        publishedTime="2025-09-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="Back-to-School Serenity: Creating Calm in September's Chaos"
+        description="How a calm, well-ordered Victoria home quietly supports learning, focus, and easier mornings as the school year begins."
+        datePublished="2025-09-01"
+        url="https://wabisabiservices.ca/blog/september-2025"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Back-to-School Serenity", url: "https://wabisabiservices.ca/blog/september-2025" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const September2025 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -43,10 +65,10 @@ const September2025 = () => {
             </p>
 
             <h2>The Psychology of Organized Learning Spaces</h2>
-            <p>Research from the University of British Columbia shows that children in organized environments demonstrate 15% better focus and 23% improved homework completion rates. But this isn't about militant perfection – it's about creating spaces that naturally support learning and growth.</p>
+            <p>Children tend to settle into homework more easily when their surroundings are calm and predictable. This isn't about militant perfection. It's about spaces that quietly make room for learning instead of competing with it.</p>
 
             <h2>Command Central: The Mindful Mudroom</h2>
-            <p>Your entrance sets the day's tone. Transform it from chaos to calm:</p>
+            <p>Your entrance sets the day's tone. A few small systems turn the morning rush from chaos into something closer to calm:</p>
 
             <h3>The Launch Pad System:</h3>
             <p>Create individual zones for each family member:</p>
@@ -143,12 +165,12 @@ const September2025 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Create back-to-school serenity</h3>
+              <h3 className="text-2xl font-serif mb-4">Begin the year well</h3>
               <p className="mb-6">
-                Start the school year right with organized, clean spaces that support learning, growth, and family harmony.
+                If the start of school already feels like enough, let our concierge team handle the home so your mornings stay quiet. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Back-to-School Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

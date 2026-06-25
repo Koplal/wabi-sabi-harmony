@@ -1,4 +1,7 @@
-import { useLocation } from "react-router-dom";
+import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 const NotFound = () => {
@@ -9,15 +12,27 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 underline hover:text-blue-700">
-          Return to Home
-        </a>
+    <Layout>
+      <SEO title="Page Not Found" description="The page you are looking for could not be found." noindex />
+      <div className="min-h-screen pt-20 px-6 lg:px-12">
+        <div className="container mx-auto max-w-2xl py-24 text-center">
+          <p className="font-serif text-6xl mb-4">404</p>
+          <h1 className="font-serif text-3xl mb-4">This page could not be found</h1>
+          <p className="text-lg text-muted-foreground mb-8">
+            The page you were looking for may have moved or no longer exists. We would
+            be glad to help you find your way.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Button asChild size="lg">
+              <Link to="/">Return Home</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/contact">Request a Private Consultation</Link>
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-fresh-start-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const FreshStart = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Fresh Start | Spring Styling Package | Victoria"
+        description="The Fresh Start: a light spring display of handcrafted blooms, seasonal planters, and natural textures for your Victoria entrance. $474 CAD, designed and installed."
+        canonical="https://wabisabiservices.ca/seasoning/the-fresh-start"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Fresh Start", url: "https://wabisabiservices.ca/seasoning/the-fresh-start" },
+        ]}
+      />
+      <ProductSchema
+        name="The Fresh Start"
+        description="Light and airy spring refresh with delicate floral touches, seasonal planters, and natural moss and twig elements, professionally placed."
+        offers={{
+          price: "474",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-fresh-start",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const FreshStart = () => {
               Light and Airy Spring Refresh
             </p>
             <p className="text-lg text-muted-foreground">
-              Delicate beauty. Fresh beginnings. Mindful renewal.
+              A quiet welcome for the season, composed in soft blooms and natural texture.
             </p>
           </div>
         </section>
@@ -89,7 +113,7 @@ const FreshStart = () => {
                   "Garden-inspired styling",
                   "Professional placement",
                   "Seasonal care instructions",
-                  "Complimentary refresh consultation"
+                  "Mid-season refresh consultation"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
