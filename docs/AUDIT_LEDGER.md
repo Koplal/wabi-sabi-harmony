@@ -63,9 +63,12 @@ Status legend: ⬜ pending · 🟦 in-progress · ✅ done · ⚠ partial/needs-
 |----|------|--------|
 | V-1 | `npx tsc --noEmit` clean | ✅ exit 0 |
 | V-2 | `npm run build` green + prerender emits static HTML for all key routes | ✅ 69 static pages; code-split (471kB main) |
-| V-3 | `/iterate 4` — all reviewers ≥80 | 🟦 next |
-| V-4 | Cross-check completed work vs SITE_AUDIT.md (inconsistencies/regressions/skipped) | 🟦 |
-| V-5 | Re-audit (5 dimensions) → docs/SITE_AUDIT_v2.md | ⬜ |
+| V-3 | `/iterate 4` — all reviewers ≥80 | ✅ Cycle 2: Eng 88 / Reviewer 96 / Adversarial 91 / Critic2 86 (caught+fixed $$-mangling regression) |
+| V-4 | Cross-check completed work vs SITE_AUDIT.md (inconsistencies/regressions/skipped) | ✅ all v1 Critical/Major resolved; gap-fixes: Ritual SEO, FAQ-prerender FAQPage; remainder = polish (see v2) |
+| V-5 | Re-audit (5 dimensions) → docs/SITE_AUDIT_v2.md | ✅ docs/SITE_AUDIT_v2.md |
+
+## Final outcome
+All Phase 1–4 tasks ✅. `/iterate 4` converged (all reviewers ≥80). Re-audit (v2): every v1 Critical/Major resolved; no Critical remains. Remaining = 1 Major (meta/title length trims) + Minor polish (romaji grids on 13 lower-tier seasonal pages, 4 un-prerendered utility routes, Westshore prose, ~8 stray words, 6 copy nits). Recommended "Phase 5 polish" pass documented in SITE_AUDIT_v2.md.
 
 ## Build-1 completion (verified)
 All Phase 1–4 tasks implemented by the 13-agent workflow and verified: tsc clean; build green; 0 down-market terms; 0 `info@`; 0 `PriceEstimator` refs; 0 "complimentary" (consultation unified to "$150 credited"); Bear Mountain intact; code-splitting live; 69 prerendered pages with per-route title+meta+JSON-LD (Service/BlogPosting/Product/ItemList/FAQPage/BreadcrumbList).
