@@ -112,8 +112,8 @@ const SummerSerenity = () => {
   return (
     <Layout>
       <SEO
-        title="Summer Serenity Seasonal Packages | Victoria, BC"
-        description="Coastal summer styling for Victoria homes and businesses. Five packages of driftwood, sea glass, and breezy arrangements, designed and installed to suit your entrance."
+        title="Summer Serenity Packages | Victoria"
+        description="Coastal summer styling for Victoria homes and businesses. Five packages of driftwood, sea glass, and breezy arrangements, designed and installed."
         canonical="https://wabisabiservices.ca/seasoning/summer-serenity"
       />
       <BreadcrumbSchema
@@ -164,8 +164,8 @@ const SummerSerenity = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
               Summers on the Island are long and easy, and a doorway can be made to feel that way too.
-              Our summer packages lean on driftwood, sea glass, and weathered natural materials, sized
-              and placed to suit your entrance and worn in for the season ahead.
+              Our summer packages lean on driftwood, sea glass, and weathered natural materials,
+              sized and placed to suit your entrance for the season ahead.
             </p>
           </div>
         </section>

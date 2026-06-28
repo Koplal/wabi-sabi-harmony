@@ -23,7 +23,7 @@ const QuietGrace = () => {
     <Layout>
       <SEO
         title="The Quiet Grace | Autumn Pumpkin Package"
-        description="A restrained autumn pumpkin display for intimate porches and townhome entries. Heritage and heirloom varieties, arranged and installed across Greater Victoria."
+        description="A restrained autumn pumpkin display for townhome entries and intimate porches. Heritage varieties, arranged and installed across Greater Victoria."
         canonical="https://wabisabiservices.ca/seasoning/quiet-grace"
       />
       <ProductSchema
@@ -123,32 +123,32 @@ const QuietGrace = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kanso (Simplicity)</h4>
+                  <h4 className="font-serif text-xl mb-3">Sized to the space</h4>
                   <p className="text-muted-foreground">
-                    Elimination of clutter, focus on essentials
+                    A small grouping for a townhome entry or single step, kept deliberately spare so it never crowds the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shizen (Naturalness)</h4>
+                  <h4 className="font-serif text-xl mb-3">Chosen for character</h4>
                   <p className="text-muted-foreground">
-                    Celebrating organic shapes and textures
+                    We pick pumpkins for their markings and odd shapes rather than matching size, so each one earns its place.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Fukinsei (Asymmetry)</h4>
+                  <h4 className="font-serif text-xl mb-3">Natural materials</h4>
                   <p className="text-muted-foreground">
-                    Creating dynamic balance through imperfect arrangement
+                    Jute and hemp accents with dried lavender, wheat, or sage keep the palette quiet and seasonal.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Seijaku (Tranquility)</h4>
+                  <h4 className="font-serif text-xl mb-3">Set by hand</h4>
                   <p className="text-muted-foreground">
-                    Peaceful, calming presence at your entrance
+                    We bring everything and arrange it on site, leaving an entrance that feels considered without trying too hard.
                   </p>
                 </Card>
               </div>

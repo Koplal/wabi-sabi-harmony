@@ -9,7 +9,7 @@ const Organizing = () => {
   return (
     <Layout>
       <SEO 
-        title="Professional Organizing Services Victoria BC"
+        title="Organizing Services Victoria BC"
         description="Expert home and office organizing services in Victoria, BC. Decluttering, space planning, closet systems, seasonal transitions, and move coordination."
         keywords="professional organizing Victoria BC, home organizer Victoria, decluttering services Victoria, closet organization Victoria"
       />
@@ -64,7 +64,7 @@ const Organizing = () => {
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li><strong>Kitchens:</strong> Pantry organization, cabinet systems, workflow optimization</li>
-                    <li><strong>Closets:</strong> Wardrobe curation, seasonal storage, accessible systems</li>
+                    <li><strong>Closets:</strong> Wardrobe ordering, seasonal storage, accessible systems</li>
                     <li><strong>Home Offices:</strong> Paper management, filing systems, workspace flow</li>
                     <li><strong>Garages & Storage Areas:</strong> Categorizing, shelving, accessibility</li>
                     <li><strong>Children's Spaces:</strong> Toy rotation, easy-access systems, teaching organization habits</li>

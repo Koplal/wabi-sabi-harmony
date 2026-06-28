@@ -70,7 +70,7 @@ export const NeighborhoodPage = ({ data }: NeighborhoodPageProps) => {
   return (
     <Layout>
       <SEO
-        title={`Luxury Cleaning in ${data.name}, Victoria`}
+        title={`Luxury Cleaning in ${data.name}`}
         description={data.metaDescription}
         canonical={canonical}
         ogImage={data.ogImage}

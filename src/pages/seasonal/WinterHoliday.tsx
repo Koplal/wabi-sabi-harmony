@@ -112,7 +112,7 @@ const WinterHoliday = () => {
     <Layout>
       <SEO
         title="Winter Holiday Packages | Seasonal Styling"
-        description="Fresh evergreen wreaths, garlands, and lighting for the holidays, designed and installed across Greater Victoria. Five winter packages for homes and businesses."
+        description="Fresh evergreen wreaths, garland, and lighting for the holidays, designed and installed across Greater Victoria. Five packages for homes and businesses."
         canonical="https://wabisabiservices.ca/seasoning/winter-holiday"
       />
       <BreadcrumbSchema

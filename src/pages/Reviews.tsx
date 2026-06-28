@@ -27,7 +27,7 @@ const Reviews = () => {
     <Layout>
       <SEO
         title="Client Reviews & Testimonials"
-        description="Read what discerning clients across Greater Victoria, BC say about Wabi Sabi Services. Luxury concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain."
+        description="What discerning clients across Greater Victoria, BC say about Wabi Sabi Services — concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain."
         keywords="cleaning reviews Victoria BC, cleaning testimonials Victoria, best cleaners Victoria, luxury cleaning reviews"
         canonical="https://wabisabiservices.ca/reviews"
       />

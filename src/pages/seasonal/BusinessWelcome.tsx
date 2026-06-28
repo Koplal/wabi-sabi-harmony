@@ -23,7 +23,7 @@ const BusinessWelcome = () => {
     <Layout>
       <SEO
         title="The Business Welcome | Holiday Storefront Styling"
-        description="Holiday styling for Victoria business entrances. A commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained for the season."
+        description="Holiday styling for Victoria business entrances: a commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained."
         canonical="https://wabisabiservices.ca/seasoning/the-business-welcome"
       />
       <ProductSchema

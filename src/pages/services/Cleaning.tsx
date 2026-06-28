@@ -9,7 +9,7 @@ const Cleaning = () => {
   return (
     <Layout>
       <SEO 
-        title="Professional Cleaning Services Victoria BC"
+        title="Cleaning Services Victoria BC"
         description="Residential, commercial, and specialty cleaning in Victoria, BC. Deep cleaning, maintenance, move-in/out, post-construction, and vacation rental turnover."
         keywords="house cleaning Victoria BC, residential cleaning Victoria, commercial cleaning Victoria, deep cleaning Victoria, move out cleaning Victoria"
       />

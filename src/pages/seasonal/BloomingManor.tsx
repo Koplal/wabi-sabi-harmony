@@ -22,7 +22,7 @@ const BloomingManor = () => {
   return (
     <Layout>
       <SEO
-        title="The Blooming Manor | Spring Styling | Victoria"
+        title="The Blooming Manor | Spring"
         description="The Blooming Manor: our most generous spring installation for Victoria estates, with custom wreaths, twelve statement planters, and lighting."
         canonical="https://wabisabiservices.ca/seasoning/the-blooming-manor"
       />

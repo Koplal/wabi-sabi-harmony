@@ -22,7 +22,7 @@ const SeasideEstate = () => {
   return (
     <Layout>
       <SEO
-        title="The Seaside Estate | Summer Styling | Victoria"
+        title="The Seaside Estate | Summer"
         description="The Seaside Estate: our largest summer installation for Victoria waterfront homes, with custom coastal wreaths, driftwood art, and weekly care."
         canonical="https://wabisabiservices.ca/seasoning/the-seaside-estate"
       />

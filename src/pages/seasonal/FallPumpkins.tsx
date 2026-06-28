@@ -110,7 +110,7 @@ const FallPumpkins = () => {
     <Layout>
       <SEO
         title="Autumn Pumpkin Packages | Seasonal Styling"
-        description="Heritage pumpkin displays styled and installed across Greater Victoria. Five autumn packages, from intimate porches to estate entries. Join the 2026 waitlist."
+        description="Heritage pumpkin displays styled and installed across Greater Victoria. Five autumn packages, from intimate porches to estate entries."
         canonical="https://wabisabiservices.ca/seasoning/fall-pumpkins"
       />
       <BreadcrumbSchema

@@ -75,7 +75,6 @@ function orgGraph() {
     areaServed: [
       { "@type": "Place", name: "Greater Victoria, BC" },
       { "@type": "Place", name: "Saanich Peninsula, BC" },
-      { "@type": "Place", name: "Oak Bay, BC" },
       { "@type": "Place", name: "Westshore / Langford, BC" },
       { "@type": "Place", name: "Uplands, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4480", longitude: "-123.2980" } },
       { "@type": "Place", name: "Oak Bay, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4262", longitude: "-123.3120" } },
@@ -316,7 +315,7 @@ const routes: RouteMeta[] = [
     path: "/",
     title: "Mindful Luxury Cleaning Victoria BC",
     description:
-      "Quiet luxury, immaculately kept. Professional cleaning, organizing, and household services in Victoria, BC. Museum-level precision, discreet service, sustainable care.",
+      "Quiet luxury, immaculately kept. Cleaning, organizing, and household services in Victoria, BC — museum-level precision and discreet, sustainable care.",
     jsonLdBlocks: [],
   },
 
@@ -357,7 +356,7 @@ const routes: RouteMeta[] = [
   // Service subpages
   {
     path: "/services/cleaning",
-    title: "Professional Cleaning Services Victoria BC",
+    title: "Cleaning Services Victoria BC",
     description:
       "Residential, commercial, and specialty cleaning in Victoria, BC. Deep cleaning, maintenance, move-in/out, post-construction, and vacation rental turnover.",
     jsonLdBlocks: [
@@ -372,7 +371,7 @@ const routes: RouteMeta[] = [
   },
   {
     path: "/services/organizing",
-    title: "Professional Organizing Services Victoria BC",
+    title: "Organizing Services Victoria BC",
     description:
       "Expert home and office organizing services in Victoria, BC. Decluttering, space planning, closet systems, seasonal transitions, and move coordination.",
     jsonLdBlocks: [
@@ -389,7 +388,7 @@ const routes: RouteMeta[] = [
     path: "/services/errands",
     title: "Concierge & Errand Services Victoria BC",
     description:
-      "Professional errand and concierge services in Victoria, BC. Grocery shopping, home restocking, mail services, pet care coordination, and household management.",
+      "Errand and concierge services in Victoria, BC. Grocery shopping, home restocking, mail, pet care coordination, and household management.",
     jsonLdBlocks: [
       service({
         name: "Concierge & Errand Services",
@@ -406,7 +405,7 @@ const routes: RouteMeta[] = [
     path: "/faq",
     title: "Frequently Asked Questions",
     description:
-      "Get answers to common questions about Wabi Sabi Services' luxury cleaning, organizing, and concierge services in Victoria, BC. Pricing, scheduling, and service details.",
+      "Answers about Wabi Sabi Services' luxury cleaning, organizing, and concierge services in Victoria, BC — pricing, scheduling, and service details.",
     jsonLdBlocks: [
       breadcrumb([bcHome, { name: "FAQ", url: `${SITE}/faq` }]),
       faqPage(faqItems),
@@ -418,7 +417,7 @@ const routes: RouteMeta[] = [
     path: "/about",
     title: "About Us",
     description:
-      "Learn about Wabi Sabi Services and our approach to mindful luxury cleaning in Victoria, BC. Founded on environmental psychology principles and hospitality standards.",
+      "Learn about Wabi Sabi Services and our approach to mindful luxury cleaning in Victoria, BC, founded on environmental psychology and hospitality standards.",
     jsonLdBlocks: [breadcrumb([bcHome, { name: "About", url: `${SITE}/about` }])],
   },
 
@@ -427,7 +426,7 @@ const routes: RouteMeta[] = [
     path: "/reviews",
     title: "Client Reviews & Testimonials",
     description:
-      "Read what discerning clients across Greater Victoria, BC say about Wabi Sabi Services. Luxury concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain.",
+      "What discerning clients across Greater Victoria, BC say about Wabi Sabi Services — concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain.",
     jsonLdBlocks: [breadcrumb([bcHome, { name: "Reviews", url: `${SITE}/reviews` }])],
   },
 
@@ -436,16 +435,16 @@ const routes: RouteMeta[] = [
     path: "/contact",
     title: "Contact Us",
     description:
-      "Get in touch with Wabi Sabi Services for luxury cleaning, organizing, and concierge services in Victoria, BC. Request a private consultation today.",
+      "Get in touch with Wabi Sabi Services for luxury cleaning, organizing, and concierge services in Victoria, BC. Request a consultation or quote today.",
     jsonLdBlocks: [breadcrumb([bcHome, { name: "Contact", url: `${SITE}/contact` }])],
   },
 
-  // The Ritual (no <SEO> in source yet — mirror page intent without "complimentary" wording)
+  // The Ritual
   {
     path: "/ritual",
     title: "The Ritual",
     description:
-      "Our approach to caring for your home: personalized checklists informed by environmental psychology and refined through hospitality standards, across Greater Victoria.",
+      "How Wabi Sabi Services cares for your home: a personalized, consultation-led approach informed by environmental psychology and hospitality in Victoria, BC.",
     jsonLdBlocks: [breadcrumb([bcHome, { name: "The Ritual", url: `${SITE}/ritual` }])],
   },
 
@@ -461,7 +460,7 @@ const routes: RouteMeta[] = [
   // Blog index
   {
     path: "/blog",
-    title: "The Wabi Sabi Journal: Mindful Home Notes",
+    title: "The Wabi Sabi Journal: Home Notes",
     description:
       "Seasonal notes on caring for a Victoria home with intention — cleaning, organizing, and the quiet rituals that keep a household calm through the year.",
     jsonLdBlocks: [breadcrumb([bcHome, bcJournal])],
@@ -470,10 +469,46 @@ const routes: RouteMeta[] = [
   // Seasonal hub
   {
     path: "/seasoning",
-    title: "Seasonal Decorating Services in Victoria BC",
+    title: "Seasonal Decorating | Victoria BC",
     description:
       "Seasonal styling for the home through autumn, winter, spring, and summer. Designed, installed, and removed by hand across Greater Victoria.",
     jsonLdBlocks: [breadcrumb([bcHome, bcSeasonal])],
+  },
+
+  // Book
+  {
+    path: "/book",
+    title: "Book a Service",
+    description:
+      "Request a service date with Wabi Sabi Services in Victoria, BC. Share your address, service type, and preferred times, and we'll confirm within 24 hours.",
+    jsonLdBlocks: [breadcrumb([bcHome, { name: "Book a Service", url: `${SITE}/book` }])],
+  },
+
+  // Careers
+  {
+    path: "/careers",
+    title: "Careers",
+    description:
+      "Join Wabi Sabi Services in Victoria, BC. We're building a team where quality matters more than speed and the work makes a real difference. Apply today.",
+    jsonLdBlocks: [breadcrumb([bcHome, { name: "Careers", url: `${SITE}/careers` }])],
+  },
+
+  // Terms of Service
+  {
+    path: "/terms-of-service",
+    title: "Terms of Service",
+    description:
+      "The terms of service and client care agreement for Wabi Sabi Services, covering booking, pricing, cancellation, and liability in Greater Victoria, BC.",
+    jsonLdBlocks: [breadcrumb([bcHome, { name: "Terms of Service", url: `${SITE}/terms-of-service` }])],
+  },
+
+  // Client Care Agreement
+  {
+    path: "/client-agreement",
+    title: "Client Care Agreement",
+    description:
+      "The client care agreement for Wabi Sabi Services: scheduling, access, pricing, cancellation, and care guidelines for homes in Greater Victoria, BC.",
+    jsonLdBlocks: [breadcrumb([bcHome, { name: "Client Agreement", url: `${SITE}/client-agreement` }])],
   },
 ];
 
@@ -683,7 +718,7 @@ const seasonalPackages: SeasonalEntry[] = [
     slug: "quiet-grace",
     title: "The Quiet Grace | Autumn Pumpkin Package",
     description:
-      "A restrained autumn pumpkin display for intimate porches and townhome entries. Heritage and heirloom varieties, arranged and installed across Greater Victoria.",
+      "A restrained autumn pumpkin display for townhome entries and intimate porches. Heritage varieties, arranged and installed across Greater Victoria.",
     product: {
       name: "The Quiet Grace",
       description:
@@ -782,7 +817,7 @@ const seasonalPackages: SeasonalEntry[] = [
     slug: "the-festive-estate",
     title: "The Festive Estate | Winter Holiday Package",
     description:
-      "A holiday display for multi-level entries and wide facades, with coordinated wreaths, railing garland, and planter arrangements across Victoria and the Saanich Peninsula.",
+      "A holiday display for multi-level entries and wide facades: coordinated wreaths, railing garland, and planters across Victoria and the Saanich Peninsula.",
     product: {
       name: "The Festive Estate",
       description:
@@ -796,7 +831,7 @@ const seasonalPackages: SeasonalEntry[] = [
     slug: "the-grand-celebration",
     title: "The Grand Celebration | Winter Holiday Package",
     description:
-      "Our most involved holiday installation for estate properties: extensive lighting, garland, and a dedicated project manager with weekly care across Greater Victoria.",
+      "Our largest holiday installation for Greater Victoria estates: extensive lighting and garland, a dedicated project manager, and weekly seasonal care.",
     product: {
       name: "The Grand Celebration",
       description:
@@ -810,7 +845,7 @@ const seasonalPackages: SeasonalEntry[] = [
     slug: "the-business-welcome",
     title: "The Business Welcome | Holiday Storefront Styling",
     description:
-      "Holiday styling for Victoria business entrances. A commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained for the season.",
+      "Holiday styling for Victoria business entrances: a commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained.",
     product: {
       name: "The Business Welcome",
       description:
@@ -823,9 +858,9 @@ const seasonalPackages: SeasonalEntry[] = [
   // Spring
   {
     slug: "the-fresh-start",
-    title: "The Fresh Start | Spring Styling Package | Victoria",
+    title: "The Fresh Start | Spring Package",
     description:
-      "The Fresh Start: a light spring display of handcrafted blooms, seasonal planters, and natural textures for your Victoria entrance. $474 CAD, designed and installed.",
+      "The Fresh Start: a light spring display of handcrafted blooms, planters, and natural textures for your Victoria entrance. $474 CAD, installed.",
     product: {
       name: "The Fresh Start",
       description:
@@ -837,9 +872,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-garden-gate",
-    title: "The Garden Gate | Spring Styling Package | Victoria",
+    title: "The Garden Gate | Spring Package",
     description:
-      "The Garden Gate: an abundant spring display with a designer floral wreath, four seasonal planters, and garden accents for your Victoria home. $924 CAD, fully installed.",
+      "The Garden Gate: an abundant spring display with a designer wreath, four planters, and garden accents for your Victoria home. $924 CAD, installed.",
     product: {
       name: "The Garden Gate",
       description:
@@ -851,9 +886,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-botanical-estate",
-    title: "The Botanical Estate | Spring Styling | Victoria",
+    title: "The Botanical Estate | Spring",
     description:
-      "The Botanical Estate: an expansive spring garden display with multiple wreaths, eight luxury planters, and cherry blossom branches for larger Victoria properties. $1,424 CAD.",
+      "The Botanical Estate: an expansive spring garden of multiple wreaths, eight planters, and cherry blossom branches for larger Victoria homes. $1,424 CAD.",
     product: {
       name: "The Botanical Estate",
       description:
@@ -865,9 +900,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-blooming-manor",
-    title: "The Blooming Manor | Spring Styling | Victoria",
+    title: "The Blooming Manor | Spring",
     description:
-      "The Blooming Manor: our most generous spring installation, with custom wreaths, twelve statement planters, lighting, and a dedicated design process. $1,924 CAD, Greater Victoria.",
+      "The Blooming Manor: our most generous spring installation for Victoria estates, with custom wreaths, twelve statement planters, and lighting.",
     product: {
       name: "The Blooming Manor",
       description:
@@ -879,9 +914,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-professional-welcome",
-    title: "The Professional Welcome | Spring Commercial | Victoria",
+    title: "The Professional Welcome | Spring",
     description:
-      "The Professional Welcome: spring styling for Victoria storefronts and lobbies, with weatherproof planters, a commercial wreath, and flexible scheduling. $799 CAD, installed.",
+      "The Professional Welcome: spring styling for Victoria storefronts and lobbies, with weatherproof planters, a commercial wreath, and flexible scheduling.",
     product: {
       name: "The Professional Welcome",
       description:
@@ -894,9 +929,9 @@ const seasonalPackages: SeasonalEntry[] = [
   // Summer
   {
     slug: "the-coastal-cottage",
-    title: "The Coastal Cottage | Summer Styling | Victoria",
+    title: "The Coastal Cottage | Summer",
     description:
-      "The Coastal Cottage: a breezy summer display of shells, driftwood, and sea glass in ocean tones for your Victoria entrance. $474 CAD, designed and installed.",
+      "The Coastal Cottage: a breezy summer display of shells, driftwood, and sea glass for your Victoria entrance. $474 CAD, designed and installed.",
     product: {
       name: "The Coastal Cottage",
       description:
@@ -908,9 +943,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-island-retreat",
-    title: "The Island Retreat | Summer Styling | Victoria",
+    title: "The Island Retreat | Summer",
     description:
-      "The Island Retreat: a relaxed summer display with a tropical wreath, four planters, bamboo and rattan accents, and hurricane lanterns for your Victoria home. $924 CAD.",
+      "The Island Retreat: a relaxed summer display with a tropical wreath, four planters, bamboo accents, and lanterns for your Victoria home. $924 CAD.",
     product: {
       name: "The Island Retreat",
       description:
@@ -922,9 +957,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-beachside-manor",
-    title: "The Beachside Manor | Summer Styling | Victoria",
+    title: "The Beachside Manor | Summer",
     description:
-      "The Beachside Manor: an expansive coastal summer display with multiple wreaths, eight statement planters, driftwood sculpture, and lanterns for larger Victoria properties. $1,424 CAD.",
+      "The Beachside Manor: an expansive coastal summer display with multiple wreaths, eight planters, driftwood, and lanterns for larger Victoria homes. $1,424",
     product: {
       name: "The Beachside Manor",
       description:
@@ -936,9 +971,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-seaside-estate",
-    title: "The Seaside Estate | Summer Styling | Victoria",
+    title: "The Seaside Estate | Summer",
     description:
-      "The Seaside Estate: our largest summer installation for waterfront homes, with custom coastal wreaths, twelve arrangements, driftwood art, and a dedicated design process. $1,924 CAD.",
+      "The Seaside Estate: our largest summer installation for Victoria waterfront homes, with custom coastal wreaths, driftwood art, and weekly care.",
     product: {
       name: "The Seaside Estate",
       description:
@@ -950,9 +985,9 @@ const seasonalPackages: SeasonalEntry[] = [
   },
   {
     slug: "the-summer-storefront",
-    title: "The Summer Storefront | Commercial Styling | Victoria",
+    title: "The Summer Storefront | Commercial",
     description:
-      "The Summer Storefront: coastal-inspired summer styling for Victoria businesses, with weather-resistant planters and flexible installation. $799 CAD, installed and maintained.",
+      "The Summer Storefront: coastal summer styling for Victoria businesses, with weather-resistant planters, a commercial wreath, and flexible scheduling.",
     product: {
       name: "The Summer Storefront",
       description:
@@ -999,7 +1034,7 @@ const seasonalHubs: SeasonalHub[] = [
     slug: "fall-pumpkins",
     title: "Autumn Pumpkin Packages | Seasonal Styling",
     description:
-      "Heritage pumpkin displays styled and installed across Greater Victoria. Five autumn packages, from intimate porches to estate entries. Join the 2026 waitlist.",
+      "Heritage pumpkin displays styled and installed across Greater Victoria. Five autumn packages, from intimate porches to estate entries.",
     crumb: "Autumn Pumpkin Packages",
     packages: ["quiet-grace", "abundant-harmony", "gathered-abundance", "estate-collection", "mindful-merchant"].map(bySlug),
   },
@@ -1007,23 +1042,23 @@ const seasonalHubs: SeasonalHub[] = [
     slug: "winter-holiday",
     title: "Winter Holiday Packages | Seasonal Styling",
     description:
-      "Fresh evergreen wreaths, garlands, and lighting for the holidays, designed and installed across Greater Victoria. Five winter packages for homes and businesses.",
+      "Fresh evergreen wreaths, garland, and lighting for the holidays, designed and installed across Greater Victoria. Five packages for homes and businesses.",
     crumb: "Winter Holiday Packages",
     packages: ["the-cozy-cabin", "the-winter-wonderland", "the-festive-estate", "the-grand-celebration", "the-business-welcome"].map(bySlug),
   },
   {
     slug: "spring-refresh",
-    title: "Spring Refresh Seasonal Packages | Victoria, BC",
+    title: "Spring Refresh Packages | Victoria",
     description:
-      "Spring floral styling for Victoria homes and businesses. Five thoughtfully composed packages of fresh blooms, garden accents, and natural textures, designed and installed for you.",
+      "Spring floral styling for Victoria homes and businesses. Five packages of fresh blooms, garden accents, and natural textures, designed and installed.",
     crumb: "Spring Refresh",
     packages: ["the-fresh-start", "the-garden-gate", "the-botanical-estate", "the-blooming-manor", "the-professional-welcome"].map(bySlug),
   },
   {
     slug: "summer-serenity",
-    title: "Summer Serenity Seasonal Packages | Victoria, BC",
+    title: "Summer Serenity Packages | Victoria",
     description:
-      "Coastal summer styling for Victoria homes and businesses. Five packages of driftwood, sea glass, and breezy arrangements, designed and installed to suit your entrance.",
+      "Coastal summer styling for Victoria homes and businesses. Five packages of driftwood, sea glass, and breezy arrangements, designed and installed.",
     crumb: "Summer Serenity",
     packages: ["the-coastal-cottage", "the-island-retreat", "the-beachside-manor", "the-seaside-estate", "the-summer-storefront"].map(bySlug),
   },
@@ -1074,7 +1109,7 @@ write(
     path: "/areas",
     title: "Service Areas",
     description:
-      "Bespoke concierge cleaning across Greater Victoria, the Saanich Peninsula, and Oak Bay — from Uplands and Rockland to Sidney and Downtown Victoria.",
+      "Bespoke concierge cleaning across Greater Victoria — Oak Bay, the Saanich Peninsula, and the Westshore/Langford, from Uplands and Rockland to Sidney.",
     jsonLdBlocks: [
       breadcrumb([bcHome, { name: "Service Areas", url: `${SITE}/areas` }]),
     ],
@@ -1088,7 +1123,7 @@ for (const n of Object.values(neighborhoods)) {
     `areas/${n.slug}/index.html`,
     renderPage({
       path: `/areas/${n.slug}`,
-      title: `Luxury Cleaning in ${n.name}, Victoria`,
+      title: `Luxury Cleaning in ${n.name}`,
       description: n.metaDescription,
       jsonLdBlocks: [
         service({

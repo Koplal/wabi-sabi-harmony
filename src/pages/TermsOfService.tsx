@@ -29,7 +29,7 @@ export default function TermsOfService() {
             <p>
               Wabi Sabi Services embraces the Japanese philosophy of finding beauty in imperfection and accepting the natural cycle 
               of growth and decay. We provide mindful, eco-conscious cleaning services that respect your home, health, and the environment. 
-              Our approach combines meticulous attention to detail with sustainable practices.
+              Our approach combines careful attention to detail with sustainable practices.
             </p>
           </section>
 
@@ -38,7 +38,7 @@ export default function TermsOfService() {
             <p>We offer the following cleaning services:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Standard Cleaning:</strong> Regular maintenance cleaning for homes</li>
-              <li><strong>Deep Cleaning:</strong> Comprehensive cleaning including baseboards, light fixtures, and detailed areas</li>
+              <li><strong>Deep Cleaning:</strong> Detailed cleaning including baseboards, light fixtures, and hard-to-reach areas</li>
               <li><strong>Move-In/Move-Out Cleaning:</strong> Thorough cleaning for vacant properties</li>
               <li><strong>Post-Construction Cleaning:</strong> Specialized cleaning after renovations</li>
               <li><strong>Eco-Luxury Packages:</strong> Premium services using exclusively organic, non-toxic products</li>
@@ -154,7 +154,7 @@ export default function TermsOfService() {
 
             <h3 className="text-2xl font-serif mb-3 mt-6">9.2 Insurance Coverage</h3>
             <p>
-              We carry comprehensive general liability insurance. In the unlikely event of damage, we will assess and handle 
+              We carry general liability insurance. In the unlikely event of damage, we will assess and handle
               claims promptly and professionally.
             </p>
 

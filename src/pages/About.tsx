@@ -11,7 +11,7 @@ const About = () => {
     <Layout>
       <SEO
         title="About Us"
-        description="Learn about Wabi Sabi Services and our approach to mindful luxury cleaning in Victoria, BC. Founded on environmental psychology principles and hospitality standards."
+        description="Learn about Wabi Sabi Services and our approach to mindful luxury cleaning in Victoria, BC, founded on environmental psychology and hospitality standards."
         keywords="about Wabi Sabi Services, cleaning company Victoria BC, professional cleaners Victoria"
         canonical="https://wabisabiservices.ca/about"
       />
@@ -165,7 +165,7 @@ const About = () => {
 
             <p className="text-center text-muted-foreground italic">
               Wabi Sabi Services serves discerning clients throughout Greater Victoria, including Oak Bay, Uplands,
-              Rockland, North Saanich, and Fairfield.{" "}
+              Rockland, North Saanich, Fairfield, the Westshore and Langford (Bear Mountain), and Metchosin.{" "}
               <Link to="/areas" className="not-italic underline underline-offset-4 hover:text-foreground transition-colors">
                 Explore all of our service areas →
               </Link>

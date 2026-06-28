@@ -22,8 +22,8 @@ const BotanicalEstate = () => {
   return (
     <Layout>
       <SEO
-        title="The Botanical Estate | Spring Styling | Victoria"
-        description="The Botanical Estate: an expansive spring garden display with multiple wreaths, eight luxury planters, and cherry blossom branches for larger Victoria properties. $1,424 CAD."
+        title="The Botanical Estate | Spring"
+        description="The Botanical Estate: an expansive spring garden of multiple wreaths, eight planters, and cherry blossom branches for larger Victoria homes. $1,424 CAD."
         canonical="https://wabisabiservices.ca/seasoning/the-botanical-estate"
       />
       <BreadcrumbSchema
@@ -75,7 +75,7 @@ const BotanicalEstate = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Creating a Living Garden Sanctuary</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Botanical Estate brings garden-scale spring styling to larger properties. Fresh seasonal flowers, cherry blossom branches, and sculptural accents run across the entrance, planters, and grounds, with the cherry blossom carrying the spring note that the rest of the display settles around.
+                  The Botanical Estate brings garden-scale spring styling to larger properties. Fresh seasonal flowers, cherry blossom branches, and sculptural accents run across the entrance, planters, and grounds, with the cherry blossom setting the spring note the rest of the display follows.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   It is built for properties with grounds to fill and the standard to match. Every wreath, branch, and planter is placed by hand, then stepped back from and adjusted until the whole composition holds together from the gate as well as the front step.
@@ -127,32 +127,32 @@ const BotanicalEstate = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Miyabi</h4>
+                  <h4 className="font-serif text-xl mb-3">Spread across the grounds</h4>
                   <p className="text-muted-foreground">
-                    Courtly elegance - refined beauty in every detail
+                    Multiple wreaths, eight planters, and sculptural accents run from the entrance out across the property.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Iki</h4>
+                  <h4 className="font-serif text-xl mb-3">Cherry blossom leads</h4>
                   <p className="text-muted-foreground">
-                    Sophisticated simplicity - originality within refinement
+                    The cherry blossom branches set the spring note, and the flowers and accents follow from there.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mono no aware</h4>
+                  <h4 className="font-serif text-xl mb-3">Placed and adjusted by hand</h4>
                   <p className="text-muted-foreground">
-                    Pathos of things - appreciating fleeting spring beauty
+                    Every wreath, branch, and planter is set by hand, then stepped back from and tuned in place.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Wa</h4>
+                  <h4 className="font-serif text-xl mb-3">Reads from the gate</h4>
                   <p className="text-muted-foreground">
-                    Harmony - perfect balance between elements
+                    We work it until the whole composition holds together from the gate as well as the front step.
                   </p>
                 </Card>
               </div>

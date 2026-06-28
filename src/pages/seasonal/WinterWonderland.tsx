@@ -125,32 +125,32 @@ const WinterWonderland = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yūgen</h4>
+                  <h4 className="font-serif text-xl mb-3">A cool, pale palette</h4>
                   <p className="text-muted-foreground">
-                    Subtle profundity - mysterious grace in twilight illumination
+                    Premium evergreens and frosted branches give the entrance a wintry tone that holds up on grey afternoons.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shibui</h4>
+                  <h4 className="font-serif text-xl mb-3">Set as one display</h4>
                   <p className="text-muted-foreground">
-                    Understated elegance - simple yet sophisticated aesthetic
+                    Wreath, swag, and planters are placed to read together rather than as a row of separate pieces.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Komorebi</h4>
+                  <h4 className="font-serif text-xl mb-3">Tuned after dark</h4>
                   <p className="text-muted-foreground">
-                    Sunlight filtering - play of light through natural elements
+                    We set the lighting in the evening so we can see exactly how it lands once the light goes down.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Refreshed mid-season</h4>
                   <p className="text-muted-foreground">
-                    Freedom from convention - unique, artistic expression
+                    A return visit keeps the greens fresh through the holidays so the entrance stays at its best.
                   </p>
                 </Card>
               </div>

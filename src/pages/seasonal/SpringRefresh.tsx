@@ -112,8 +112,8 @@ const SpringRefresh = () => {
   return (
     <Layout>
       <SEO
-        title="Spring Refresh Seasonal Packages | Victoria, BC"
-        description="Spring floral styling for Victoria homes and businesses. Five thoughtfully composed packages of fresh blooms, garden accents, and natural textures, designed and installed for you."
+        title="Spring Refresh Packages | Victoria"
+        description="Spring floral styling for Victoria homes and businesses. Five packages of fresh blooms, garden accents, and natural textures, designed and installed."
         canonical="https://wabisabiservices.ca/seasoning/spring-refresh"
       />
       <BreadcrumbSchema

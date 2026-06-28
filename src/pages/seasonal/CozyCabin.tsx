@@ -123,32 +123,32 @@ const CozyCabin = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Hygge</h4>
+                  <h4 className="font-serif text-xl mb-3">All fresh greens</h4>
                   <p className="text-muted-foreground">
-                    Creating cozy, warm atmosphere through natural elements
+                    A handmade evergreen wreath, a door swag, and two planters, so the doorway smells of cedar from day one.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shinrin-yoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Sized for a single entrance</h4>
                   <p className="text-muted-foreground">
-                    Forest bathing - bringing nature's calm to your entrance
+                    Pared back on purpose, it suits a smaller home or one front door without overwhelming the space.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ma (Negative Space)</h4>
+                  <h4 className="font-serif text-xl mb-3">Warm, quiet light</h4>
                   <p className="text-muted-foreground">
-                    Intentional simplicity allowing each element to shine
+                    Battery LED candles and birch accents add a soft glow rather than a bright display.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mottainai</h4>
+                  <h4 className="font-serif text-xl mb-3">Refreshed mid-season</h4>
                   <p className="text-muted-foreground">
-                    Respect for materials - sustainable, natural elements
+                    We return partway through to revive the fragrance so the greens still feel alive in late December.
                   </p>
                 </Card>
               </div>

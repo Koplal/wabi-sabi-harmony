@@ -14,7 +14,7 @@ const Seasoning = () => {
   return (
     <Layout>
       <SEO
-        title="Seasonal Decorating Services in Victoria BC"
+        title="Seasonal Decorating | Victoria BC"
         description="Seasonal styling for the home through autumn, winter, spring, and summer. Designed, installed, and removed by hand across Greater Victoria."
         canonical="https://wabisabiservices.ca/seasoning"
       />

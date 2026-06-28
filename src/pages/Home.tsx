@@ -12,7 +12,7 @@ const Home = () => {
     <div>
       <SEO
         title="Mindful Luxury Cleaning Victoria BC"
-        description="Quiet luxury, immaculately kept. Professional cleaning, organizing, and household services in Victoria, BC. Museum-level precision, discreet service, sustainable care."
+        description="Quiet luxury, immaculately kept. Cleaning, organizing, and household services in Victoria, BC — museum-level precision and discreet, sustainable care."
         keywords="luxury cleaning Victoria BC, professional cleaning Victoria, house cleaning Victoria, commercial cleaning Victoria, mindful cleaning services"
       />
       {/* Hero Section */}

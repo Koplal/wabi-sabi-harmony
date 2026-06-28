@@ -22,8 +22,8 @@ const IslandRetreat = () => {
   return (
     <Layout>
       <SEO
-        title="The Island Retreat | Summer Styling | Victoria"
-        description="The Island Retreat: a relaxed summer display with a tropical wreath, four planters, bamboo and rattan accents, and hurricane lanterns for your Victoria home. $924 CAD."
+        title="The Island Retreat | Summer"
+        description="The Island Retreat: a relaxed summer display with a tropical wreath, four planters, bamboo accents, and lanterns for your Victoria home. $924 CAD."
         canonical="https://wabisabiservices.ca/seasoning/the-island-retreat"
       />
       <BreadcrumbSchema
@@ -125,32 +125,32 @@ const IslandRetreat = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Fukinsei</h4>
+                  <h4 className="font-serif text-xl mb-3">A resort mood at the door</h4>
                   <p className="text-muted-foreground">
-                    Asymmetry - natural, organic tropical arrangement
+                    A palm-element wreath, four planters, and a pair of hurricane lanterns give the entrance an easy, away feel.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yugen</h4>
+                  <h4 className="font-serif text-xl mb-3">Natural, hand-feel materials</h4>
                   <p className="text-muted-foreground">
-                    Subtle profundity - mysterious island grace
+                    Bamboo and rattan accents sit alongside the tropical planters rather than plastic stand-ins.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Room to breathe</h4>
                   <p className="text-muted-foreground">
-                    Freedom from convention - relaxed island spirit
+                    We leave open space among the greenery so the display breathes instead of crowding the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ma</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended mid-season</h4>
                   <p className="text-muted-foreground">
-                    Negative space - breathing room in tropical abundance
+                    A refresh visit partway through keeps the plantings and lighting looking their best.
                   </p>
                 </Card>
               </div>

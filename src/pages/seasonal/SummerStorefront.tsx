@@ -22,7 +22,7 @@ const SummerStorefront = () => {
   return (
     <Layout>
       <SEO
-        title="The Summer Storefront | Commercial Styling | Victoria"
+        title="The Summer Storefront | Commercial"
         description="The Summer Storefront: coastal summer styling for Victoria businesses, with weather-resistant planters, a commercial wreath, and flexible scheduling."
         canonical="https://wabisabiservices.ca/seasoning/the-summer-storefront"
       />

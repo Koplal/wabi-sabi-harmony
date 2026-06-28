@@ -10,7 +10,7 @@ const Ritual = () => {
     <Layout>
       <SEO
         title="The Ritual"
-        description="How Wabi Sabi Services cares for your home: a personalized, consultation-led approach informed by environmental psychology and hospitality standards in Victoria, BC."
+        description="How Wabi Sabi Services cares for your home: a personalized, consultation-led approach informed by environmental psychology and hospitality in Victoria, BC."
         canonical="https://wabisabiservices.ca/ritual"
       />
       <BreadcrumbSchema

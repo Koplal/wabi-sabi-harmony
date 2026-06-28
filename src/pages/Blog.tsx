@@ -34,7 +34,7 @@ const allBlogArticles = [
   {
     slug: "november-2025",
     title: "The Gratitude Home: Preparing Thankful Spaces for Connection",
-    excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude transforms routine maintenance into mindful practice.",
+    excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude turns routine maintenance into mindful practice.",
     date: "November 2025",
     publishDate: new Date(2025, 10, 1), // November 1, 2025
     readTime: "7 min read"
@@ -98,7 +98,7 @@ const allBlogArticles = [
   {
     slug: "july-2026",
     title: "Summer Sanctuary: Mastering Indoor-Outdoor Living in Victoria",
-    excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create seamless indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
+    excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create easy indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
     date: "July 2026",
     publishDate: new Date(2026, 6, 1), // July 1, 2026
     readTime: "8 min read"
@@ -115,7 +115,7 @@ const Blog = () => {
   return (
     <Layout>
       <SEO
-        title="The Wabi Sabi Journal: Mindful Home Notes"
+        title="The Wabi Sabi Journal: Home Notes"
         description="Seasonal notes on caring for a Victoria home with intention — cleaning, organizing, and the quiet rituals that keep a household calm through the year."
         canonical="https://wabisabiservices.ca/blog"
       />

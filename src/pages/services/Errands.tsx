@@ -10,7 +10,7 @@ const Errands = () => {
     <Layout>
       <SEO 
         title="Concierge & Errand Services Victoria BC"
-        description="Professional errand and concierge services in Victoria, BC. Grocery shopping, home restocking, mail services, pet care coordination, and household management."
+        description="Errand and concierge services in Victoria, BC. Grocery shopping, home restocking, mail, pet care coordination, and household management."
         keywords="errand service Victoria BC, concierge service Victoria, personal assistant Victoria, grocery delivery Victoria"
       />
       <ServiceSchema 

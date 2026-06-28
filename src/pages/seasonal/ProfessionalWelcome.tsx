@@ -22,7 +22,7 @@ const ProfessionalWelcome = () => {
   return (
     <Layout>
       <SEO
-        title="The Professional Welcome | Spring Commercial | Victoria"
+        title="The Professional Welcome | Spring"
         description="The Professional Welcome: spring styling for Victoria storefronts and lobbies, with weatherproof planters, a commercial wreath, and flexible scheduling."
         canonical="https://wabisabiservices.ca/seasoning/the-professional-welcome"
       />

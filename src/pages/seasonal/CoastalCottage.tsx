@@ -22,8 +22,8 @@ const CoastalCottage = () => {
   return (
     <Layout>
       <SEO
-        title="The Coastal Cottage | Summer Styling | Victoria"
-        description="The Coastal Cottage: a breezy summer display of shells, driftwood, and sea glass in ocean tones for your Victoria entrance. $474 CAD, designed and installed."
+        title="The Coastal Cottage | Summer"
+        description="The Coastal Cottage: a breezy summer display of shells, driftwood, and sea glass for your Victoria entrance. $474 CAD, designed and installed."
         canonical="https://wabisabiservices.ca/seasoning/the-coastal-cottage"
       />
       <BreadcrumbSchema
@@ -123,32 +123,32 @@ const CoastalCottage = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Natsukashii</h4>
+                  <h4 className="font-serif text-xl mb-3">A quiet touch of the coast</h4>
                   <p className="text-muted-foreground">
-                    Nostalgic warmth - evoking cherished summer memories
+                    One handcrafted wreath, two planters, and weathered driftwood, enough seaside feel without a theme.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shizen</h4>
+                  <h4 className="font-serif text-xl mb-3">Real materials</h4>
                   <p className="text-muted-foreground">
-                    Naturalness - celebrating organic coastal forms
+                    Shells, rope, and driftwood do the work, so the look comes from the materials rather than a costume.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kanso</h4>
+                  <h4 className="font-serif text-xl mb-3">Ocean tones for your door</h4>
                   <p className="text-muted-foreground">
-                    Simplicity - clean, uncluttered beach aesthetic
+                    Sea glass and natural fibres are chosen in soft ocean shades that read well against most front doors.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Seijaku</h4>
+                  <h4 className="font-serif text-xl mb-3">Looked in on mid-season</h4>
                   <p className="text-muted-foreground">
-                    Tranquility - peaceful coastal presence
+                    A refresh consultation partway through keeps the display fresh across the long summer.
                   </p>
                 </Card>
               </div>

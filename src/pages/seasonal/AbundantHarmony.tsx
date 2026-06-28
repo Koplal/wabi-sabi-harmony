@@ -126,32 +126,32 @@ const AbundantHarmony = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shibui (Subtle Beauty)</h4>
+                  <h4 className="font-serif text-xl mb-3">Full, not crowded</h4>
                   <p className="text-muted-foreground">
-                    Understated elegance that reveals itself slowly
+                    Enough to fill a larger porch or set of steps, with pieces spaced so the result still reads as calm.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yugen (Profound Grace)</h4>
+                  <h4 className="font-serif text-xl mb-3">Chosen for character</h4>
                   <p className="text-muted-foreground">
-                    Suggesting rather than revealing the whole
+                    We pick each pumpkin for its shape and colour, including the lopsided ones, rather than matching a set.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ma (Negative Space)</h4>
+                  <h4 className="font-serif text-xl mb-3">Layered with botanicals</h4>
                   <p className="text-muted-foreground">
-                    Strategic use of empty space for visual breathing
+                    Hay bales, ornamental gourds, and sage or eucalyptus bundles round out the display with seasonal texture.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku (Freedom from Habit)</h4>
+                  <h4 className="font-serif text-xl mb-3">Checked mid-season</h4>
                   <p className="text-muted-foreground">
-                    Unexpected elements that delight
+                    We return partway through to refresh anything past its prime, so the entrance holds up for guests.
                   </p>
                 </Card>
               </div>

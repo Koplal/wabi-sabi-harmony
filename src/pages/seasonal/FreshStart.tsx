@@ -22,8 +22,8 @@ const FreshStart = () => {
   return (
     <Layout>
       <SEO
-        title="The Fresh Start | Spring Styling Package | Victoria"
-        description="The Fresh Start: a light spring display of handcrafted blooms, seasonal planters, and natural textures for your Victoria entrance. $474 CAD, designed and installed."
+        title="The Fresh Start | Spring Package"
+        description="The Fresh Start: a light spring display of handcrafted blooms, planters, and natural textures for your Victoria entrance. $474 CAD, installed."
         canonical="https://wabisabiservices.ca/seasoning/the-fresh-start"
       />
       <BreadcrumbSchema
@@ -123,32 +123,32 @@ const FreshStart = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Sakura</h4>
+                  <h4 className="font-serif text-xl mb-3">One arrangement, well made</h4>
                   <p className="text-muted-foreground">
-                    Cherry blossom spirit - fleeting beauty and renewal
+                    A single handcrafted wreath and two planters, so the entrance gets a lift without being crowded.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kanso</h4>
+                  <h4 className="font-serif text-xl mb-3">Matched to your door</h4>
                   <p className="text-muted-foreground">
-                    Simplicity - elimination of clutter, focus on essentials
+                    We choose the blooms and textures to sit easily with your door and the colour of the house.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shizen</h4>
+                  <h4 className="font-serif text-xl mb-3">Soft after winter</h4>
                   <p className="text-muted-foreground">
-                    Naturalness - celebrating organic forms and textures
+                    Pastel blooms, moss, and twigs ease the front of the house out of the colder months.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Seijaku</h4>
+                  <h4 className="font-serif text-xl mb-3">Looked in on mid-season</h4>
                   <p className="text-muted-foreground">
-                    Tranquility - peaceful, calm presence
+                    A refresh consultation partway through keeps the display fresh while it is up.
                   </p>
                 </Card>
               </div>

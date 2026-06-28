@@ -130,32 +130,32 @@ const GatheredAbundance = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mono no Aware</h4>
+                  <h4 className="font-serif text-xl mb-3">Built around two centerpieces</h4>
                   <p className="text-muted-foreground">
-                    Bittersweet awareness - celebrating fleeting seasonal beauty
+                    A pair of grand-prize pumpkins anchors the design, with heritage and rare varieties set around them.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Iki</h4>
+                  <h4 className="font-serif text-xl mb-3">Reads from the road</h4>
                   <p className="text-muted-foreground">
-                    Sophisticated simplicity - refined restraint within abundance
+                    Scale and placement are judged from the street first, so the entrance holds its own from a distance.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kaizen</h4>
+                  <h4 className="font-serif text-xl mb-3">Rewards a closer look</h4>
                   <p className="text-muted-foreground">
-                    Continuous improvement - weekly adjustments for optimal display
+                    Miniature pumpkins, branches, and dried grasses fill in the detail you notice on the way to the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Wa</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended every week</h4>
                   <p className="text-muted-foreground">
-                    Harmony - perfect balance between elements
+                    We return each week to keep the centerpieces sound and the smaller varieties looking fresh.
                   </p>
                 </Card>
               </div>

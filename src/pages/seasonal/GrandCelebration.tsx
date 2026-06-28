@@ -23,7 +23,7 @@ const GrandCelebration = () => {
     <Layout>
       <SEO
         title="The Grand Celebration | Winter Holiday Package"
-        description="Our most involved holiday installation for estate properties: extensive lighting, garland, and a dedicated project manager with weekly care across Greater Victoria."
+        description="Our largest holiday installation for Greater Victoria estates: extensive lighting and garland, a dedicated project manager, and weekly seasonal care."
         canonical="https://wabisabiservices.ca/seasoning/the-grand-celebration"
       />
       <ProductSchema
@@ -63,7 +63,7 @@ const GrandCelebration = () => {
               Spectacular Holiday Display
             </p>
             <p className="text-lg text-muted-foreground">
-              Up to five hundred lights and fifty feet of garland, all kept in hand all season.
+              Up to five hundred lights and fifty feet of garland, tended every week of the season.
             </p>
           </div>
         </section>

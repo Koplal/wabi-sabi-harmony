@@ -165,7 +165,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Salt-spray remediation in one of the region's most exposed marine settings.",
       "Ultra-discreet teams that respect the point's prized seclusion.",
       "Care for waterfront detailing, decks, and moorage-adjacent surfaces.",
-      "Coordinated cleaning, organizing, and errands for private estate living.",
     ],
     heritageMaterials: [
       "Exposed local stone and Douglas fir finished with surface-safe care.",
@@ -287,7 +286,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Long-vacancy inspection and oversight for owners who travel or split time away.",
       "Care for cedar, heavy timber, and post-and-beam construction in a forest setting.",
       "Dependable presence in an enclave few services reliably reach.",
-      "Coordinated cleaning, organizing, and errands tailored to secluded estate living.",
     ],
     heritageMaterials: [
       "Heavy fir and cedar timber maintained against persistent forest debris.",
@@ -410,7 +408,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Premium-finish care for marble, granite, hardwood, and stone foyers.",
       "Discreet, vetted teams trusted within a close referral community.",
       "Smart-home-aware cleaning that respects integrated systems.",
-      "Coordinated cleaning, organizing, and errands across larger residences.",
     ],
     heritageMaterials: [
       "Marble and granite surfaces maintained with surface-safe products.",
@@ -451,7 +448,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Salt-air care for floor-to-ceiling glass and cedar exteriors.",
       "Event turnover and guest-ready resets between visits.",
       "Discreet, vetted teams trusted with access to unoccupied homes.",
-      "Coordinated cleaning, organizing, and errands for part-time residents.",
     ],
     heritageMaterials: [
       "West Coast timber, cedar, and fir maintained with surface-safe methods.",
@@ -612,7 +608,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Dependable oversight for oceanfront and rural properties.",
       "Vetted teams comfortable with remote, private settings.",
       "Flexible cadence suited to full-time and part-time owners.",
-      "Coordinated cleaning, organizing, and errands across the property.",
     ],
     heritageMaterials: [
       "Natural-wood and stone finishes maintained with surface-safe methods.",
@@ -653,7 +648,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Lock-and-leave oversight for waterfront condo and pied-à-terre owners.",
       "Discreet, vetted teams trusted with access to unoccupied residences.",
       "Heritage-aware methods for the province's oldest residential streets.",
-      "Coordinated cleaning, organizing, and errands across home types.",
     ],
     heritageMaterials: [
       "Victorian and Edwardian period finishes maintained with surface-safe care.",
@@ -694,7 +688,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Lock-and-leave oversight for pied-à-terre and corporate owners.",
       "Discreet, vetted teams trusted with secure building access.",
       "Heritage-conversion-aware methods for restored period finishes.",
-      "Coordinated cleaning, organizing, and errands for urban living.",
     ],
     heritageMaterials: [
       "Marble baths and stone surfaces cared for to preserve their finish.",
@@ -734,7 +727,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Discreet care suited to a tranquil, affluent enclave.",
       "Heritage-aware methods for established character homes.",
       "Vetted teams comfortable in high-value oceanfront residences.",
-      "Cleaning, organizing, and errands looked after by one steady team.",
     ],
     heritageMaterials: [
       "Marble surfaces protected against salt-air degradation.",

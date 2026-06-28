@@ -22,8 +22,8 @@ const GardenGate = () => {
   return (
     <Layout>
       <SEO
-        title="The Garden Gate | Spring Styling Package | Victoria"
-        description="The Garden Gate: an abundant spring display with a designer floral wreath, four seasonal planters, and garden accents for your Victoria home. $924 CAD, fully installed."
+        title="The Garden Gate | Spring Package"
+        description="The Garden Gate: an abundant spring display with a designer wreath, four planters, and garden accents for your Victoria home. $924 CAD, installed."
         canonical="https://wabisabiservices.ca/seasoning/the-garden-gate"
       />
       <BreadcrumbSchema
@@ -125,32 +125,32 @@ const GardenGate = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Fukinsei</h4>
+                  <h4 className="font-serif text-xl mb-3">Real presence at the door</h4>
                   <p className="text-muted-foreground">
-                    Asymmetry - natural, dynamic balance in arrangement
+                    A designer wreath, four planters, and garden accents give the entrance weight without tipping into busy.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yugen</h4>
+                  <h4 className="font-serif text-xl mb-3">Fresh and preserved together</h4>
                   <p className="text-muted-foreground">
-                    Subtle profundity - mysterious grace in natural elements
+                    Living blooms are paired with preserved flowers so the look carries from early spring to late.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Built to shift a little</h4>
                   <p className="text-muted-foreground">
-                    Freedom from convention - playful, creative expression
+                    We set it to settle and move as spring goes on, so it never looks fixed in place.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Komorebi</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended mid-season</h4>
                   <p className="text-muted-foreground">
-                    Sunlight filtering - play of light through blooms
+                    A refresh visit partway through keeps the flowers and accents looking their best.
                   </p>
                 </Card>
               </div>

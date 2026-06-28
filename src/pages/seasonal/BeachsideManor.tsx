@@ -22,8 +22,8 @@ const BeachsideManor = () => {
   return (
     <Layout>
       <SEO
-        title="The Beachside Manor | Summer Styling | Victoria"
-        description="The Beachside Manor: an expansive coastal summer display with multiple wreaths, eight statement planters, driftwood sculpture, and lanterns for larger Victoria properties. $1,424 CAD."
+        title="The Beachside Manor | Summer"
+        description="The Beachside Manor: an expansive coastal summer display with multiple wreaths, eight planters, driftwood, and lanterns for larger Victoria homes. $1,424"
         canonical="https://wabisabiservices.ca/seasoning/the-beachside-manor"
       />
       <BreadcrumbSchema
@@ -78,7 +78,7 @@ const BeachsideManor = () => {
                   The Beachside Manor brings coastal styling to larger properties at the scale they deserve. Statement planters, driftwood sculpture, and ambient lighting run across the entrance and grounds, settling the whole front of the house into a relaxed beach-house mood.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  It is for larger waterfront and view homes where a small display would simply disappear. We work along the entrance and grounds by hand, layering driftwood, lanterns, and greenery until the front of the house reads as one relaxed beach-house scene across the whole summer.
+                  It is for larger waterfront and view homes where a small display would simply disappear. We work along the entrance and grounds by hand, layering driftwood, lanterns, and greenery so the scene holds together from the gate through to the front step, all summer long.
                 </p>
               </div>
               <Card className="p-8">
@@ -127,32 +127,32 @@ const BeachsideManor = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Miyabi</h4>
+                  <h4 className="font-serif text-xl mb-3">Scaled to the property</h4>
                   <p className="text-muted-foreground">
-                    Courtly elegance - refined coastal beauty in every detail
+                    Multiple wreaths, eight planters, and driftwood sculpture sized so the display reads on a larger home.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Iki</h4>
+                  <h4 className="font-serif text-xl mb-3">Across entrance and grounds</h4>
                   <p className="text-muted-foreground">
-                    Sophisticated simplicity - originality within coastal refinement
+                    Driftwood, lanterns, and greenery run along the entrance and out into the grounds, not just the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shibumi</h4>
+                  <h4 className="font-serif text-xl mb-3">A relaxed beach-house mood</h4>
                   <p className="text-muted-foreground">
-                    Simple, subtle beauty - effortless coastal elegance
+                    The pieces are layered to feel easy and lived-in rather than staged or matched too tightly.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Wa</h4>
+                  <h4 className="font-serif text-xl mb-3">Two visits to keep it fresh</h4>
                   <p className="text-muted-foreground">
-                    Harmony - perfect balance between coastal elements
+                    Two maintenance visits over the season keep the plantings and lighting looking their best.
                   </p>
                 </Card>
               </div>
