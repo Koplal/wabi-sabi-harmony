@@ -27,6 +27,19 @@ const faqSections: { heading: string; count: number }[] = [
   { heading: "Serving Victoria's Neighbourhoods", count: 8 },
 ];
 
+// Drift guard: section counts must cover every faqItem, or the slice logic below
+// would silently drop trailing questions from the visible accordion while they
+// remain in FAQPageSchema (breaking visible↔schema parity). Surfaced loudly in dev.
+if (
+  import.meta.env.DEV &&
+  faqSections.reduce((n, s) => n + s.count, 0) !== faqItems.length
+) {
+  // eslint-disable-next-line no-console
+  console.error(
+    `FAQ: faqSections counts (${faqSections.reduce((n, s) => n + s.count, 0)}) !== faqItems.length (${faqItems.length}). Update faqSections.`
+  );
+}
+
 const FAQ = () => {
   return (
     <Layout>
