@@ -326,7 +326,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Salt-spray maintenance for homes near the Dallas Road oceanfront.",
       "Discreet, vetted teams suited to an established, refined community.",
       "Flexible cadence for walkable in-town estates and family residences.",
-      "Cleaning, organizing, and errands run by one familiar team.",
+      "One familiar team, returning often enough to know the home’s rhythms.",
     ],
     heritageMaterials: [
       "Original Craftsman woodwork and built-ins finished with surface-safe care.",
@@ -488,7 +488,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Absentee management for executive commuters who travel often.",
       "Finish-aware care for timber, stone, and oak surfaces.",
       "Discreet, vetted teams suited to elevated, private estates.",
-      "Cleaning, organizing, and errands handled under one trusted arrangement.",
+      "A single, discreet point of contact for everything the home needs.",
     ],
     heritageMaterials: [
       "Large-format view-glass kept streak-free for panoramic outlooks.",
@@ -568,7 +568,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Reliable oversight for second-home owners who travel often.",
       "Discreet, vetted teams suited to an affluent retiree community.",
       "Flexible cadence that keeps a busy social calendar unburdened.",
-      "Cleaning, organizing, and errands managed through one point of contact.",
+      "Quiet, dependable care that runs without you having to manage it.",
     ],
     heritageMaterials: [
       "Oceanfront condo glass kept clear against persistent salt air.",

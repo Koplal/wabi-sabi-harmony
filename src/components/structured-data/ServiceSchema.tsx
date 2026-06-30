@@ -51,7 +51,7 @@ export const ServiceSchema = ({
     "description": description,
     "serviceType": serviceType,
     // Bare reference to the #organization node; full identity is declared once in
-    // the Layout-level OrganizationSchema/LocalBusinessSchema.
+    // the Layout-level LocalBusinessSchema (co-typed Organization + LocalBusiness).
     "provider": {
       "@id": "https://wabisabiservices.ca/#organization"
     },

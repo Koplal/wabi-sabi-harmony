@@ -29,12 +29,12 @@
 - Deleted the now-orphaned `OrganizationSchema.tsx` + barrel export (prevents accidental resurrection of the v2 double-node + its stale divergent description).
 - Added a dev-mode drift guard in `FAQ.tsx` that errors if `faqSections` counts ever stop covering `faqItems` (makes the visible↔schema invariant fail-loud).
 
-## Remaining (all Minor / cosmetic — optional)
-- **Title length:** 18 blog/long-seasonal rendered `<title>`s exceed ~60 chars (e.g. march-2026 ~77) → SERP truncation only. Optional: shorten bare titles or the " | Wabi Sabi Services" suffix.
-- **GEO nicety:** `areas/Index.tsx` prose names the Westshore but not Metchosin (it's in the grid + schema + About prose). One-word add if desired.
-- **Anti-AI residual:** the lockstep neighborhood closing bullet survives on 2/19 records (reworded) — negligible.
-- **Watch (not defects):** SPA soft-404 returns HTTP 200 (host-level 404 rule if desired); `/blog/july-2026` prerendered slightly ahead of its date (confirm content-calendar intent).
-- **Doc drift:** a few code comments still reference the old two-component org setup — cosmetic.
+## Remaining (all Minor / cosmetic)
+- **Title length (DEFERRED by owner):** ~24 blog/long-seasonal rendered `<title>`s exceed ~60 chars (e.g. march-2026 77) → SERP truncation only. Intentionally left as-is.
+- ~~**GEO nicety:** Metchosin missing from `/areas` hub prose~~ — ✅ FIXED (hub hero + CTA now name Metchosin).
+- ~~**Anti-AI residual:** lockstep neighborhood closing bullet~~ — ✅ FIXED (3 most-formulaic bullets reworded; 3 remaining are contextual, non-identical).
+- ~~**Doc drift:** stale comments referencing the old two-component org setup~~ — ✅ FIXED (ArticleSchema, ServiceSchema, prerender comments updated).
+- **Watch (not defects, accepted):** SPA soft-404 returns HTTP 200 — accepted (host-level only); `/blog/july-2026` prerendered ahead of date — confirmed intentional content calendar.
 
 ## Posture
 v1 had Critical issues in three dimensions; v2 reduced to one Major + minor polish; **v3 has none** — the site is, on every audited dimension, effectively flawless. The remaining list is cosmetic title-length trimming and a couple of one-word niceties. Recommended action: **ship.** A trivial optional "Phase 6" could trim the 18 long titles and add Metchosin to the Areas hub prose, but nothing remaining blocks merge.

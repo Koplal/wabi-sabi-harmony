@@ -13,7 +13,7 @@ interface ArticleSchemaProps {
  * BlogPosting schema for blog articles.
  *
  * Author and publisher both reference the site-wide #organization node declared
- * once in the Layout-level OrganizationSchema/LocalBusinessSchema.
+ * once in the Layout-level LocalBusinessSchema (a co-typed Organization + LocalBusiness node).
  *
  * @param headline - Article title
  * @param description - Article summary

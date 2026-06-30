@@ -44,8 +44,8 @@ const BRAND = "Wabi Sabi Services";
 /**
  * The Organization/LocalBusiness entity, co-typed under a single @id, that every
  * other node on the page references (provider/author/publisher/brand). Mirrors
- * the runtime src/components/structured-data/OrganizationSchema.tsx +
- * LocalBusinessSchema.tsx so the static (non-JS) head resolves the same #organization.
+ * the runtime src/components/structured-data/LocalBusinessSchema.tsx (co-typed
+ * Organization + LocalBusiness) so the static (non-JS) head resolves the same #organization.
  */
 function orgGraph() {
   return {

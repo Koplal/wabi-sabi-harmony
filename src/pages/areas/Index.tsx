@@ -77,8 +77,8 @@ const AreasIndex = () => {
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             From the heritage estates of Oak Bay and Uplands to the waterfront enclaves of the
-            Saanich Peninsula and the Westshore and Langford, we bring discreet, museum-level care to
-            Victoria's most discerning homes. Explore the neighbourhoods we serve below.
+            Saanich Peninsula, the Westshore and Langford, and Metchosin, we bring discreet,
+            museum-level care to Victoria's most discerning homes. Explore the neighbourhoods we serve below.
           </p>
         </div>
       </section>
@@ -134,8 +134,8 @@ const AreasIndex = () => {
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
             We care for discerning homes throughout Greater Victoria — Oak Bay, the Saanich Peninsula,
-            and the Westshore and Langford. Tell us about your home, and we'll design a bespoke
-            concierge plan around it.
+            the Westshore and Langford, and Metchosin. Tell us about your home, and we'll design a
+            bespoke concierge plan around it.
           </p>
           <Button asChild size="lg">
             <Link to="/contact">Request a Private Consultation</Link>
