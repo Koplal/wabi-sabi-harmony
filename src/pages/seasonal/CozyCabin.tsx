@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-cozy-cabin-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const CozyCabin = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Cozy Cabin | Winter Holiday Package"
+        description="A warm winter entrance with a fresh evergreen wreath, door swag, and planter greens, styled and installed across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/the-cozy-cabin"
+      />
+      <ProductSchema
+        name="The Cozy Cabin"
+        description="A warm winter entrance with a fresh evergreen wreath, door swag, and planter greens, styled and installed on site."
+        offers={{
+          price: "474",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-cozy-cabin",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Cozy Cabin", url: "https://wabisabiservices.ca/seasoning/the-cozy-cabin" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const CozyCabin = () => {
               Warm Winter Welcome with Natural Elements
             </p>
             <p className="text-lg text-muted-foreground">
-              Inviting warmth. Natural beauty. Mindful simplicity.
+              Fresh greens and quiet light for a doorway that feels like coming home.
             </p>
           </div>
         </section>
@@ -51,10 +75,10 @@ const CozyCabin = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Embracing Winter's Warmth</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Cozy Cabin package brings the essence of winter's comfort to your doorstep. Thoughtfully curated with fresh evergreens and natural elements, this display creates an inviting atmosphere that welcomes guests with warmth and authenticity.
+                  The Cozy Cabin is our most pared-back winter display, and it is built entirely from fresh greens: a handmade evergreen wreath, a door swag, two planters, and a few warm candles. Nothing flashy, just the kind of doorway that smells of cedar and looks like someone is home.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who appreciate understated elegance and the beauty of natural materials. Each element is carefully selected to create harmony between your home and the winter landscape.
+                  It is a natural fit for a smaller home or a single front entrance. We handle the placement and styling, leave you with care instructions, and return mid-season to refresh the fragrance so the greens still feel alive in late December.
                 </p>
               </div>
               <Card className="p-8">
@@ -89,7 +113,7 @@ const CozyCabin = () => {
                   "Natural birch log accents",
                   "Professional placement & styling",
                   "Seasonal care instructions",
-                  "Complimentary fragrance refresh"
+                  "Mid-season fragrance refresh"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -99,32 +123,32 @@ const CozyCabin = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Hygge</h4>
+                  <h4 className="font-serif text-xl mb-3">All fresh greens</h4>
                   <p className="text-muted-foreground">
-                    Creating cozy, warm atmosphere through natural elements
+                    A handmade evergreen wreath, a door swag, and two planters, so the doorway smells of cedar from day one.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shinrin-yoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Sized for a single entrance</h4>
                   <p className="text-muted-foreground">
-                    Forest bathing - bringing nature's calm to your entrance
+                    Pared back on purpose, it suits a smaller home or one front door without overwhelming the space.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ma (Negative Space)</h4>
+                  <h4 className="font-serif text-xl mb-3">Warm, quiet light</h4>
                   <p className="text-muted-foreground">
-                    Intentional simplicity allowing each element to shine
+                    Battery LED candles and birch accents add a soft glow rather than a bright display.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mottainai</h4>
+                  <h4 className="font-serif text-xl mb-3">Refreshed mid-season</h4>
                   <p className="text-muted-foreground">
-                    Respect for materials - sustainable, natural elements
+                    We return partway through to revive the fragrance so the greens still feel alive in late December.
                   </p>
                 </Card>
               </div>

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-blooming-manor-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -13,12 +15,34 @@ const BloomingManor = () => {
     id: 'blooming-manor',
     name: 'The Blooming Manor',
     price: 1924,
-    description: 'Grand Spring Transformation',
+    description: 'Grand Spring Display',
     image: heroImage,
   };
 
   return (
     <Layout>
+      <SEO
+        title="The Blooming Manor | Spring"
+        description="The Blooming Manor: our most generous spring installation for Victoria estates, with custom wreaths, twelve statement planters, and lighting."
+        canonical="https://wabisabiservices.ca/seasoning/the-blooming-manor"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Blooming Manor", url: "https://wabisabiservices.ca/seasoning/the-blooming-manor" },
+        ]}
+      />
+      <ProductSchema
+        name="The Blooming Manor"
+        description="Our most generous spring installation for estate properties, with a custom floral wreath collection, twelve statement planters, garden lighting, and a dedicated design process."
+        offers={{
+          price: "1924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-blooming-manor",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -36,10 +60,10 @@ const BloomingManor = () => {
               The Blooming Manor
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-6">
-              Grand Spring Transformation
+              Grand Spring Display
             </p>
             <p className="text-lg text-muted-foreground">
-              Editorial-level artistry. Abundant florals. Mindfully spectacular.
+              Our most generous spring installation, planned around your home over several weeks.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const BloomingManor = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Spring Artistry</h2>
+                <h2 className="font-serif text-4xl mb-6">Spring, Planned Around Your Home</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Blooming Manor represents the zenith of our spring styling - a masterwork designed for estate-style properties. This grand installation transforms your home into a botanical showplace with abundant florals, architectural elements, and sophisticated garden artistry that creates an unforgettable seasonal statement.
+                  The Blooming Manor is the largest spring installation we offer, made for estate properties and the people who host in them. It begins weeks ahead with a design process built around your architecture, then arrives as abundant florals, garden lighting, and structural accents that carry the season across the whole front of the house.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Created for those who entertain in style and appreciate museum-quality botanical design. Each element is precisely placed through collaboration with our design team to create a cohesive, breathtaking display that honors both the season and your property's unique character.
+                  One project manager runs the job end to end, from the first walkthrough to the last maintenance visit. Every stem and planter is set by hand and adjusted in place, so the front of the house holds together as a single garden scene.
                 </p>
               </div>
               <Card className="p-8">
@@ -106,32 +130,32 @@ const BloomingManor = () => {
               </div>
             </div>
 
-            {/* Design Philosophy */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ichigo ichie</h4>
+                  <h4 className="font-serif text-xl mb-3">Florals across the whole front</h4>
                   <p className="text-muted-foreground">
-                    Once in a lifetime - treasure this unique spring moment
+                    Custom wreaths and twelve statement planters carry the season the length of the house, not just the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Hanami</h4>
+                  <h4 className="font-serif text-xl mb-3">Designed to your architecture</h4>
                   <p className="text-muted-foreground">
-                    Flower viewing - celebrating the beauty of blossoms
+                    The plan is drawn weeks ahead around your home's lines, entrances, and the way you host.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Gei</h4>
+                  <h4 className="font-serif text-xl mb-3">Fresh and preserved together</h4>
                   <p className="text-muted-foreground">
-                    Artistic accomplishment - mastery in floral execution
+                    Living blooms are paired with preserved stems and structural accents so the look holds up across the spring.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kodawari</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended every week</h4>
                   <p className="text-muted-foreground">
-                    Uncompromising dedication - pursuit of botanical perfection
+                    Weekly visits refresh the flowers and lighting, so the front stays in full bloom through the season.
                   </p>
                 </Card>
               </div>

@@ -9,13 +9,13 @@ const Organizing = () => {
   return (
     <Layout>
       <SEO 
-        title="Professional Organizing Services Victoria BC"
+        title="Organizing Services Victoria BC"
         description="Expert home and office organizing services in Victoria, BC. Decluttering, space planning, closet systems, seasonal transitions, and move coordination."
         keywords="professional organizing Victoria BC, home organizer Victoria, decluttering services Victoria, closet organization Victoria"
       />
       <ServiceSchema 
         name="Professional Organizing Services"
-        description="Transform your space with expert organizing services. From closets to entire homes, we create functional, beautiful systems that make daily life easier."
+        description="Expert organizing for closets to entire homes in Victoria, BC. We compose functional, beautiful systems that make daily life easier."
         serviceType="Organizing Service"
       />
       <div className="relative">
@@ -33,16 +33,16 @@ const Organizing = () => {
             Professional Organizing & Decluttering
           </h1>
           <p className="text-xl text-center text-muted-foreground mb-16 leading-relaxed">
-            Transform your space from overwhelming to functional
+            Quiet order, composed for the way you actually live
           </p>
 
           <div className="prose prose-lg max-w-none space-y-12">
             <div>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                You don't need more storage solutions. You need a system that actually works for how you live.
+                You don't need more storage solutions. You need a system, composed quietly around your habits, that works for the way you actually live.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mt-6">
-                Our organizing services go beyond just tidying up. We help you create functional spaces that reduce decision fatigue, minimize visual clutter, and genuinely make your daily routines easier.
+                Our organizing service is a concierge engagement, not a tidy-up. We compose functional, beautiful spaces that reduce decision fatigue, minimize visual clutter, and genuinely make your daily routines easier—all with the same vetted discretion we bring to every home we tend.
               </p>
             </div>
 
@@ -64,7 +64,7 @@ const Organizing = () => {
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li><strong>Kitchens:</strong> Pantry organization, cabinet systems, workflow optimization</li>
-                    <li><strong>Closets:</strong> Wardrobe curation, seasonal storage, accessible systems</li>
+                    <li><strong>Closets:</strong> Wardrobe ordering, seasonal storage, accessible systems</li>
                     <li><strong>Home Offices:</strong> Paper management, filing systems, workspace flow</li>
                     <li><strong>Garages & Storage Areas:</strong> Categorizing, shelving, accessibility</li>
                     <li><strong>Children's Spaces:</strong> Toy rotation, easy-access systems, teaching organization habits</li>
@@ -117,7 +117,7 @@ const Organizing = () => {
                 <div>
                   <h3 className="font-serif text-xl mb-2">2. Planning</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    We create a realistic plan tailored to your lifestyle, budget, and timeline.
+                    We create a realistic plan tailored to your lifestyle, priorities, and timeline.
                   </p>
                 </div>
 
@@ -148,23 +148,29 @@ const Organizing = () => {
             </section>
 
             <section className="bg-secondary/30 rounded-lg p-10 text-center">
-              <h2 className="font-serif text-3xl mb-6">Ready to Reclaim Your Space?</h2>
+              <h2 className="font-serif text-3xl mb-6">Reclaim Your Space</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                Schedule a complimentary consultation to discuss your organizing needs.
+                We begin with a $150 in-home consultation, credited in full toward your first service, to understand your space and how you want it to work.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/book">
+                <Link to="/contact">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Book a Consultation
+                    Request a Private Consultation
                   </Button>
                 </Link>
-                <Link to="/contact">
+                <Link to="/book">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Ask a Question
+                    Book a Service
                   </Button>
                 </Link>
               </div>
             </section>
+
+            <p className="text-center text-muted-foreground">
+              <Link to="/areas" className="underline underline-offset-4 hover:text-foreground transition-colors">
+                Serving Victoria's finest neighbourhoods →
+              </Link>
+            </p>
           </div>
         </div>
       </div>

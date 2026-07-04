@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const May2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="May Mindfulness: Wellness Sanctuaries for Families"
+        description="May blooms in Victoria with rhododendrons and Mother's Day. How a clean, well-ordered home quietly supports sleep, nutrition, movement, and clearer minds."
+        canonical="https://wabisabiservices.ca/blog/may-2026"
+        ogType="article"
+        publishedTime="2026-05-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="May Mindfulness: Creating Wellness Sanctuaries for Modern Families"
+        description="How a clean, well-ordered Victoria home quietly supports sleep, nutrition, movement, and clearer minds for the whole family."
+        datePublished="2026-05-01"
+        url="https://wabisabiservices.ca/blog/may-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "May Mindfulness", url: "https://wabisabiservices.ca/blog/may-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const May2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -43,7 +65,7 @@ const May2026 = () => {
             </p>
 
             <h2>The Wellness Home Revolution</h2>
-            <p>Recent studies from the Global Wellness Institute show that "wellness real estate" isn't just for luxury developments – it's about transforming existing homes into health-supporting sanctuaries.</p>
+            <p>The idea of "wellness real estate" has moved well beyond new luxury developments. The work of the Global Wellness Institute points to a simpler truth: any existing home can be shaped, gradually, into a place that supports health.</p>
 
             <h2>Mother's Day: Honoring the Home's Heart</h2>
             <p>Whether you're a mother, have a mother, or honor mother figures, this month celebrates nurturing energy.</p>
@@ -153,12 +175,12 @@ const May2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Create your wellness sanctuary</h3>
+              <h3 className="text-2xl font-serif mb-4">A home that looks after your family</h3>
               <p className="mb-6">
-                Honor Mother's Day and family wellness with a home that supports health, clarity, and balance for every family member.
+                For Mother's Day, or any day, consider the quiet luxury of a home kept well by our concierge team. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Wellness Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

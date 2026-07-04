@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const June2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="Pet-Friendly Cleaning: A Fresh, Safe Home"
+        description="Victoria is a pet-loving city. Which cleaning products put pets at risk, the gentler alternatives, and how to manage odours, hair, and messes safely."
+        canonical="https://wabisabiservices.ca/blog/june-2026"
+        ogType="article"
+        publishedTime="2026-06-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="Pet-Friendly Cleaning: Keeping Your Home Fresh and Your Furry Friends Safe"
+        description="Which common cleaning products put pets at risk, the gentler alternatives, and how to manage odours, hair, and messes safely."
+        datePublished="2026-06-01"
+        url="https://wabisabiservices.ca/blog/june-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Pet-Friendly Cleaning", url: "https://wabisabiservices.ca/blog/june-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const June2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -170,12 +192,12 @@ const June2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Safe, fresh, pet-friendly cleaning</h3>
+              <h3 className="text-2xl font-serif mb-4">A spotless home, safe for every paw</h3>
               <p className="mb-6">
-                Keep your home spotless and your furry friends safe with Wabi Sabi Services' pet-friendly cleaning expertise.
+                Our concierge team cleans with pet-safe products and methods, so your home stays fresh and your animals stay well. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Pet-Safe Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

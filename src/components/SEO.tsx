@@ -7,6 +7,8 @@ interface SEOProps {
   ogType?: "website" | "article";
   ogImage?: string;
   publishedTime?: string;
+  keywords?: string;
+  noindex?: boolean;
 }
 
 /**
@@ -18,6 +20,7 @@ interface SEOProps {
  * @param ogType - Open Graph type (website or article)
  * @param ogImage - Open Graph image URL
  * @param publishedTime - Article published time (ISO format)
+ * @param noindex - When true, emit a robots "noindex,follow" meta tag (e.g. cart, checkout, 404)
  */
 export const SEO = ({
   title,
@@ -26,6 +29,8 @@ export const SEO = ({
   ogType = "website",
   ogImage = "/og-image.png",
   publishedTime,
+  keywords,
+  noindex = false,
 }: SEOProps) => {
   const siteUrl = "https://wabisabiservices.ca";
   const fullTitle = `${title} | Wabi Sabi Services`;
@@ -38,7 +43,9 @@ export const SEO = ({
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
       <meta name="description" content={description} />
-      
+      {keywords && <meta name="keywords" content={keywords} />}
+      {noindex && <meta name="robots" content="noindex,follow" />}
+
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />
       

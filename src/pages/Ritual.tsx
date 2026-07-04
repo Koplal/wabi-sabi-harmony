@@ -2,10 +2,23 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ritualHero from "@/assets/ritual-hero-v2.jpg";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 
 const Ritual = () => {
   return (
     <Layout>
+      <SEO
+        title="The Ritual"
+        description="How Wabi Sabi Services cares for your home: a personalized, consultation-led approach informed by environmental psychology and hospitality in Victoria, BC."
+        canonical="https://wabisabiservices.ca/ritual"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "The Ritual", url: "https://wabisabiservices.ca/ritual" },
+        ]}
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img
@@ -37,8 +50,8 @@ const Ritual = () => {
           <div className="mb-20">
             <h2 className="font-serif text-3xl md:text-4xl mb-6">The Foundation: Your Consultation</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              We begin every client relationship with a complimentary home consultation. This isn't a quote—it's a
-              conversation.
+              We begin every client relationship with a $150 in-home consultation, credited in full toward your first
+              service. This isn't a quote—it's a conversation.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-6">
               We walk through your space together, discuss what's working and what isn't, and understand your

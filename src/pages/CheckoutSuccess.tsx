@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link, useSearchParams } from "react-router-dom";
@@ -18,6 +19,7 @@ const CheckoutSuccess = () => {
 
   return (
     <Layout>
+      <SEO title="Confirmation" description="Your seasonal service request has been received." noindex />
       <div className="min-h-screen pt-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-2xl py-20">
           <Card className="p-12 text-center">
@@ -35,7 +37,7 @@ const CheckoutSuccess = () => {
 
             <div className="space-y-4">
               <p className="text-muted-foreground">
-                Our team will contact you within 24-48 hours to schedule your installation.
+                Our team will contact you within 24-48 hours to schedule your service.
               </p>
               <p className="text-muted-foreground">
                 If you have any questions, please don't hesitate to reach out.

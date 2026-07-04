@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const March2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="Sustainable Spring Cleaning for Eco-Conscious Victorians"
+        description="As cherry blossoms open across Victoria, refresh your home without harming the Island. Natural recipes, a room-by-room guide, and ways to let things go."
+        canonical="https://wabisabiservices.ca/blog/march-2026"
+        ogType="article"
+        publishedTime="2026-03-01T00:00:00-08:00"
+      />
+      <ArticleSchema
+        headline="Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians"
+        description="Natural recipes, a room-by-room guide, and mindful ways to let things go, for a Victoria home and the Island around it."
+        datePublished="2026-03-01"
+        url="https://wabisabiservices.ca/blog/march-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Sustainable Spring Cleaning", url: "https://wabisabiservices.ca/blog/march-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const March2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -89,7 +111,7 @@ const March2026 = () => {
             </ul>
 
             <h2>Decluttering with Purpose</h2>
-            <p>Spring cleaning isn't just about cleaning – it's about mindful consumption:</p>
+            <p>Spring cleaning is really an exercise in mindful consumption as much as tidying:</p>
 
             <h3>The Wabi Sabi Method:</h3>
             <ol>
@@ -132,12 +154,12 @@ const March2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Sustainable spring cleaning made easy</h3>
+              <h3 className="text-2xl font-serif mb-4">A clean home, a cared-for Island</h3>
               <p className="mb-6">
-                Let Wabi Sabi Services help you achieve a sparkling clean home while honoring our Island's pristine environment.
+                When you would rather spend spring outdoors, our concierge team can handle the deep clean with eco-certified products and a light footprint. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Eco-Friendly Spring Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

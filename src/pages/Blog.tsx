@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const allBlogArticles = [
@@ -33,7 +34,7 @@ const allBlogArticles = [
   {
     slug: "november-2025",
     title: "The Gratitude Home: Preparing Thankful Spaces for Connection",
-    excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude transforms routine maintenance into mindful practice.",
+    excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude turns routine maintenance into mindful practice.",
     date: "November 2025",
     publishDate: new Date(2025, 10, 1), // November 1, 2025
     readTime: "7 min read"
@@ -97,7 +98,7 @@ const allBlogArticles = [
   {
     slug: "july-2026",
     title: "Summer Sanctuary: Mastering Indoor-Outdoor Living in Victoria",
-    excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create seamless indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
+    excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create easy indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
     date: "July 2026",
     publishDate: new Date(2026, 6, 1), // July 1, 2026
     readTime: "8 min read"
@@ -113,6 +114,17 @@ const Blog = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Wabi Sabi Journal: Home Notes"
+        description="Seasonal notes on caring for a Victoria home with intention — cleaning, organizing, and the quiet rituals that keep a household calm through the year."
+        canonical="https://wabisabiservices.ca/blog"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[50vh] flex items-center justify-center">
@@ -127,10 +139,10 @@ const Blog = () => {
           />
           <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
             <h1 className="font-serif text-5xl md:text-7xl mb-4">
-              Mindful Living Blog
+              The Wabi Sabi Journal
             </h1>
             <p className="text-lg text-muted-foreground">
-              Insights on creating harmonious, healthy spaces
+              Notes on mindful homes, written month by month
             </p>
           </div>
         </section>

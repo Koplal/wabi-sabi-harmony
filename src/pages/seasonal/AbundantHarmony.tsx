@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-abundant-harmony-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const AbundantHarmony = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Abundant Harmony | Autumn Pumpkin Package"
+        description="A generous autumn pumpkin display for larger porches and stepped entries. Heritage varieties, botanicals, and full installation across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/abundant-harmony"
+      />
+      <ProductSchema
+        name="The Abundant Harmony"
+        description="A generous autumn pumpkin display for larger porches and stepped entries, with heritage varieties, seasonal botanicals, and full installation."
+        offers={{
+          price: "899",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/abundant-harmony",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Abundant Harmony", url: "https://wabisabiservices.ca/seasoning/abundant-harmony" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const AbundantHarmony = () => {
               Celebrate Autumn's Generous Spirit
             </p>
             <p className="text-lg text-muted-foreground">
-              Thoughtfully abundant. Naturally balanced. Beautifully imperfect.
+              Generous enough to greet your guests, quiet enough to feel at ease.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const AbundantHarmony = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Perfect Middle Path</h2>
+                <h2 className="font-serif text-4xl mb-6">Generous, Without the Crowd</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Abundant Harmony represents the perfect middle path - generous enough to impress, refined enough to inspire tranquility. Each pumpkin is chosen not for perfection, but for character, creating a display that tells the story of nature's beautiful irregularities.
+                  The Abundant Harmony sits in the middle of our autumn range, and it is the package most people land on. There is enough here to fill a larger porch or a set of front steps, but the pieces are chosen and spaced so the result still feels calm rather than crowded.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for larger porches, stepped entries, and homes that host with heart. This curated collection transforms your entrance into a meditation on autumn's fleeting beauty, reminding all who enter to pause and appreciate the present moment.
+                  We choose each pumpkin for its character, including the lopsided ones, then arrange and install the whole display and check in mid-season to keep it looking its best. It is a good fit for homes that entertain through the autumn and want the entrance to match.
                 </p>
               </div>
               <Card className="p-8">
@@ -102,32 +126,32 @@ const AbundantHarmony = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shibui (Subtle Beauty)</h4>
+                  <h4 className="font-serif text-xl mb-3">Full, not crowded</h4>
                   <p className="text-muted-foreground">
-                    Understated elegance that reveals itself slowly
+                    Enough to fill a larger porch or set of steps, with pieces spaced so the result still reads as calm.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yugen (Profound Grace)</h4>
+                  <h4 className="font-serif text-xl mb-3">Chosen for character</h4>
                   <p className="text-muted-foreground">
-                    Suggesting rather than revealing the whole
+                    We pick each pumpkin for its shape and colour, including the lopsided ones, rather than matching a set.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ma (Negative Space)</h4>
+                  <h4 className="font-serif text-xl mb-3">Layered with botanicals</h4>
                   <p className="text-muted-foreground">
-                    Strategic use of empty space for visual breathing
+                    Hay bales, ornamental gourds, and sage or eucalyptus bundles round out the display with seasonal texture.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku (Freedom from Habit)</h4>
+                  <h4 className="font-serif text-xl mb-3">Checked mid-season</h4>
                   <p className="text-muted-foreground">
-                    Unexpected elements that delight
+                    We return partway through to refresh anything past its prime, so the entrance holds up for guests.
                   </p>
                 </Card>
               </div>

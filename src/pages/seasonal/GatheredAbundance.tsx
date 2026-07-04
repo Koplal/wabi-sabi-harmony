@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-gathered-abundance-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const GatheredAbundance = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Gathered Abundance | Autumn Pumpkin Package"
+        description="A statement autumn pumpkin display with grand-prize centerpieces, rare varieties, and professional installation across Victoria and the Saanich Peninsula."
+        canonical="https://wabisabiservices.ca/seasoning/gathered-abundance"
+      />
+      <ProductSchema
+        name="The Gathered Abundance"
+        description="A statement autumn pumpkin display with grand-prize centerpieces, rare varieties, and landscape-level installation."
+        offers={{
+          price: "1399",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/gathered-abundance",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Gathered Abundance", url: "https://wabisabiservices.ca/seasoning/gathered-abundance" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const GatheredAbundance = () => {
               When Autumn Arrives in Full Splendor
             </p>
             <p className="text-lg text-muted-foreground">
-              Generous hospitality. Natural grandeur. Mindful abundance.
+              The kind of entrance that becomes a destination in itself.
             </p>
           </div>
         </section>
@@ -51,10 +75,10 @@ const GatheredAbundance = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">A Celebration of Harvest's Peak</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Gathered Abundance is for those who understand that true luxury lies in thoughtful detail and natural beauty. This substantial display creates a powerful yet peaceful presence, transforming your entry into a destination that honors both the season and your guests.
+                  The Gathered Abundance is our statement autumn display. Two grand-prize pumpkins anchor the design, with heritage and rare specialty varieties set around them so the whole arrangement reads as a single, generous gesture rather than a pile of produce. It is built for the homes that guests remember.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Like a perfectly orchestrated tea ceremony, every element is placed with intention - the largest pumpkins anchor the design while smaller varieties dance between them, creating rhythm and visual poetry that evolves as viewers approach.
+                  We arrange it on site and return each week to keep the centerpieces sound and the smaller varieties looking fresh. The result is an entrance that holds its own from the road and rewards a closer look on the way to your door.
                 </p>
               </div>
               <Card className="p-8">
@@ -106,32 +130,32 @@ const GatheredAbundance = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mono no Aware</h4>
+                  <h4 className="font-serif text-xl mb-3">Built around two centerpieces</h4>
                   <p className="text-muted-foreground">
-                    Bittersweet awareness - celebrating fleeting seasonal beauty
+                    A pair of grand-prize pumpkins anchors the design, with heritage and rare varieties set around them.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Iki</h4>
+                  <h4 className="font-serif text-xl mb-3">Reads from the road</h4>
                   <p className="text-muted-foreground">
-                    Sophisticated simplicity - refined restraint within abundance
+                    Scale and placement are judged from the street first, so the entrance holds its own from a distance.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kaizen</h4>
+                  <h4 className="font-serif text-xl mb-3">Rewards a closer look</h4>
                   <p className="text-muted-foreground">
-                    Continuous improvement - weekly adjustments for optimal display
+                    Miniature pumpkins, branches, and dried grasses fill in the detail you notice on the way to the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Wa</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended every week</h4>
                   <p className="text-muted-foreground">
-                    Harmony - perfect balance between elements
+                    We return each week to keep the centerpieces sound and the smaller varieties looking fresh.
                   </p>
                 </Card>
               </div>

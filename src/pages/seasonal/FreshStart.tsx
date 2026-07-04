@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-fresh-start-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const FreshStart = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Fresh Start | Spring Package"
+        description="The Fresh Start: a light spring display of handcrafted blooms, planters, and natural textures for your Victoria entrance. $474 CAD, installed."
+        canonical="https://wabisabiservices.ca/seasoning/the-fresh-start"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Fresh Start", url: "https://wabisabiservices.ca/seasoning/the-fresh-start" },
+        ]}
+      />
+      <ProductSchema
+        name="The Fresh Start"
+        description="Light and airy spring refresh with delicate floral touches, seasonal planters, and natural moss and twig elements, professionally placed."
+        offers={{
+          price: "474",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-fresh-start",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const FreshStart = () => {
               Light and Airy Spring Refresh
             </p>
             <p className="text-lg text-muted-foreground">
-              Delicate beauty. Fresh beginnings. Mindful renewal.
+              A quiet welcome for the season, composed in soft blooms and natural texture.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const FreshStart = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Embracing Spring's Awakening</h2>
+                <h2 className="font-serif text-4xl mb-6">A Light Welcome for Spring</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Fresh Start package welcomes spring with delicate floral touches and garden-inspired elements. Thoughtfully designed to celebrate renewal, this display brings the gentle beauty of the season to your entrance with fresh blooms and natural textures.
+                  The Fresh Start is our smallest spring display, and the easiest to live with. A handcrafted wreath, two seasonal planters, and a few natural touches give the front of the house a soft lift after winter, without crowding the entrance.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who appreciate understated elegance and the hopeful energy of spring. Each element is carefully selected to create a light, airy atmosphere that invites warmth and new beginnings.
+                  It suits people who would rather have one well-made arrangement than a lot of decoration. We choose the blooms and textures to sit comfortably with your door and the colour of the house.
                 </p>
               </div>
               <Card className="p-8">
@@ -89,7 +113,7 @@ const FreshStart = () => {
                   "Garden-inspired styling",
                   "Professional placement",
                   "Seasonal care instructions",
-                  "Complimentary refresh consultation"
+                  "Mid-season refresh consultation"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -99,32 +123,32 @@ const FreshStart = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Sakura</h4>
+                  <h4 className="font-serif text-xl mb-3">One arrangement, well made</h4>
                   <p className="text-muted-foreground">
-                    Cherry blossom spirit - fleeting beauty and renewal
+                    A single handcrafted wreath and two planters, so the entrance gets a lift without being crowded.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kanso</h4>
+                  <h4 className="font-serif text-xl mb-3">Matched to your door</h4>
                   <p className="text-muted-foreground">
-                    Simplicity - elimination of clutter, focus on essentials
+                    We choose the blooms and textures to sit easily with your door and the colour of the house.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shizen</h4>
+                  <h4 className="font-serif text-xl mb-3">Soft after winter</h4>
                   <p className="text-muted-foreground">
-                    Naturalness - celebrating organic forms and textures
+                    Pastel blooms, moss, and twigs ease the front of the house out of the colder months.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Seijaku</h4>
+                  <h4 className="font-serif text-xl mb-3">Looked in on mid-season</h4>
                   <p className="text-muted-foreground">
-                    Tranquility - peaceful, calm presence
+                    A refresh consultation partway through keeps the display fresh while it is up.
                   </p>
                 </Card>
               </div>

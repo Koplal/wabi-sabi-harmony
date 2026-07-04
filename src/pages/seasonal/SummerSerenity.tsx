@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 import coastalCottageHero from "@/assets/package-coastal-cottage-hero.jpg";
 import islandRetreatHero from "@/assets/package-island-retreat-hero.jpg";
@@ -53,7 +55,7 @@ const packages = [
     basePrice: 1299,
     decoratingFee: 125,
     image: beachsideManorHero,
-    description: "Expansive coastal-luxe summer transformation.",
+    description: "Resort-scale coastal styling for the largest waterfront properties.",
     includes: [
       "Multiple coastal wreaths",
       "8 Statement summer planters",
@@ -109,6 +111,31 @@ const packages = [
 const SummerSerenity = () => {
   return (
     <Layout>
+      <SEO
+        title="Summer Serenity Packages | Victoria"
+        description="Coastal summer styling for Victoria homes and businesses. Five packages of driftwood, sea glass, and breezy arrangements, designed and installed."
+        canonical="https://wabisabiservices.ca/seasoning/summer-serenity"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Summer Serenity", url: "https://wabisabiservices.ca/seasoning/summer-serenity" },
+        ]}
+      />
+      {packages.map((pkg) => (
+        <ProductSchema
+          key={pkg.name}
+          name={pkg.name}
+          description={pkg.description}
+          offers={{
+            price: String(pkg.price),
+            priceCurrency: "CAD",
+            availability: "https://schema.org/InStock",
+            url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
+          }}
+        />
+      ))}
       <div className="min-h-screen">
         <section className="relative h-[50vh] flex items-center justify-center">
           <div
@@ -125,7 +152,7 @@ const SummerSerenity = () => {
               Summer Serenity Packages
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Coastal-inspired elegance for the season of sunshine
+              Coastal-inspired styling for the long days of the season
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               Available: June through August
@@ -136,8 +163,9 @@ const SummerSerenity = () => {
         <section className="py-12 px-6 lg:px-12 bg-secondary/30">
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Embrace summer's relaxed elegance with coastal wreaths, driftwood accents, and breezy arrangements 
-              that capture the essence of island living.
+              Summers on the Island are long and easy, and a doorway can be made to feel that way too.
+              Our summer packages lean on driftwood, sea glass, and weathered natural materials,
+              sized and placed to suit your entrance for the season ahead.
             </p>
           </div>
         </section>
@@ -208,19 +236,19 @@ const SummerSerenity = () => {
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Coastal Elegance</h3>
                 <p className="text-muted-foreground text-sm">
-                  Natural materials like driftwood, shells, and rope create an authentic seaside atmosphere.
+                  Driftwood, shells, and rope, used sparingly so the seaside reference feels real rather than themed.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Relaxed Luxury</h3>
                 <p className="text-muted-foreground text-sm">
-                  Sophisticated yet effortless designs that capture summer's easygoing spirit.
+                  Considered work that reads as effortless, which is harder to get right than it looks.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Island Living</h3>
                 <p className="text-muted-foreground text-sm">
-                  Tropical touches and breezy elements that celebrate Vancouver Island summers.
+                  Light, breezy touches drawn from Vancouver Island summers and the water that surrounds us.
                 </p>
               </div>
             </div>
@@ -229,13 +257,13 @@ const SummerSerenity = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Create Your Summer Sanctuary</h2>
+            <h2 className="font-serif text-3xl mb-6">A Coastal Welcome for Summer</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Transform your entrance into a coastal retreat that welcomes the season's warmth.
+              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request Consultation</Link>
+                <Link to="/contact">Request a Private Consultation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/seasoning">View All Seasonal Services</Link>

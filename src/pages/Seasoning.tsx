@@ -2,6 +2,8 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 import budapestImage from "@/assets/pumpkin-grand-budapest-1.jpg";
 import cozyCabinHero from "@/assets/package-cozy-cabin-hero.jpg";
@@ -11,6 +13,17 @@ import coastalCottageHero from "@/assets/package-coastal-cottage-hero.jpg";
 const Seasoning = () => {
   return (
     <Layout>
+      <SEO
+        title="Seasonal Decorating | Victoria BC"
+        description="Seasonal styling for the home through autumn, winter, spring, and summer. Designed, installed, and removed by hand across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[50vh] flex items-center justify-center">
@@ -28,7 +41,7 @@ const Seasoning = () => {
               Seasonal Services
             </h1>
             <p className="text-lg text-muted-foreground">
-              Transform your home with the beauty of each season
+              The beauty of each season, brought quietly into your home
             </p>
           </div>
         </section>
@@ -37,9 +50,9 @@ const Seasoning = () => {
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed mb-12">
-              Beyond our signature cleaning services, we bring the essence of each season into your home. 
-              Our seasonal decoration services create inviting, festive atmospheres that reflect the natural 
-              rhythm of the year while maintaining the elegant simplicity of wabi-sabi design.
+              Beyond our signature cleaning, we bring the essence of each season into your home. Our seasonal
+              decorating work creates inviting, restful atmospheres that follow the natural rhythm of the year,
+              held to the same quiet simplicity that runs through everything we do.
             </p>
           </div>
         </section>
@@ -60,8 +73,8 @@ const Seasoning = () => {
                   <div className="p-8">
                     <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Autumn Warmth</h3>
                     <p className="text-muted-foreground mb-6 leading-relaxed">
-                      Welcome the season of harvest with thoughtful touches that celebrate nature's abundance. 
-                      We curate displays that bring the warmth of autumn indoors.
+                      Welcome the harvest with thoughtful touches that honour the season. We arrange displays
+                      that bring the warmth of autumn indoors.
                     </p>
                     <ul className="space-y-3 text-muted-foreground mb-6">
                       <li className="flex items-start">
@@ -98,8 +111,8 @@ const Seasoning = () => {
                   <div className="p-8">
                     <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Winter Elegance</h3>
                     <p className="text-muted-foreground mb-6 leading-relaxed">
-                      Transform your home into a serene winter sanctuary with sophisticated holiday touches 
-                      that honor tradition while embracing minimalist beauty.
+                      Turn your home into a calm winter sanctuary with refined holiday touches that honour
+                      tradition and keep to an unhurried beauty.
                     </p>
                     <ul className="space-y-3 text-muted-foreground mb-6">
                       <li className="flex items-start">
@@ -116,7 +129,7 @@ const Seasoning = () => {
                       </li>
                       <li className="flex items-start">
                         <span className="mr-2">•</span>
-                        <span>Curated ornamental displays in muted metallics</span>
+                        <span>Ornamental displays in muted metallics</span>
                       </li>
                     </ul>
                     <Button variant="outline">View Winter Packages</Button>
@@ -136,7 +149,7 @@ const Seasoning = () => {
                   <div className="p-8">
                     <h3 className="font-serif text-3xl mb-4 group-hover:text-primary transition-colors">Spring Renewal</h3>
                     <p className="text-muted-foreground mb-6 leading-relaxed">
-                      Celebrate new beginnings with fresh, vibrant touches that bring the awakening of nature 
+                      Mark new beginnings with fresh, light touches that bring the first stir of the garden
                       into your living spaces.
                     </p>
                     <ul className="space-y-3 text-muted-foreground mb-6">
@@ -218,15 +231,13 @@ const Seasoning = () => {
               <div>
                 <h3 className="font-serif text-xl mb-4">Custom Design</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Each installation is tailored to your space, preferences, and the unique character 
-                  of your home.
+                  Each display is shaped to your space, your preferences, and the character of your home.
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-4">Complete Service</h3>
+                <h3 className="font-serif text-xl mb-4">Start to Finish</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  From installation to removal, we handle everything so you can simply enjoy the 
-                  transformation.
+                  We arrive, arrange, and return to take it all down, so the season is yours to enjoy.
                 </p>
               </div>
             </div>
@@ -273,13 +284,13 @@ const Seasoning = () => {
         {/* CTA */}
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Ready to Transform Your Space?</h2>
+            <h2 className="font-serif text-3xl mb-6">Ready to Welcome the Season?</h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              Let us bring the beauty of the seasons into your home with our mindful decoration services.
+              Let us bring the beauty of the seasons into your home with our considered decorating work.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request Consultation</Link>
+                <Link to="/contact">Request a Private Consultation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/services">View All Services</Link>

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-festive-estate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const FestiveEstate = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Festive Estate | Winter Holiday Package"
+        description="A holiday display for multi-level entries and wide facades: coordinated wreaths, railing garland, and planters across Victoria and the Saanich Peninsula."
+        canonical="https://wabisabiservices.ca/seasoning/the-festive-estate"
+      />
+      <ProductSchema
+        name="The Festive Estate"
+        description="A holiday display for multi-level entries and wide facades, with coordinated wreaths, railing garland, and abundant planter arrangements."
+        offers={{
+          price: "1424",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-festive-estate",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Festive Estate", url: "https://wabisabiservices.ca/seasoning/the-festive-estate" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const FestiveEstate = () => {
               Grand Holiday Display for Larger Homes
             </p>
             <p className="text-lg text-muted-foreground">
-              Abundant beauty. Elegant presence. Mindfully grand.
+              Wreaths, garland, and greenery that carry across a wide facade.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const FestiveEstate = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Celebrating the Season in Full Splendor</h2>
+                <h2 className="font-serif text-4xl mb-6">A Holiday Front for a Larger Home</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Festive Estate package is designed for homes with multi-level entries and expansive facades. This comprehensive display combines premium wreaths, extensive garland work, and abundant planter arrangements to create a cohesive, impressive holiday transformation.
+                  The Festive Estate suits homes with multi-level entries and wide facades. Premium wreaths, railing garland, and generous planter arrangements are worked together so the whole front of the house reads as a single, considered holiday scene.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who entertain during the holidays and appreciate the impact of thoughtful, professional holiday styling. Each element works in harmony to welcome guests with warmth and festive elegance.
+                  It is built for homes that entertain through December. We design it with you, install across a day, and return twice through the season to keep the greens fresh and the lighting even, so the front of the house looks as good for your last party as it did for your first.
                 </p>
               </div>
               <Card className="p-8">
@@ -103,32 +127,32 @@ const FestiveEstate = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Miyabi</h4>
+                  <h4 className="font-serif text-xl mb-3">Sized to a wide facade</h4>
                   <p className="text-muted-foreground">
-                    Courtly elegance - refined beauty in every detail
+                    Coordinated wreaths, railing garland, and eight planters work together across multi-level entries.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Jo-ha-kyū</h4>
+                  <h4 className="font-serif text-xl mb-3">Designed with you</h4>
                   <p className="text-muted-foreground">
-                    Rhythmic progression - gradual build to climax and resolution
+                    We plan the scheme around your home before installing it across a single day.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ensō</h4>
+                  <h4 className="font-serif text-xl mb-3">Reads as one scene</h4>
                   <p className="text-muted-foreground">
-                    Circle of togetherness - unity in seasonal celebration
+                    Greens, lighting, and muted metallic bows are balanced so the whole front of the house holds together.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Omotenashi</h4>
+                  <h4 className="font-serif text-xl mb-3">Kept through December</h4>
                   <p className="text-muted-foreground">
-                    Wholehearted hospitality - welcoming spirit in design
+                    Two return visits refresh the greens and even the lighting, so it looks as good for your last party as your first.
                   </p>
                 </Card>
               </div>

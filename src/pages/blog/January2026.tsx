@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const January2026 = () => {
   return (
     <Layout>
+      <SEO
+        title="The Art of Minimalism: Less Stuff, Less Stress"
+        description="A January look at minimalism through wabi-sabi. How simpler spaces calm the mind, plus a gentle four-week path to a lighter, easier-to-keep home."
+        canonical="https://wabisabiservices.ca/blog/january-2026"
+        ogType="article"
+        publishedTime="2026-01-01T00:00:00-08:00"
+      />
+      <ArticleSchema
+        headline="The Art of Minimalism: How Less Stuff Means Less Stress"
+        description="How simpler spaces calm the mind, and a gentle four-week path to a lighter, easier-to-keep home, through the lens of wabi-sabi."
+        datePublished="2026-01-01"
+        url="https://wabisabiservices.ca/blog/january-2026"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "The Art of Minimalism", url: "https://wabisabiservices.ca/blog/january-2026" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const January2026 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -39,7 +61,7 @@ const January2026 = () => {
             <p className="text-muted-foreground mb-8">Published: January 2026</p>
 
             <p className="lead">
-              New Year, new perspective. As we settle into 2026, many Victorians are embracing minimalism – not as deprivation, but as liberation. At Wabi Sabi Services, we've witnessed firsthand how simplified spaces transform lives. Here's why less truly is more.
+              New Year, new perspective. As we settle into 2026, many Victorians are taking up minimalism, not as deprivation but as a kind of relief. At Wabi Sabi Services, we have watched simplified spaces change how a household feels day to day. Here is why less so often turns out to be more.
             </p>
 
             <h2>Understanding Minimalism Through Wabi-Sabi</h2>
@@ -52,7 +74,7 @@ const January2026 = () => {
             </ul>
 
             <h2>The Psychology of Clutter</h2>
-            <p>Research from UCLA's Center on Everyday Lives of Families found that women with cluttered homes have elevated cortisol levels – the stress hormone. Physical clutter creates:</p>
+            <p>Researchers at UCLA's Center on Everyday Lives of Families observed a link between cluttered homes and raised cortisol, the body's stress hormone, in the women they studied. Most of us feel it intuitively. Physical clutter tends to bring:</p>
             <ul>
               <li>Decision fatigue from too many choices</li>
               <li>Visual overwhelm that exhausts the brain</li>
@@ -62,13 +84,13 @@ const January2026 = () => {
             </ul>
 
             <h2>The Minimalist Cleaning Advantage</h2>
-            <p>Our clients who embrace minimalism report:</p>
+            <p>The clients who pare back tend to notice a few things in common:</p>
             <ul>
-              <li><strong>50% less cleaning time</strong> - Fewer items to move, dust, and organize</li>
-              <li><strong>Deeper cleaning possible</strong> - Access to all surfaces and corners</li>
-              <li><strong>Maintained cleanliness</strong> - Less stuff means less mess accumulation</li>
-              <li><strong>Enhanced air quality</strong> - Fewer dust collectors</li>
-              <li><strong>Greater home enjoyment</strong> - Space becomes calming, not overwhelming</li>
+              <li>Cleaning takes noticeably less time, with fewer items to move, dust, and put away</li>
+              <li>A deeper clean becomes possible, since every surface and corner is within reach</li>
+              <li>Tidiness holds longer, because less stuff means less mess to accumulate</li>
+              <li>The air feels fresher, with fewer surfaces collecting dust</li>
+              <li>The home becomes a place to settle into rather than a list of things to manage</li>
             </ul>
 
             <h2>Your Minimalism Journey: Start Small</h2>
@@ -121,12 +143,12 @@ const January2026 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Ready to start your minimalist journey?</h3>
+              <h3 className="text-2xl font-serif mb-4">Begin 2026 with a lighter home</h3>
               <p className="mb-6">
-                At Wabi Sabi Services, we honor the beauty of simplified spaces. Start 2026 with clarity.
+                Once your rooms are pared back, our concierge team can help keep them that way with quiet, regular care. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Minimalist Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

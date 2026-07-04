@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const October2025 = () => {
   return (
     <Layout>
+      <SEO
+        title="A Mindful Fall Cleaning Guide for Victoria Homes"
+        description="As maple leaves turn along Victoria's streets, autumn invites a gentler kind of cleaning. A room-by-room guide to a calm, warm home for the season ahead."
+        canonical="https://wabisabiservices.ca/blog/october-2025"
+        ogType="article"
+        publishedTime="2025-10-01T00:00:00-07:00"
+      />
+      <ArticleSchema
+        headline="Embracing Autumn's Transition: Your Mindful Fall Cleaning Guide"
+        description="A room-by-room guide to preparing a calm, warm Victoria home for autumn, with natural methods and seasonal care."
+        datePublished="2025-10-01"
+        url="https://wabisabiservices.ca/blog/october-2025"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Mindful Fall Cleaning", url: "https://wabisabiservices.ca/blog/october-2025" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const October2025 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -39,7 +61,7 @@ const October2025 = () => {
             <p className="text-muted-foreground mb-8">Published: October 2025</p>
 
             <p className="lead">
-              As maple leaves paint Victoria's streets in amber and gold, nature reminds us of the beauty in letting go. Fall cleaning isn't just about preparing for winter – it's about creating harmony between our indoor sanctuaries and the changing world outside.
+              As maple leaves paint Victoria's streets in amber and gold, nature reminds us of the beauty in letting go. Fall cleaning prepares us for winter, yes, and it also brings our indoor sanctuaries into quiet harmony with the changing world outside.
             </p>
 
             <h2>The Philosophy of Autumn Renewal</h2>
@@ -99,7 +121,7 @@ const October2025 = () => {
             <ul>
               <li><strong>Oven:</strong> Use baking soda paste overnight, honoring this hearth's hard work</li>
               <li><strong>Refrigerator:</strong> Clean coils for efficiency as it works harder in heated homes</li>
-              <li><strong>Range Hood:</strong> Degrease filters – crucial as windows stay closed more</li>
+              <li><strong>Range Hood:</strong> Degrease filters, which matter more once windows stay closed</li>
               <li><strong>Small Appliances:</strong> Descale kettles and coffee makers with white vinegar</li>
             </ul>
 
@@ -135,12 +157,12 @@ const October2025 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Embrace autumn's graceful transition</h3>
+              <h3 className="text-2xl font-serif mb-4">Settle in for autumn</h3>
               <p className="mb-6">
-                Let Wabi Sabi Services help you create harmony between your indoor sanctuary and the changing season outside.
+                When you would rather spend the season enjoying your home than readying it, our concierge team can take the work in hand. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Autumn Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

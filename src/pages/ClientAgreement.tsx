@@ -1,12 +1,18 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 
 export default function ClientAgreement() {
   return (
     <Layout>
+      <SEO
+        title="Client Care Agreement"
+        description="The client care agreement for Wabi Sabi Services: scheduling, access, pricing, cancellation, and care guidelines for homes in Greater Victoria, BC."
+        canonical="https://wabisabiservices.ca/client-agreement"
+      />
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>
         <h2 className="text-2xl font-serif mb-2">Client Care Agreement</h2>
-        <p className="text-muted-foreground mb-2">Effective Date: November 1st, 2025</p>
+        <p className="text-muted-foreground mb-2">Effective June 1, 2026</p>
         <p className="text-muted-foreground mb-12">Servicing Area: Greater Victoria, BC</p>
 
         <div className="prose prose-lg max-w-none space-y-8">
@@ -30,9 +36,14 @@ export default function ClientAgreement() {
 
           <section>
             <h2 className="text-3xl font-serif mb-4">3. Cancellations & Rescheduling</h2>
-            <ul className="list-disc pl-6 space-y-2">
+            <p>
+              Please provide 48 hours notice for cancellations or rescheduling to avoid a 50% service fee. Same-day
+              cancellations incur the full service charge. This allows us to schedule fairly and honor our team's time.
+            </p>
+            <ul className="list-disc pl-6 space-y-2 mt-3">
               <li><strong>48+ hrs notice:</strong> No charge</li>
-              <li><strong>Less than 48 hrs notice:</strong> 50% of scheduled service</li>
+              <li><strong>Within 48 hrs:</strong> 50% of scheduled service</li>
+              <li><strong>Same-day:</strong> Full service charge</li>
               <li><strong>Lockout / unable to access home:</strong> 50% of scheduled service</li>
             </ul>
             <p className="mt-4">All schedule changes must be made through the main contact number or email.</p>
@@ -108,7 +119,7 @@ export default function ClientAgreement() {
           </section>
 
           <section className="bg-muted/30 p-6 rounded-lg">
-            <h2 className="text-3xl font-serif mb-4">12. Agreement</h2>
+            <h2 className="text-3xl font-serif mb-4">11. Agreement</h2>
             <p className="mb-6">
               By signing below, you confirm that you have read and agree to these guidelines and understand that continued use 
               of service implies acceptance of policy updates.

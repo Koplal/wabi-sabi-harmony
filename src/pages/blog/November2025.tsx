@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const November2025 = () => {
   return (
     <Layout>
+      <SEO
+        title="The Gratitude Home: Thankful Spaces for Connection"
+        description="November in Victoria invites us to gather. A calm plan for readying your home before Thanksgiving, room by room, with gratitude rather than rush."
+        canonical="https://wabisabiservices.ca/blog/november-2025"
+        ogType="article"
+        publishedTime="2025-11-01T00:00:00-08:00"
+      />
+      <ArticleSchema
+        headline="The Gratitude Home: Preparing Thankful Spaces for Connection"
+        description="A calm, considered plan for readying your Victoria home before Thanksgiving, room by room, with gratitude rather than rush."
+        datePublished="2025-11-01"
+        url="https://wabisabiservices.ca/blog/november-2025"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "The Gratitude Home", url: "https://wabisabiservices.ca/blog/november-2025" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const November2025 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -39,11 +61,11 @@ const November2025 = () => {
             <p className="text-muted-foreground mb-8">Published: November 2025</p>
 
             <p className="lead">
-              November in Victoria brings crisp mornings, early sunsets, and the invitation to gather in gratitude. As we prepare for Thanksgiving and the holiday season ahead, our homes become vessels for memory-making and connection. At Wabi Sabi Services, we believe cleaning with gratitude transforms routine maintenance into mindful practice.
+              November in Victoria brings crisp mornings, early sunsets, and the invitation to gather in gratitude. As we prepare for Thanksgiving and the season ahead, our homes become vessels for memory and connection. At Wabi Sabi Services, we find that cleaning done with gratitude turns ordinary upkeep into a quiet practice.
             </p>
 
             <h2>The Philosophy of Grateful Cleaning</h2>
-            <p>In Japanese culture, the practice of <em>kansha</em> – deep gratitude – extends to our physical spaces. Each cleaning action becomes an opportunity to thank our homes for shelter, comfort, and the memories they hold. This November, approach cleaning not as a chore, but as an expression of thanksgiving.</p>
+            <p>In Japanese culture, the practice of <em>kansha</em> – deep gratitude – extends to our physical spaces. Each cleaning action becomes a way to thank our homes for shelter, comfort, and the memories they hold. This November, approach cleaning as an expression of thanksgiving rather than a chore.</p>
 
             <h2>Pre-Thanksgiving Deep Clean Strategy</h2>
 
@@ -105,7 +127,7 @@ const November2025 = () => {
             </ul>
 
             <h2>Dining Room Revival</h2>
-            <p>Transform your dining space into a gratitude sanctuary:</p>
+            <p>Make your dining space a place worth lingering in:</p>
 
             <h3>Table Love:</h3>
             <ul>
@@ -165,12 +187,12 @@ const November2025 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Clean with gratitude this Thanksgiving</h3>
+              <h3 className="text-2xl font-serif mb-4">Host with ease this Thanksgiving</h3>
               <p className="mb-6">
-                Let Wabi Sabi Services help you create a thankful home sanctuary that honors connection, comfort, and celebration.
+                If you would rather greet your guests than fret over the details, our concierge team can ready the house with care. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Gratitude Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

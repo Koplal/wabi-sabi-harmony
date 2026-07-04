@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-mindful-merchant-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const MindfulMerchant = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Mindful Merchant | Autumn Storefront Styling"
+        description="Autumn storefront styling for Victoria businesses. Commercial-grade pumpkins, insured installation, and seasonal maintenance for shops and studios."
+        canonical="https://wabisabiservices.ca/seasoning/mindful-merchant"
+      />
+      <ProductSchema
+        name="The Mindful Merchant"
+        description="Autumn storefront styling for Victoria businesses, with commercial-grade pumpkins, insured installation, and seasonal maintenance."
+        offers={{
+          price: "799",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/mindful-merchant",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Mindful Merchant", url: "https://wabisabiservices.ca/seasoning/mindful-merchant" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const MindfulMerchant = () => {
               Make Your Business the Heart of Autumn
             </p>
             <p className="text-lg text-muted-foreground">
-              Attract. Delight. Remember. Return.
+              A storefront that gives passersby a reason to slow down and step inside.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const MindfulMerchant = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Strategic Placemaking for Business</h2>
+                <h2 className="font-serif text-4xl mb-6">An Autumn Welcome for the Sidewalk</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Mindful Merchant package is designed for Victoria businesses that understand the power of seasonal storytelling. More than decoration, this is strategic placemaking that transforms your storefront into a community landmark and social media sensation.
+                  The Mindful Merchant is built for shops, studios, and offices along Victoria's high streets. We work to the scale of a commercial entrance, using larger, hardier varieties and fire-retardant bales so the display holds up through six to eight weeks of foot traffic and Island weather.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  In the spirit of 'omotenashi' (Japanese hospitality), we create displays that welcome customers before they even enter your door, setting the stage for exceptional experiences and organic social sharing.
+                  Installation is scheduled around your hours, including after close, and we return on a bi-weekly visit to keep everything tidy. The aim is simple: an entrance that reads as cared-for, and gives people walking by a reason to stop.
                 </p>
               </div>
               <Card className="p-8">
@@ -106,21 +130,25 @@ const MindfulMerchant = () => {
               </div>
             </div>
 
-            {/* Business Benefits */}
+            {/* What It Does for Your Space */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Business Benefits & ROI</h3>
-              <div className="grid md:grid-cols-3 gap-6">
+              <h3 className="font-serif text-3xl mb-8">What It Does for Your Space</h3>
+              <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">35%</div>
-                  <p className="text-muted-foreground">Average foot traffic increase</p>
+                  <h4 className="font-serif text-xl mb-3">For Your Storefront</h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li>• An entrance that gives people on the sidewalk a reason to slow down</li>
+                    <li>• Commercial-scale materials sized to a high-street frontage</li>
+                    <li>• A cared-for look that holds through a full autumn of foot traffic</li>
+                  </ul>
                 </Card>
                 <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">150%</div>
-                  <p className="text-muted-foreground">Social media engagement boost</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">200%</div>
-                  <p className="text-muted-foreground">Instagram check-ins increased</p>
+                  <h4 className="font-serif text-xl mb-3">For Your Customers</h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li>• A warm seasonal welcome the moment they reach your door</li>
+                    <li>• A photo-worthy frontage that fits your brand, not against it</li>
+                    <li>• Quiet hospitality, with no upkeep on your part</li>
+                  </ul>
                 </Card>
               </div>
             </div>

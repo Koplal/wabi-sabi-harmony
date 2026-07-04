@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +61,11 @@ const Careers = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Careers"
+        description="Join Wabi Sabi Services in Victoria, BC. We're building a team where quality matters more than speed and the work makes a real difference. Apply today."
+        canonical="https://wabisabiservices.ca/careers"
+      />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
           <img 

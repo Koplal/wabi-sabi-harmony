@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-beachside-manor-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const BeachsideManor = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Beachside Manor | Summer"
+        description="The Beachside Manor: an expansive coastal summer display with multiple wreaths, eight planters, driftwood, and lanterns for larger Victoria homes. $1,424"
+        canonical="https://wabisabiservices.ca/seasoning/the-beachside-manor"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Beachside Manor", url: "https://wabisabiservices.ca/seasoning/the-beachside-manor" },
+        ]}
+      />
+      <ProductSchema
+        name="The Beachside Manor"
+        description="Expansive coastal-luxe summer styling for larger properties, with multiple coastal wreaths, eight statement planters, driftwood sculpture accents, and large hurricane lanterns."
+        offers={{
+          price: "1424",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-beachside-manor",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const BeachsideManor = () => {
               Expansive Coastal-Luxe Summer
             </p>
             <p className="text-lg text-muted-foreground">
-              Sophisticated coastal. Natural grandeur. Mindfully luxurious.
+              Coastal summer styling at the scale of a beach house.
             </p>
           </div>
         </section>
@@ -51,10 +75,10 @@ const BeachsideManor = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Creating Coastal Grandeur</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Beachside Manor package transforms larger properties into coastal sanctuaries with expansive displays of nautical elements and natural materials. This comprehensive installation combines statement planters, driftwood sculptures, and ambient lighting to create a sophisticated beach house atmosphere.
+                  The Beachside Manor brings coastal styling to larger properties at the scale they deserve. Statement planters, driftwood sculpture, and ambient lighting run across the entrance and grounds, settling the whole front of the house into a relaxed beach-house mood.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Designed for those who appreciate estate-level presentation and coastal luxury. Each element is carefully curated and placed to create layers of interest and natural elegance that celebrates summer's abundance.
+                  It is for larger waterfront and view homes where a small display would simply disappear. We work along the entrance and grounds by hand, layering driftwood, lanterns, and greenery so the scene holds together from the gate through to the front step, all summer long.
                 </p>
               </div>
               <Card className="p-8">
@@ -103,32 +127,32 @@ const BeachsideManor = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Miyabi</h4>
+                  <h4 className="font-serif text-xl mb-3">Scaled to the property</h4>
                   <p className="text-muted-foreground">
-                    Courtly elegance - refined coastal beauty in every detail
+                    Multiple wreaths, eight planters, and driftwood sculpture sized so the display reads on a larger home.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Iki</h4>
+                  <h4 className="font-serif text-xl mb-3">Across entrance and grounds</h4>
                   <p className="text-muted-foreground">
-                    Sophisticated simplicity - originality within coastal refinement
+                    Driftwood, lanterns, and greenery run along the entrance and out into the grounds, not just the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shibumi</h4>
+                  <h4 className="font-serif text-xl mb-3">A relaxed beach-house mood</h4>
                   <p className="text-muted-foreground">
-                    Simple, subtle beauty - effortless coastal elegance
+                    The pieces are layered to feel easy and lived-in rather than staged or matched too tightly.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Wa</h4>
+                  <h4 className="font-serif text-xl mb-3">Two visits to keep it fresh</h4>
                   <p className="text-muted-foreground">
-                    Harmony - perfect balance between coastal elements
+                    Two maintenance visits over the season keep the plantings and lighting looking their best.
                   </p>
                 </Card>
               </div>

@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import servicesHero from "@/assets/services-hero.jpg";
 import freshStartHero from "@/assets/package-fresh-start-hero.jpg";
 import gardenGateHero from "@/assets/package-garden-gate-hero.jpg";
@@ -35,7 +37,7 @@ const packages = [
     basePrice: 799,
     decoratingFee: 125,
     image: gardenGateHero,
-    description: "Abundant spring display celebrating renewal and growth.",
+    description: "A fuller spring display with a designer wreath and four planters.",
     includes: [
       "Lush floral wreath (26-inch)",
       "4 Seasonal planter arrangements",
@@ -72,7 +74,7 @@ const packages = [
     basePrice: 1799,
     decoratingFee: 125,
     image: bloomingManorHero,
-    description: "Grand spring transformation with abundant floral artistry.",
+    description: "Our grandest spring display, with abundant florals across the whole property.",
     includes: [
       "Premium floral wreath collection (3+)",
       "12 Statement planter arrangements",
@@ -109,6 +111,31 @@ const packages = [
 const SpringRefresh = () => {
   return (
     <Layout>
+      <SEO
+        title="Spring Refresh Packages | Victoria"
+        description="Spring floral styling for Victoria homes and businesses. Five packages of fresh blooms, garden accents, and natural textures, designed and installed."
+        canonical="https://wabisabiservices.ca/seasoning/spring-refresh"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Spring Refresh", url: "https://wabisabiservices.ca/seasoning/spring-refresh" },
+        ]}
+      />
+      {packages.map((pkg) => (
+        <ProductSchema
+          key={pkg.name}
+          name={pkg.name}
+          description={pkg.description}
+          offers={{
+            price: String(pkg.price),
+            priceCurrency: "CAD",
+            availability: "https://schema.org/InStock",
+            url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
+          }}
+        />
+      ))}
       <div className="min-h-screen">
         <section className="relative h-[50vh] flex items-center justify-center">
           <div
@@ -125,7 +152,7 @@ const SpringRefresh = () => {
               Spring Refresh Packages
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Celebrate renewal with fresh florals and garden-inspired touches
+              Fresh florals and garden-inspired styling for the season of renewal
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               Available: March through May
@@ -136,8 +163,9 @@ const SpringRefresh = () => {
         <section className="py-12 px-6 lg:px-12 bg-secondary/30">
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Welcome spring with delicate blooms, fresh greenery, and garden-inspired arrangements that 
-              capture the season's promise of renewal and growth.
+              When the gardens around Victoria start to wake, the front of the house should answer.
+              Our spring packages bring soft blooms, fresh greenery, and a few quiet garden touches
+              to your entrance, designed for your doorway and installed by us.
             </p>
           </div>
         </section>
@@ -208,19 +236,19 @@ const SpringRefresh = () => {
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Fresh & Light</h3>
                 <p className="text-muted-foreground text-sm">
-                  Airy arrangements with pastel tones and delicate textures that celebrate new beginnings.
+                  Pastel tones and soft textures, kept restrained so the doorway feels easy rather than busy.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Natural Beauty</h3>
                 <p className="text-muted-foreground text-sm">
-                  Seasonal flowers and garden elements that bring Victoria's spring beauty to your door.
+                  Seasonal flowers and garden elements chosen to suit your entrance and the way the light falls on it.
                 </p>
               </div>
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Sustainable Choices</h3>
                 <p className="text-muted-foreground text-sm">
-                  Locally-sourced materials and eco-friendly designs that respect our environment.
+                  Locally sourced materials and arrangements we can compost or reuse at season's end.
                 </p>
               </div>
             </div>
@@ -229,13 +257,13 @@ const SpringRefresh = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Celebrate Spring's Arrival</h2>
+            <h2 className="font-serif text-3xl mb-6">Welcome Spring to Your Door</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Let us create a fresh, inspiring display that welcomes the season of renewal.
+              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request Consultation</Link>
+                <Link to="/contact">Request a Private Consultation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/seasoning">View All Seasonal Services</Link>

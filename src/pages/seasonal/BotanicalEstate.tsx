@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-botanical-estate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const BotanicalEstate = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Botanical Estate | Spring"
+        description="The Botanical Estate: an expansive spring garden of multiple wreaths, eight planters, and cherry blossom branches for larger Victoria homes. $1,424 CAD."
+        canonical="https://wabisabiservices.ca/seasoning/the-botanical-estate"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Botanical Estate", url: "https://wabisabiservices.ca/seasoning/the-botanical-estate" },
+        ]}
+      />
+      <ProductSchema
+        name="The Botanical Estate"
+        description="Expansive spring garden aesthetic for larger properties, with multiple wreaths, eight luxury planters, cherry blossom branches, and sculptural garden accents."
+        offers={{
+          price: "1424",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-botanical-estate",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const BotanicalEstate = () => {
               Expansive Spring Garden Aesthetic
             </p>
             <p className="text-lg text-muted-foreground">
-              Luxurious botanicals. Grand renewal. Mindfully magnificent.
+              A garden-scale spring display for properties with room to breathe.
             </p>
           </div>
         </section>
@@ -51,10 +75,10 @@ const BotanicalEstate = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Creating a Living Garden Sanctuary</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Botanical Estate package transforms larger properties into spring sanctuaries with expansive floral displays and garden artistry. This comprehensive installation combines fresh seasonal flowers, cherry blossom branches, and sculptural elements to create a botanical garden experience at your entrance.
+                  The Botanical Estate brings garden-scale spring styling to larger properties. Fresh seasonal flowers, cherry blossom branches, and sculptural accents run across the entrance, planters, and grounds, with the cherry blossom setting the spring note the rest of the display follows.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Designed for those who appreciate estate-level presentation and botanical beauty. Each element is carefully curated and placed to create layers of interest and natural elegance that celebrates spring's abundance.
+                  It is built for properties with grounds to fill and the standard to match. Every wreath, branch, and planter is placed by hand, then stepped back from and adjusted until the whole composition holds together from the gate as well as the front step.
                 </p>
               </div>
               <Card className="p-8">
@@ -103,32 +127,32 @@ const BotanicalEstate = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Miyabi</h4>
+                  <h4 className="font-serif text-xl mb-3">Spread across the grounds</h4>
                   <p className="text-muted-foreground">
-                    Courtly elegance - refined beauty in every detail
+                    Multiple wreaths, eight planters, and sculptural accents run from the entrance out across the property.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Iki</h4>
+                  <h4 className="font-serif text-xl mb-3">Cherry blossom leads</h4>
                   <p className="text-muted-foreground">
-                    Sophisticated simplicity - originality within refinement
+                    The cherry blossom branches set the spring note, and the flowers and accents follow from there.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mono no aware</h4>
+                  <h4 className="font-serif text-xl mb-3">Placed and adjusted by hand</h4>
                   <p className="text-muted-foreground">
-                    Pathos of things - appreciating fleeting spring beauty
+                    Every wreath, branch, and planter is set by hand, then stepped back from and tuned in place.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Wa</h4>
+                  <h4 className="font-serif text-xl mb-3">Reads from the gate</h4>
                   <p className="text-muted-foreground">
-                    Harmony - perfect balance between elements
+                    We work it until the whole composition holds together from the gate as well as the front step.
                   </p>
                 </Card>
               </div>

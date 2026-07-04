@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-professional-welcome-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const ProfessionalWelcome = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Professional Welcome | Spring"
+        description="The Professional Welcome: spring styling for Victoria storefronts and lobbies, with weatherproof planters, a commercial wreath, and flexible scheduling."
+        canonical="https://wabisabiservices.ca/seasoning/the-professional-welcome"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Professional Welcome", url: "https://wabisabiservices.ca/seasoning/the-professional-welcome" },
+        ]}
+      />
+      <ProductSchema
+        name="The Professional Welcome"
+        description="Spring presentation for Victoria businesses, with a commercial wreath, four weatherproof planter displays, brand-appropriate styling, and flexible installation."
+        offers={{
+          price: "799",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-professional-welcome",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const ProfessionalWelcome = () => {
               Fresh Spring Presentation for Your Business
             </p>
             <p className="text-lg text-muted-foreground">
-              Professional elegance. Seasonal renewal. Brand-aligned beauty.
+              Spring styling for the entrance your clients see first.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const ProfessionalWelcome = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Strategic Spring Placemaking</h2>
+                <h2 className="font-serif text-4xl mb-6">A Considered First Impression</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Professional Welcome package is designed for Victoria businesses that understand the power of seasonal ambiance. More than decoration, this is strategic placemaking that transforms your entrance into a welcoming destination that reflects your brand's commitment to quality and attention to detail.
+                  The Professional Welcome is for Victoria businesses where the entrance does real work. A spring display at the door tells clients and customers, before a word is spoken, that you pay attention to the details. We design to your brand colours and the way people actually arrive.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  In the spirit of 'omotenashi' (Japanese hospitality), we create fresh spring displays that welcome clients and customers, setting the tone for exceptional experiences while reinforcing your professional brand identity.
+                  Everything is built to hold up outdoors and to ask little of your staff. We install on a schedule that fits your hours, return mid-season to keep the display fresh, and handle removal when spring gives way to summer.
                 </p>
               </div>
               <Card className="p-8">
@@ -102,45 +126,24 @@ const ProfessionalWelcome = () => {
               </div>
             </div>
 
-            {/* Business Benefits */}
+            {/* What It Does for Your Space */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Business Benefits & ROI</h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">35%</div>
-                  <p className="text-muted-foreground">Average customer sentiment increase</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">90%</div>
-                  <p className="text-muted-foreground">Clients notice and appreciate seasonal décor</p>
-                </Card>
-                <Card className="p-6">
-                  <div className="text-3xl font-serif mb-2">100%</div>
-                  <p className="text-muted-foreground">Professional brand impression</p>
-                </Card>
-              </div>
-            </div>
-
-            {/* Professional Advantages */}
-            <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Professional Advantages</h3>
+              <h3 className="font-serif text-3xl mb-8">What It Does for Your Space</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Brand Enhancement</h4>
+                  <h4 className="font-serif text-xl mb-3">For Your Brand</h4>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Reinforces commitment to quality</li>
-                    <li>• Shows attention to seasonal detail</li>
-                    <li>• Creates memorable first impressions</li>
-                    <li>• Differentiates from competitors</li>
+                    <li>• Signals care and attention at the threshold</li>
+                    <li>• Colours and materials chosen to match your identity</li>
+                    <li>• A presence that sets you apart on a busy street</li>
                   </ul>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Client Experience</h4>
+                  <h4 className="font-serif text-xl mb-3">For Your Visitors</h4>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Welcoming, fresh atmosphere</li>
-                    <li>• Seasonal renewal connection</li>
-                    <li>• Thoughtful hospitality message</li>
-                    <li>• Enhanced loyalty and goodwill</li>
+                    <li>• A warm, current welcome the moment they arrive</li>
+                    <li>• A clear sense of the season at your door</li>
+                    <li>• Quiet hospitality, no upkeep on your part</li>
                   </ul>
                 </Card>
               </div>

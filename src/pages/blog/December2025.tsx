@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const December2025 = () => {
   return (
     <Layout>
+      <SEO
+        title="Holiday Harmony: Mindful Cleaning for December"
+        description="December in Victoria sparkles with lights and gatherings. A week-by-week plan for hosting with grace, plus natural scents and sustainable table settings."
+        canonical="https://wabisabiservices.ca/blog/december-2025"
+        ogType="article"
+        publishedTime="2025-12-01T00:00:00-08:00"
+      />
+      <ArticleSchema
+        headline="Holiday Harmony: Mindful Cleaning for December's Magic"
+        description="A week-by-week plan for hosting with grace in a Victoria home, with natural scents and sustainable table settings."
+        datePublished="2025-12-01"
+        url="https://wabisabiservices.ca/blog/december-2025"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Holiday Harmony", url: "https://wabisabiservices.ca/blog/december-2025" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center mb-12">
         <div
@@ -18,9 +40,9 @@ const December2025 = () => {
           }}
         />
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-serif text-5xl md:text-7xl">
-            Mindful Living Blog
-          </h1>
+          <p className="font-serif text-2xl md:text-3xl tracking-wide text-muted-foreground">
+            The Wabi Sabi Journal
+          </p>
         </div>
       </section>
 
@@ -39,11 +61,11 @@ const December2025 = () => {
             <p className="text-muted-foreground mb-8">Published: December 2025</p>
 
             <p className="lead">
-              December in Victoria sparkles with boat parades, twinkling lights, and the promise of gathering. Yet beneath the magic lurks the stress of hosting, gift-giving, and maintaining peace in busy homes. At Wabi Sabi Services, we believe your holiday cleaning can be an act of love – creating sacred spaces for memory-making without sacrificing your sanity or environmental values.
+              December in Victoria sparkles with boat parades, twinkling lights, and the promise of gathering. Yet beneath the magic sits the strain of hosting, gift-giving, and keeping the peace in a busy home. At Wabi Sabi Services, we see holiday cleaning as an act of care: it makes room for the memories without costing you your calm or your values.
             </p>
 
             <h2>The Spirit of Seasonal Hospitality</h2>
-            <p>In Japan, the concept of <em>omotenashi</em> – wholehearted hospitality – transforms cleaning from obligation to gift-giving. Your clean home becomes your present to guests, family, and yourself. This December, embrace cleaning as meditation on gratitude and connection.</p>
+            <p>In Japan, the concept of <em>omotenashi</em> – wholehearted hospitality – turns cleaning from an obligation into a gift. Your clean home becomes your present to guests, to family, and to yourself. This December, approach cleaning as a quiet meditation on gratitude and connection.</p>
 
             <h2>Pre-Holiday Deep Clean Strategy</h2>
 
@@ -84,8 +106,8 @@ const December2025 = () => {
               <li>Relaxation and enjoyment focus</li>
             </ul>
 
-            <h2>Guest Room Grace: Five-Star at Home</h2>
-            <p>Transform spare rooms into sanctuaries:</p>
+            <h2>Guest Room Grace: A Quiet Welcome</h2>
+            <p>Ready your spare rooms so visitors feel genuinely at ease:</p>
 
             <h3>Comfort Creation:</h3>
             <ul>
@@ -175,12 +197,12 @@ const December2025 = () => {
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
-              <h3 className="text-2xl font-serif mb-4">Create holiday magic through mindful cleaning</h3>
+              <h3 className="text-2xl font-serif mb-4">Spend December with the people, not the chores</h3>
               <p className="mb-6">
-                This December, let Wabi Sabi Services handle the cleaning so you can focus on creating cherished memories with loved ones.
+                Let our concierge team carry the cleaning so your attention can stay where it belongs. We begin with a $150 in-home consultation, credited in full toward your first service.
               </p>
-              <Link to="/book">
-                <Button size="lg">Book Your Holiday Clean</Button>
+              <Link to="/contact">
+                <Button size="lg">Request a Private Consultation</Button>
               </Link>
             </div>
           </article>

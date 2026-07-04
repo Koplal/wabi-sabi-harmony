@@ -1,329 +1,150 @@
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Heart, Shield, Leaf, Users, Award } from "lucide-react";
+import { Link } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 
 export default function KeyTakeaways() {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-4xl font-serif mb-4">Why Choose Wabi Sabi Services</h1>
-        <p className="text-xl text-muted-foreground mb-12">
-          Key Takeaways: Mindful Luxury Cleaning
+      <SEO
+        title="What to Expect — Wabi Sabi Services"
+        description="How we work, what we value, and what it's like to have Wabi Sabi Services care for your home in Greater Victoria. Quiet, mindful, fully insured."
+        canonical="https://wabisabiservices.ca/key-takeaways"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "What to Expect", url: "https://wabisabiservices.ca/key-takeaways" },
+        ]}
+      />
+
+      <div className="container mx-auto px-4 py-16 max-w-3xl">
+        <h1 className="font-serif text-4xl md:text-5xl mb-6">What to Expect</h1>
+        <p className="text-xl text-muted-foreground mb-16 leading-relaxed">
+          A quiet account of how we work, what we hold to, and what it feels like
+          to hand your home to someone who treats it as their own.
         </p>
 
-        <div className="prose prose-lg max-w-none space-y-8">
+        <div className="prose prose-lg max-w-none space-y-16">
           <section>
-            <h2 className="text-3xl font-serif mb-4">Our Philosophy: Mindful Luxury Cleaning</h2>
-            <p className="text-lg text-muted-foreground">
-              At Wabi Sabi Services, we transform the ordinary act of cleaning into an extraordinary experience. 
-              Inspired by the Japanese aesthetic of finding beauty in simplicity, we bring intention and care to every home we touch.
+            <h2 className="font-serif text-3xl mb-5">Our Philosophy</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              The name comes from a Japanese idea: that there is beauty in things
+              kept with care, simply and without fuss. We bring that spirit to the
+              homes we look after. A room should feel calm when you walk into it—not
+              because it has been scrubbed within an inch of its life, but because
+              everything is where it belongs and nothing is asking for your
+              attention.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Most of our clients are accomplished people with full lives and
+              homes they love. What they lack is time. We give it back. We maintain
+              a home the way you would yourself, if the days were longer.
             </p>
           </section>
 
           <section>
-            <h2 className="text-3xl font-serif mb-6">🌿 5 Pillars of Our Service</h2>
-            
+            <h2 className="font-serif text-3xl mb-8">What We Hold To</h2>
             <div className="grid gap-6">
-              <Card>
+              <Card className="border-accent/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Leaf className="h-5 w-5 text-primary" />
-                    1. Eco-Luxury Without Compromise
-                  </CardTitle>
+                  <CardTitle className="font-serif text-xl">Care over speed</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    <li>100% non-toxic, biodegradable products</li>
-                    <li>Premium quality that matches or exceeds conventional cleaners</li>
-                    <li>Safe for children, pets, and sensitive individuals</li>
-                    <li>Zero environmental guilt, maximum cleaning power</li>
-                  </ul>
+                  <p className="text-muted-foreground leading-relaxed">
+                    We work at the pace a home deserves. Victoria's finer houses are
+                    built of materials that punish haste—marble, limestone, heritage
+                    windows, fine millwork—and we choose surface-safe methods that
+                    protect both the finish and the character that makes each home its
+                    own.
+                  </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-accent/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-primary" />
-                    2. Mindful Attention to Detail
-                  </CardTitle>
+                  <CardTitle className="font-serif text-xl">Discretion, without exception</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    <li>Trained professionals who see cleaning as an art</li>
-                    <li>Systematic approach ensuring nothing is overlooked</li>
-                    <li>Respect for your space and belongings</li>
-                    <li>Creating harmony, not just cleanliness</li>
-                  </ul>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Each member of our team is carefully vetted, background-checked,
+                    and fully insured and bonded. Many clients trust us with keys and
+                    the run of homes they cannot always be present to manage. What we
+                    see in your home stays in your home.
+                  </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-accent/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    3. Transparent, Fair Pricing
-                  </CardTitle>
+                  <CardTitle className="font-serif text-xl">Kinder products, properly chosen</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    <li>No hidden fees or surprise charges</li>
-                    <li>Clear quotes before you book</li>
-                    <li>Flexible service packages to fit your budget</li>
-                    <li>Best value through regular service discounts</li>
-                  </ul>
+                  <p className="text-muted-foreground leading-relaxed">
+                    We favour eco-conscious, low-toxicity products that are gentle on
+                    children, pets, and sensitive households—and matched to the
+                    surface they touch, so nothing is compromised in the name of being
+                    green.
+                  </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-accent/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
-                    4. Reliability You Can Trust
-                  </CardTitle>
+                  <CardTitle className="font-serif text-xl">A plan made for your home</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    <li>Fully insured and bonded</li>
-                    <li>Background-checked, trained professionals</li>
-                    <li>Consistent quality standards</li>
-                    <li>24-hour satisfaction guarantee</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    5. Personalized Service
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    <li>Customized cleaning plans for your unique needs</li>
-                    <li>Flexible scheduling that works for you</li>
-                    <li>Special accommodation for allergies and preferences</li>
-                    <li>Building long-term relationships, not just transactions</li>
-                  </ul>
+                  <p className="text-muted-foreground leading-relaxed">
+                    No two homes keep the same rhythm. We build the work around how you
+                    actually live—your schedule, your preferences, the small things
+                    that matter to you—rather than a fixed checklist applied to every
+                    house.
+                  </p>
                 </CardContent>
               </Card>
             </div>
           </section>
 
           <section>
-            <h2 className="text-3xl font-serif mb-6">✨ What Sets Us Apart</h2>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-semibold">Traditional Cleaning</th>
-                    <th className="text-left py-3 px-4 font-semibold">Wabi Sabi Services</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="py-3 px-4">Rush through tasks</td>
-                    <td className="py-3 px-4">Mindful, thorough approach</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-3 px-4">Harsh chemicals</td>
-                    <td className="py-3 px-4">Eco-luxury products</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-3 px-4">One-size-fits-all</td>
-                    <td className="py-3 px-4">Customized service plans</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-3 px-4">Just clean surfaces</td>
-                    <td className="py-3 px-4">Create peaceful sanctuaries</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="py-3 px-4">Transaction-focused</td>
-                    <td className="py-3 px-4">Relationship-based</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-3xl font-serif mb-6">📊 By The Numbers</h2>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">100%</div>
-                  <div className="text-sm text-muted-foreground">Eco-friendly products</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">24-hour</div>
-                  <div className="text-sm text-muted-foreground">Satisfaction guarantee</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">10+ years</div>
-                  <div className="text-sm text-muted-foreground">Combined team experience</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">5-star</div>
-                  <div className="text-sm text-muted-foreground">Average client rating</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">90%</div>
-                  <div className="text-sm text-muted-foreground">Client retention rate</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">Zero</div>
-                  <div className="text-sm text-muted-foreground">Environmental compromise</div>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-3xl font-serif mb-6">💚 Our Commitment to You</h2>
-            
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quality Promise</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  Every service backed by our 24-hour satisfaction guarantee. If you're not completely happy, we'll make it right.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Environmental Pledge</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  We're committed to protecting your health and our planet. Every product, every practice, every day.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Community Focus</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  Proudly serving Greater Victoria with local employment and community investment.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Continuous Improvement</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  Regular training and education ensure we're always improving our service and sustainability practices.
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-3xl font-serif mb-6">🎯 Perfect For</h2>
-            
-            <ul className="grid md:grid-cols-2 gap-3">
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Busy Professionals</strong> who value their time and peace of mind</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Families</strong> wanting a healthy, safe environment for children</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Seniors</strong> who deserve comfortable, well-maintained homes</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Pet Owners</strong> needing pet-safe cleaning solutions</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Eco-Conscious Individuals</strong> refusing to compromise on values</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                <span><strong>Anyone</strong> who appreciates the luxury of a professionally cleaned home</span>
-              </li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-3xl font-serif mb-6">📋 Quick Service Overview</h2>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Residential Services</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    <li>Standard Cleaning (weekly/bi-weekly/monthly)</li>
-                    <li>Deep Cleaning (seasonal or as needed)</li>
-                    <li>Move-in/Move-out Cleaning</li>
-                    <li>Post-construction Cleaning</li>
-                    <li>Custom cleaning packages</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Specialty Add-ons</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    <li>Inside oven cleaning</li>
-                    <li>Interior window washing</li>
-                    <li>Refrigerator deep clean</li>
-                    <li>Garage cleaning</li>
-                    <li>Organization services</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-3xl font-serif mb-6">🌟 Client Testimonials Snapshot</h2>
-            
-            <div className="space-y-4">
-              <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
-                "Finally, a cleaning service that aligns with my values without compromising on quality!"
-              </blockquote>
-              <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
-                "The team is professional, thorough, and trustworthy. My home has never looked better."
-              </blockquote>
-              <blockquote className="border-l-4 border-primary pl-4 italic text-lg">
-                "Love knowing my kids and pets are safe with their eco-friendly products."
-              </blockquote>
-            </div>
-          </section>
-
-          <section className="bg-muted/30 p-8 rounded-lg">
-            <h2 className="text-3xl font-serif mb-4">📞 Ready to Experience the Difference?</h2>
-            <p className="text-lg mb-6">
-              Transform your space with mindful, eco-luxury cleaning. Book your first service today and discover why our clients trust us with their homes and values.
+            <h2 className="font-serif text-3xl mb-5">How It Begins</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Everything starts with a conversation in your home. We walk the rooms
+              together, listen to what you need, and learn the particulars—the
+              surfaces that need a careful hand, the spaces that matter most, the way
+              you like things kept. From there we propose a plan and a rhythm that
+              suits you.
             </p>
-            <a href="/book" className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-md hover:opacity-90 transition-opacity">
-              Book Your Service
-            </a>
+            <p className="text-muted-foreground leading-relaxed">
+              The visit is a <strong>$150 in-home consultation, credited in full
+              toward your first service.</strong> It is simply the right way to begin
+              a relationship built on trust.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-serif text-3xl mb-5">Who We Look After</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We care for the homes of busy professionals who would rather spend their
+              hours elsewhere; families who want a healthy, safe environment for their
+              children; and estate and second-home owners who need a discreet eye on
+              the house while they are away. If you value a home that feels like a
+              retreat the moment you walk in, you are exactly who we had in mind.
+            </p>
+          </section>
+
+          <section className="bg-muted/30 p-8 md:p-10 rounded-lg not-prose">
+            <h2 className="font-serif text-3xl mb-4">Let's begin with a conversation</h2>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              If this is the kind of care you have been looking for, we would be glad
+              to meet you and your home.
+            </p>
+            <Link
+              to="/contact"
+              className="inline-block bg-primary text-primary-foreground px-7 py-3 rounded-md hover:opacity-90 transition-opacity"
+            >
+              Request a Private Consultation
+            </Link>
           </section>
         </div>
       </div>

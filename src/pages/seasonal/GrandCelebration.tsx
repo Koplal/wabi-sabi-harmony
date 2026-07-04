@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-grand-celebration-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -13,12 +15,34 @@ const GrandCelebration = () => {
     id: 'grand-celebration',
     name: 'The Grand Celebration',
     price: 1924,
-    description: 'Spectacular Holiday Transformation',
+    description: 'Spectacular Holiday Display',
     image: heroImage,
   };
 
   return (
     <Layout>
+      <SEO
+        title="The Grand Celebration | Winter Holiday Package"
+        description="Our largest holiday installation for Greater Victoria estates: extensive lighting and garland, a dedicated project manager, and weekly seasonal care."
+        canonical="https://wabisabiservices.ca/seasoning/the-grand-celebration"
+      />
+      <ProductSchema
+        name="The Grand Celebration"
+        description="Our most involved holiday installation for estate properties, with extensive lighting and garland, a dedicated project manager, and weekly seasonal care."
+        offers={{
+          price: "1924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-grand-celebration",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Grand Celebration", url: "https://wabisabiservices.ca/seasoning/the-grand-celebration" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -36,10 +60,10 @@ const GrandCelebration = () => {
               The Grand Celebration
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-6">
-              Spectacular Holiday Transformation
+              Spectacular Holiday Display
             </p>
             <p className="text-lg text-muted-foreground">
-              Estate-level artistry. Breathtaking beauty. Mindfully magnificent.
+              Up to five hundred lights and fifty feet of garland, tended every week of the season.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const GrandCelebration = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">The Pinnacle of Holiday Artistry</h2>
+                <h2 className="font-serif text-4xl mb-6">Lighting on an Estate Scale</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Grand Celebration represents the zenith of our winter styling - a masterwork designed for estate-style properties. This comprehensive installation transforms your home into a seasonal landmark, combining extensive greenery, professional lighting, and luxurious details.
+                  The Grand Celebration is our largest holiday installation, built for properties with long rooflines, mature trees, and grounds that read from the road. Up to five hundred bulbs and fifty feet of garland are run by a professional crew, with a dedicated project manager seeing the whole thing through from the first site visit.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Created for those who host grand celebrations and appreciate the impact of museum-quality holiday design. Each element is precisely placed through collaboration with our design team to create a cohesive, breathtaking display that honors both tradition and your home's unique character.
+                  We plan it over two weeks, install across a full day, and return each week to swap tired greens and keep the lighting even. For homes that host through December, it removes every part of the holiday set-up except the welcome.
                 </p>
               </div>
               <Card className="p-8">
@@ -106,32 +130,32 @@ const GrandCelebration = () => {
               </div>
             </div>
 
-            {/* Design Philosophy */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Philosophy</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ichigo ichie</h4>
+                  <h4 className="font-serif text-xl mb-3">Lighting that reads from the road</h4>
                   <p className="text-muted-foreground">
-                    Once in a lifetime - treasure this unique moment
+                    Up to five hundred bulbs and fifty feet of garland are run to suit long rooflines and mature trees.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Mono no aware</h4>
+                  <h4 className="font-serif text-xl mb-3">Mapped to your property</h4>
                   <p className="text-muted-foreground">
-                    Pathos of things - appreciating fleeting beauty
+                    We plan the run over two weeks around your grounds, sightlines, and how the house sits from the street.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Gei</h4>
+                  <h4 className="font-serif text-xl mb-3">Installed by a crew</h4>
                   <p className="text-muted-foreground">
-                    Artistic accomplishment - mastery in execution
+                    A professional team handles the heights and the wiring across a full day, with one manager seeing it through.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kodawari</h4>
+                  <h4 className="font-serif text-xl mb-3">Even all season</h4>
                   <p className="text-muted-foreground">
-                    Uncompromising dedication - pursuit of perfection
+                    Weekly visits swap tired greens and keep the lighting consistent through December's hosting.
                   </p>
                 </Card>
               </div>
@@ -139,7 +163,7 @@ const GrandCelebration = () => {
 
             {/* Package Features */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">The Complete Estate Experience</h3>
+              <h3 className="font-serif text-3xl mb-8">How the Season Unfolds</h3>
               <div className="grid md:grid-cols-4 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Discovery Phase</h4>

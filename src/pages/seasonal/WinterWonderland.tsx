@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-winter-wonderland-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const WinterWonderland = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Winter Wonderland | Winter Holiday Package"
+        description="A frost-inspired holiday entrance with premium evergreens, frosted branches, and warm lighting, installed across Greater Victoria."
+        canonical="https://wabisabiservices.ca/seasoning/the-winter-wonderland"
+      />
+      <ProductSchema
+        name="The Winter Wonderland"
+        description="A frost-inspired holiday entrance with premium evergreens, frosted branches, and warm lighting, installed on site."
+        offers={{
+          price: "924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/PreOrder",
+          url: "https://wabisabiservices.ca/seasoning/the-winter-wonderland",
+        }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Winter Wonderland", url: "https://wabisabiservices.ca/seasoning/the-winter-wonderland" },
+        ]}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const WinterWonderland = () => {
               Elegant Frost-Inspired Sophistication
             </p>
             <p className="text-lg text-muted-foreground">
-              Refined elegance. Illuminated beauty. Mindful luxury.
+              An entrance that shifts gently from daylight to a soft evening glow.
             </p>
           </div>
         </section>
@@ -51,10 +75,10 @@ const WinterWonderland = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Where Frost Meets Sophistication</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Winter Wonderland package transforms your entrance into an elegant frost-kissed sanctuary. With premium evergreens, subtle lighting, and sophisticated accents, this display captures the magic of winter's crystalline beauty.
+                  The Winter Wonderland leans cool and quiet. Premium evergreens, frosted branches, and a warm string of lights give the entrance a pale, wintry palette that holds up against grey afternoons and earns its keep once the light goes down.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for those who appreciate refined details and the interplay of natural elements with gentle illumination. Each component is thoughtfully positioned to create a cohesive, enchanting display that evolves beautifully from day to evening.
+                  Every piece is placed to read as one display rather than a row of pieces, and we set the lighting in the evening so we can see exactly how it lands after dark. A mid-season visit keeps the greens fresh through the holidays.
                 </p>
               </div>
               <Card className="p-8">
@@ -101,32 +125,32 @@ const WinterWonderland = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yūgen</h4>
+                  <h4 className="font-serif text-xl mb-3">A cool, pale palette</h4>
                   <p className="text-muted-foreground">
-                    Subtle profundity - mysterious grace in twilight illumination
+                    Premium evergreens and frosted branches give the entrance a wintry tone that holds up on grey afternoons.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shibui</h4>
+                  <h4 className="font-serif text-xl mb-3">Set as one display</h4>
                   <p className="text-muted-foreground">
-                    Understated elegance - simple yet sophisticated aesthetic
+                    Wreath, swag, and planters are placed to read together rather than as a row of separate pieces.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Komorebi</h4>
+                  <h4 className="font-serif text-xl mb-3">Tuned after dark</h4>
                   <p className="text-muted-foreground">
-                    Sunlight filtering - play of light through natural elements
+                    We set the lighting in the evening so we can see exactly how it lands once the light goes down.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Refreshed mid-season</h4>
                   <p className="text-muted-foreground">
-                    Freedom from convention - unique, artistic expression
+                    A return visit keeps the greens fresh through the holidays so the entrance stays at its best.
                   </p>
                 </Card>
               </div>

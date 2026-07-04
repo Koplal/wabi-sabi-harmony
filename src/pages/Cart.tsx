@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
@@ -12,12 +13,13 @@ const Cart = () => {
   if (itemCount === 0) {
     return (
       <Layout>
+        <SEO title="Your Selections" description="Review the seasonal services you have selected." noindex />
         <div className="min-h-screen pt-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center py-20">
             <ShoppingBag className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
-            <h1 className="font-serif text-4xl mb-4">Your Cart is Empty</h1>
+            <h1 className="font-serif text-4xl mb-4">Your Selections Are Empty</h1>
             <p className="text-lg text-muted-foreground mb-8">
-              Explore our seasonal packages and add some to your cart
+              Explore our seasonal services and add the ones you would like.
             </p>
             <Button asChild size="lg">
               <Link to="/seasoning">Browse Seasonal Services</Link>
@@ -30,9 +32,10 @@ const Cart = () => {
 
   return (
     <Layout>
+      <SEO title="Your Selections" description="Review the seasonal services you have selected." noindex />
       <div className="min-h-screen pt-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl py-12">
-          <h1 className="font-serif text-5xl mb-8">Shopping Cart</h1>
+          <h1 className="font-serif text-5xl mb-8">Your Selections</h1>
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
@@ -74,7 +77,7 @@ const Cart = () => {
                     <span className="font-serif">${total}</span>
                   </div>
                   <div className="flex justify-between text-lg">
-                    <span className="text-muted-foreground">Installation</span>
+                    <span className="text-muted-foreground">Service</span>
                     <span className="font-serif">Included</span>
                   </div>
                   <div className="border-t border-border pt-4">
@@ -97,7 +100,7 @@ const Cart = () => {
                   className="w-full"
                   asChild
                 >
-                  <Link to="/seasoning">Continue Shopping</Link>
+                  <Link to="/seasoning">Continue Browsing</Link>
                 </Button>
               </Card>
             </div>

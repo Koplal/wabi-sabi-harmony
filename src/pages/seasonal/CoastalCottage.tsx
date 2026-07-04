@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-coastal-cottage-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const CoastalCottage = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Coastal Cottage | Summer"
+        description="The Coastal Cottage: a breezy summer display of shells, driftwood, and sea glass for your Victoria entrance. $474 CAD, designed and installed."
+        canonical="https://wabisabiservices.ca/seasoning/the-coastal-cottage"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Coastal Cottage", url: "https://wabisabiservices.ca/seasoning/the-coastal-cottage" },
+        ]}
+      />
+      <ProductSchema
+        name="The Coastal Cottage"
+        description="Breezy beach-inspired summer welcome with a nautical wreath, coastal planters, driftwood accents, and sea glass touches in ocean tones."
+        offers={{
+          price: "474",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-coastal-cottage",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const CoastalCottage = () => {
               Breezy Beach-Inspired Summer Welcome
             </p>
             <p className="text-lg text-muted-foreground">
-              Coastal charm. Natural beauty. Mindful simplicity.
+              The calm of a day by the water, brought to your front step.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const CoastalCottage = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Embracing Summer's Ease</h2>
+                <h2 className="font-serif text-4xl mb-6">A Day by the Water, at Your Door</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Coastal Cottage package brings the relaxed beauty of the coast to your entrance with nautical accents and natural beach elements. Thoughtfully designed to capture summer's carefree spirit, this display creates an inviting atmosphere with shells, driftwood, and organic textures.
+                  The Coastal Cottage is our smallest summer display. A handcrafted wreath of shells and rope, two coastal planters, and weathered driftwood give the entrance a quiet seaside feel, the kind that comes from real materials rather than a theme.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Perfect for those who appreciate understated coastal elegance and the calming energy of the sea. Each element is carefully selected to evoke peaceful summer days by the water.
+                  It suits people who want a touch of the coast without turning the porch into a postcard. The sea glass and natural fibres are chosen in ocean tones that read soft against most front doors.
                 </p>
               </div>
               <Card className="p-8">
@@ -89,7 +113,7 @@ const CoastalCottage = () => {
                   "Sea glass touches in ocean tones",
                   "Professional styling",
                   "Seasonal care instructions",
-                  "Complimentary refresh consultation"
+                  "Mid-season refresh consultation"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -99,32 +123,32 @@ const CoastalCottage = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Natsukashii</h4>
+                  <h4 className="font-serif text-xl mb-3">A quiet touch of the coast</h4>
                   <p className="text-muted-foreground">
-                    Nostalgic warmth - evoking cherished summer memories
+                    One handcrafted wreath, two planters, and weathered driftwood, enough seaside feel without a theme.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Shizen</h4>
+                  <h4 className="font-serif text-xl mb-3">Real materials</h4>
                   <p className="text-muted-foreground">
-                    Naturalness - celebrating organic coastal forms
+                    Shells, rope, and driftwood do the work, so the look comes from the materials rather than a costume.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kanso</h4>
+                  <h4 className="font-serif text-xl mb-3">Ocean tones for your door</h4>
                   <p className="text-muted-foreground">
-                    Simplicity - clean, uncluttered beach aesthetic
+                    Sea glass and natural fibres are chosen in soft ocean shades that read well against most front doors.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Seijaku</h4>
+                  <h4 className="font-serif text-xl mb-3">Looked in on mid-season</h4>
                   <p className="text-muted-foreground">
-                    Tranquility - peaceful coastal presence
+                    A refresh consultation partway through keeps the display fresh across the long summer.
                   </p>
                 </Card>
               </div>

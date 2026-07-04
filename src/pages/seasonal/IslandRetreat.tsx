@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
 import heroImage from "@/assets/package-island-retreat-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -19,6 +21,28 @@ const IslandRetreat = () => {
 
   return (
     <Layout>
+      <SEO
+        title="The Island Retreat | Summer"
+        description="The Island Retreat: a relaxed summer display with a tropical wreath, four planters, bamboo accents, and lanterns for your Victoria home. $924 CAD."
+        canonical="https://wabisabiservices.ca/seasoning/the-island-retreat"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Island Retreat", url: "https://wabisabiservices.ca/seasoning/the-island-retreat" },
+        ]}
+      />
+      <ProductSchema
+        name="The Island Retreat"
+        description="Relaxed summer aesthetic with tropical-inspired touches, a palm-element wreath, four summer planters, bamboo and rattan accents, and hurricane lanterns."
+        offers={{
+          price: "924",
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+          url: "https://wabisabiservices.ca/seasoning/the-island-retreat",
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[70vh] flex items-center justify-center">
@@ -39,7 +63,7 @@ const IslandRetreat = () => {
               Relaxed Tropical-Inspired Summer
             </p>
             <p className="text-lg text-muted-foreground">
-              Resort elegance. Tropical beauty. Mindful escape.
+              A relaxed, resort-inspired entrance that feels like time away.
             </p>
           </div>
         </section>
@@ -49,12 +73,12 @@ const IslandRetreat = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>
-                <h2 className="font-serif text-4xl mb-6">Creating Your Summer Sanctuary</h2>
+                <h2 className="font-serif text-4xl mb-6">A Resort Mood for the Front Step</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Island Retreat package transforms your entrance into a tropical escape with lush plants, natural materials, and resort-inspired accents. This substantial display combines bamboo, rattan, and coastal elements to create a welcoming atmosphere that evokes vacation memories and relaxation.
+                  The Island Retreat is our mid-size summer display, and the most relaxed of the three. A palm-element wreath, four tropical planters, bamboo and rattan accents, and a pair of hurricane lanterns give the entrance the easy feel of a place you go to slow down.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Ideal for those who love tropical aesthetics and appreciate the laid-back luxury of island living. Each element works together to create a cohesive, inviting display that feels like a permanent vacation.
+                  It is for people who want their home to feel like time away. We keep some open space among the greenery so the display breathes instead of crowding the door.
                 </p>
               </div>
               <Card className="p-8">
@@ -101,32 +125,32 @@ const IslandRetreat = () => {
               </div>
             </div>
 
-            {/* Design Principles */}
+            {/* How We Approach It */}
             <div className="mb-16">
-              <h3 className="font-serif text-3xl mb-8">Design Principles</h3>
+              <h3 className="font-serif text-3xl mb-8">How We Approach It</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Fukinsei</h4>
+                  <h4 className="font-serif text-xl mb-3">A resort mood at the door</h4>
                   <p className="text-muted-foreground">
-                    Asymmetry - natural, organic tropical arrangement
+                    A palm-element wreath, four planters, and a pair of hurricane lanterns give the entrance an easy, away feel.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Yugen</h4>
+                  <h4 className="font-serif text-xl mb-3">Natural, hand-feel materials</h4>
                   <p className="text-muted-foreground">
-                    Subtle profundity - mysterious island grace
+                    Bamboo and rattan accents sit alongside the tropical planters rather than plastic stand-ins.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Datsuzoku</h4>
+                  <h4 className="font-serif text-xl mb-3">Room to breathe</h4>
                   <p className="text-muted-foreground">
-                    Freedom from convention - relaxed island spirit
+                    We leave open space among the greenery so the display breathes instead of crowding the door.
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Ma</h4>
+                  <h4 className="font-serif text-xl mb-3">Tended mid-season</h4>
                   <p className="text-muted-foreground">
-                    Negative space - breathing room in tropical abundance
+                    A refresh visit partway through keeps the plantings and lighting looking their best.
                   </p>
                 </Card>
               </div>

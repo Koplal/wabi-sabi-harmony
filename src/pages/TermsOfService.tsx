@@ -1,18 +1,24 @@
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 
 export default function TermsOfService() {
   return (
     <Layout>
+      <SEO
+        title="Terms of Service"
+        description="The terms of service and client care agreement for Wabi Sabi Services, covering booking, pricing, cancellation, and liability in Greater Victoria, BC."
+        canonical="https://wabisabiservices.ca/terms-of-service"
+      />
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services Inc.</h1>
+        <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>
         <h2 className="text-2xl font-serif mb-2">Client Care Agreement & Terms of Service</h2>
-        <p className="text-muted-foreground mb-12">Effective Date: November 2024</p>
+        <p className="text-muted-foreground mb-12">Effective June 1, 2026</p>
 
         <div className="prose prose-lg max-w-none space-y-8">
           <section>
             <h2 className="text-3xl font-serif mb-4">1. Introduction</h2>
             <p>
-              Welcome to Wabi Sabi Services Inc. ("Company", "we", "us", "our"). By booking our mindful luxury cleaning services, 
+              Welcome to Wabi Sabi Services ("Company", "we", "us", "our"). By booking our mindful luxury cleaning services,
               you ("Client", "you", "your") agree to these Terms of Service. We reserve the right to update these terms at any time. 
               Your continued use of our services constitutes acceptance of any modifications.
             </p>
@@ -23,7 +29,7 @@ export default function TermsOfService() {
             <p>
               Wabi Sabi Services embraces the Japanese philosophy of finding beauty in imperfection and accepting the natural cycle 
               of growth and decay. We provide mindful, eco-conscious cleaning services that respect your home, health, and the environment. 
-              Our approach combines meticulous attention to detail with sustainable practices.
+              Our approach combines careful attention to detail with sustainable practices.
             </p>
           </section>
 
@@ -32,7 +38,7 @@ export default function TermsOfService() {
             <p>We offer the following cleaning services:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Standard Cleaning:</strong> Regular maintenance cleaning for homes</li>
-              <li><strong>Deep Cleaning:</strong> Comprehensive cleaning including baseboards, light fixtures, and detailed areas</li>
+              <li><strong>Deep Cleaning:</strong> Detailed cleaning including baseboards, light fixtures, and hard-to-reach areas</li>
               <li><strong>Move-In/Move-Out Cleaning:</strong> Thorough cleaning for vacant properties</li>
               <li><strong>Post-Construction Cleaning:</strong> Specialized cleaning after renovations</li>
               <li><strong>Eco-Luxury Packages:</strong> Premium services using exclusively organic, non-toxic products</li>
@@ -90,15 +96,19 @@ export default function TermsOfService() {
             <h2 className="text-3xl font-serif mb-4">6. Cancellation and Rescheduling</h2>
             
             <h3 className="text-2xl font-serif mb-3 mt-6">6.1 Client Cancellations</h3>
-            <ul className="list-disc pl-6 space-y-2">
+            <p>
+              Please provide 48 hours notice for cancellations or rescheduling to avoid a 50% service fee. Same-day
+              cancellations incur the full service charge. This allows us to schedule fairly and honor our team's time.
+            </p>
+            <ul className="list-disc pl-6 space-y-2 mt-3">
               <li><strong>48+ hours notice:</strong> No charge</li>
-              <li><strong>24-48 hours notice:</strong> 50% cancellation fee</li>
-              <li><strong>Less than 24 hours:</strong> Full service charge</li>
+              <li><strong>Within 48 hours:</strong> 50% service fee</li>
+              <li><strong>Same-day:</strong> Full service charge</li>
             </ul>
 
             <h3 className="text-2xl font-serif mb-3 mt-6">6.2 Rescheduling</h3>
             <p>
-              Services may be rescheduled once without penalty if done 24+ hours in advance. Subsequent rescheduling may incur fees.
+              The same notice applies to rescheduling. Changes made with 48 or more hours notice carry no charge.
             </p>
           </section>
 
@@ -144,7 +154,7 @@ export default function TermsOfService() {
 
             <h3 className="text-2xl font-serif mb-3 mt-6">9.2 Insurance Coverage</h3>
             <p>
-              We carry comprehensive general liability insurance. In the unlikely event of damage, we will assess and handle 
+              We carry general liability insurance. In the unlikely event of damage, we will assess and handle
               claims promptly and professionally.
             </p>
 
@@ -204,9 +214,9 @@ export default function TermsOfService() {
 
           <section className="bg-muted/30 p-6 rounded-lg">
             <h2 className="text-3xl font-serif mb-4">Contact Information</h2>
-            <p className="mb-2"><strong>Wabi Sabi Services Inc.</strong></p>
+            <p className="mb-2"><strong>Wabi Sabi Services</strong></p>
             <p className="mb-2">Greater Victoria, BC</p>
-            <p className="mb-2">Email: <a href="mailto:info@wabisabiservices.ca" className="text-primary hover:underline">info@wabisabiservices.ca</a></p>
+            <p className="mb-2">Email: <a href="mailto:hello@wabisabiservices.ca" className="text-primary hover:underline">hello@wabisabiservices.ca</a></p>
             <p>By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.</p>
           </section>
         </div>
