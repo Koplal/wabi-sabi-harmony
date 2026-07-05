@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-quiet-grace-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -37,6 +38,13 @@ const QuietGrace = () => {
         }}
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Quiet Grace", url: "https://wabisabiservices.ca/seasoning/quiet-grace" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-cozy-cabin-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -37,6 +38,13 @@ const CozyCabin = () => {
         }}
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Cozy Cabin", url: "https://wabisabiservices.ca/seasoning/the-cozy-cabin" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },

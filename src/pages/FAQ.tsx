@@ -12,6 +12,7 @@ import { FileText, ScrollText, ClipboardCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, FAQPageSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { faqItems } from "@/data/faqItems";
 
 // Section groupings map ranges of the single-source `faqItems` array to the
@@ -50,6 +51,12 @@ const FAQ = () => {
         canonical="https://wabisabiservices.ca/faq"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "FAQ", url: "https://wabisabiservices.ca/faq" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "FAQ", url: "https://wabisabiservices.ca/faq" },

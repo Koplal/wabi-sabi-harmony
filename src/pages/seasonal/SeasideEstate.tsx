@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-seaside-estate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -29,7 +30,14 @@ const SeasideEstate = () => {
       <BreadcrumbSchema
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
-          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Seaside Estate", url: "https://wabisabiservices.ca/seasoning/the-seaside-estate" },
+        ]}
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
           { name: "The Seaside Estate", url: "https://wabisabiservices.ca/seasoning/the-seaside-estate" },
         ]}
       />

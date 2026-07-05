@@ -2,7 +2,8 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { ServiceSchema } from "@/components/structured-data";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import errandsHero from "@/assets/errands-hero.jpg";
 
 const Errands = () => {
@@ -17,6 +18,20 @@ const Errands = () => {
         name="Concierge & Errand Services"
         description="Save time with professional errand services. We handle grocery shopping, household restocking, dry cleaning, mail services, and more in Victoria, BC."
         serviceType="Concierge Service"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+          { name: "Errands", url: "https://wabisabiservices.ca/services/errands" },
+        ]}
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+          { name: "Errands", url: "https://wabisabiservices.ca/services/errands" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">

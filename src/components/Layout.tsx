@@ -116,8 +116,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               ))}
 
               <Link to="/cart" className="relative">
-                <Button variant="ghost" size="sm" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
+                <Button variant="ghost" size="sm" className="relative" aria-label="Cart">
+                  <ShoppingCart className="h-5 w-5" aria-hidden="true" />
                   {itemCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
                       {itemCount}
@@ -358,7 +358,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   href="https://share.google/qpmn3a6VHcDFweao6"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Wabi Sabi Services on Google"
+                  aria-label="Wabi Sabi Services on Google Reviews"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Google Reviews

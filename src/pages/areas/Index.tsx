@@ -3,7 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ServiceSchema, BreadcrumbSchema } from "@/components/structured-data";
-import { ChevronRight } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { neighborhoods, type Neighborhood } from "@/data/neighborhoods";
 
 // Brand section headings derived from each record's tier (NOT "Tier 1/2/3").
@@ -56,21 +56,13 @@ const AreasIndex = () => {
       {/* Hero */}
       <section className="py-24 px-6 lg:px-12">
         <div className="container mx-auto max-w-4xl text-center">
-          <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <li>
-                <Link to="/" className="hover:text-primary transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li aria-hidden="true">
-                <ChevronRight className="h-3 w-3" />
-              </li>
-              <li aria-current="page" className="text-foreground">
-                Service Areas
-              </li>
-            </ol>
-          </nav>
+          <Breadcrumbs
+            centered
+            items={[
+              { name: "Home", url: "https://wabisabiservices.ca/" },
+              { name: "Service Areas", url: "https://wabisabiservices.ca/areas" },
+            ]}
+          />
 
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl mb-6">
             Bespoke Concierge Cleaning Across Greater Victoria

@@ -16,7 +16,7 @@
  *
  * Runs after `vite build` (see package.json "build"). No headless browser required.
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { neighborhoods } from "../src/data/neighborhoods";
@@ -29,6 +29,27 @@ const SITE = "https://wabisabiservices.ca";
 const ORG_ID = `${SITE}/#organization`;
 
 const template = readFileSync(resolve(DIST, "index.html"), "utf8");
+
+// Home LCP is the hero background image (src/pages/Home.tsx), a CSS background
+// that the browser only discovers after the JS bundle boots and React mounts.
+// Resolve the build-hashed asset and preload it (home route only) so the fetch
+// starts during initial HTML parse, in parallel with the JS. The hash changes
+// every build, so glob it rather than hardcode; skip gracefully if absent.
+const heroPreloadTag = (() => {
+  try {
+    const hero = readdirSync(resolve(DIST, "assets")).find(
+      (f) => f.startsWith("hero-image-") && f.endsWith(".jpg")
+    );
+    if (!hero) {
+      console.warn("[prerender] hero-image asset not found; skipping LCP preload");
+      return "";
+    }
+    return `\n    <link rel="preload" as="image" href="/assets/${hero}" fetchpriority="high" />`;
+  } catch {
+    console.warn("[prerender] dist/assets unreadable; skipping LCP preload");
+    return "";
+  }
+})();
 
 const escAttr = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 // schema.org guidance: escape "<" inside <script type="application/ld+json">
@@ -276,6 +297,7 @@ function renderPage(meta: RouteMeta): string {
   for (const [re, val] of repl) html = html.replace(re, () => val);
 
   let inject = `\n    <link rel="canonical" href="${canonical}" />`;
+  if (meta.path === "/") inject += heroPreloadTag;
   if (meta.publishedTime) {
     inject += `\n    <meta property="article:published_time" content="${escAttr(meta.publishedTime)}" />`;
   }

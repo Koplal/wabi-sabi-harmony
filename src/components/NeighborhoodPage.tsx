@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { ServiceSchema, BreadcrumbSchema } from "@/components/structured-data";
-import { Check, Sparkles, ClipboardList, ShoppingBag, Star, ChevronRight } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Check, Sparkles, ClipboardList, ShoppingBag, Star } from "lucide-react";
 import type { Neighborhood } from "@/data/neighborhoods";
 
 // Area-appropriate existing hero assets, varied across adjacent areas for differentiation.
@@ -104,29 +105,14 @@ export const NeighborhoodPage = ({ data }: NeighborhoodPageProps) => {
           }}
         />
         <div className="relative z-10 w-full max-w-4xl mx-auto px-6 text-center">
-          <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <li>
-                <Link to="/" className="hover:text-primary transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li aria-hidden="true">
-                <ChevronRight className="h-3 w-3" />
-              </li>
-              <li>
-                <Link to="/areas" className="hover:text-primary transition-colors">
-                  Service Areas
-                </Link>
-              </li>
-              <li aria-hidden="true">
-                <ChevronRight className="h-3 w-3" />
-              </li>
-              <li aria-current="page" className="text-foreground">
-                {data.name}
-              </li>
-            </ol>
-          </nav>
+          <Breadcrumbs
+            centered
+            items={[
+              { name: "Home", url: "https://wabisabiservices.ca/" },
+              { name: "Service Areas", url: "https://wabisabiservices.ca/areas" },
+              { name: data.name, url: canonical },
+            ]}
+          />
 
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl mb-6">
             Bespoke Concierge Cleaning in {data.name}

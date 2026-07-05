@@ -1,5 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,6 +56,18 @@ const Book = () => {
         title="Book a Service"
         description="Request a service date with Wabi Sabi Services in Victoria, BC. Share your address, service type, and preferred times, and we'll confirm within 24 hours."
         canonical="https://wabisabiservices.ca/book"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Book a Service", url: "https://wabisabiservices.ca/book" },
+        ]}
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Book a Service", url: "https://wabisabiservices.ca/book" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">

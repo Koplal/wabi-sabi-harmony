@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Leaf, Lock, Gem, Wind } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
 
@@ -16,6 +17,12 @@ const About = () => {
         canonical="https://wabisabiservices.ca/about"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "About", url: "https://wabisabiservices.ca/about" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "About", url: "https://wabisabiservices.ca/about" },

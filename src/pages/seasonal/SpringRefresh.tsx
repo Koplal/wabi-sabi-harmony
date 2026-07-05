@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import servicesHero from "@/assets/services-hero.jpg";
 import freshStartHero from "@/assets/package-fresh-start-hero.jpg";
 import gardenGateHero from "@/assets/package-garden-gate-hero.jpg";
@@ -119,7 +120,14 @@ const SpringRefresh = () => {
       <BreadcrumbSchema
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
-          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Spring Refresh", url: "https://wabisabiservices.ca/seasoning/spring-refresh" },
+        ]}
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
           { name: "Spring Refresh", url: "https://wabisabiservices.ca/seasoning/spring-refresh" },
         ]}
       />

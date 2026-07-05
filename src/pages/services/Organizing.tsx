@@ -2,7 +2,8 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { ServiceSchema } from "@/components/structured-data";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import organizingHero from "@/assets/organizing-hero.jpg";
 
 const Organizing = () => {
@@ -17,6 +18,20 @@ const Organizing = () => {
         name="Professional Organizing Services"
         description="Expert organizing for closets to entire homes in Victoria, BC. We compose functional, beautiful systems that make daily life easier."
         serviceType="Organizing Service"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+          { name: "Organizing", url: "https://wabisabiservices.ca/services/organizing" },
+        ]}
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+          { name: "Organizing", url: "https://wabisabiservices.ca/services/organizing" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">

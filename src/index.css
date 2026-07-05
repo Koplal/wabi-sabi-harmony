@@ -2,7 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/*
+ * Metric-matched fallback faces so the swap from the system fallback to the
+ * Google webfonts (loaded non-blocking in index.html) causes ~zero layout shift.
+ * Overrides computed the same way next/font does (size-adjust + ascent/descent
+ * overrides against a local system font). Referenced in the --font-* stacks below.
+ */
+@font-face {
+  font-family: 'Cormorant Garamond Fallback';
+  /* Georgia covers Windows/macOS/iOS; Noto Serif covers Android/ChromeOS/most Linux
+     so the metric overrides still apply (rather than falling through to an
+     unadjusted generic serif and re-introducing swap CLS). */
+  src: local('Georgia'), local('Noto Serif');
+  ascent-override: 92.4%;
+  descent-override: 28.7%;
+  line-gap-override: 0%;
+  size-adjust: 80.18%;
+}
+@font-face {
+  font-family: 'Inter Fallback';
+  /* Arial covers Windows/macOS/iOS; Roboto covers Android/ChromeOS/most Linux. */
+  src: local('Arial'), local('Roboto');
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+  size-adjust: 107.12%;
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
 
@@ -51,8 +78,8 @@ All colors MUST be HSL.
     --space-container: 2rem;
     
     /* Typography */
-    --font-serif: 'Cormorant Garamond', serif;
-    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Cormorant Garamond', 'Cormorant Garamond Fallback', serif;
+    --font-sans: 'Inter', 'Inter Fallback', sans-serif;
     
     /* Transitions */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

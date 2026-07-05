@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import ritualHero from "@/assets/ritual-hero-v2.jpg";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 const Ritual = () => {
   return (
@@ -14,6 +15,12 @@ const Ritual = () => {
         canonical="https://wabisabiservices.ca/ritual"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "The Ritual", url: "https://wabisabiservices.ca/ritual" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "The Ritual", url: "https://wabisabiservices.ca/ritual" },
