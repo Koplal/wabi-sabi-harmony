@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function TermsOfService() {
@@ -9,6 +10,12 @@ export default function TermsOfService() {
         title="Terms of Service"
         description="The terms of service and client care agreement for Wabi Sabi Services, covering booking, pricing, cancellation, and liability in Greater Victoria, BC."
         canonical="https://wabisabiservices.ca/terms-of-service"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Terms of Service", url: "https://wabisabiservices.ca/terms-of-service" },
+        ]}
       />
       <Breadcrumbs
         items={[

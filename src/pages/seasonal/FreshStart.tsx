@@ -30,14 +30,14 @@ const FreshStart = () => {
       <BreadcrumbSchema
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
-          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
           { name: "The Fresh Start", url: "https://wabisabiservices.ca/seasoning/the-fresh-start" },
         ]}
       />
       <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
-          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
           { name: "The Fresh Start", url: "https://wabisabiservices.ca/seasoning/the-fresh-start" },
         ]}
       />

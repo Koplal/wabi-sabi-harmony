@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function ClientAgreement() {
@@ -9,6 +10,12 @@ export default function ClientAgreement() {
         title="Client Care Agreement"
         description="The client care agreement for Wabi Sabi Services: scheduling, access, pricing, cancellation, and care guidelines for homes in Greater Victoria, BC."
         canonical="https://wabisabiservices.ca/client-agreement"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Client Agreement", url: "https://wabisabiservices.ca/client-agreement" },
+        ]}
       />
       <Breadcrumbs
         items={[

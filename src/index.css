@@ -10,7 +10,10 @@
  */
 @font-face {
   font-family: 'Cormorant Garamond Fallback';
-  src: local('Georgia');
+  /* Georgia covers Windows/macOS/iOS; Noto Serif covers Android/ChromeOS/most Linux
+     so the metric overrides still apply (rather than falling through to an
+     unadjusted generic serif and re-introducing swap CLS). */
+  src: local('Georgia'), local('Noto Serif');
   ascent-override: 92.4%;
   descent-override: 28.7%;
   line-gap-override: 0%;
@@ -18,7 +21,8 @@
 }
 @font-face {
   font-family: 'Inter Fallback';
-  src: local('Arial');
+  /* Arial covers Windows/macOS/iOS; Roboto covers Android/ChromeOS/most Linux. */
+  src: local('Arial'), local('Roboto');
   ascent-override: 90.44%;
   descent-override: 22.52%;
   line-gap-override: 0%;

@@ -30,14 +30,14 @@ const IslandRetreat = () => {
       <BreadcrumbSchema
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
-          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
           { name: "The Island Retreat", url: "https://wabisabiservices.ca/seasoning/the-island-retreat" },
         ]}
       />
       <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
-          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
           { name: "The Island Retreat", url: "https://wabisabiservices.ca/seasoning/the-island-retreat" },
         ]}
       />

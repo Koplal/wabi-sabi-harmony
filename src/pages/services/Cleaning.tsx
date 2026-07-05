@@ -2,7 +2,7 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { ServiceSchema } from "@/components/structured-data";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import cleaningImage from "@/assets/residential-service.jpg";
 
@@ -18,6 +18,13 @@ const Cleaning = () => {
         name="Professional Cleaning Services"
         description="Cleaning for homes and businesses in Victoria, BC: residential maintenance, deep cleaning, commercial spaces, and specialty services."
         serviceType="Cleaning Service"
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+          { name: "Cleaning", url: "https://wabisabiservices.ca/services/cleaning" },
+        ]}
       />
       <Breadcrumbs
         items={[

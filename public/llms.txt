@@ -44,9 +44,9 @@
       "description": "Discreet errand running and household coordination for clients across Greater Victoria, BC."
     },
     {
-      "name": "Seasonal Services",
+      "name": "Seasonal Styling & Decor",
       "url": "https://wabisabiservices.ca/seasoning",
-      "description": "Curated seasonal deep cleans and styling packages for fall, winter, spring, and summer — for homes and storefronts."
+      "description": "Curated seasonal styling and decor packages (wreaths, planters, pumpkins, holiday installations) for homes and storefronts across fall, winter, spring, and summer. Distinct from our cleaning service line."
     }
   ],
   "serviceAreas": [
