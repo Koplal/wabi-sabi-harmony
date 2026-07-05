@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ItemListSchema, ServiceSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import servicesHero from "@/assets/services-hero.jpg";
 
 const Services = () => {
@@ -15,6 +16,12 @@ const Services = () => {
         canonical="https://wabisabiservices.ca/services"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Services", url: "https://wabisabiservices.ca/services" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Services", url: "https://wabisabiservices.ca/services" },

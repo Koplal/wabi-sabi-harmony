@@ -1,6 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import reviewsHero from "@/assets/reviews-hero.jpg";
 
 const Reviews = () => {
@@ -32,6 +33,12 @@ const Reviews = () => {
         canonical="https://wabisabiservices.ca/reviews"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Reviews", url: "https://wabisabiservices.ca/reviews" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Reviews", url: "https://wabisabiservices.ca/reviews" },

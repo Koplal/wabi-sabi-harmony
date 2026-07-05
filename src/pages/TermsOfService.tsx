@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function TermsOfService() {
   return (
@@ -8,6 +9,12 @@ export default function TermsOfService() {
         title="Terms of Service"
         description="The terms of service and client care agreement for Wabi Sabi Services, covering booking, pricing, cancellation, and liability in Greater Victoria, BC."
         canonical="https://wabisabiservices.ca/terms-of-service"
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Terms of Service", url: "https://wabisabiservices.ca/terms-of-service" },
+        ]}
       />
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>

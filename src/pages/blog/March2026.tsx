@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const March2026 = () => {
@@ -22,6 +23,13 @@ const March2026 = () => {
         url="https://wabisabiservices.ca/blog/march-2026"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Sustainable Spring Cleaning", url: "https://wabisabiservices.ca/blog/march-2026" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Journal", url: "https://wabisabiservices.ca/blog" },

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import servicesHero from "@/assets/services-hero.jpg";
 import cozyCabinHero from "@/assets/package-cozy-cabin-hero.jpg";
 import winterWonderlandHero from "@/assets/package-winter-wonderland-hero.jpg";
@@ -116,6 +117,13 @@ const WinterHoliday = () => {
         canonical="https://wabisabiservices.ca/seasoning/winter-holiday"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Winter Holiday Packages", url: "https://wabisabiservices.ca/seasoning/winter-holiday" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },

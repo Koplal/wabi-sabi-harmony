@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-garden-gate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -27,6 +28,13 @@ const GardenGate = () => {
         canonical="https://wabisabiservices.ca/seasoning/the-garden-gate"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Garden Gate", url: "https://wabisabiservices.ca/seasoning/the-garden-gate" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },

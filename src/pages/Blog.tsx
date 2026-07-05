@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const allBlogArticles = [
@@ -120,6 +121,12 @@ const Blog = () => {
         canonical="https://wabisabiservices.ca/blog"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Journal", url: "https://wabisabiservices.ca/blog" },

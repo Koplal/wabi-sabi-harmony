@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-fresh-start-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -27,6 +28,13 @@ const FreshStart = () => {
         canonical="https://wabisabiservices.ca/seasoning/the-fresh-start"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Fresh Start", url: "https://wabisabiservices.ca/seasoning/the-fresh-start" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },

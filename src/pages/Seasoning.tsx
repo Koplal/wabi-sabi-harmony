@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import servicesHero from "@/assets/services-hero.jpg";
 import budapestImage from "@/assets/pumpkin-grand-budapest-1.jpg";
 import cozyCabinHero from "@/assets/package-cozy-cabin-hero.jpg";
@@ -19,6 +20,12 @@ const Seasoning = () => {
         canonical="https://wabisabiservices.ca/seasoning"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },

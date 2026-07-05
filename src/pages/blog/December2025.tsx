@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import blogHero from "@/assets/blog-hero.jpg";
 
 const December2025 = () => {
@@ -22,6 +23,13 @@ const December2025 = () => {
         url="https://wabisabiservices.ca/blog/december-2025"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Journal", url: "https://wabisabiservices.ca/blog" },
+          { name: "Holiday Harmony", url: "https://wabisabiservices.ca/blog/december-2025" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Journal", url: "https://wabisabiservices.ca/blog" },

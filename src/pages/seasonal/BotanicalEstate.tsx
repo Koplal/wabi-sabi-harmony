@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-botanical-estate-hero.jpg";
 import { useCart } from "@/contexts/CartContext";
 
@@ -27,6 +28,13 @@ const BotanicalEstate = () => {
         canonical="https://wabisabiservices.ca/seasoning/the-botanical-estate"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "The Botanical Estate", url: "https://wabisabiservices.ca/seasoning/the-botanical-estate" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },

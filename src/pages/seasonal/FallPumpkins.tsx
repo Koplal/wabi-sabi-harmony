@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import servicesHero from "@/assets/services-hero.jpg";
 import senseImage1 from "@/assets/pumpkin-sense-sensibility-1.jpg";
 import senseImage2 from "@/assets/pumpkin-sense-sensibility-2.jpg";
@@ -114,6 +115,13 @@ const FallPumpkins = () => {
         canonical="https://wabisabiservices.ca/seasoning/fall-pumpkins"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Autumn Pumpkin Packages", url: "https://wabisabiservices.ca/seasoning/fall-pumpkins" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal", url: "https://wabisabiservices.ca/seasoning" },

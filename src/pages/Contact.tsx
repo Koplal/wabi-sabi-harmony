@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import contactHero from "@/assets/contact-hero.jpg";
 
 const Contact = () => {
@@ -57,6 +58,12 @@ const Contact = () => {
         title="Contact Us"
         description="Get in touch with Wabi Sabi Services for luxury cleaning, organizing, and concierge services in Victoria, BC. Request a consultation or quote today."
         keywords="contact cleaning service Victoria, book cleaning Victoria BC, cleaning consultation Victoria, get quote cleaning Victoria"
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Contact", url: "https://wabisabiservices.ca/contact" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">

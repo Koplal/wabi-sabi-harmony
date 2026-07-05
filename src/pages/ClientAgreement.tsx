@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function ClientAgreement() {
   return (
@@ -8,6 +9,12 @@ export default function ClientAgreement() {
         title="Client Care Agreement"
         description="The client care agreement for Wabi Sabi Services: scheduling, access, pricing, cancellation, and care guidelines for homes in Greater Victoria, BC."
         canonical="https://wabisabiservices.ca/client-agreement"
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Client Agreement", url: "https://wabisabiservices.ca/client-agreement" },
+        ]}
       />
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>

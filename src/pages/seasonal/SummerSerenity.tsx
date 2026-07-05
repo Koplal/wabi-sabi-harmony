@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema, ProductSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import servicesHero from "@/assets/services-hero.jpg";
 import coastalCottageHero from "@/assets/package-coastal-cottage-hero.jpg";
 import islandRetreatHero from "@/assets/package-island-retreat-hero.jpg";
@@ -117,6 +118,13 @@ const SummerSerenity = () => {
         canonical="https://wabisabiservices.ca/seasoning/summer-serenity"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },
+          { name: "Summer Serenity", url: "https://wabisabiservices.ca/seasoning/summer-serenity" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "Seasonal Styling", url: "https://wabisabiservices.ca/seasoning" },

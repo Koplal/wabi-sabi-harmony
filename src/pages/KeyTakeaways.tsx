@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function KeyTakeaways() {
   return (
@@ -13,6 +14,12 @@ export default function KeyTakeaways() {
         canonical="https://wabisabiservices.ca/key-takeaways"
       />
       <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "What to Expect", url: "https://wabisabiservices.ca/key-takeaways" },
+        ]}
+      />
+      <Breadcrumbs
         items={[
           { name: "Home", url: "https://wabisabiservices.ca/" },
           { name: "What to Expect", url: "https://wabisabiservices.ca/key-takeaways" },

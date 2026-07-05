@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +66,12 @@ const Careers = () => {
         title="Careers"
         description="Join Wabi Sabi Services in Victoria, BC. We're building a team where quality matters more than speed and the work makes a real difference. Apply today."
         canonical="https://wabisabiservices.ca/careers"
+      />
+      <Breadcrumbs
+        items={[
+          { name: "Home", url: "https://wabisabiservices.ca/" },
+          { name: "Careers", url: "https://wabisabiservices.ca/careers" },
+        ]}
       />
       <div className="relative">
         <div className="w-full h-[500px] overflow-hidden">
