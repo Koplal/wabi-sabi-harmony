@@ -321,6 +321,10 @@ sourceCase("BAN-23", "bans a template term", "fail", (files) => editFile(files, 
 sourceCase("BAN-23", "bans advertising outside the Clarity sentence", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>We measure our advertising.</p>\n"));
 sourceCase("BAN-23", "allows advertising in the Clarity sentence", "pass", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Microsoft may also use this data, including for advertising.</p>\n"));
 sourceCase("BAN-23", "does not read an address as an ad", "pass", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Your name or an address.</p>\n"));
+sourceCase("BAN-23", "bans a mention of Google Maps", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>The Google Maps embeds on our pages.</p>\n"));
+sourceCase("BAN-23", "bans a Maps identifier", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<a href={GOOGLE_MAPS_URL}>Find us</a>\n"));
+sourceCase("BAN-23", "allows heatmaps in the Clarity paragraph", "pass", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Clarity produces heatmaps and session replays.</p>\n"));
+sourceCase("BAN-23", "allows heatmaps only once", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Clarity produces heatmaps.</p>\n<p>We also review heatmaps.</p>\n"));
 sourceCase("BAN-23", "applies only to its scope", "pass", (files) => editFile(files, HOME, "<p>We use Zapier.</p>\n"));
 
 sourceCase("S-REQ", "reports a missing string", "fail", (files) => replaceIn(files, HOME, STAFF_LINE, "Fixture."));
