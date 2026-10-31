@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -36,26 +35,26 @@ const Checkout = () => {
 
     try {
       // Create Stripe Checkout session
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          items: items.map(item => ({
-            name: item.name,
-            price: item.price,
-            description: item.description,
-            image: item.image,
-          })),
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({ id: item.id })),
           customerInfo: formData,
-        },
+        }),
       });
 
-      if (error) throw error;
+      const data = await response.json().catch(() => null);
 
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL received');
+      if (!response.ok || !data?.url) {
+        console.error('Checkout error:', response.status, data);
+        toast.error(data?.error ?? "There was an error creating the checkout session. Please try again.");
+        setIsProcessing(false);
+        return;
       }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error("There was an error creating the checkout session. Please try again.");
