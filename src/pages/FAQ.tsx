@@ -21,8 +21,8 @@ import { faqItems } from "@/data/faqItems";
 const faqSections: { heading: string; count: number }[] = [
   { heading: "Getting Started with Our Services", count: 3 },
   { heading: "Understanding Our Service Levels", count: 3 },
-  { heading: "Pricing & Scheduling", count: 3 },
-  { heading: "Products & Safety", count: 3 },
+  { heading: "Pricing & Scheduling", count: 5 },
+  { heading: "Products & Safety", count: 5 },
   { heading: "Service Logistics", count: 4 },
   { heading: "Quality & Satisfaction", count: 2 },
   { heading: "Serving Victoria's Neighbourhoods", count: 8 },
@@ -132,7 +132,7 @@ const FAQ = () => {
                       <CardTitle>Key Takeaways</CardTitle>
                     </div>
                     <CardDescription>
-                      Discover what makes Wabi Sabi Services unique - our philosophy, values, and commitment to eco-luxury cleaning.
+                      Discover what makes Wabi Sabi Services unique - our philosophy, values, and commitment to mindful luxury cleaning.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
