@@ -32,12 +32,12 @@ export const neighborhoods: Record<string, Neighborhood> = {
     localContext: [
       "Few addresses on Vancouver Island carry the prestige of Uplands. Olmsted's plan — gentle serpentine roads tracing the contours of the land, generous setbacks, and preserved Garry oak meadows — created a neighbourhood that still feels like a private park more than a subdivision. Homes here are among the most valuable in the region, and their owners expect a level of care that matches the address.",
       "The 1913 Riffington estate, designed by architect Philip A. Jullien in the Tudor Revival manner, is emblematic of the craftsmanship found throughout the enclave. Many residences are heritage-listed, which means routine cleaning here is never routine: surfaces, millwork, and finishes must be treated with an awareness of preservation guidelines and the building's original materials.",
-      "Proximity to the Strait brings beauty and a quiet adversary — salt air. The same ocean views prized by Uplands homeowners drive a slow, persistent salt-air load on stone, marble, and heritage windows. Our concierge approach builds ongoing remediation into a tailored plan, so the home's value and character are protected season after season.",
+      "Our concierge approach builds careful interior care for stone and marble into a tailored plan, so the home's value and character are protected season after season.",
     ],
     whyLuxuryHere: [
-      "Discreet, fully vetted staff trained for the privacy expectations of nationally significant estates.",
+      "Discreet, fully vetted staff suited to the privacy expectations of nationally significant estates.",
       "Heritage-preservation awareness woven into every clean, respecting designation guidelines.",
-      "Ongoing salt-air remediation for stone, marble, and original windows facing the Strait.",
+      "Ongoing interior care for stone and marble in homes facing the Strait.",
       "A single dedicated point of contact who learns the rhythms of your household.",
       "Coordinated care across cleaning, organizing, and errands for absentee and resident owners alike.",
     ],
@@ -74,19 +74,19 @@ export const neighborhoods: Record<string, Neighborhood> = {
     localContext: [
       "Maclure's half-timbered Arts and Crafts and Tudor Revival homes gave Oak Bay its enduring character, and they remain among the most sought-after addresses on Vancouver Island. Caring for them well means understanding period detailing — the wrought iron, the cast limestone fireplaces, the native-wood joinery — rather than applying a one-size approach.",
       "The neighbourhood's landmarks read like a register of genteel Victoria: the 1913 Bowker Gates designed by Maclure, the Royal Victoria Yacht Club founded in 1912, and Uplands Park with its 76-acre Garry oak reserve. Along Beach Drive, Garry oaks four centuries old shade homes that have been cherished for generations.",
-      "Many Oak Bay estates sit close to the water, where salt air steadily works on marble, limestone, and heritage windows. Our concierge cleaning programs are built to counter that exposure, pairing immaculate everyday presentation with the patient, protective maintenance these high-value, ocean-adjacent properties require.",
+      "Many Oak Bay estates sit close to the water. Our concierge cleaning programs pair immaculate everyday presentation with patient interior care for the marble and limestone in these high-value, ocean-adjacent homes.",
     ],
     whyLuxuryHere: [
       "Specialists who recognize and protect Maclure-era detailing and heritage finishes.",
       "Vetted, discreet teams comfortable in homes of significant value and history.",
-      "Salt-air protection for oceanfront marble, limestone, and original windows.",
+      "Patient interior care for marble and limestone in oceanfront homes.",
       "Tailored cadence that fits a household's privacy and entertaining calendar.",
       "One household manager handling cleaning, organizing, and errands together.",
     ],
     heritageMaterials: [
       "Cast limestone fireplaces and wrought-iron detailing cleaned with conservation care.",
       "Marble and native-wood joinery treated with surface-safe methods.",
-      "Half-timbered exteriors and heritage windows maintained without abrasion.",
+      "Heritage windows cared for from the inside, without abrasion.",
       "Period plaster and millwork dusted to a museum standard.",
     ],
     conciergeServices: [
@@ -110,24 +110,23 @@ export const neighborhoods: Record<string, Neighborhood> = {
     tier: 1,
     metaDescription:
       "Heritage-aware concierge cleaning in Rockland, Victoria's historic Nob Hill, home to Craigdarroch Castle and Government House.",
-    heroTagline: "Masonry-aware care for Rockland's Victorian and Edwardian landmarks.",
+    heroTagline: "Heritage-aware care for Rockland's Victorian and Edwardian landmarks.",
     intro:
       "Rockland — Victoria's historic \"Nob Hill\" — gathers the city's grandest Victorian and Edwardian houses on elevated, garden-rich streets five minutes from downtown. With two National Historic Sites and a hundred properties on the City Heritage Register, it demands a cleaning partner fluent in the language of old stone and fine craftsmanship.",
     localContext: [
       "Built largely between the 1890s and 1910s, Rockland is anchored by two National Historic Sites: Craigdarroch Castle, the Dunsmuir family's Scottish Baronial mansion completed in 1890 with more than 25,000 square feet of interior, and Government House, the Lieutenant Governor's residence set within 36 acres of formal gardens. The neighbourhood's architectural pedigree runs through the work of Maclure and Rattenbury.",
-      "Tudor Revival, Arts and Crafts, Italianate, and Classical Revival homes line the elevated streets, many of them carrying heritage designations that constrain how a property may be altered or maintained. That makes a masonry-aware, designation-conscious approach essential — the wrong product or method on a Victorian chimney or heritage window can do lasting harm.",
+      "Tudor Revival, Arts and Crafts, Italianate, and Classical Revival homes line the elevated streets, many of them carrying heritage designations that constrain how a property may be altered or maintained. That makes a designation-conscious approach essential — the wrong product or method on original stone or a heritage window can do lasting harm.",
       "Lush gardens, mature Garry oak ecosystems, and a tranquil, established calm define daily life here. Our concierge programs respect that serenity, working quietly in the background and treating original stone, plaster, and joinery with the specialist care that century-old homes require.",
     ],
     whyLuxuryHere: [
       "Designation-conscious cleaning that respects heritage-preservation constraints.",
-      "Masonry-aware methods for Victorian stonework, chimneys, and original windows.",
+      "Careful methods for interior stonework and original windows.",
       "Quiet, vetted teams suited to landmark residences and refined neighbours.",
       "Care calibrated to Maclure- and Rattenbury-era craftsmanship.",
       "A single point of contact for cleaning, organizing, and household errands.",
     ],
     heritageMaterials: [
-      "Stone masonry and half-timbering maintained with conservation-grade technique.",
-      "Victorian chimneys and original brickwork cleaned without abrasive damage.",
+      "Interior stonework and original millwork handled with conservation-minded care.",
       "Heritage windows and leaded glass handled with non-contact care.",
       "Period plaster, millwork, and hardwood floors finished to a heritage standard.",
     ],
@@ -152,29 +151,26 @@ export const neighborhoods: Record<string, Neighborhood> = {
     tier: 1,
     metaDescription:
       "Ultra-private concierge cleaning for Ten Mile Point's oceanfront-bluff estates on Haro Strait, beside the Ecological Reserve.",
-    heroTagline: "Salt-spray expertise for glass-walled oceanfront estates on Haro Strait.",
+    heroTagline: "Discreet concierge care for glass-walled oceanfront estates on Haro Strait.",
     intro:
-      "Ten Mile Point reaches out as a rocky peninsula into Haro Strait, a secluded enclave of mid-century and custom-contemporary estates perched on oceanfront bluffs. Floor-to-ceiling glazing, private moorage, and absolute privacy define these homes — and so does an extreme salt-spray exposure that calls for specialist care.",
+      "Ten Mile Point reaches out as a rocky peninsula into Haro Strait, a secluded enclave of mid-century and custom-contemporary estates perched on oceanfront bluffs. Floor-to-ceiling glazing, private moorage, and absolute privacy define these homes.",
     localContext: [
       "The estates of Ten Mile Point are built for the view: walls of glass open to Haro Strait, half-acre-plus lots fold into secluded coves, and several properties enjoy private beach access or deep-water moorage. The neighbourhood's mid-century and contemporary architecture prizes light and transparency, which makes flawless view-glass a defining element of how these homes present.",
       "Bordered by the Ten Mile Point Ecological Reserve and known among divers for its dramatic underwater terrain, the point is one of the most private settings in Greater Victoria. Homeowners value that seclusion deeply, and they expect a cleaning partner who honours it — arriving quietly, working efficiently, and leaving no trace beyond an immaculate home.",
-      "This is among the harshest salt-spray zones in the region. Marine air drives mineral deposits onto expansive glass and works steadily at exterior finishes. Our concierge programs make view-glass clarity and protective maintenance a routine, so these high-value oceanfront estates always look their best against the water.",
+      "This is among the harshest salt-spray zones in the region. Our concierge programs pair interior view-glass care with exterior window cleaning arranged through trusted partners, so these high-value oceanfront estates always look their best against the water.",
     ],
     whyLuxuryHere: [
       "Expert view-glass cleaning for the floor-to-ceiling glazing these homes are built around.",
-      "Salt-spray remediation in one of the region's most exposed marine settings.",
       "Ultra-discreet teams that respect the point's prized seclusion.",
-      "Care for waterfront detailing, decks, and moorage-adjacent surfaces.",
+      "Interior care matched to each home's fine finishes.",
     ],
     heritageMaterials: [
       "Exposed local stone and Douglas fir finished with surface-safe care.",
       "Heated concrete floors maintained to preserve their finish.",
-      "Teak and Ipe decking cleaned and protected against marine weathering.",
-      "Expansive view-glass kept streak-free against constant salt spray.",
+      "Expansive view-glass kept streak-free.",
     ],
     conciergeServices: [
       "Routine view-glass detailing for glass-walled oceanfront homes.",
-      "Salt-spray maintenance for exterior stone, wood, and decking.",
       "Private, by-arrangement access for secluded estates.",
     ],
     nearbyAreas: [
@@ -194,27 +190,25 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Concierge cleaning for Cadboro Bay's seaside estates, including the oceanfront homes of Queenswood Drive near Cadboro-Gyro Park.",
     heroTagline: "Oceanfront care for Queenswood estates and Cadboro Bay's seaside village.",
     intro:
-      "Cadboro Bay pairs a relaxed seaside village with some of Saanich's most coveted oceanfront addresses. Along Queenswood Drive, estates with in-ground pools and private docks look out over the bay, while heritage and character homes nestle into the village core — all of it asking for a cleaning partner attuned to salt air and discretion.",
+      "Cadboro Bay pairs a relaxed seaside village with some of Saanich's most coveted oceanfront addresses. Along Queenswood Drive, estates with in-ground pools and private docks look out over the bay, while heritage and character homes nestle into the village core — all of it asking for a discreet cleaning partner.",
     localContext: [
       "Queenswood Drive is the jewel of Cadboro Bay: a line of oceanfront estates, several with in-ground pools and private docks, set above the water on large, private lots. These are quintessential quiet-luxury homes — understated from the road, exceptional within — and their owners expect care delivered with the same restraint.",
       "The neighbourhood centres on a genuine seaside village and the sandy 1.5-kilometre crescent of Cadboro-Gyro Park, with old-growth trails close at hand. Its position adjacent to the University of Victoria draws an accomplished academic and professional clientele who value reliability and a light, respectful footprint in their homes.",
-      "Oceanfront living here means constant salt spray on windows and exteriors. Our concierge programs fold window and exterior salt-spray care into a tailored maintenance plan, keeping Queenswood's estates and the bay's character homes immaculate without disrupting the easy rhythm of village life.",
+      "Our concierge programs keep Queenswood's estates and the bay's character homes immaculate without disrupting the easy rhythm of village life.",
     ],
     whyLuxuryHere: [
-      "Estate-grade care for Queenswood's oceanfront homes, pools, and dock-side spaces.",
-      "Salt-spray window and exterior maintenance for waterfront properties.",
+      "Estate-grade care for Queenswood's oceanfront homes.",
+      "Exterior window cleaning arranged through trusted partners for waterfront properties.",
       "Discreet teams trusted by an academic and professional clientele.",
       "Tailored cadence for both full-time residents and seasonal owners.",
     ],
     heritageMaterials: [
       "Heritage and character-home finishes maintained with period-appropriate care.",
-      "Oceanfront window glass kept clear against persistent salt spray.",
-      "Exterior surfaces and decking protected from marine weathering.",
+      "Oceanfront window glass kept streak-free.",
       "Natural-stone and fine-wood detailing treated with surface-safe methods.",
     ],
     conciergeServices: [
       "Recurring maintenance for Queenswood oceanfront estates.",
-      "Salt-spray care for waterfront windows and exteriors.",
       "Seasonal resets for village character homes.",
     ],
     nearbyAreas: [
@@ -248,10 +242,9 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Coordinated cleaning, organizing, and errands across main house and guest quarters.",
     ],
     heritageMaterials: [
-      "Floor-to-ceiling glass kept pristine against waterfront salt air.",
+      "Floor-to-ceiling glass kept pristine, with exterior window cleaning arranged through trusted partners.",
       "Natural stone and hardwood maintained with surface-safe technique.",
       "Smart-home surfaces and premium fixtures cleaned with appropriate care.",
-      "Decks and oceanfront exteriors protected from marine weathering.",
     ],
     conciergeServices: [
       "Absentee-owner oversight for waterfront estates near the airport.",
@@ -278,20 +271,19 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Willis Point is the epitome of quiet luxury and discreet concierge living. Reached by a single road above Tod Inlet, across the water from Butchart Gardens, this ultra-secluded enclave of roughly 150 homes is the kind of place where exclusivity is measured in privacy rather than display — and where a trusted, invisible standard of care matters most.",
     localContext: [
       "There is one way in and one way out: Willis Point Road. That single-access geography gives the enclave its profound seclusion and its tight-knit calm. Homes sit on acreages of one to ten acres and more, many of them timber-frame and post-and-beam lodges with A-frame and inlet-view character — substantial properties hidden in the forest above Tod Inlet.",
-      "Bordering Gowlland Tod Provincial Park and threaded by Tod Creek, Willis Point is defined by its trees. That forest setting is its beauty and its maintenance reality: debris settles persistently on cedar and heavy timber, and homes left vacant for stretches benefit from regular, watchful inspection. No competing service reaches this far into the enclave with the consistency it deserves.",
+      "Bordering Gowlland Tod Provincial Park and threaded by Tod Creek, Willis Point is defined by its trees. Homes left vacant for stretches benefit from regular, watchful inspection. No competing service reaches this far into the enclave with the consistency it deserves.",
       "For owners who prize discretion above all, our concierge model is a natural fit. We provide quiet, dependable care and long-vacancy oversight, treating the privacy of this single-road community as the first feature of the service — not an afterthought.",
     ],
     whyLuxuryHere: [
       "Unrivalled discretion for an enclave defined by privacy and single-road seclusion.",
       "Long-vacancy inspection and oversight for owners who travel or split time away.",
-      "Care for cedar, heavy timber, and post-and-beam construction in a forest setting.",
+      "Interior care for cedar, heavy timber, and post-and-beam construction.",
       "Dependable presence in an enclave few services reliably reach.",
     ],
     heritageMaterials: [
-      "Heavy fir and cedar timber maintained against persistent forest debris.",
+      "Interior fir and cedar timber dusted and cared for precisely.",
       "Post-and-beam and reclaimed-wood detailing cared for with surface-safe methods.",
       "Stone fireplaces and natural finishes treated with conservation-minded technique.",
-      "Metal roofing and exteriors kept clear of accumulating forest litter.",
     ],
     conciergeServices: [
       "Long-vacancy oversight and inspection for absentee owners.",
@@ -319,11 +311,10 @@ export const neighborhoods: Record<string, Neighborhood> = {
     localContext: [
       "Long regarded as the most stable market in Victoria, Fairfield is prized for its enduring character: Arts and Crafts bungalows, Craftsman homes, and Edwardian foursquares set among mature trees. The neighbourhood's heritage runs deep — Ross Bay Villa, a Gothic Revival cottage built in 1865 by John Wright, survives today as a heritage museum.",
       "Daily life here is unusually rich. The Dallas Road oceanfront and its 20-kilometre waterfront walkway edge the south side; Beacon Hill Park's 200 acres lie to the west; and Cook Street Village and the Moss Street Market give the area a walkable, refined ease that residents cherish.",
-      "Two factors shape our care in Fairfield: the heritage finishes inside these homes, and the salt-spray exposure along Dallas Road. We bring period-appropriate methods to original woodwork and plaster while building protective maintenance into the plan for properties that face the open water.",
+      "The heritage finishes inside these homes shape our care in Fairfield. We bring period-appropriate methods to original woodwork and plaster, so these homes stay immaculate without losing their character.",
     ],
     whyLuxuryHere: [
       "Period-appropriate care for Craftsman, Arts and Crafts, and Edwardian finishes.",
-      "Salt-spray maintenance for homes near the Dallas Road oceanfront.",
       "Discreet, vetted teams suited to an established, refined community.",
       "Flexible cadence for walkable in-town estates and family residences.",
       "One familiar team, returning often enough to know the home’s rhythms.",
@@ -336,7 +327,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
     ],
     conciergeServices: [
       "Recurring maintenance for heritage Craftsman and Edwardian homes.",
-      "Salt-spray care for Dallas Road-adjacent properties.",
       "Whole-home resets for entertaining and seasonal transitions.",
     ],
     nearbyAreas: [
@@ -412,7 +402,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
     heritageMaterials: [
       "Marble and granite surfaces maintained with surface-safe products.",
       "Hardwood floors and stone foyers cared for to preserve their finish.",
-      "Cedar-shake exteriors and detailing kept clean and protected.",
       "Smart-home fixtures cleaned with appropriate, system-safe technique.",
     ],
     conciergeServices: [
@@ -435,25 +424,24 @@ export const neighborhoods: Record<string, Neighborhood> = {
     tier: 2,
     metaDescription:
       "Concierge cleaning for Cordova Bay's beachfront and West Coast homes near Mattick's Farm and the golf course, with absentee key-holding.",
-    heroTagline: "Salt-air and West Coast care for Cordova Bay's beachfront homes.",
+    heroTagline: "West Coast care for Cordova Bay's beachfront homes.",
     intro:
       "Cordova Bay strings West Coast and beachfront homes along the shoreline of Haro Strait, looking across to the San Juans. With Mattick's Farm, the Cordova Bay Golf Course, and the estate streets above the beach, it draws vacation and secondary-home owners who need a trusted local presence.",
     localContext: [
       "Cordova Bay Road traces the beachfront, while estate streets such as Doumac and Haliburton climb the slopes above. The neighbourhood's homes lean into West Coast design — timber, cedar and fir, floor-to-ceiling glass, granite and slate, metal roofing, and Ipe decking — set against open views of Haro Strait and the San Juan Islands.",
       "Local landmarks give the area its character: the boutique village at Mattick's Farm, the Cordova Bay Golf Course, and The Ridge enclave above. It is a place that feels both coastal and convenient, which is part of why so many homes here serve as vacation or secondary residences.",
-      "Those ownership patterns shape our work. Salt air challenges glass and cedar, and absentee owners need reliable key-holding, event turnover, and watchful care between visits. Our concierge programs handle all of it — keeping beachfront homes immaculate and ready whenever their owners return.",
+      "Those ownership patterns shape our work. Absentee owners need reliable key-holding, event turnover, and watchful care between visits. Our concierge programs handle all of it — keeping beachfront homes immaculate and ready whenever their owners return.",
     ],
     whyLuxuryHere: [
       "Absentee key-holding and oversight for vacation and secondary homes.",
-      "Salt-air care for floor-to-ceiling glass and cedar exteriors.",
+      "Interior care for floor-to-ceiling glass, with exterior window cleaning arranged through trusted partners.",
       "Event turnover and guest-ready resets between visits.",
       "Discreet, vetted teams trusted with access to unoccupied homes.",
     ],
     heritageMaterials: [
       "West Coast timber, cedar, and fir maintained with surface-safe methods.",
-      "Floor-to-ceiling glass kept clear against persistent salt air.",
+      "Floor-to-ceiling glass kept streak-free for beachfront homes.",
       "Granite and slate surfaces cared for to preserve their finish.",
-      "Ipe decking and metal roofing protected from marine weathering.",
     ],
     conciergeServices: [
       "Absentee key-holding and between-visit oversight.",
@@ -521,24 +509,23 @@ export const neighborhoods: Record<string, Neighborhood> = {
     localContext: [
       "Along Prospect Lake, Munn, and Sparton roads, lakefront homes look out over a 1.5-kilometre lake that feels almost private. The setting is serene and green, framed by the surrounding parkland of Francis/King and Thetis Lake, and the homes are built to make the most of it — many with their own boats and docks.",
       "Lake living shapes these residences materially: cedar and fir, fieldstone fireplaces, wide-plank oak floors, triple-pane lake-facing glazing, and metal roofing are characteristic. They are warm, natural, and substantial — and each of those surfaces benefits from care matched to its character.",
-      "The lakefront brings its own maintenance rhythm. Pollen, algae, and moisture settle on cedar, stone, and hardwood, and seasonal opening and closing is part of the routine. Our concierge programs build this into a tailored plan, keeping lakefront homes immaculate through every season.",
+      "The lakefront brings its own rhythm, and seasonal opening and closing is part of the routine. Our concierge programs build this into a tailored plan, keeping lakefront homes immaculate through every season.",
     ],
     whyLuxuryHere: [
-      "Lakefront-specific care addressing pollen, algae, and moisture.",
-      "Seasonal opening and closing for waterfront homes and docks.",
+      "Interior care matched to lakefront living.",
+      "Seasonal opening and closing for waterfront homes.",
       "Finish-aware care for cedar, fieldstone, and wide-plank oak.",
       "Discreet, vetted teams suited to private lakeside estates.",
     ],
     heritageMaterials: [
-      "Cedar and fir finishes maintained against lakefront moisture and pollen.",
+      "Interior cedar and fir finishes maintained with surface-safe methods.",
       "Fieldstone fireplaces cleaned with conservation-minded technique.",
       "Wide-plank oak floors cared for to preserve their finish.",
       "Triple-pane lake-facing glazing kept clear and streak-free.",
     ],
     conciergeServices: [
       "Seasonal open-and-close for lakefront homes.",
-      "Recurring maintenance addressing pollen, algae, and moisture.",
-      "Care for boats, docks, and waterfront living spaces.",
+      "Recurring interior care for lakefront homes.",
     ],
     nearbyAreas: [
       { name: "Willis Point", slug: "willis-point" },
@@ -561,24 +548,23 @@ export const neighborhoods: Record<string, Neighborhood> = {
     localContext: [
       "Sidney's charm is its compact, walkable waterfront town, rich with independent bookshops and a relaxed seaside pace. Just five to ten minutes from the airport and the Swartz Bay ferries, it offers an ease of coming and going that appeals to second-home owners and frequent travelers alike.",
       "Much of Sidney's luxury lives in its oceanfront condos — residences such as the West Coast contemporary Coast Waterfront Residences along Lochside Drive — alongside seaside single-family homes. These properties enjoy open views of the Salish Sea and Gulf Islands and the salt air that comes with them.",
-      "The town's affluent retirees and second-home owners value a light, dependable touch and an active social calendar kept unburdened by household upkeep. Our concierge programs deliver consistent care, with particular attention to the salt-air maintenance that oceanfront condos require.",
+      "The town's affluent retirees and second-home owners value a light, dependable touch and an active social calendar kept unburdened by household upkeep. Our concierge programs deliver consistent care for oceanfront condos.",
     ],
     whyLuxuryHere: [
-      "Salt-air care for oceanfront condos facing the Salish Sea.",
+      "Consistent interior care for oceanfront condos facing the Salish Sea.",
       "Reliable oversight for second-home owners who travel often.",
       "Discreet, vetted teams suited to an affluent retiree community.",
       "Flexible cadence that keeps a busy social calendar unburdened.",
       "Quiet, dependable care that runs without you having to manage it.",
     ],
     heritageMaterials: [
-      "Oceanfront condo glass kept clear against persistent salt air.",
+      "Oceanfront condo glass kept streak-free.",
       "Natural-stone and fine surfaces maintained with surface-safe methods.",
-      "Exterior-facing finishes protected from marine exposure.",
       "Fine fixtures and detailing cleaned with appropriate care.",
     ],
     conciergeServices: [
       "Oversight for second-home and seasonal owners.",
-      "Salt-air maintenance for oceanfront condos.",
+      "Interior care for oceanfront condos.",
       "Guest-ready resets timed to arrivals and departures.",
     ],
     nearbyAreas: [
@@ -611,9 +597,8 @@ export const neighborhoods: Record<string, Neighborhood> = {
     ],
     heritageMaterials: [
       "Natural-wood and stone finishes maintained with surface-safe methods.",
-      "Oceanfront-facing glass kept clear against marine air.",
+      "Oceanfront-facing glass kept clear, with exterior window cleaning arranged through trusted partners.",
       "Rural-home surfaces cared for to preserve their character.",
-      "Exterior finishes protected against coastal and country exposure.",
     ],
     conciergeServices: [
       "Recurring care for semi-rural acreage estates.",
@@ -653,7 +638,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Victorian and Edwardian period finishes maintained with surface-safe care.",
       "Heritage millwork and plaster dusted to a fine standard.",
       "Original windows and detailing handled without abrasive contact.",
-      "Condo glass and stone surfaces kept clear against harbour salt air.",
+      "Condo glass and stone surfaces kept immaculate.",
     ],
     conciergeServices: [
       "Lock-and-leave oversight for waterfront condos and pieds-à-terre.",
@@ -720,23 +705,22 @@ export const neighborhoods: Record<string, Neighborhood> = {
     localContext: [
       "Tucked into the hillside of South Oak Bay, Gonzales enjoys some of the most expansive ocean views in the city, looking south across the Juan de Fuca Strait. The historic Gonzales Observatory, a landmark of more than seventy-five years, presides over an enclave of protected beaches and secluded cul-de-sacs.",
       "The homes here are established heritage and character residences on large lots, set adjacent to Oak Bay's celebrated Maclure legacy. It is a tranquil, affluent pocket where privacy and a sense of permanence are part of the appeal, and where understated care suits the mood far better than anything ostentatious.",
-      "Oceanfront exposure brings the familiar coastal challenge: salt air working on marble and heritage windows. Our concierge programs build protective, finish-aware maintenance into a tailored plan, keeping these oceanfront homes immaculate while respecting the quiet that residents prize.",
+      "Our concierge programs build finish-aware interior care into a tailored plan, keeping these oceanfront homes immaculate while respecting the quiet that residents prize.",
     ],
     whyLuxuryHere: [
-      "Salt-air care for oceanfront marble and heritage windows.",
+      "Careful interior care for oceanfront marble.",
       "Discreet care suited to a tranquil, affluent enclave.",
       "Heritage-aware methods for established character homes.",
       "Vetted teams comfortable in high-value oceanfront residences.",
     ],
     heritageMaterials: [
-      "Marble surfaces protected against salt-air degradation.",
+      "Marble surfaces cared for with surface-safe methods.",
       "Heritage windows maintained without abrasive contact.",
       "Character-home finishes cared for with period-appropriate methods.",
-      "Oceanfront-facing exteriors protected from marine exposure.",
     ],
     conciergeServices: [
       "Recurring maintenance for oceanfront heritage homes.",
-      "Salt-air care for marble and original windows.",
+      "Finish-aware care for marble.",
       "Discreet whole-home resets for an established enclave.",
     ],
     nearbyAreas: [
@@ -771,7 +755,6 @@ export const neighborhoods: Record<string, Neighborhood> = {
     heritageMaterials: [
       "Large-format glazing and view walls kept immaculate and streak-free.",
       "Engineered stone, quartz, and hardwood finishes cared for with material-specific methods.",
-      "Modern stone, stucco, and cedar exteriors maintained against mountain weather.",
       "Smart-home and integrated systems respected and worked around with care.",
     ],
     conciergeServices: [

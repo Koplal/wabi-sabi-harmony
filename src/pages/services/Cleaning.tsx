@@ -90,7 +90,7 @@ const Cleaning = () => {
                     <li>Full home deep clean, top to bottom</li>
                     <li>Inside all cabinets and appliances</li>
                     <li>Walls, baseboards, and trim</li>
-                    <li>Windows and window tracks</li>
+                    <li>Interior windows and window tracks</li>
                     <li>All floors scrubbed</li>
                   </ul>
                 </div>
@@ -126,23 +126,20 @@ const Cleaning = () => {
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li>Sales floor cleaning</li>
                     <li>Display maintenance</li>
-                    <li>Window cleaning (interior and exterior)</li>
+                    <li>Interior windows</li>
                     <li>Fitting rooms</li>
                     <li>Back-of-house areas</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 className="font-serif text-2xl mb-4">Medical & Wellness Spaces</h3>
+                  <h3 className="font-serif text-2xl mb-4">Wellness Spaces</h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Healthcare settings require more than standard cleaning. We follow proper sanitation protocols to maintain the highest standards for patient care environments.
+                    Wellness spaces call for a calm, considered clean.
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li>Exam and treatment rooms</li>
                     <li>Waiting areas</li>
                     <li>Restrooms</li>
-                    <li>Medical-grade disinfection</li>
-                    <li>Biohazard disposal (as needed)</li>
                   </ul>
                 </div>
               </div>
@@ -159,9 +156,16 @@ const Cleaning = () => {
               <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                 <li>Marble, limestone, and natural stone—cleaned and protected without etching or dulling</li>
                 <li>Heritage windows, leaded glass, and original millwork handled with conservation-minded care</li>
-                <li>Salt-air remediation for waterfront and oceanfront estates, where corrosion and residue accumulate</li>
                 <li>Period finishes, hardwood, and fine fixtures tended to gallery standards</li>
               </ul>
+            </section>
+
+            {/* Eco-Luxury Package */}
+            <section>
+              <h2 className="font-serif text-4xl mb-8">The Eco-Luxury Package</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Our standard clean uses low-toxicity products. The Eco-Luxury Package is our fully non-toxic, organic tier, offered as a paid option.
+              </p>
             </section>
 
             {/* Specialty Cleaning */}
@@ -176,7 +180,7 @@ const Cleaning = () => {
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li>Dust removal from all surfaces</li>
-                    <li>Window cleaning (interior/exterior)</li>
+                    <li>Interior windows</li>
                     <li>Floor scrubbing and polishing</li>
                     <li>Paint and adhesive removal</li>
                     <li>Cabinet and fixture cleaning</li>
@@ -209,7 +213,7 @@ const Cleaning = () => {
             <section className="bg-secondary/30 rounded-lg p-10 text-center">
               <h2 className="font-serif text-3xl mb-6">Begin with a Conversation</h2>
               <p className="text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-                Every cleaning is shaped to your home and the way you live in it. We begin with a $150 in-home consultation, credited in full toward your first service.
+                Every cleaning is shaped to your home and the way you live in it. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/contact">
