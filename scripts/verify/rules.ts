@@ -126,7 +126,12 @@ export const BANS: Ban[] = [
       "\\bor an ad\\b",
     ],
     scope: ["src/pages/Privacy.tsx"],
-    allow: [{ pattern: "advertising", sentenceContains: "Microsoft" }],
+    allow: [
+      { pattern: "advertising", sentenceContains: "Microsoft" },
+      // FR-8 reuses the Clarity paragraph, which says "heatmaps". "Maps" stays a plain substring so
+      // identifiers such as GOOGLE_MAPS_URL still fail, which a \b pattern would miss.
+      { pattern: "Maps", phrase: "heatmaps", once: true },
+    ],
   },
 ];
 
