@@ -18,14 +18,17 @@ let started = false;
  *   local and preview builds never record.
  * - Runs only in a client effect, so index.html has no Clarity code. It waits for the window `load`
  *   event, then a browser idle moment, so it stays off the LCP critical path.
- * - The check on /checkout-success runs once per page load. A visit that lands there leaves Clarity
- *   off until the next full load, including after client navigation away and back.
+ * - A visit that lands on /checkout-success leaves Clarity off until the next full load, including
+ *   after client navigation away and back. The path is read before waiting for idle, because the
+ *   idle callback can run much later, after the visitor has left the page. It is read again when
+ *   the callback runs, in case the wait ended on that page.
  * - Sends one custom tag, `env`, and never calls identify(): no names or emails go to Clarity.
  *   Form fields that hold personal details sit inside `data-clarity-mask="true"` wrappers.
  */
 const ClarityLoader = () => {
   useEffect(() => {
     if (!PROJECT_ID || VERCEL_ENV !== "production") return;
+    if (isCheckoutSuccess(window.location.pathname)) return;
 
     const start = () => {
       if (started || isCheckoutSuccess(window.location.pathname)) return;
