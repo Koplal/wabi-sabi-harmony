@@ -127,7 +127,6 @@ const November2025 = () => {
 
             <h3>Sacred Sink Space:</h3>
             <ul>
-              <li>Deep clean with baking soda paste</li>
               <li>Polish fixtures to shine</li>
               <li>Organize under-sink supplies</li>
               <li>Stock up on dish soap</li>
@@ -197,7 +196,7 @@ const November2025 = () => {
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">Host with ease this Thanksgiving</h3>
               <p className="mb-6">
-                If you would rather greet your guests than fret over the details, our concierge team can ready the house with care. We begin with a $150 in-home consultation, credited in full toward your first service.
+                If you would rather greet your guests than fret over the details, our concierge team can ready the house with care. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <Link to="/contact">
                 <Button size="lg">Request a Private Consultation</Button>
