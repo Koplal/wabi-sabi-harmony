@@ -21,12 +21,18 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { neighborhoods } from "../src/data/neighborhoods";
 import { faqItems } from "../src/data/faqItems";
+import {
+  GOOGLE_REVIEWS_URL,
+  GOOGLE_SHARE_URL,
+  ORG_ID,
+  ORGANIZATION,
+  PARENT_ORGANIZATION,
+} from "../src/data/organization";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const DIST = resolve(ROOT, "dist");
 const SITE = "https://wabisabiservices.ca";
-const ORG_ID = `${SITE}/#organization`;
 
 const template = readFileSync(resolve(DIST, "index.html"), "utf8");
 
@@ -52,92 +58,24 @@ const heroPreloadTag = (() => {
 })();
 
 const escAttr = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+
+// react-helmet-async owns only the head tags that carry this attribute: it replaces
+// them instead of adding a second copy, and removes them when a page no longer needs
+// them. Every static tag that SEO.tsx or JsonLd also emits must carry it. Clients
+// without JavaScript still read the static set.
+const HELMET_OWNED = 'data-rh="true"';
+// The meta tags that come straight from index.html, plus the ones replaced in renderPage.
+const HELMET_META = /<meta\s+(?=(?:name|property)="(?:description|og:\w+|twitter:\w+)")/g;
+
 // schema.org guidance: escape "<" inside <script type="application/ld+json">
 const jsonLd = (data: unknown) =>
-  `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`;
+  `<script type="application/ld+json" ${HELMET_OWNED}>${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`;
 
 const BRAND = "Wabi Sabi Services";
 
 // ---------------------------------------------------------------------------
 // JSON-LD builders — mirror the runtime structured-data components 1:1.
 // ---------------------------------------------------------------------------
-
-/**
- * The Organization/LocalBusiness entity, co-typed under a single @id, that every
- * other node on the page references (provider/author/publisher/brand). Mirrors
- * the runtime src/components/structured-data/LocalBusinessSchema.tsx (co-typed
- * Organization + LocalBusiness) so the static (non-JS) head resolves the same #organization.
- */
-function orgGraph() {
-  return {
-    "@context": "https://schema.org",
-    "@type": ["Organization", "LocalBusiness"],
-    "@id": ORG_ID,
-    name: BRAND,
-    url: SITE,
-    logo: `${SITE}/og-image.png`,
-    image: `${SITE}/og-image.png`,
-    description:
-      "Quiet luxury, immaculately kept. Mindful cleaning for intentional homes and businesses in Victoria, BC. Museum-level precision, discreet service, sustainable care.",
-    email: "hello@wabisabiservices.ca",
-    telephone: "+1-250-896-5971",
-    priceRange: "$$-$$$",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Victoria",
-      addressRegion: "BC",
-      addressCountry: "CA",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: "48.4284",
-      longitude: "-123.3656",
-    },
-    areaServed: [
-      { "@type": "Place", name: "Greater Victoria, BC" },
-      { "@type": "Place", name: "Saanich Peninsula, BC" },
-      { "@type": "Place", name: "Westshore / Langford, BC" },
-      { "@type": "Place", name: "Uplands, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4480", longitude: "-123.2980" } },
-      { "@type": "Place", name: "Oak Bay, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4262", longitude: "-123.3120" } },
-      { "@type": "Place", name: "Rockland, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4220", longitude: "-123.3440" } },
-      { "@type": "Place", name: "Ten Mile Point, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4630", longitude: "-123.2740" } },
-      { "@type": "Place", name: "Cadboro Bay, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4560", longitude: "-123.2920" } },
-      { "@type": "Place", name: "North Saanich, BC", geo: { "@type": "GeoCoordinates", latitude: "48.6590", longitude: "-123.4150" } },
-      { "@type": "Place", name: "Willis Point, BC", geo: { "@type": "GeoCoordinates", latitude: "48.5470", longitude: "-123.4760" } },
-      { "@type": "Place", name: "Fairfield, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4160", longitude: "-123.3460" } },
-      { "@type": "Place", name: "Gordon Head, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4730", longitude: "-123.3120" } },
-      { "@type": "Place", name: "Broadmead, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4870", longitude: "-123.3690" } },
-      { "@type": "Place", name: "Cordova Bay, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.5130", longitude: "-123.3760" } },
-      { "@type": "Place", name: "Dean Park, North Saanich, BC", geo: { "@type": "GeoCoordinates", latitude: "48.6310", longitude: "-123.4250" } },
-      { "@type": "Place", name: "Prospect Lake, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.5170", longitude: "-123.4470" } },
-      { "@type": "Place", name: "Sidney, BC", geo: { "@type": "GeoCoordinates", latitude: "48.6506", longitude: "-123.3986" } },
-      { "@type": "Place", name: "Metchosin, BC", geo: { "@type": "GeoCoordinates", latitude: "48.3810", longitude: "-123.5360" } },
-      { "@type": "Place", name: "James Bay, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4150", longitude: "-123.3720" } },
-      { "@type": "Place", name: "Downtown Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4284", longitude: "-123.3656" } },
-      { "@type": "Place", name: "Gonzales, Victoria, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4110", longitude: "-123.3210" } },
-      { "@type": "Place", name: "Bear Mountain, Langford, BC", geo: { "@type": "GeoCoordinates", latitude: "48.4640", longitude: "-123.5260" } },
-    ],
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        opens: "08:00",
-        closes: "18:00",
-      },
-    ],
-    sameAs: [
-      "https://www.instagram.com/wabisabiservices/",
-      "https://share.google/qpmn3a6VHcDFweao6",
-    ],
-    contactPoint: {
-      "@type": "ContactPoint",
-      contactType: "Customer Service",
-      telephone: "+1-250-896-5971",
-      email: "hello@wabisabiservices.ca",
-      availableLanguage: ["English"],
-    },
-  };
-}
 
 function breadcrumb(items: Array<{ name: string; url: string }>) {
   return {
@@ -295,17 +233,18 @@ function renderPage(meta: RouteMeta): string {
     [/<meta\s+name="twitter:url"\s+content="[\s\S]*?"\s*\/?>/, `<meta name="twitter:url" content="${canonical}" />`],
   ];
   for (const [re, val] of repl) html = html.replace(re, () => val);
+  html = html.replace(HELMET_META, () => `<meta ${HELMET_OWNED} `);
 
-  let inject = `\n    <link rel="canonical" href="${canonical}" />`;
+  let inject = `\n    <link rel="canonical" href="${canonical}" ${HELMET_OWNED} />`;
   if (meta.path === "/") inject += heroPreloadTag;
   if (meta.publishedTime) {
-    inject += `\n    <meta property="article:published_time" content="${escAttr(meta.publishedTime)}" />`;
+    inject += `\n    <meta property="article:published_time" content="${escAttr(meta.publishedTime)}" ${HELMET_OWNED} />`;
   }
   // Prepend the resolvable Organization/LocalBusiness entity so non-JS crawlers
   // can resolve the {"@id": ".../#organization"} refs (provider/author/publisher/brand)
   // emitted by the other nodes. Exactly one org node per page; works even for
   // routes (like "/") whose own jsonLdBlocks array is empty.
-  const blocks = [orgGraph(), ...meta.jsonLdBlocks];
+  const blocks = [ORGANIZATION, ...meta.jsonLdBlocks];
   inject += "\n    " + blocks.map(jsonLd).join("\n    ") + "\n  ";
   html = html.replace("</head>", () => `${inject}</head>`);
   return html;
@@ -338,7 +277,7 @@ const routes: RouteMeta[] = [
     title: "Mindful Luxury Cleaning Victoria BC",
     description:
       "Quiet luxury, immaculately kept. Cleaning, organizing, and household services in Victoria, BC — museum-level precision and discreet, sustainable care.",
-    jsonLdBlocks: [],
+    jsonLdBlocks: [PARENT_ORGANIZATION],
   },
 
   // Services hub
@@ -448,7 +387,7 @@ const routes: RouteMeta[] = [
     path: "/reviews",
     title: "Client Reviews & Testimonials",
     description:
-      "What discerning clients across Greater Victoria, BC say about Wabi Sabi Services — concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain.",
+      "What discerning clients across Greater Victoria, BC say about Wabi Sabi Services and its quiet, discreet concierge cleaning.",
     jsonLdBlocks: [breadcrumb([bcHome, { name: "Reviews", url: `${SITE}/reviews` }])],
   },
 
@@ -531,6 +470,15 @@ const routes: RouteMeta[] = [
     description:
       "The client care agreement for Wabi Sabi Services: scheduling, access, pricing, cancellation, and care guidelines for homes in Greater Victoria, BC.",
     jsonLdBlocks: [breadcrumb([bcHome, { name: "Client Agreement", url: `${SITE}/client-agreement` }])],
+  },
+
+  // Privacy Policy
+  {
+    path: "/privacy",
+    title: "Privacy Policy",
+    description:
+      "How Wabi Sabi Services handles your personal information when you contact us, book a service or visit wabisabiservices.ca.",
+    jsonLdBlocks: [breadcrumb([bcHome, { name: "Privacy Policy", url: `${SITE}/privacy` }])],
   },
 ];
 
@@ -638,10 +586,10 @@ const blogPosts: BlogEntry[] = [
     slug: "march-2026",
     title: "Sustainable Spring Cleaning for Eco-Conscious Victorians",
     description:
-      "As cherry blossoms open across Victoria, refresh your home without harming the Island. Natural recipes, a room-by-room guide, and ways to let things go.",
+      "As cherry blossoms open across Victoria, refresh your home without harming the Island. A room-by-room guide, and ways to let things go.",
     headline: "Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians",
     articleDescription:
-      "Natural recipes, a room-by-room guide, and mindful ways to let things go, for a Victoria home and the Island around it.",
+      "A room-by-room guide and mindful ways to let things go, for a Victoria home and the Island around it.",
     datePublished: "2026-03-01",
     publishedTime: "2026-03-01T00:00:00-08:00",
     crumb: "Sustainable Spring Cleaning",
@@ -732,7 +680,6 @@ interface SeasonalEntry {
 }
 
 const PRE = "https://schema.org/PreOrder";
-const IN = "https://schema.org/InStock";
 
 const seasonalPackages: SeasonalEntry[] = [
   // Autumn
@@ -782,11 +729,11 @@ const seasonalPackages: SeasonalEntry[] = [
     slug: "estate-collection",
     title: "The Estate Collection | Autumn Pumpkin Package",
     description:
-      "Our most involved autumn pumpkin installation: rare specimen varieties, a dedicated project manager, and twice-weekly care for Greater Victoria estates.",
+      "Our most involved autumn pumpkin installation: rare specimen varieties, a dedicated project manager, and professional photo and video for Greater Victoria estates.",
     product: {
       name: "The Estate Collection",
       description:
-        "Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and twice-weekly seasonal care.",
+        "Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and professional photo and video.",
       price: "1899",
       availability: PRE,
     },
@@ -888,7 +835,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Light and airy spring refresh with delicate floral touches, seasonal planters, and natural moss and twig elements, professionally placed.",
       price: "474",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Fresh Start",
   },
@@ -902,7 +849,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Abundant spring display celebrating renewal and growth, with a 26-inch floral wreath, four seasonal planters, and natural wood and moss accents.",
       price: "924",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Garden Gate",
   },
@@ -916,7 +863,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Expansive spring garden aesthetic for larger properties, with multiple wreaths, eight luxury planters, cherry blossom branches, and sculptural garden accents.",
       price: "1424",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Botanical Estate",
   },
@@ -930,7 +877,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Our most generous spring installation for estate properties, with a custom floral wreath collection, twelve statement planters, garden lighting, and a dedicated design process.",
       price: "1924",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Blooming Manor",
   },
@@ -944,7 +891,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Spring presentation for Victoria businesses, with a commercial wreath, four weatherproof planter displays, brand-appropriate styling, and flexible installation.",
       price: "799",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Professional Welcome",
   },
@@ -959,7 +906,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Breezy beach-inspired summer welcome with a nautical wreath, coastal planters, driftwood accents, and sea glass touches in ocean tones.",
       price: "474",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Coastal Cottage",
   },
@@ -973,7 +920,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Relaxed summer aesthetic with tropical-inspired touches, a palm-element wreath, four summer planters, bamboo and rattan accents, and hurricane lanterns.",
       price: "924",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Island Retreat",
   },
@@ -987,7 +934,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Expansive coastal-luxe summer styling for larger properties, with multiple coastal wreaths, eight statement planters, driftwood sculpture accents, and large hurricane lanterns.",
       price: "1424",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Beachside Manor",
   },
@@ -1001,7 +948,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Resort-style summer elegance for waterfront properties, with a custom coastal wreath collection, twelve luxury arrangements, large driftwood installations, and a dedicated design process.",
       price: "1924",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Seaside Estate",
   },
@@ -1015,7 +962,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Fresh summer presentation for Victoria businesses, with a commercial wreath, four weather-resistant planter displays, coastal-inspired styling, and flexible installation.",
       price: "799",
-      availability: IN,
+      availability: PRE,
     },
     crumb: "The Summer Storefront",
   },
@@ -1168,3 +1115,15 @@ for (const n of Object.values(neighborhoods)) {
 }
 
 console.log(`[prerender] wrote ${areaCount} static area pages to dist/areas/`);
+
+// ---------------------------------------------------------------------------
+// llms.txt is copied from public/ as it stands, so its visible link is swapped
+// here. With VITE_GOOGLE_MAPS_URL unset the file does not change.
+// ---------------------------------------------------------------------------
+
+const llmsPath = resolve(DIST, "llms.txt");
+writeFileSync(
+  llmsPath,
+  readFileSync(llmsPath, "utf8").split(GOOGLE_SHARE_URL).join(GOOGLE_REVIEWS_URL),
+  "utf8"
+);
