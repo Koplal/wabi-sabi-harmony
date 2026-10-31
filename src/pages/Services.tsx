@@ -138,13 +138,13 @@ const Services = () => {
               <div>
                 <h3 className="font-serif text-xl mb-3">Estate-Capable Expertise</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  From heritage residences to waterfront estates, we are equipped for fine materials and demanding homes—marble, limestone, heritage windows, and salt-air-exposed surfaces handled with museum-level care.
+                  From heritage residences to waterfront estates, we are equipped for fine materials and demanding homes—marble, limestone, heritage windows, and other fine finishes handled with museum-level care.
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-3">A Dedicated, Vetted Professional</h3>
+                <h3 className="font-serif text-xl mb-3">A Consistent, Vetted Professional</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  You are paired with the same carefully vetted, fully insured professional each visit—someone who comes to know your home, your preferences, and your standards intimately.
+                  We aim to send the same professional every visit. That familiarity means coming to know your home, your preferences, and your standards. Every team member is background-checked and vetted. WorkSafeBC registered. Fully insured: $2 million commercial general liability coverage per occurrence.
                 </p>
               </div>
               <div>
@@ -154,9 +154,9 @@ const Services = () => {
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-3">NDA-Grade Discretion</h3>
+                <h3 className="font-serif text-xl mb-3">Discretion, in writing if you prefer</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your privacy is absolute. Our team works quietly in the background, and what we see in your home remains entirely confidential—always.
+                  Your privacy is absolute. Our team works quietly in the background, and what we see in your home remains entirely confidential—always. We're happy to sign a non-disclosure agreement on request.
                 </p>
               </div>
             </div>
@@ -165,7 +165,7 @@ const Services = () => {
           <section className="text-center bg-accent/20 rounded-lg p-12">
             <h2 className="font-serif text-3xl md:text-4xl mb-6">Begin with a Private Consultation</h2>
             <p className="text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Every engagement opens with a $150 in-home consultation, credited in full toward your first service. We listen, study your home and its materials, and compose a plan tailored to your standards and your schedule.
+              Every engagement opens with a $150 in-home consultation, credited in full toward your first service. We listen, study your home and its materials, and compose a plan tailored to your standards and your schedule. Free estimates by phone or email.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/contact">
