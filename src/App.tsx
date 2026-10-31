@@ -62,6 +62,7 @@ const SummerStorefront = lazy(() => import("./pages/seasonal/SummerStorefront"))
 const KeyTakeaways = lazy(() => import("./pages/KeyTakeaways"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const ClientAgreement = lazy(() => import("./pages/ClientAgreement"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
@@ -107,6 +108,7 @@ const App = () => (
           <Route path="/key-takeaways" element={<KeyTakeaways />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/client-agreement" element={<ClientAgreement />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/august-2025" element={<August2025 />} />
           <Route path="/blog/september-2025" element={<September2025 />} />
