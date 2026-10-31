@@ -1,0 +1,53 @@
+{
+  "capturedFrom": "04b0d88",
+  "pages": {
+    "/": {
+      "title": "Mindful Luxury Cleaning Victoria BC | Wabi Sabi Services",
+      "description": "Quiet luxury, immaculately kept. Cleaning, organizing, and household services in Victoria, BC — museum-level precision and discreet, sustainable care.",
+      "canonical": "https://wabisabiservices.ca/",
+      "h1": "Quiet luxury,immaculately kept."
+    },
+    "/services": {
+      "title": "Our Services | Wabi Sabi Services",
+      "description": "Professional cleaning, organizing, and concierge services in Victoria, BC. Residential cleaning, commercial cleaning, home organizing, and errand services.",
+      "canonical": "https://wabisabiservices.ca/services",
+      "h1": "Our Services"
+    },
+    "/services/cleaning": {
+      "title": "Cleaning Services Victoria BC | Wabi Sabi Services",
+      "description": "Residential, commercial, and specialty cleaning in Victoria, BC. Deep cleaning, maintenance, move-in/out, post-construction, and vacation rental turnover.",
+      "canonical": "https://wabisabiservices.ca/services/cleaning",
+      "h1": "Professional Cleaning Services"
+    },
+    "/services/errands": {
+      "title": "Concierge & Errand Services Victoria BC | Wabi Sabi Services",
+      "description": "Errand and concierge services in Victoria, BC. Grocery shopping, home restocking, mail, pet care coordination, and household management.",
+      "canonical": "https://wabisabiservices.ca/services/errands",
+      "h1": "Household Errands & Support"
+    },
+    "/areas/oak-bay": {
+      "title": "Luxury Cleaning in Oak Bay | Wabi Sabi Services",
+      "description": "Concierge cleaning for Oak Bay's heritage estates, from Maclure half-timbered homes to oceanfront properties near the Royal Victoria Yacht Club.",
+      "canonical": "https://wabisabiservices.ca/areas/oak-bay",
+      "h1": "Bespoke Concierge Cleaning in Oak Bay"
+    },
+    "/areas/uplands": {
+      "title": "Luxury Cleaning in Uplands | Wabi Sabi Services",
+      "description": "Bespoke concierge cleaning for Uplands trophy estates, the Olmsted-designed National Historic Site in Oak Bay. Discreet, heritage-aware care.",
+      "canonical": "https://wabisabiservices.ca/areas/uplands",
+      "h1": "Bespoke Concierge Cleaning in Uplands"
+    },
+    "/seasoning": {
+      "title": "Seasonal Decorating | Victoria BC | Wabi Sabi Services",
+      "description": "Seasonal styling for the home through autumn, winter, spring, and summer. Designed, installed, and removed by hand across Greater Victoria.",
+      "canonical": "https://wabisabiservices.ca/seasoning",
+      "h1": "Seasonal Services"
+    },
+    "/seasoning/winter-holiday": {
+      "title": "Winter Holiday Packages | Seasonal Styling | Wabi Sabi Services",
+      "description": "Fresh evergreen wreaths, garland, and lighting for the holidays, designed and installed across Greater Victoria. Five packages for homes and businesses.",
+      "canonical": "https://wabisabiservices.ca/seasoning/winter-holiday",
+      "h1": "Winter Holiday Packages"
+    }
+  }
+}

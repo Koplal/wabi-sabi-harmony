@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -22,6 +22,14 @@ const Checkout = () => {
     city: "",
     postalCode: "",
   });
+
+  const isCartEmpty = items.length === 0;
+
+  useEffect(() => {
+    if (isCartEmpty) {
+      navigate('/cart', { replace: true });
+    }
+  }, [isCartEmpty, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,14 +70,15 @@ const Checkout = () => {
     }
   };
 
-  if (items.length === 0) {
-    navigate('/cart');
-    return null;
+  const seo = <SEO title="Checkout" description="Complete your seasonal service request." noindex />;
+
+  if (isCartEmpty) {
+    return <Layout>{seo}</Layout>;
   }
 
   return (
     <Layout>
-      <SEO title="Checkout" description="Complete your seasonal service request." noindex />
+      {seo}
       <div className="min-h-screen pt-20 px-6 lg:px-12">
         <div className="container mx-auto max-w-6xl py-12">
           <h1 className="font-serif text-5xl mb-8">Checkout</h1>

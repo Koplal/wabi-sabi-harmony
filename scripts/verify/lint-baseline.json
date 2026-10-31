@@ -1,0 +1,122 @@
+{
+  "capturedFrom": "04b0d88",
+  "errors": 11,
+  "warnings": 9,
+  "files": {
+    "src/components/structured-data/ArticleSchema.tsx": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 1
+      }
+    },
+    "src/components/structured-data/JsonLd.tsx": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 1
+      }
+    },
+    "src/components/structured-data/ProductSchema.tsx": {
+      "errors": 2,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 2
+      }
+    },
+    "src/components/ui/badge.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/components/ui/button.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/components/ui/command.tsx": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-empty-object-type": 1
+      }
+    },
+    "src/components/ui/form.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/components/ui/navigation-menu.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/components/ui/sidebar.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/components/ui/sonner.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/components/ui/textarea.tsx": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-empty-object-type": 1
+      }
+    },
+    "src/components/ui/toggle.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/contexts/CartContext.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "src/pages/FAQ.tsx": {
+      "errors": 0,
+      "warnings": 1,
+      "errorRules": {}
+    },
+    "supabase/functions/send-application-email/index.ts": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 1
+      }
+    },
+    "supabase/functions/send-booking-email/index.ts": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 1
+      }
+    },
+    "supabase/functions/send-contact-email/index.ts": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 1
+      }
+    },
+    "supabase/functions/send-price-estimate-email/index.ts": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-explicit-any": 1
+      }
+    },
+    "tailwind.config.ts": {
+      "errors": 1,
+      "warnings": 0,
+      "errorRules": {
+        "@typescript-eslint/no-require-imports": 1
+      }
+    }
+  }
+}
