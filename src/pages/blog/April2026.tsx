@@ -132,16 +132,6 @@ const April2026 = () => {
               <li>Compostable scrub brushes</li>
             </ul>
 
-            <h3>DIY Cleaning Product Station:</h3>
-            <p>Create a sustainable cleaning laboratory:</p>
-            <ul>
-              <li>Bulk vinegar in glass containers</li>
-              <li>Baking soda in reusable jars</li>
-              <li>Castile soap refill station</li>
-              <li>Essential oils for customization</li>
-              <li>Reusable labels for organization</li>
-            </ul>
-
             <h2>Ocean-Safe Cleaning for Island Living</h2>
             <p>Living on Vancouver Island means protecting our waters:</p>
 
@@ -188,7 +178,7 @@ const April2026 = () => {
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">Care for your home and the coast it sits on</h3>
               <p className="mb-6">
-                Our concierge team cleans with eco-certified products and methods chosen with the Island in mind. We begin with a $150 in-home consultation, credited in full toward your first service.
+                Our concierge team cleans with low-toxicity products and methods chosen with the Island in mind. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <Link to="/contact">
                 <Button size="lg">Request a Private Consultation</Button>

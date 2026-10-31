@@ -87,9 +87,6 @@ const June2026 = () => {
             <h3>Wabi Sabi's Pet-Safe Arsenal:</h3>
             <ul>
               <li>Enzyme cleaners for biological messes</li>
-              <li>Vinegar-based solutions (diluted properly)</li>
-              <li>Baking soda for odor absorption</li>
-              <li>Castile soap for general cleaning</li>
               <li>Pet-specific botanical cleaners</li>
               <li>Microfiber technology for hair removal</li>
             </ul>
@@ -108,7 +105,6 @@ const June2026 = () => {
             <h3>Natural Deodorizers:</h3>
             <ul>
               <li>Activated charcoal in strategic locations</li>
-              <li>Baking soda on carpets before vacuuming</li>
               <li>Fresh air circulation daily</li>
               <li>Indoor plants that purify air (pet-safe varieties)</li>
               <li>Professional enzyme treatments for deep odors</li>
@@ -196,13 +192,12 @@ const June2026 = () => {
               <li>Regular maintenance to stay ahead of accumulation</li>
               <li>Safe, effective products for pet households</li>
               <li>Proper techniques that don't harm your pets</li>
-              <li>Peace of mind with certified pet-safe methods</li>
             </ul>
 
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">A spotless home, safe for every paw</h3>
               <p className="mb-6">
-                Our concierge team cleans with pet-safe products and methods, so your home stays fresh and your animals stay well. We begin with a $150 in-home consultation, credited in full toward your first service.
+                Our concierge team cleans with low-toxicity products and methods, so your home stays fresh and your animals stay well. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <Link to="/contact">
                 <Button size="lg">Request a Private Consultation</Button>

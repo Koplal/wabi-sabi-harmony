@@ -175,7 +175,7 @@ const September2025 = () => {
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">Begin the year well</h3>
               <p className="mb-6">
-                If the start of school already feels like enough, let our concierge team handle the home so your mornings stay quiet. We begin with a $150 in-home consultation, credited in full toward your first service.
+                If the start of school already feels like enough, let our concierge team handle the home so your mornings stay quiet. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <Link to="/contact">
                 <Button size="lg">Request a Private Consultation</Button>
