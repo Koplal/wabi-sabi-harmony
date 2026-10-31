@@ -223,6 +223,8 @@ const Contact = () => {
               (250) 896-5971
             </a>
             <p className="text-sm text-muted-foreground mt-6">Victoria, BC</p>
+            <p className="text-sm text-muted-foreground mt-2">Monday to Friday, 8 am–6 pm. Weekends on request.</p>
+            <p className="text-sm text-muted-foreground mt-2">Greater Victoria (Capital Regional District), from Sidney to Metchosin.</p>
           </div>
         </div>
       </div>

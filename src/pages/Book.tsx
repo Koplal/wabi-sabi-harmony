@@ -165,7 +165,7 @@ const Book = () => {
 
               <div className="bg-secondary/30 p-6 rounded-sm">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Note:</strong> Final rate is confirmed after your $150 in-home consultation, credited in full toward your first service.
+                  <strong>Note:</strong> Final rate is confirmed after your $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
                   Most appointments are confirmed within 24 hours.
                 </p>
               </div>
