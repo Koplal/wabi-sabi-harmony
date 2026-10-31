@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import bookHero from "@/assets/book-hero.jpg";
 
 const Book = () => {
@@ -33,6 +34,7 @@ const Book = () => {
 
       if (error) throw error;
 
+      trackEvent("consultation_booking", { service_type: formData.serviceType });
       toast.success("Booking request received! We'll confirm your appointment shortly.");
       setFormData({
         address: "",

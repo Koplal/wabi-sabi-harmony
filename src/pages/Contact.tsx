@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -35,6 +36,7 @@ const Contact = () => {
 
       if (error) throw error;
 
+      trackEvent("contact_submit", { service_type: formData.serviceType });
       toast.success("Thank you! We'll reply within one business day.");
       setFormData({
         name: "",
