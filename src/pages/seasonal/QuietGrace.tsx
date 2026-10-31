@@ -103,7 +103,7 @@ const QuietGrace = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -253,7 +253,7 @@ const QuietGrace = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural autumn scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural autumn scent to complement your display</p>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -262,7 +262,7 @@ const QuietGrace = () => {
                       id: 'quiet-grace-aromatherapy',
                       name: 'Seasonal Aromatherapy Spray',
                       price: 35,
-                      description: 'Natural autumn scent to complement your display',
+                      description: 'Essential-oil aromatherapy spray. Natural autumn scent to complement your display',
                       image: heroImage,
                     })}
                   >

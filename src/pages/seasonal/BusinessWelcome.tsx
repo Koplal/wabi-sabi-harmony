@@ -93,6 +93,7 @@ const BusinessWelcome = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$799</div>
                   <p className="text-muted-foreground">Commercial package with consultation</p>
+                  <p className="text-sm font-medium mt-3">Available: November through December</p>
                 </div>
                 <Button 
                   size="lg" 
@@ -103,7 +104,7 @@ const BusinessWelcome = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Request a Private Consultation
                   </Button>
                 </Link>
               </Card>
@@ -163,7 +164,7 @@ const BusinessWelcome = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
-                  <p className="text-muted-foreground">Flexible scheduling including after-hours</p>
+                  <p className="text-muted-foreground">Flexible scheduling</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Duration</h4>
@@ -207,9 +208,9 @@ const BusinessWelcome = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural winter scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'business-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural winter scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'business-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural winter scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

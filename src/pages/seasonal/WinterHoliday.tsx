@@ -172,6 +172,7 @@ const WinterHoliday = () => {
             <p className="text-lg text-muted-foreground leading-relaxed">
               Five winter packages, from a single welcoming doorway to a full estate facade. We source the greens,
               build the arrangements, and install everything ourselves, then take it all down once the season is over.
+              The Cozy Cabin, The Winter Wonderland, and The Festive Estate install from November 20 - December 5.
               Choose a package below, or talk with us about a display shaped to your home.
             </p>
           </div>
@@ -268,6 +269,7 @@ const WinterHoliday = () => {
             <p className="text-lg text-muted-foreground mb-8">
               The December calendar fills quickly. Start with a $150 in-home consultation, credited in full toward
               your first service, and we will walk your entrance together and plan the season's display.
+              Free estimates by phone or email.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">

@@ -47,7 +47,7 @@ const ProfessionalWelcome = () => {
         offers={{
           price: "799",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-professional-welcome",
         }}
       />
@@ -103,7 +103,7 @@ const ProfessionalWelcome = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -163,7 +163,7 @@ const ProfessionalWelcome = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
-                  <p className="text-muted-foreground">Flexible scheduling including after-hours</p>
+                  <p className="text-muted-foreground">Flexible scheduling</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Duration</h4>
@@ -207,9 +207,9 @@ const ProfessionalWelcome = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural spring scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural spring scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'professional-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural spring scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'professional-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural spring scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

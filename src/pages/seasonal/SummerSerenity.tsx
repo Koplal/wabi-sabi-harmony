@@ -139,7 +139,7 @@ const SummerSerenity = () => {
           offers={{
             price: String(pkg.price),
             priceCurrency: "CAD",
-            availability: "https://schema.org/InStock",
+            availability: "https://schema.org/PreOrder",
             url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
           }}
         />
@@ -267,7 +267,7 @@ const SummerSerenity = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="font-serif text-3xl mb-6">A Coastal Welcome for Summer</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead.
+              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead. Free estimates by phone or email.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">

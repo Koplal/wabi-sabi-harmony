@@ -47,7 +47,7 @@ const GardenGate = () => {
         offers={{
           price: "924",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-garden-gate",
         }}
       />
@@ -103,7 +103,7 @@ const GardenGate = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -234,7 +234,7 @@ const GardenGate = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural spring scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural spring scent to complement your display</p>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -243,7 +243,7 @@ const GardenGate = () => {
                       id: 'garden-gate-aromatherapy',
                       name: 'Seasonal Aromatherapy Spray',
                       price: 35,
-                      description: 'Natural spring scent to complement your display',
+                      description: 'Essential-oil aromatherapy spray. Natural spring scent to complement your display',
                       image: heroImage,
                     })}
                   >
