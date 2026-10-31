@@ -53,40 +53,39 @@ const Ritual = () => {
             your home is genuinely cared for.
           </p>
 
-          {/* The Foundation */}
-          <div className="mb-20">
-            <h2 className="font-serif text-3xl md:text-4xl mb-6">The Foundation: Your Consultation</h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              We begin every client relationship with a $150 in-home consultation, credited in full toward your first
-              service. This isn't a quote—it's a conversation.
-            </p>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              We walk through your space together, discuss what's working and what isn't, and understand your
-              priorities. Do you need consistent weekly maintenance? Help organizing a specific area? Support with daily
-              tasks that pile up?
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              From this visit, we design a service plan specific to your household—one that's flexible enough to adapt
-              as your needs change.
-            </p>
-          </div>
-
           {/* What to Expect */}
           <div className="mb-20">
             <h2 className="font-serif text-3xl md:text-4xl mb-8 text-center">What to Expect</h2>
 
             <div className="space-y-12">
               <div>
-                <h3 className="font-serif text-2xl mb-4">Consistency</h3>
+                <h3 className="font-serif text-2xl mb-4">1. Consultation</h3>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  We begin every client relationship with a $150 in-home consultation, credited in full toward your first
+                  service. This isn't a quote—it's a conversation. Free estimates by phone or email.
+                </p>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  We walk through your space together, discuss what's working and what isn't, and understand your
+                  priorities. Do you need consistent weekly maintenance? Help organizing a specific area? Support with daily
+                  tasks that pile up?
+                </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  You'll work with the same professional each visit. We believe relationships matter, and familiarity
+                  From this visit, we design a service plan specific to your household—one that's flexible enough to adapt
+                  as your needs change.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-serif text-2xl mb-4">2. Consistency</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  We aim to send the same professional every visit. We believe relationships matter, and familiarity
                   means we understand your home's rhythm, your preferences, and the small details that make a
                   difference.
                 </p>
               </div>
 
               <div>
-                <h3 className="font-serif text-2xl mb-4">Thoughtful Care</h3>
+                <h3 className="font-serif text-2xl mb-4">3. Thoughtful Care</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Our approach goes beyond cleaning surfaces. Towels are presented thoughtfully. Products are placed
                   with intention. Seasonal details—like subtle scents or how light moves through your space—are
@@ -95,7 +94,7 @@ const Ritual = () => {
               </div>
 
               <div>
-                <h3 className="font-serif text-2xl mb-4">Communication</h3>
+                <h3 className="font-serif text-2xl mb-4">4. Communication</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   After each service, you'll receive a brief update. If something needs your attention—a burnt-out bulb,
                   a delivery that arrived—we let you know. If you have preferences or adjustments, we adapt. This is a
@@ -104,9 +103,22 @@ const Ritual = () => {
               </div>
 
               <div>
-                <h3 className="font-serif text-2xl mb-4">Discretion</h3>
+                <h3 className="font-serif text-2xl mb-4">5. Discretion</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   What we see in your home stays private. Always. Your trust is the foundation of everything we do.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-serif text-2xl mb-4">6. Seasonal Transitions</h3>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Throughout the year, we adjust our approach to align with how you live. Lighter linens in summer.
+                  Attention to entryways during rainy season. Suggestions for when it's time to rotate outdoor furniture or
+                  refresh storage systems.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  These aren't upsells—they're part of understanding that homes are living spaces that shift with the
+                  seasons.
                 </p>
               </div>
             </div>
@@ -116,8 +128,8 @@ const Ritual = () => {
           <div className="mb-20 bg-secondary/30 rounded-lg p-10">
             <h2 className="font-serif text-3xl md:text-4xl mb-6">Our Philosophy</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              We're informed by research showing that organized environments reduce stress and improve focus—but we're
-              also practical. Perfection isn't sustainable.
+              We're informed by research showing that organized environments reduce stress and improve focus, and we keep
+              to a deliberate standard: homes that are lived in beautifully.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-6">
               Our goal isn't to create a showroom. It's to create a home that functions smoothly, feels calm, and
@@ -125,20 +137,6 @@ const Ritual = () => {
             </p>
             <p className="text-muted-foreground leading-relaxed">
               Small, consistent care compounds over time. That's the ritual.
-            </p>
-          </div>
-
-          {/* Seasonal Transitions */}
-          <div className="mb-20">
-            <h2 className="font-serif text-3xl md:text-4xl mb-6">Seasonal Transitions</h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              Throughout the year, we adjust our approach to align with how you live. Lighter linens in summer.
-              Attention to entryways during rainy season. Suggestions for when it's time to rotate outdoor furniture or
-              refresh storage systems.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              These aren't upsells—they're part of understanding that homes are living spaces that shift with the
-              seasons.
             </p>
           </div>
 
