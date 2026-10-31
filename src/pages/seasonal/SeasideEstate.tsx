@@ -103,7 +103,7 @@ const SeasideEstate = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
