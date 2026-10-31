@@ -93,6 +93,7 @@ const FestiveEstate = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$1,424</div>
                   <p className="text-muted-foreground">Includes professional installation & lighting</p>
+                  <p className="text-sm font-medium mt-3">Install window: November 20 - December 5</p>
                 </div>
                 <Button 
                   size="lg" 
@@ -103,7 +104,7 @@ const FestiveEstate = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Request a Private Consultation
                   </Button>
                 </Link>
               </Card>

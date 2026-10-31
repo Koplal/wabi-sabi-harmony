@@ -93,6 +93,7 @@ const BusinessWelcome = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$799</div>
                   <p className="text-muted-foreground">Commercial package with consultation</p>
+                  <p className="text-sm font-medium mt-3">Available: November through December</p>
                 </div>
                 <Button 
                   size="lg" 
@@ -103,7 +104,7 @@ const BusinessWelcome = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Request a Private Consultation
                   </Button>
                 </Link>
               </Card>
