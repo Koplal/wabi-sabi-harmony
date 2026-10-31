@@ -14,6 +14,9 @@ import bookHero from "@/assets/book-hero.jpg";
 
 const Book = () => {
   const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
     address: "",
     serviceType: "",
     cadence: "",
@@ -27,9 +30,14 @@ const Book = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const { preferredTime1, preferredTime2, preferredTime3, ...details } = formData;
+    const preferredTimes = [preferredTime1, preferredTime2, preferredTime3]
+      .filter((time) => time.trim())
+      .map((time, index) => `Preferred time ${index + 1}: ${time}`);
+
     try {
-      const { error } = await supabase.functions.invoke('send-booking-email', {
-        body: formData
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: { ...details, notes: ["Booking request", ...preferredTimes].join("\n") }
       });
 
       if (error) throw error;
@@ -37,6 +45,9 @@ const Book = () => {
       trackEvent("consultation_booking", { service_type: formData.serviceType });
       toast.success("Booking request received! We'll confirm your appointment shortly.");
       setFormData({
+        name: "",
+        email: "",
+        phone: "",
         address: "",
         serviceType: "",
         cadence: "",
@@ -92,6 +103,43 @@ const Book = () => {
 
           <div data-clarity-mask="true">
             <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-xs uppercase tracking-wider">Name</Label>
+                  <Input
+                    id="name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-xs uppercase tracking-wider">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-xs uppercase tracking-wider">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="rounded-none border-border bg-background"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="address" className="text-xs uppercase tracking-wider">Address</Label>
                 <Input
