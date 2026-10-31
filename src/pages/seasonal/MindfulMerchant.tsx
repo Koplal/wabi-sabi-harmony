@@ -192,7 +192,7 @@ const MindfulMerchant = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
-                  <p className="text-muted-foreground">Flexible scheduling including after-hours</p>
+                  <p className="text-muted-foreground">Flexible scheduling</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Duration</h4>
