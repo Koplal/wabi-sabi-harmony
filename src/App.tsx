@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
+import ClarityLoader from "@/components/Clarity";
 import { Layout } from "@/components/Layout";
 import NotFound from "./pages/NotFound";
 import { neighborhoods } from "@/data/neighborhoods";
@@ -86,6 +87,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <ClarityLoader />
       <BrowserRouter>
         <ScrollToTop />
         <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>

@@ -83,121 +83,123 @@ const Checkout = () => {
         <div className="container mx-auto max-w-6xl py-12">
           <h1 className="font-serif text-5xl mb-8">Checkout</h1>
 
-          <form onSubmit={handleSubmit}>
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <Card className="p-8">
-                  <h2 className="font-serif text-3xl mb-6">Contact Information</h2>
+          <div data-clarity-mask="true">
+            <form onSubmit={handleSubmit}>
+              <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <Card className="p-8">
+                    <h2 className="font-serif text-3xl mb-6">Contact Information</h2>
                   
-                  <div className="space-y-6">
-                    <div>
-                      <Label htmlFor="name">Full Name *</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
                       <div>
-                        <Label htmlFor="email">Email *</Label>
+                        <Label htmlFor="name">Full Name *</Label>
                         <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           required
                         />
                       </div>
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <Label htmlFor="email">Email *</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="phone">Phone *</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            required
+                          />
+                        </div>
+                      </div>
+
                       <div>
-                        <Label htmlFor="phone">Phone *</Label>
+                        <Label htmlFor="address">Service Address *</Label>
                         <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          id="address"
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                           required
                         />
                       </div>
-                    </div>
 
-                    <div>
-                      <Label htmlFor="address">Service Address *</Label>
-                      <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          value={formData.city}
-                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="postalCode">Postal Code</Label>
-                        <Input
-                          id="postalCode"
-                          value={formData.postalCode}
-                          onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                        />
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            value={formData.city}
+                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="postalCode">Postal Code</Label>
+                          <Input
+                            id="postalCode"
+                            value={formData.postalCode}
+                            onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </div>
+                  </Card>
+                </div>
 
-              <div className="lg:col-span-1">
-                <Card className="p-6 sticky top-24">
-                  <h2 className="font-serif text-2xl mb-6">Order Summary</h2>
+                <div className="lg:col-span-1">
+                  <Card className="p-6 sticky top-24">
+                    <h2 className="font-serif text-2xl mb-6">Order Summary</h2>
                   
-                  <div className="space-y-4 mb-6">
-                    {items.map((item) => (
-                      <div key={item.id} className="flex justify-between">
-                        <span className="text-muted-foreground">{item.name}</span>
-                        <span className="font-serif">${item.price}</span>
-                      </div>
-                    ))}
+                    <div className="space-y-4 mb-6">
+                      {items.map((item) => (
+                        <div key={item.id} className="flex justify-between">
+                          <span className="text-muted-foreground">{item.name}</span>
+                          <span className="font-serif">${item.price}</span>
+                        </div>
+                      ))}
                     
-                    <div className="border-t border-border pt-4">
-                      <div className="flex justify-between text-2xl font-serif">
-                        <span>Total</span>
-                        <span>${total}</span>
+                      <div className="border-t border-border pt-4">
+                        <div className="flex justify-between text-2xl font-serif">
+                          <span>Total</span>
+                          <span>${total}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      'Confirm'
-                    )}
-                  </Button>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Confirm'
+                      )}
+                    </Button>
 
-                  <p className="text-xs text-muted-foreground mt-4 text-center">
-                    By confirming, you agree to our Terms of Service
-                  </p>
-                </Card>
+                    <p className="text-xs text-muted-foreground mt-4 text-center">
+                      By confirming, you agree to our Terms of Service
+                    </p>
+                  </Card>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </Layout>
