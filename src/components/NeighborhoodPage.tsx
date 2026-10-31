@@ -7,6 +7,7 @@ import { ServiceSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Check, Sparkles, ClipboardList, ShoppingBag, Star } from "lucide-react";
 import type { Neighborhood } from "@/data/neighborhoods";
+import { GOOGLE_REVIEWS_URL } from "@/data/organization";
 
 // Area-appropriate existing hero assets, varied across adjacent areas for differentiation.
 // Falls back to the shared hero image when a slug is not explicitly mapped.
@@ -222,7 +223,7 @@ export const NeighborhoodPage = ({ data }: NeighborhoodPageProps) => {
           </p>
           <Button asChild variant="outline">
             <a
-              href="https://share.google/qpmn3a6VHcDFweao6"
+              href={GOOGLE_REVIEWS_URL}
               target="_blank"
               rel="noopener noreferrer"
             >
