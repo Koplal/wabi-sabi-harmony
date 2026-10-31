@@ -232,7 +232,7 @@ const FreshStart = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural spring scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural spring scent to complement your display</p>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -241,7 +241,7 @@ const FreshStart = () => {
                       id: 'fresh-start-aromatherapy',
                       name: 'Seasonal Aromatherapy Spray',
                       price: 35,
-                      description: 'Natural spring scent to complement your display',
+                      description: 'Essential-oil aromatherapy spray. Natural spring scent to complement your display',
                       image: heroImage,
                     })}
                   >

@@ -228,9 +228,9 @@ const EstateCollection = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural autumn scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural autumn scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'estate-collection-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural autumn scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'estate-collection-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural autumn scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

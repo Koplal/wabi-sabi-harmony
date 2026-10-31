@@ -207,9 +207,9 @@ const SummerStorefront = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Ocean breeze scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Ocean breeze scent to complement display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'summer-storefront-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Ocean breeze scent to complement display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'summer-storefront-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Ocean breeze scent to complement display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>
