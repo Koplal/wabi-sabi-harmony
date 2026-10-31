@@ -9,10 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import bookHero from "@/assets/book-hero.jpg";
 
 const Book = () => {
   const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
     address: "",
     serviceType: "",
     cadence: "",
@@ -26,15 +30,24 @@ const Book = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const { preferredTime1, preferredTime2, preferredTime3, ...details } = formData;
+    const preferredTimes = [preferredTime1, preferredTime2, preferredTime3]
+      .filter((time) => time.trim())
+      .map((time, index) => `Preferred time ${index + 1}: ${time}`);
+
     try {
-      const { error } = await supabase.functions.invoke('send-booking-email', {
-        body: formData
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: { ...details, notes: ["Booking request", ...preferredTimes].join("\n") }
       });
 
       if (error) throw error;
 
+      trackEvent("consultation_booking", { service_type: formData.serviceType });
       toast.success("Booking request received! We'll confirm your appointment shortly.");
       setFormData({
+        name: "",
+        email: "",
+        phone: "",
         address: "",
         serviceType: "",
         cadence: "",
@@ -88,91 +101,130 @@ const Book = () => {
             Begin your journey to a serene, immaculately kept space.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-2">
-              <Label htmlFor="address" className="text-xs uppercase tracking-wider">Address</Label>
-              <Input
-                id="address"
-                required
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="rounded-none border-border bg-background"
-                placeholder="Full address or neighbourhood"
-              />
-            </div>
+          <div data-clarity-mask="true">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-xs uppercase tracking-wider">Name</Label>
+                  <Input
+                    id="name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="serviceType" className="text-xs uppercase tracking-wider">Service Type</Label>
-                <Select required value={formData.serviceType} onValueChange={(value) => setFormData({ ...formData, serviceType: value })}>
-                  <SelectTrigger className="rounded-none border-border">
-                    <SelectValue placeholder="Select service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="residential-maintenance">Residential Maintenance</SelectItem>
-                    <SelectItem value="residential-deep">Residential Deep Reset</SelectItem>
-                    <SelectItem value="residential-move">Moving Prep / Listing-Ready</SelectItem>
-                    <SelectItem value="commercial">Commercial</SelectItem>
-                    <SelectItem value="post-construction">Post-Construction</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-xs uppercase tracking-wider">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cadence" className="text-xs uppercase tracking-wider">Cadence</Label>
-                <Select required value={formData.cadence} onValueChange={(value) => setFormData({ ...formData, cadence: value })}>
-                  <SelectTrigger className="rounded-none border-border">
-                    <SelectValue placeholder="Select frequency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="biweekly">Bi-Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="one-time">One-Time</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="phone" className="text-xs uppercase tracking-wider">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="rounded-none border-border bg-background"
+                />
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <Label className="text-xs uppercase tracking-wider">Preferred Time Windows</Label>
-              <p className="text-sm text-muted-foreground">Please provide 3 preferred date/time options</p>
+              <div className="space-y-2">
+                <Label htmlFor="address" className="text-xs uppercase tracking-wider">Address</Label>
+                <Input
+                  id="address"
+                  required
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="rounded-none border-border bg-background"
+                  placeholder="Full address or neighbourhood"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="serviceType" className="text-xs uppercase tracking-wider">Service Type</Label>
+                  <Select required value={formData.serviceType} onValueChange={(value) => setFormData({ ...formData, serviceType: value })}>
+                    <SelectTrigger className="rounded-none border-border">
+                      <SelectValue placeholder="Select service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="residential-maintenance">Residential Maintenance</SelectItem>
+                      <SelectItem value="residential-deep">Residential Deep Reset</SelectItem>
+                      <SelectItem value="residential-move">Moving Prep / Listing-Ready</SelectItem>
+                      <SelectItem value="commercial">Commercial</SelectItem>
+                      <SelectItem value="post-construction">Post-Construction</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cadence" className="text-xs uppercase tracking-wider">Cadence</Label>
+                  <Select required value={formData.cadence} onValueChange={(value) => setFormData({ ...formData, cadence: value })}>
+                    <SelectTrigger className="rounded-none border-border">
+                      <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="biweekly">Bi-Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="one-time">One-Time</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Label className="text-xs uppercase tracking-wider">Preferred Time Windows</Label>
+                <p className="text-sm text-muted-foreground">Please provide 3 preferred date/time options</p>
               
-              <div className="space-y-3">
-                <Input
-                  placeholder="Option 1 (e.g., Monday, Jan 15, 9am-12pm)"
-                  value={formData.preferredTime1}
-                  onChange={(e) => setFormData({ ...formData, preferredTime1: e.target.value })}
-                  className="rounded-none border-border bg-background"
-                />
-                <Input
-                  placeholder="Option 2"
-                  value={formData.preferredTime2}
-                  onChange={(e) => setFormData({ ...formData, preferredTime2: e.target.value })}
-                  className="rounded-none border-border bg-background"
-                />
-                <Input
-                  placeholder="Option 3"
-                  value={formData.preferredTime3}
-                  onChange={(e) => setFormData({ ...formData, preferredTime3: e.target.value })}
-                  className="rounded-none border-border bg-background"
-                />
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Option 1 (e.g., Monday, Jan 15, 9am-12pm)"
+                    value={formData.preferredTime1}
+                    onChange={(e) => setFormData({ ...formData, preferredTime1: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                  <Input
+                    placeholder="Option 2"
+                    value={formData.preferredTime2}
+                    onChange={(e) => setFormData({ ...formData, preferredTime2: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                  <Input
+                    placeholder="Option 3"
+                    value={formData.preferredTime3}
+                    onChange={(e) => setFormData({ ...formData, preferredTime3: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="bg-secondary/30 p-6 rounded-sm">
-              <p className="text-sm text-muted-foreground">
-                <strong>Note:</strong> Final rate is confirmed after your $150 in-home consultation, credited in full toward your first service.
-                Most appointments are confirmed within 24 hours.
-              </p>
-            </div>
+              <div className="bg-secondary/30 p-6 rounded-sm">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Note:</strong> Final rate is confirmed after your $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
+                  Most appointments are confirmed within 24 hours.
+                </p>
+              </div>
 
-            <div className="text-center">
-              <Button type="submit" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Sending..." : "Submit Booking Request"}
-              </Button>
-            </div>
-          </form>
+              <div className="text-center">
+                <Button type="submit" size="lg" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Submit Booking Request"}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </Layout>

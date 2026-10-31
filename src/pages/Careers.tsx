@@ -110,88 +110,90 @@ const Careers = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-muted/30 p-8 rounded-lg">
-              <h3 className="font-serif text-2xl mb-6">Apply Now</h3>
+            <div data-clarity-mask="true">
+              <form onSubmit={handleSubmit} className="space-y-6 bg-muted/30 p-8 rounded-lg">
+                <h3 className="font-serif text-2xl mb-6">Apply Now</h3>
               
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="name">Full Name *</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
 
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="position">Position of Interest</Label>
                   <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    id="position"
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    placeholder="e.g., Cleaning Professional, Team Lead"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="position">Position of Interest</Label>
-                <Input
-                  id="position"
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  placeholder="e.g., Cleaning Professional, Team Lead"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="experience">Relevant Experience</Label>
+                  <Textarea
+                    id="experience"
+                    value={formData.experience}
+                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                    placeholder="Tell us about your experience..."
+                    rows={4}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="experience">Relevant Experience</Label>
-                <Textarea
-                  id="experience"
-                  value={formData.experience}
-                  onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                  placeholder="Tell us about your experience..."
-                  rows={4}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="availability">Availability</Label>
+                  <Input
+                    id="availability"
+                    value={formData.availability}
+                    onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
+                    placeholder="e.g., Full-time, Part-time, Weekends"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="availability">Availability</Label>
-                <Input
-                  id="availability"
-                  value={formData.availability}
-                  onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                  placeholder="e.g., Full-time, Part-time, Weekends"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Additional Information</Label>
+                  <Textarea
+                    id="message"
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="Anything else you'd like us to know..."
+                    rows={4}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Additional Information</Label>
-                <Textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Anything else you'd like us to know..."
-                  rows={4}
-                />
-              </div>
-
-              <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Submitting..." : "Submit Application"}
-              </Button>
-            </form>
+                <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       </div>

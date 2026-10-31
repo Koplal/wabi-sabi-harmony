@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -35,6 +36,7 @@ const Contact = () => {
 
       if (error) throw error;
 
+      trackEvent("contact_submit", { service_type: formData.serviceType });
       toast.success("Thank you! We'll reply within one business day.");
       setFormData({
         name: "",
@@ -89,126 +91,128 @@ const Contact = () => {
             Let's discuss how we can care for your space.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-8 mb-16">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div data-clarity-mask="true">
+            <form onSubmit={handleSubmit} className="space-y-8 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-xs uppercase tracking-wider">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-xs uppercase tracking-wider">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-xs uppercase tracking-wider">
+                    Phone
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address" className="text-xs uppercase tracking-wider">
+                    Address / Neighbourhood
+                  </Label>
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="rounded-none border-border bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="serviceType" className="text-xs uppercase tracking-wider">
+                    Service Type
+                  </Label>
+                  <Select
+                    value={formData.serviceType}
+                    onValueChange={(value) => setFormData({ ...formData, serviceType: value })}
+                  >
+                    <SelectTrigger className="rounded-none border-border">
+                      <SelectValue placeholder="Select service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="residential">Residential</SelectItem>
+                      <SelectItem value="commercial">Commercial</SelectItem>
+                      <SelectItem value="post-construction">Post-Construction</SelectItem>
+                      <SelectItem value="consultation">Consultation Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cadence" className="text-xs uppercase tracking-wider">
+                    Ideal Cadence
+                  </Label>
+                  <Select
+                    value={formData.cadence}
+                    onValueChange={(value) => setFormData({ ...formData, cadence: value })}
+                  >
+                    <SelectTrigger className="rounded-none border-border">
+                      <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="biweekly">Bi-Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="one-time">One-Time</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-xs uppercase tracking-wider">
-                  Name
+                <Label htmlFor="notes" className="text-xs uppercase tracking-wider">
+                  Notes
                 </Label>
-                <Input
-                  id="name"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="rounded-none border-border bg-background"
+                <Textarea
+                  id="notes"
+                  rows={5}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="rounded-none border-border bg-background resize-none"
+                  placeholder="Tell us about your space, any specific needs, or questions..."
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs uppercase tracking-wider">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="rounded-none border-border bg-background"
-                />
+              <div className="text-center">
+                <Button type="submit" size="lg" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Send Inquiry"}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-4">We'll reply within one business day.</p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-xs uppercase tracking-wider">
-                  Phone
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="rounded-none border-border bg-background"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address" className="text-xs uppercase tracking-wider">
-                  Address / Neighbourhood
-                </Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="rounded-none border-border bg-background"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="serviceType" className="text-xs uppercase tracking-wider">
-                  Service Type
-                </Label>
-                <Select
-                  value={formData.serviceType}
-                  onValueChange={(value) => setFormData({ ...formData, serviceType: value })}
-                >
-                  <SelectTrigger className="rounded-none border-border">
-                    <SelectValue placeholder="Select service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="residential">Residential</SelectItem>
-                    <SelectItem value="commercial">Commercial</SelectItem>
-                    <SelectItem value="post-construction">Post-Construction</SelectItem>
-                    <SelectItem value="consultation">Consultation Only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cadence" className="text-xs uppercase tracking-wider">
-                  Ideal Cadence
-                </Label>
-                <Select
-                  value={formData.cadence}
-                  onValueChange={(value) => setFormData({ ...formData, cadence: value })}
-                >
-                  <SelectTrigger className="rounded-none border-border">
-                    <SelectValue placeholder="Select frequency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="biweekly">Bi-Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="one-time">One-Time</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-xs uppercase tracking-wider">
-                Notes
-              </Label>
-              <Textarea
-                id="notes"
-                rows={5}
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="rounded-none border-border bg-background resize-none"
-                placeholder="Tell us about your space, any specific needs, or questions..."
-              />
-            </div>
-
-            <div className="text-center">
-              <Button type="submit" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Sending..." : "Send Inquiry"}
-              </Button>
-              <p className="text-xs text-muted-foreground mt-4">We'll reply within one business day.</p>
-            </div>
-          </form>
+            </form>
+          </div>
 
           <div className="text-center border-t border-border pt-12">
             <p className="text-muted-foreground mb-2">Or reach us directly:</p>
@@ -219,6 +223,8 @@ const Contact = () => {
               (250) 896-5971
             </a>
             <p className="text-sm text-muted-foreground mt-6">Victoria, BC</p>
+            <p className="text-sm text-muted-foreground mt-2">Monday to Friday, 8 am–6 pm. Weekends on request.</p>
+            <p className="text-sm text-muted-foreground mt-2">Greater Victoria (Capital Regional District), from Sidney to Metchosin.</p>
           </div>
         </div>
       </div>
