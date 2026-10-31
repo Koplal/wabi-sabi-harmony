@@ -47,7 +47,7 @@ const IslandRetreat = () => {
         offers={{
           price: "924",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-island-retreat",
         }}
       />

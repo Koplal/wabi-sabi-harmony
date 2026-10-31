@@ -47,7 +47,7 @@ const BeachsideManor = () => {
         offers={{
           price: "1424",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-beachside-manor",
         }}
       />

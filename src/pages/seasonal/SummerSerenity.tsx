@@ -139,7 +139,7 @@ const SummerSerenity = () => {
           offers={{
             price: String(pkg.price),
             priceCurrency: "CAD",
-            availability: "https://schema.org/InStock",
+            availability: "https://schema.org/PreOrder",
             url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
           }}
         />

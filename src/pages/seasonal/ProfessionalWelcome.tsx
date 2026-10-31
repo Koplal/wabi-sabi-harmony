@@ -47,7 +47,7 @@ const ProfessionalWelcome = () => {
         offers={{
           price: "799",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-professional-welcome",
         }}
       />

@@ -47,7 +47,7 @@ const SeasideEstate = () => {
         offers={{
           price: "1924",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-seaside-estate",
         }}
       />

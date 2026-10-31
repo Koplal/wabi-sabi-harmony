@@ -47,7 +47,7 @@ const FreshStart = () => {
         offers={{
           price: "474",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-fresh-start",
         }}
       />
