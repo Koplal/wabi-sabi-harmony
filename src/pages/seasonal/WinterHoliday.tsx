@@ -268,6 +268,7 @@ const WinterHoliday = () => {
             <p className="text-lg text-muted-foreground mb-8">
               The December calendar fills quickly. Start with a $150 in-home consultation, credited in full toward
               your first service, and we will walk your entrance together and plan the season's display.
+              Free estimates by phone or email.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">

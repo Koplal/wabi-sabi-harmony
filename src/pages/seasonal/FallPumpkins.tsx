@@ -268,7 +268,8 @@ const FallPumpkins = () => {
             <h2 className="font-serif text-3xl mb-6">Planning for Next Season?</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Our autumn calendar fills early. Start with a $150 in-home consultation, credited in full toward your
-              first service, and we will plan a display for your home and hold your place on the 2026 waitlist.
+              first service, and we will plan a display for your home and hold your place on the 2027 waitlist.
+              Free estimates by phone or email.
             </p>
             <Button asChild size="lg">
               <Link to="/contact">Request a Private Consultation</Link>

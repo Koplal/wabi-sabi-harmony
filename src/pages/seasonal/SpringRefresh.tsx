@@ -267,7 +267,7 @@ const SpringRefresh = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="font-serif text-3xl mb-6">Welcome Spring to Your Door</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead.
+              We begin with a $150 in-home consultation, credited in full toward your first service, to plan a display suited to your entrance and the season ahead. Free estimates by phone or email.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
