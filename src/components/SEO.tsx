@@ -34,7 +34,8 @@ export const SEO = ({
 }: SEOProps) => {
   const siteUrl = "https://wabisabiservices.ca";
   const fullTitle = `${title} | Wabi Sabi Services`;
-  const canonicalUrl = canonical || siteUrl + window.location.pathname;
+  const canonicalPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  const canonicalUrl = canonical || siteUrl + canonicalPath;
   const fullImageUrl = ogImage.startsWith("http") ? ogImage : siteUrl + ogImage;
 
   return (

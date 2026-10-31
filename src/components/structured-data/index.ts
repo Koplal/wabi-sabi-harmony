@@ -1,4 +1,5 @@
 export { LocalBusinessSchema } from "./LocalBusinessSchema";
+export { ParentOrganizationSchema } from "./ParentOrganizationSchema";
 export { ServiceSchema } from "./ServiceSchema";
 export { BreadcrumbSchema } from "./BreadcrumbSchema";
 export { FAQPageSchema } from "./FAQPageSchema";

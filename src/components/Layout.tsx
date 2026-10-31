@@ -17,6 +17,7 @@ import {
 import { ChevronDown, Menu, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { LocalBusinessSchema } from "./structured-data";
+import { GOOGLE_REVIEWS_URL } from "@/data/organization";
 
 const navigation = [
   { name: "The Ritual", href: "/ritual" },
@@ -327,6 +328,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                     Client Agreement
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/privacy"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -355,7 +364,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                   Instagram
                 </a>
                 <a
-                  href="https://share.google/qpmn3a6VHcDFweao6"
+                  href={GOOGLE_REVIEWS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Wabi Sabi Services on Google Reviews"
