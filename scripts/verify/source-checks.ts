@@ -537,7 +537,8 @@ interface CopySegment {
 }
 
 /** The text a visitor can read from a source file: JSX text and string literals. */
-export function copySegments(path: string, text: string): CopySegment[] {
+/** With numbers, numeric literals count too, because a price is copy when asking what changed. */
+export function copySegments(path: string, text: string, numbers = false): CopySegment[] {
   if (!/\.tsx?$/.test(path)) return lines(text).map((line, index) => ({ text: line, line: index + 1 }));
 
   const kind = path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
@@ -551,6 +552,7 @@ export function copySegments(path: string, text: string): CopySegment[] {
     if (ts.isJsxAttribute(node) && OVERLAP.nonCopyAttributes.includes(node.name.getText(source))) return;
     if (ts.isJsxText(node)) push(node, node.text);
     else if (ts.isStringLiteralLike(node)) push(node, node.text);
+    else if (numbers && ts.isNumericLiteral(node)) push(node, node.text);
     ts.forEachChild(node, visit);
   };
   visit(source);

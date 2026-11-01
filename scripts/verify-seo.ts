@@ -185,6 +185,36 @@ function lastCommitDate(path: string): string | undefined {
   return commitDates.get(path);
 }
 
+const fileVersions = new Map<string, Array<{ hash: string; date: string; path: string }>>();
+
+/** Every version of a file, newest first. Blog posts have been renamed, so this follows renames. */
+function versionsOf(path: string) {
+  const known = fileVersions.get(path);
+  if (known) return known;
+  const log = git(["log", "--follow", "--format=%x00%H %cs", "--name-only", "--", path]).output;
+  const versions = log.split("\0").filter(Boolean).map((entry) => {
+    const [head, ...rest] = entry.split("\n").filter(Boolean);
+    const [hash, date] = head.split(" ");
+    return { hash, date, path: rest[0] };
+  });
+  fileVersions.set(path, versions);
+  return versions;
+}
+
+const shownFiles = new Map<string, string | undefined>();
+
+/** The version in force at the end of a date. Area routes share files, so each is read once. */
+function sourceOn(path: string, date: string): string | undefined {
+  const version = versionsOf(path).find((item) => item.date <= date);
+  if (!version) return undefined;
+  const key = `${version.hash}:${version.path}`;
+  if (!shownFiles.has(key)) {
+    const shown = git(["show", key]);
+    shownFiles.set(key, shown.ok ? shown.output : undefined);
+  }
+  return shownFiles.get(key);
+}
+
 async function loadExport(file: string, name: string): Promise<unknown> {
   const module = (await import(pathToFileURL(resolve(ROOT, file)).href)) as Record<string, unknown>;
   return module[name];
@@ -237,6 +267,8 @@ async function buildDistCtx(args: Args): Promise<DistCtx> {
     privateBans: loadPrivateBans(),
     readSource: readRepoFile,
     lastCommitDate,
+    sourceOn,
+    shallowClone: git(["rev-parse", "--is-shallow-repository"]).output.trim() === "true",
     sourcePages() {
       const pages: string[] = [];
       walk(resolve(ROOT, "src/pages"), (path) => {

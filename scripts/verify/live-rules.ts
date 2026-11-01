@@ -1,6 +1,6 @@
 /** Live rules as pure checks on fetched responses, so the self-test can run them on fixtures. */
 import { LIVE, MISSING_PAGE, SITE } from "./rules";
-import { canonicalsOf, type Finding, metaContent, missingPageProblems, rawHeadingsOf, routeUrl } from "./lib";
+import { canonicalsOf, type Finding, lastmodProblem, metaContent, missingPageProblems, rawHeadingsOf, routeUrl, sharedDateProblem, sitemapLastmods } from "./lib";
 
 export interface Hop {
   url: string;
@@ -72,6 +72,22 @@ export function checkRedirect(from: string, to: string, base: string, chain: Cha
   if (permanent && finalUrl(chain) === expected && finalStatus(chain) === 200) return [];
   const wanted = maxHops === 1 ? "one permanent redirect" : `at most ${maxHops} permanent redirects`;
   return [{ rule: "LV-REDIRECT", file: from, message: `expected ${wanted} to ${to}, ending at 200: ${describeChain(chain)}` }];
+}
+
+/**
+ * R2-FR-15 on the deployed file, because the build that made it may not read git as a local one
+ * does: Vercel clones shallowly, so dates generated there can differ from what D-SITEMAP saw.
+ * histories is each page's latest commit, from this checkout's git.
+ */
+export function checkSitemapDates(status: number, sitemap: string, histories: string[]): Finding[] {
+  const finding = (message: string): Finding => ({ rule: "LV-SITEMAP", row: "R2-FR-15", file: "/sitemap.xml", message });
+  if (status !== 200) return [finding(`status ${status}`)];
+  const lastmods = sitemapLastmods(sitemap);
+  if (lastmods.size === 0) return [finding("no URLs in the sitemap")];
+  const problems = [...lastmods].flatMap(([url, date]) => lastmodProblem(url, date) ?? []);
+  const dates = [...lastmods.values()].filter((date): date is string => Boolean(date));
+  const shared = sharedDateProblem(dates, histories);
+  return [...problems, ...(shared ? [shared] : [])].map(finding);
 }
 
 export function checkUtility(route: string, status: number, html: string): Finding[] {

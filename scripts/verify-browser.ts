@@ -16,7 +16,8 @@
  *   npm run verify:browser -- --measure-lcp --base=<site>  saves production's lab LCP as the R1 figure
  *   npm run verify:browser -- --write-render-baseline  saves each route's rendered text, from dist/ only
  *     with --route=/a,/b                          only these routes, keeping the rest
- *     with --from-prerendered                     allows a prerendered build, which replaces R1 text
+ *     with --from-prerendered --route=/a,/b       allows a prerendered build, which replaces R1 text,
+ *                                                 and only for the routes named
  *
  * BR-RENDER reads dist/ only, because a deployment renders its reviews and the saved text has none.
  * A page changed on purpose takes a new entry with --write-render-baseline --route=<route>.
@@ -32,7 +33,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type ConsoleMessage, type Page, type Route } from "playwright-core";
-import { BROWSER, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES } from "./verify/rules";
+import { BROWSER, FAQ_FILES, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES } from "./verify/rules";
 import { type Finding, htmlFileOfRoute, listValue, median, parseArgs, pathOfHref, rawHeadingsOf, report, routeList, textWords, UsageError } from "./verify/lib";
 import {
   BROWSER_RULES,
@@ -45,18 +46,22 @@ import {
   checkH1,
   checkHead,
   checkHydrate,
+  checkInteract,
   checkLcpRuns,
   checkMissingUrl,
   checkNav,
   checkRank,
   checkRawPage,
   checkRendered,
+  fromPrerenderedProblem,
   type HydrationSnapshot,
+  type InteractReading,
   type LcpMeasure,
   type NavStep,
   type PageSnapshot,
 } from "./verify/browser-rules";
 import type { LcpLab, RankBaseline, RenderBaseline, RenderEntry } from "./verify/dist-checks";
+import { faqAnswers } from "./verify/source-checks";
 import { type RunningServer, startStaticServer } from "./verify/static-server";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -79,7 +84,7 @@ const LCP_QUIET = 3_000;
 const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline", "from-prerendered", "dev-react", "measure-lcp"];
 const KNOWN_VALUES = ["route", "skip", "rules", "base", "expect-clarity"];
 
-/** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE and BR-CART make their own visits. */
+/** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE, BR-CART and BR-INTERACT make their own visits. */
 const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER"];
 
 class PreviewProtected extends Error {}
@@ -307,6 +312,8 @@ async function navFindings(browser: Browser, session: Session): Promise<Finding[
 }
 
 interface ProbeWindow {
+  __verifyNav?: boolean;
+  __verifySubmits?: number;
   __verifyMarkup?: { content: Element | null; heading: Element | null; empty: boolean };
   __verifyCartWrites?: string[];
   __verifyLcp?: number;
@@ -451,6 +458,122 @@ async function cartFindings(browser: Browser, session: Session): Promise<Finding
   }
 }
 
+const countSubmits = () => {
+  document.addEventListener(
+    "submit",
+    () => {
+      const probe = window as unknown as ProbeWindow;
+      probe.__verifySubmits = (probe.__verifySubmits ?? 0) + 1;
+    },
+    true
+  );
+};
+
+const linksOnScreen = (page: Page, selector: string) =>
+  page.evaluate(
+    (links) => [...document.querySelectorAll<HTMLAnchorElement>(links)].filter((link) => link.getClientRects().length > 0).map((link) => link.getAttribute("href") ?? ""),
+    selector
+  );
+
+/** Nothing counts until it takes up room on screen, because closed answers may be in the DOM after R2-14. */
+const panelText = (page: Page, id: string) =>
+  page.evaluate((panel) => {
+    const element = document.getElementById(panel);
+    return element && element.getBoundingClientRect().height > 0 ? element.innerText.trim() : "";
+  }, id);
+
+async function openAnswer(page: Page): Promise<InteractReading["answer"]> {
+  const trigger = page.locator(BROWSER.interact.accordion.trigger).first();
+  const panel = (await trigger.getAttribute("aria-controls", { timeout: RENDER_TIMEOUT })) ?? "";
+  const before = await panelText(page, panel);
+  await trigger.click({ timeout: RENDER_TIMEOUT });
+  await page.waitForFunction((id) => (document.getElementById(id)?.getBoundingClientRect().height ?? 0) > 0, panel, { timeout: HEADING_TIMEOUT }).catch(() => undefined);
+  return { before, after: await panelText(page, panel) };
+}
+
+async function openMenu(page: Page): Promise<InteractReading["menu"]> {
+  const { button, links } = BROWSER.interact.menu;
+  const before = await linksOnScreen(page, links);
+  await page.locator(button).tap({ timeout: RENDER_TIMEOUT });
+  await page.locator(links).first().waitFor({ state: "visible", timeout: HEADING_TIMEOUT }).catch(() => undefined);
+  return { before, after: await linksOnScreen(page, links) };
+}
+
+async function openDropdown(page: Page): Promise<InteractReading["dropdown"]> {
+  const { button, links } = BROWSER.interact.dropdown;
+  const before = await linksOnScreen(page, links);
+  await page.locator(button).click({ timeout: RENDER_TIMEOUT });
+  await page.locator(links).first().waitFor({ state: "visible", timeout: HEADING_TIMEOUT }).catch(() => undefined);
+  return { before, after: await linksOnScreen(page, links) };
+}
+
+/** Types one key at a time and stops. Enter would submit, so it is never pressed. */
+async function typeInField(page: Page): Promise<InteractReading["field"]> {
+  const { selector, text } = BROWSER.interact.field;
+  const field = page.locator(selector);
+  await field.pressSequentially(text, { timeout: RENDER_TIMEOUT });
+  const submits = await page.evaluate(() => (window as unknown as ProbeWindow).__verifySubmits ?? 0);
+  return { value: await field.inputValue(), submits };
+}
+
+async function clickFooterLink(page: Page, path: string): Promise<number> {
+  const link = page.locator(`footer a[href="${path}"]`).first();
+  await link.scrollIntoViewIfNeeded({ timeout: RENDER_TIMEOUT });
+  const scrolled = await page.evaluate(() => window.scrollY);
+  await link.click({ timeout: RENDER_TIMEOUT });
+  await page.waitForFunction((target) => location.pathname === target, path, { timeout: RENDER_TIMEOUT }).catch(() => undefined);
+  await settle(page);
+  return scrolled;
+}
+
+/** Both pages are loaded by the time it counts, so the second click swaps them with no fallback between. */
+async function followFooterLinks(page: Page): Promise<InteractReading["scroll"]> {
+  const { start, through } = BROWSER.interact.scroll;
+  await page.evaluate(() => {
+    (window as unknown as ProbeWindow).__verifyNav = true;
+  });
+  await clickFooterLink(page, through);
+  const before = await clickFooterLink(page, start);
+  const reading = await page.evaluate(() => ({
+    after: window.scrollY,
+    clientSide: (window as unknown as ProbeWindow).__verifyNav === true,
+    finalPath: location.pathname,
+  }));
+  return { before, ...reading };
+}
+
+async function interactFindings(browser: Browser, session: Session): Promise<Finding[]> {
+  const { accordion, menu, dropdown, field, scroll } = BROWSER.interact;
+  const writesBefore = session.blockedWrites.length;
+  const errors: InteractReading["errors"] = {};
+
+  async function step<T>(name: string, route: string, act: (page: Page) => Promise<T>, options?: BrowserContextOptions): Promise<T | undefined> {
+    const { context, page } = await newPage(browser, session, undefined, options);
+    try {
+      await context.addInitScript(countSubmits);
+      const response = await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
+      if (response?.status() === 401) throw new PreviewProtected();
+      await settle(page);
+      return await act(page);
+    } catch (error) {
+      if (error instanceof PreviewProtected) throw error;
+      errors[name] = error instanceof Error ? error.message.split("\n")[0] : String(error);
+      return undefined;
+    } finally {
+      await context.close();
+    }
+  }
+
+  const reading = {
+    answer: await step("FAQ answer", accordion.route, openAnswer),
+    menu: await step("mobile menu", menu.route, openMenu, { viewport: menu.viewport, isMobile: true, hasTouch: true }),
+    dropdown: await step("dropdown", dropdown.route, openDropdown),
+    field: await step("form field", field.route, typeInField),
+    scroll: await step("scroll reset", scroll.start, followFooterLinks),
+  };
+  return checkInteract({ ...reading, errors, writes: session.blockedWrites.slice(writesBefore) });
+}
+
 async function missingUrlFindings(browser: Browser, session: Session): Promise<Finding[]> {
   try {
     return checkMissingUrl(await visit(browser, session, { route: LIVE.missingPath }, false), session.origin);
@@ -584,7 +707,7 @@ async function lcpFindings(browser: Browser, session: Session, routes: string[])
   }
   const { lab } = loadRenderBaseline().mobileLcp;
   const [measured] = await measureLcp(browser, [session], routes);
-  console.log(`BR-LCP: against the R1 figure from ${lab?.measuredOn} on ${lab?.browser}, today on ${browserName(browser)}, so another sitting and possibly another machine.`);
+  console.log(`BR-LCP: against the R1 figure from ${lab?.measuredOn} on ${lab?.browser}, today on ${browserName(browser)}, so another sitting and possibly another machine. Layout shift is not compared, because the saved figure has none.`);
   return routes.flatMap((route) => checkLcpRuns(route, measured[route], lab?.routes[route]));
 }
 
@@ -743,6 +866,8 @@ async function run(): Promise<number> {
   for (const route of [...(requested ?? []), ...skipped]) {
     if (!route.startsWith("/")) throw new UsageError(`A route must start with /: ${route}`);
   }
+  const prerenderProblem = fromPrerenderedProblem(args.flags.has("from-prerendered"), args.flags.has("write-render-baseline"), requested);
+  if (prerenderProblem) throw new UsageError(prerenderProblem);
   const routes = routesToVisit(selected, requested, skipped, expectClarity);
   const targets = selected.some((rule) => PAGE_RULES.includes(rule)) ? targetsFor(routes) : [];
 
@@ -777,6 +902,7 @@ async function run(): Promise<number> {
     const clarity = selected.includes("BR-CLARITY");
     const has = (rule: string) => selected.includes(rule);
     const savedRoutes: RenderBaseline["routes"] = has("BR-RENDER") ? loadRenderBaseline().routes : {};
+    const answers = has("BR-RAW") ? faqAnswers(readFileSync(resolve(ROOT, FAQ_FILES.data), "utf8")) : [];
 
     await inPool(targets, async (target) => {
       let snapshot: PageSnapshot;
@@ -795,13 +921,15 @@ async function run(): Promise<number> {
       if (has("BR-RANK")) findings.push(...checkRank(snapshot, baseline?.pages[snapshot.route]?.h1));
       if (has("BR-CLARITY")) findings.push(...checkClarity(snapshot, expectClarity));
       if (has("BR-GA")) findings.push(...checkGa(snapshot));
-      if (has("BR-RAW")) findings.push(...checkRawPage(snapshot));
+      if (has("BR-RAW")) findings.push(...checkRawPage(snapshot, answers));
       if (has("BR-RENDER")) findings.push(...checkRendered(snapshot, savedRoutes[snapshot.route]));
     });
 
     if (has("BR-NAV") && (!requested || named.includes("BR-NAV"))) findings.push(...(await navFindings(browser, session)));
     if (has("BR-CART") && (!requested || named.includes("BR-CART"))) findings.push(...(await cartFindings(browser, session)));
     if (has("BR-404") && (!requested || named.includes("BR-404"))) findings.push(...(await missingUrlFindings(browser, session)));
+    const interacting = has("BR-INTERACT") && (!requested || named.includes("BR-INTERACT"));
+    if (interacting) findings.push(...(await interactFindings(browser, session)));
 
     const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).filter((route) => !skipped.includes(route)) : [];
     findings.push(...(await hydrationFindings(browser, session, hydrationRoutes)));
@@ -813,6 +941,7 @@ async function run(): Promise<number> {
       const later = hydrationRoutes.filter((route) => BROWSER.clockRoutes.includes(route));
       console.log(`BR-HYDRATE: ${plural(hydrationRoutes.length, "route")}${devReact ? " with development React" : ""}, each with an empty and a seeded cart${later.length > 0 ? `, and ${later.join(", ")} on a later date` : ""}.`);
     }
+    if (interacting) console.log("BR-INTERACT: an FAQ answer, the mobile menu, the nav dropdown, a form field and a scroll reset, with nothing submitted.");
     if (session.blockedWrites.length > 0) {
       const unique = [...new Set(session.blockedWrites)];
       console.log(`Blocked ${session.blockedWrites.length} write request${session.blockedWrites.length === 1 ? "" : "s"}: ${unique.join(", ")}`);

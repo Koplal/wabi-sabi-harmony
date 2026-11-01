@@ -6,6 +6,7 @@ import {
   COPY_PAGES,
   FALLBACK,
   FAQ_FILES,
+  FAQ_ROUTE,
   HELMET_META_KEYS,
   MANIFEST,
   MISSING_PAGE,
@@ -29,12 +30,15 @@ import {
   canonicalJson,
   canonicalsOf,
   duplicateProblems,
+  escapeRegex,
   type Finding,
   headOf,
   htmlFileOfRoute,
+  isDate,
   isNode,
   jsonLdBlocksOf,
   type JsonNode,
+  lastmodProblem,
   median,
   metaContent,
   missingPageProblems,
@@ -43,9 +47,12 @@ import {
   rawTextOf,
   type RenderedPage,
   routeOfHtmlFile,
+  sharedDateProblem,
+  sitemapLastmods,
   SourceText,
   tagsNamed,
   titleOf,
+  todayUtc,
   topNodes,
   typesOf,
 } from "./lib";
@@ -57,6 +64,7 @@ import {
   checkPearly,
   checkRequired,
   checkRoof,
+  copySegments,
   faqAnswers,
   faqQuestions,
   napProblems,
@@ -142,6 +150,10 @@ export interface DistCtx {
   readSource(path: string): string | undefined;
   /** The date of the last commit to a file, as YYYY-MM-DD. Undefined when git has none. */
   lastCommitDate(path: string): string | undefined;
+  /** The file as it stood at the end of a date, through renames. Undefined when it did not exist yet. */
+  sourceOn(path: string, date: string): string | undefined;
+  /** True in a shallow clone, where every older file reads as last changed at the clone's edge. */
+  shallowClone?: boolean;
   sourcePages(): string[];
   expectClarity?: string;
   note?: (message: string) => void;
@@ -391,9 +403,6 @@ export function checkTodo(ctx: DistCtx): Finding[] {
 
 const expectedCanonical = (route: string) => (route === "/" ? `${SITE}/` : `${SITE}${route}`);
 
-/** Dates here are written with toISOString, so they compare in UTC. */
-const todayUtc = () => new Date().toISOString().slice(0, 10);
-
 export function checkRoutes(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   const add = (message: string, file?: string) => findings.push({ rule: "D-ROUTES", file, message });
@@ -429,49 +438,74 @@ export function checkRoutes(ctx: DistCtx): Finding[] {
 
 const sitemapLocs = (sitemap: string) => new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((match) => match[1]));
 
-/** Each URL's lastmod as a date. Undefined for an entry with none. */
-function sitemapLastmods(sitemap: string): Map<string, string | undefined> {
-  const lastmods = new Map<string, string | undefined>();
-  for (const [entry] of sitemap.matchAll(/<url>[\s\S]*?<\/url>/g)) {
-    const loc = /<loc>\s*([^<]+?)\s*<\/loc>/.exec(entry)?.[1];
-    if (loc) lastmods.set(loc, /<lastmod>\s*([^<]+?)\s*<\/lastmod>/.exec(entry)?.[1].slice(0, 10));
-  }
-  return lastmods;
+/** One place a route's copy comes from. slug narrows the shared area data to this route's entry. */
+interface CopySource {
+  file: string;
+  slug?: string;
 }
 
-/** The files a route's copy comes from, found the way D-COPY finds them. */
-function routeSourceFiles(ctx: DistCtx): Map<string, string[]> {
-  const sources = new Map<string, string[]>();
+/** Where a route's copy comes from, found the way D-COPY finds it, with the area template added. */
+function routeSources(ctx: DistCtx): Map<string, CopySource[]> {
+  const sources = new Map<string, CopySource[]>();
   for (const [file, route] of pageRoutes(ctx)) {
     const data = COPY_PAGES.aliases[file];
-    sources.set(route, data ? [file, data] : [file]);
+    sources.set(route, data ? [{ file }, { file: data }] : [{ file }]);
   }
-  for (const route of ctx.routes) if (route.startsWith(COPY_PAGES.areaPrefix)) sources.set(route, [COPY_PAGES.areaFile]);
+  for (const route of ctx.routes) {
+    if (!route.startsWith(COPY_PAGES.areaPrefix)) continue;
+    sources.set(route, [{ file: COPY_PAGES.areaFile, slug: route.slice(COPY_PAGES.areaPrefix.length) }, { file: COPY_PAGES.areaTemplate }]);
+  }
   return sources;
 }
 
+/** One neighbourhood's entry, so a change to Sidney's copy says nothing about Oak Bay's date. */
+const areaEntry = (text: string, slug: string) => new RegExp(`^ {2}"?${escapeRegex(slug)}"?: \\{[\\s\\S]*?^ {2}\\},?\\s*$`, "m").exec(text)?.[0];
+
+/** A source's copy as one string. Undefined when the source had no such copy. */
+function copyOf({ file, slug }: CopySource, text: string | undefined): string | undefined {
+  const part = text !== undefined && slug ? areaEntry(text, slug) : text;
+  if (part === undefined) return undefined;
+  const segments = copySegments(file, slug ? `({${part}})` : part, true);
+  return segments.map((segment) => segment.text.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n");
+}
+
 /**
- * R2-FR-15. A page's date must be the last commit to its source. An earlier date hides a change, as
- * a placeholder does, and a later one claims a change no commit shows, as a build date does. Dates
- * shared between pages prove nothing either way, because R1 really did touch many pages on one day.
+ * R2-FR-15: a date must reflect real content changes. A route's source is the files routeSources
+ * names, and this accepts any real date, up to today, with no copy change in those sources after it:
+ *
+ * - The date of a source's last commit, or anything later. A later date can be honest, because a
+ *   page's content can come from data outside these files. The build date this used to catch has
+ *   one shape, a date shared by every URL, which sharedDateProblem rejects here and LV-SITEMAP
+ *   rejects on the deployed file.
+ * - An older date, when the commits after it changed no copy, because a refactor is not a content
+ *   change. Copy is every string, JSX text and number in the version in force on that date, and for
+ *   an area page, in its own entry in the shared data. So a changed code string counts as copy, and
+ *   such a page takes the later date, which always passes.
+ *
+ * It rejects an older date when the copy did change after it, or when the source did not exist yet.
  */
-function lastmodProblem(ctx: DistCtx, route: string, date: string | undefined, files: string[] | undefined): string | undefined {
-  if (!date) return `${route} has no lastmod`;
-  if (date > todayUtc()) return `${route}: lastmod ${date} is in the future`;
-  if (!files) return `${route}: no source file found, so its lastmod cannot be checked`;
-  let latest = "";
-  let latestFile = "";
-  for (const file of files) {
-    const changed = ctx.lastCommitDate(file);
-    if (!changed) return `${route}: git has no commit date for ${file}`;
-    if (changed > latest) {
-      latest = changed;
-      latestFile = file;
-    }
+function routeLastmodProblem(ctx: DistCtx, route: string, date: string | undefined, sources: CopySource[] | undefined): string | undefined {
+  const problem = lastmodProblem(route, date);
+  if (problem || !date) return problem;
+  if (!sources) return `${route}: no source file found, so its lastmod cannot be checked`;
+  if (ctx.shallowClone) return undefined;
+  for (const source of sources) {
+    const changed = ctx.lastCommitDate(source.file);
+    if (!changed) return `${route}: git has no commit date for ${source.file}`;
+    if (date >= changed) continue;
+    const before = copyOf(source, ctx.sourceOn(source.file, date));
+    if (before === undefined) return `${route}: lastmod ${date} is before ${source.file} existed`;
+    if (before !== copyOf(source, ctx.readSource(source.file))) return `${route}: lastmod ${date} is older than a copy change in ${source.file}, whose last commit is ${changed}`;
   }
-  if (date < latest) return `${route}: lastmod ${date} is older than the last commit to ${latestFile}, ${latest}`;
-  if (date > latest) return `${route}: lastmod ${date} is later than the last commit to ${latestFile}, ${latest}, so no change backs it`;
   return undefined;
+}
+
+/** The latest commit behind each route, for telling whether pages have different histories. */
+function routeHistories(ctx: DistCtx, sources: Map<string, CopySource[]>): string[] {
+  return ctx.routes.flatMap((route) => {
+    const dates = (sources.get(route) ?? []).flatMap(({ file }) => ctx.lastCommitDate(file) ?? []);
+    return dates.length > 0 ? [dates.sort().pop() as string] : [];
+  });
 }
 
 export function checkSitemap(ctx: DistCtx): Finding[] {
@@ -483,13 +517,20 @@ export function checkSitemap(ctx: DistCtx): Finding[] {
   for (const url of expected) if (!locs.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `missing ${url}` });
   for (const url of locs) if (!expected.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `not an indexable route: ${url}` });
 
+  const add = (message: string) => findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
   const lastmods = sitemapLastmods(sitemap);
-  const sources = routeSourceFiles(ctx);
+  const sources = routeSources(ctx);
   for (const route of ctx.routes) {
     const url = expectedCanonical(route);
     if (!lastmods.has(url)) continue;
-    const message = lastmodProblem(ctx, route, lastmods.get(url), sources.get(route));
-    if (message) findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
+    const message = routeLastmodProblem(ctx, route, lastmods.get(url), sources.get(route));
+    if (message) add(message);
+  }
+  if (ctx.shallowClone) add("this clone is shallow, so git cannot date the pages. Run git fetch --unshallow.");
+  else {
+    const dates = [...lastmods.values()].filter((date): date is string => Boolean(date));
+    const shared = sharedDateProblem(dates, routeHistories(ctx, sources));
+    if (shared) add(shared);
   }
   return findings;
 }
@@ -634,6 +675,7 @@ export function checkRaw(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   const add = (message: string, file?: string) => findings.push({ rule: "D-RAW", row: "R2-FR-01", file, message });
   for (const route of [...ctx.routes, ...UTILITY_ROUTES]) if (!baseline.routes[route]) add(`no baseline for ${route}`);
+  const answers = faqAnswers(ctx.readSource(FAQ_FILES.data) ?? "");
 
   for (const route of ctx.routes) {
     const entry = baseline.routes[route];
@@ -644,13 +686,13 @@ export function checkRaw(ctx: DistCtx): Finding[] {
       continue;
     }
     if (!entry) continue;
-    for (const problem of rawProblems(entry, html, RAW_MIN_WORD_SHARE)) add(problem, file);
+    for (const problem of rawProblems(entry, html, RAW_MIN_WORD_SHARE, route === FAQ_ROUTE ? answers : [])) add(problem, file);
   }
 
   // The baseline is the Release 1 record, so it ages. BR-RAW compares raw and rendered in one build.
   if (ctx.baselineDrift?.length) {
     ctx.note?.(
-      `D-RAW: warning: files under src or public changed since the baseline at ${baseline.capturedFrom} (${ctx.baselineDrift.length}), so a shortfall here may mean the baseline is old. BR-RAW compares this build. Recapture with verify:browser --write-render-baseline --route=<routes>.`
+      `D-RAW: warning: files under src or public changed since the baseline at ${baseline.capturedFrom} (${ctx.baselineDrift.length}), so a difference here may mean the baseline is old. BR-RAW compares this build. Recapture with verify:browser --write-render-baseline --route=<routes>.`
     );
   }
   return findings;
@@ -694,8 +736,6 @@ export function checkMissingPage(ctx: DistCtx): Finding[] {
   if (html === undefined) return [finding("the 404 page is not in dist")];
   return missingPageProblems(html, SITE, brand).map(finding);
 }
-
-const isDate = (value: unknown) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
 
 function lcpLabProblems(lab: LcpLab): string[] {
   const { liveFrom, routes, runs, settings } = BROWSER.lcp;

@@ -335,18 +335,32 @@ export interface RenderedPage {
   links: string[];
 }
 
-/** R2-FR-01, shared by D-RAW (the saved baseline) and BR-RAW (the same build). */
-export function rawProblems(rendered: RenderedPage, html: string, minShare: number): string[] {
+/**
+ * R2-FR-01, shared by D-RAW (the saved baseline) and BR-RAW (the same build). It runs both ways,
+ * because text only the raw HTML holds is read by crawlers and never seen by visitors.
+ * closedAnswers are the one allowance, R2-FR-04's FAQ answers, so pass them only for a route that
+ * has them. minShare also covers what the capture viewport hides, such as the header's second
+ * Book Now link.
+ */
+export function rawProblems(rendered: RenderedPage, html: string, minShare: number, closedAnswers: string[] = []): string[] {
   const problems: string[] = [];
   const headings = rawHeadingsOf(html);
   if (headings.length === 0) problems.push("no H1 in raw HTML");
   else if (headings[0] !== rendered.h1) problems.push(`raw H1 "${headings[0]}" differs from the rendered H1 "${rendered.h1}"`);
 
   const words = textWords(rendered.text);
-  const shared = sharedWordCount(words, textWords(rawTextOf(html)));
+  const rawText = rawTextOf(html);
+  const shared = sharedWordCount(words, textWords(rawText));
   if (words.length > 0 && shared / words.length < minShare) {
     const percent = Math.floor((shared / words.length) * 100);
     problems.push(`${shared} of ${words.length} rendered words are in raw HTML (${percent}%), expected at least ${minShare * 100}%`);
+  }
+
+  const rawWords = textWords(closedAnswers.reduce((text, answer) => text.split(collapse(answer)).join(" "), rawText));
+  const shown = sharedWordCount(rawWords, words);
+  if (rawWords.length > 0 && shown / rawWords.length < minShare) {
+    const percent = Math.floor((shown / rawWords.length) * 100);
+    problems.push(`${shown} of ${rawWords.length} raw words are on the rendered page (${percent}%), expected at least ${minShare * 100}%`);
   }
 
   const links = new Set(rawLinksOf(html));
@@ -376,6 +390,46 @@ export function missingPageProblems(html: string, site: string, brand: string): 
   if (rawHeadingsOf(html).length === 0) problems.push("no H1 without JavaScript");
   if (!rawLinksOf(html).includes("/")) problems.push("no link home without JavaScript");
   return problems;
+}
+
+// ---------------------------------------------------------------------------
+// Sitemap dates
+// ---------------------------------------------------------------------------
+
+/** Dates here are written with toISOString, so they compare in UTC. */
+export const todayUtc = () => new Date().toISOString().slice(0, 10);
+
+export const isDate = (value: unknown) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
+
+/** Each URL's lastmod as a date. Undefined for an entry with none. */
+export function sitemapLastmods(sitemap: string): Map<string, string | undefined> {
+  const lastmods = new Map<string, string | undefined>();
+  for (const [entry] of sitemap.matchAll(/<url>[\s\S]*?<\/url>/g)) {
+    const loc = /<loc>\s*([^<]+?)\s*<\/loc>/.exec(entry)?.[1];
+    if (loc) lastmods.set(loc, /<lastmod>\s*([^<]+?)\s*<\/lastmod>/.exec(entry)?.[1].slice(0, 10));
+  }
+  return lastmods;
+}
+
+/** R2-FR-15, the parts one date can settle. Shared by D-SITEMAP and LV-SITEMAP. */
+export function lastmodProblem(page: string, date: string | undefined): string | undefined {
+  if (!date) return `${page} has no lastmod`;
+  if (!isDate(date)) return `${page}: lastmod ${date} is not a date`;
+  if (date > todayUtc()) return `${page}: lastmod ${date} is later than today`;
+  return undefined;
+}
+
+/**
+ * R2-FR-15's shape for a build date or a placeholder: every URL on one date that is not the day
+ * every page last changed. histories holds each page's latest commit. The check is against that
+ * date and not only for dates that differ, because a release can touch every page on one day, as
+ * R1 did, and a build date stamped on those pages afterwards must still fail.
+ */
+export function sharedDateProblem(dates: string[], histories: string[]): string | undefined {
+  if (dates.length < 2 || new Set(dates).size > 1) return undefined;
+  const others = histories.filter((date) => date !== dates[0]).length;
+  if (others === 0) return undefined;
+  return `all ${dates.length} URLs share the lastmod ${dates[0]}, but ${others} of ${histories.length} pages last changed on another date`;
 }
 
 // ---------------------------------------------------------------------------

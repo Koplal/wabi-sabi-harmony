@@ -1,6 +1,6 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
 import type { LcpRoute, RenderEntry } from "./dist-checks";
-import { BROWSER, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES } from "./rules";
+import { BROWSER, CLS_TOLERANCE, FAQ_ROUTE, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES } from "./rules";
 import {
   canonicalJson,
   canonicalPath,
@@ -69,17 +69,20 @@ export function checkConsole(snapshot: PageSnapshot, origin: string): Finding[] 
   return findings;
 }
 
-/** R2-FR-01 within one build, so copy added after the baseline was captured is compared too. */
-export function checkRawPage(snapshot: PageSnapshot): Finding[] {
+/**
+ * R2-FR-01 within one build, so copy added after the baseline was captured is compared too.
+ * faqAnswers are the site's closed answers, which only FAQ_ROUTE may hold beyond its rendered text.
+ */
+export function checkRawPage(snapshot: PageSnapshot, faqAnswers: string[] = []): Finding[] {
   if (!INDEXABLE_ROUTES.includes(snapshot.route)) return [];
   const finding = (message: string): Finding => ({ rule: "BR-RAW", row: "R2-FR-01", file: snapshot.route, message });
   if (snapshot.html === undefined || !snapshot.rendered) return [finding("the raw HTML or the rendered text could not be read")];
-  return rawProblems(snapshot.rendered, snapshot.html, RAW_MIN_WORD_SHARE).map(finding);
+  return rawProblems(snapshot.rendered, snapshot.html, RAW_MIN_WORD_SHARE, snapshot.route === FAQ_ROUTE ? faqAnswers : []).map(finding);
 }
 
 /**
- * R2-FR-03 and R2-FR-04. D-RAW and BR-RAW only ask whether raw HTML covers the rendered words, so
- * they pass a page that gains text, as FAQ answers left open would, or loses a section after load.
+ * R2-FR-03 and R2-FR-04. BR-RAW compares raw HTML with this load's rendered page, so it passes a
+ * change that reaches both, as FAQ answers left open would, or a section lost from both.
  * This compares the rendered page with the saved Release 1 text, both ways. A page changed on
  * purpose takes a new entry from verify:browser --write-render-baseline --route=<route>.
  */
@@ -302,15 +305,20 @@ export interface LcpMeasure extends LcpRoute {
 
 /**
  * R2-FR-12 on a deployment. Fastest runs are compared, for the reason at BROWSER.lcp.tolerance, so
- * this catches a page that got slower, and not one that was unlucky. comparison is R1 from the
- * same sitting while R1 is live, and its saved figure after that.
+ * this catches a page that got slower, and not one that was unlucky. comparison is production from
+ * the same sitting, or the saved R1 figure when production is the target. Layout shift compares
+ * the largest of each target's runs, and the saved figure has none, so it is compared in a sitting
+ * only.
  */
-export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: LcpRoute | undefined): Finding[] {
+export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: (LcpRoute & { shifts?: number[] }) | undefined): Finding[] {
   const { runs, tolerance } = BROWSER.lcp;
   const finding = (message: string): Finding => ({ rule: "BR-LCP", row: "R2-FR-12", file: route, message });
   const findings: Finding[] = [];
-  const worstShift = Math.max(0, ...measured.shifts);
-  if (worstShift > 0) findings.push(finding(`layout shift of ${worstShift.toFixed(4)}, but CLS must stay 0`));
+  if (comparison?.shifts) {
+    const worst = Math.max(0, ...measured.shifts);
+    const production = Math.max(0, ...comparison.shifts);
+    if (worst > production + CLS_TOLERANCE) findings.push(finding(`layout shift of ${worst.toFixed(4)}, worse than production's ${production.toFixed(4)} by more than ${CLS_TOLERANCE}`));
+  }
   if (measured.runsMs.length < runs) findings.push(finding(`${measured.runsMs.length} of ${runs} runs gave a figure`));
   if (!comparison) findings.push(finding("no R1 figure to compare with"));
   else if (comparison.runsMs.length < runs) findings.push(finding(`${comparison.runsMs.length} of ${runs} R1 runs gave a figure`));
@@ -323,5 +331,73 @@ export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: Lc
   return findings;
 }
 
+/** What each BR-INTERACT step saw. A step that could not finish has no reading, only an entry in errors. */
+export interface InteractReading {
+  /** The answer panel's text on screen before and after the click. */
+  answer?: { before: string; after: string };
+  /** Links on screen in the mobile menu before and after the tap. */
+  menu?: { before: string[]; after: string[] };
+  /** Links on screen in the nav dropdown before and after the click. */
+  dropdown?: { before: string[]; after: string[] };
+  /** What the form field held after typing, and the submit events the page saw. */
+  field?: { value: string; submits: number };
+  /** Scroll position just before a client navigation and after it. */
+  scroll?: { before: number; after: number; clientSide: boolean; finalPath: string };
+  /** Why a step did not finish, by step name. */
+  errors: Record<string, string>;
+  /** Requests other than GET and HEAD during these steps. All were stopped in the browser. */
+  writes: string[];
+}
+
+/** R2-FR-03's after-load behaviours. Today's site is the reference, so this passes on Release 1. */
+export function checkInteract(reading: InteractReading): Finding[] {
+  const { accordion, menu, dropdown, field, scroll } = BROWSER.interact;
+  const findings: Finding[] = [];
+  const add = (file: string, message: string) => findings.push({ rule: "BR-INTERACT", row: "R2-FR-03", file, message });
+  const unfinished = (name: string, route: string) => add(`${route} [${name}]`, `the step did not finish: ${reading.errors[name] ?? "no reading"}`);
+  const opened = (name: string, route: string, seen: { before: string[]; after: string[] } | undefined, expected: string) => {
+    if (!seen) unfinished(name, route);
+    else if (seen.before.length > 0) add(route, `the ${name} was open before anything was pressed`);
+    else if (!seen.after.includes(expected)) add(route, `the ${name} did not open: no link to ${expected} on screen`);
+  };
+
+  if (!reading.answer) unfinished("FAQ answer", accordion.route);
+  else if (reading.answer.before) add(accordion.route, "an answer was on screen before the click");
+  else if (!reading.answer.after) add(accordion.route, "clicking a question did not open its answer");
+
+  opened("mobile menu", menu.route, reading.menu, menu.expected);
+  opened("dropdown", dropdown.route, reading.dropdown, dropdown.expected);
+
+  if (!reading.field) unfinished("form field", field.route);
+  else {
+    if (reading.field.value !== field.text) add(field.route, `typed "${field.text}", but the field holds "${reading.field.value}"`);
+    if (reading.field.submits > 0) add(field.route, `typing submitted the form ${reading.field.submits} times`);
+  }
+
+  const journey = `${scroll.through} to ${scroll.start}`;
+  if (!reading.scroll) unfinished("scroll reset", scroll.start);
+  else {
+    const { before, after, clientSide, finalPath } = reading.scroll;
+    if (finalPath !== scroll.start) add(journey, `ended at ${finalPath}`);
+    // A full load also starts at the top, and so does a page that never scrolled.
+    if (!clientSide) add(journey, "the navigation was a full page load, so it proves no scroll reset");
+    if (before === 0) add(journey, "the page was not scrolled before the click, so the reset proves nothing");
+    if (after !== 0) add(journey, `client navigation left the page scrolled to ${after}, expected 0`);
+  }
+
+  for (const write of new Set(reading.writes)) add(write, "a write request left the page, and these steps must make none");
+  return findings;
+}
+
 /** BR-LCP needs a deployment and many slow loads, so it runs only when named. */
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER", "BR-404", "BR-HYDRATE", "BR-CART", "BR-LCP"];
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER", "BR-404", "BR-HYDRATE", "BR-CART", "BR-INTERACT", "BR-LCP"];
+
+/**
+ * --from-prerendered replaces Release 1 text, so it must name the routes it replaces. Without that,
+ * one run would rewrite every entry, and D-RAW and BR-RENDER would compare R2 with itself.
+ */
+export const fromPrerenderedProblem = (fromPrerendered: boolean, writing: boolean, routes: string[] | undefined): string | undefined => {
+  if (!fromPrerendered) return undefined;
+  if (!writing) return "--from-prerendered only applies to --write-render-baseline";
+  return routes?.length ? undefined : "--from-prerendered replaces Release 1 text, so it needs --route=<the changed routes>";
+};

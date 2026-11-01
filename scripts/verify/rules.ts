@@ -431,6 +431,9 @@ export const ABSENT: Absent[] = [
 
 export const FAQ_FILES = { data: FAQ_DATA, page: FAQ_PAGE };
 
+/** The one route with FAQ answers: FAQ.tsx alone uses the accordion. */
+export const FAQ_ROUTE = "/faq";
+
 export const FAQ_SECTIONS = [
   { heading: "Getting Started with Our Services", count: 3, first: "What makes Wabi Sabi Services different?" },
   { heading: "Understanding Our Service Levels", count: 3, first: "What's included in your Mindful Standard Clean?" },
@@ -640,7 +643,10 @@ export const PARENT = {
 /** The site's Clarity project ID. D-CLARITY fails if a build with no ID contains it. */
 export const CLARITY_PROJECT_ID = "z6fydc3bvk";
 
-/** R2-FR-01: the share of a route's rendered words that its raw HTML must carry. */
+/**
+ * R2-FR-01: the share of a route's rendered words that its raw HTML must carry, and of its raw
+ * words, apart from closed FAQ answers, that the rendered page must show.
+ */
 export const RAW_MIN_WORD_SHARE = 0.95;
 
 export const FALLBACK = {
@@ -674,15 +680,24 @@ export const RENDER_BASELINE_FILE = "scripts/verify/render-baseline.json";
 
 /** Where the copy rules find a built page's text, for rules that name a source file. */
 export const COPY_PAGES = {
-  /** A page whose copy lives in another file. D-SITEMAP dates the page from the later of the two. */
+  /** A page whose copy lives in another file. */
   aliases: { [FAQ_PAGE]: FAQ_DATA } as Record<string, string>,
   areaPrefix: "/areas/",
   areaFile: "src/data/neighborhoods.ts",
+  /** The copy every area page shares. */
+  areaTemplate: "src/components/NeighborhoodPage.tsx",
 };
 
 // ---------------------------------------------------------------------------
 // Browser rules
 // ---------------------------------------------------------------------------
+
+/**
+ * BR-LCP: how far a deployment's largest lab layout shift may pass production's in the same
+ * sitting. Unchanged R1 reads 0.0011 to 0.0290 by route, so 0 cannot be the line. This covers
+ * measurement noise only.
+ */
+export const CLS_TOLERANCE = 0.001;
 
 /** Stripe's success URL (api/create-checkout.ts). The page renders the session ID from it. */
 export const STRIPE_RETURN = "/checkout-success?session_id=cs_test_verify";
@@ -756,6 +771,25 @@ export const BROWSER = {
   clockRoutes: ["/", "/blog"],
   /** URLs BR-HYDRATE loads beyond the route list, because they render differently from the bare route. */
   hydrationUrls: [STRIPE_RETURN],
+  /**
+   * BR-INTERACT: the R2-FR-03 behaviours no other rule exercises. Today's site is the reference.
+   * They come from shared components, so each runs once. The field is only typed into, and nothing
+   * here submits a form. scroll starts on a page that is already loaded, because a route's first
+   * load shows the short fallback, which alone would put the page back at the top.
+   */
+  interact: {
+    accordion: { route: "/faq", trigger: 'main button[aria-controls][aria-expanded="false"]' },
+    menu: {
+      route: "/ritual",
+      viewport: { width: 390, height: 844 },
+      button: 'header button[aria-label="Open menu"]',
+      links: '[role="dialog"] a[href]',
+      expected: "/faq",
+    },
+    dropdown: { route: "/ritual", button: 'header button[aria-haspopup="menu"]', links: '[role="menu"] a[href]', expected: "/services/cleaning" },
+    field: { route: "/contact", selector: "#name", text: "Verify Harness" },
+    scroll: { start: "/faq", through: "/ritual" },
+  },
   /** --dev-react. The marker is a string that only development React contains. */
   devReact: {
     marker: "Extra attributes from the server",
@@ -813,5 +847,5 @@ export const LIVE = {
   ] as Array<{ from: string; to: string; maxHops?: number }>,
   utilityRoutes: ["/cart", "/checkout", STRIPE_RETURN],
   releaseOne: ["LV-HOST", "LV-FILES"],
-  all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY"],
+  all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY", "LV-SITEMAP"],
 };
