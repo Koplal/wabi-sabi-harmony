@@ -46,7 +46,7 @@ if (!template.includes(EMPTY_ROOT)) {
 
 // The bundle reads this at runtime, and without it Node would load React's development build.
 process.env.NODE_ENV ??= "production";
-const { render } = (await import(pathToFileURL(resolve(ROOT, "dist-ssr/entry-server.js")).href)) as typeof import("../src/entry-server");
+const { builtOn, render } = (await import(pathToFileURL(resolve(ROOT, "dist-ssr/entry-server.js")).href)) as typeof import("../src/entry-server");
 
 // Home LCP is the hero background image (src/pages/Home.tsx), a CSS background
 // that the browser only discovers after the JS bundle boots and React mounts.
@@ -234,7 +234,8 @@ function assertComplete(path: string, { html, helmet }: RenderedRoute) {
 async function renderPage(meta: RouteMeta): Promise<string> {
   const page = await render(meta.path);
   assertComplete(meta.path, page);
-  let html = template.replace(EMPTY_ROOT, () => `<div id="root">${page.html}</div>`);
+  // main.tsx attaches only where data-route matches the URL, and useToday first renders data-built-on.
+  let html = template.replace(EMPTY_ROOT, () => `<div id="root" data-route="${meta.path}" data-built-on="${builtOn}">${page.html}</div>`);
   const fullTitle = `${meta.title} | ${BRAND}`;
   const canonical = meta.path === "/" ? `${SITE}/` : `${SITE}${meta.path}`;
 

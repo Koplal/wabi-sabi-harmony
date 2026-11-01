@@ -3,7 +3,10 @@ import type { ReactNode } from "react";
 import { renderToPipeableStream } from "react-dom/server";
 import type { HelmetServerState } from "react-helmet-async";
 import { StaticRouter } from "react-router-dom/server";
+import { preloadRoute } from "./App";
 import Root from "./Root";
+
+export { builtOn } from "./hooks/use-today";
 
 export interface RenderedRoute {
   html: string;
@@ -35,6 +38,7 @@ const renderToHtml = (tree: ReactNode) =>
 
 /** One page as HTML, with the head tags its components asked for. Runs in `npm run build`. */
 export async function render(path: string): Promise<RenderedRoute> {
+  await preloadRoute(path);
   const Router = ({ children }: { children: ReactNode }) => <StaticRouter location={path}>{children}</StaticRouter>;
   const helmetContext: { helmet?: HelmetServerState } = {};
   const html = await renderToHtml(<Root Router={Router} helmetContext={helmetContext} />);
