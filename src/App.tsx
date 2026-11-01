@@ -66,6 +66,7 @@ const routeElements = ROUTES.map(routeFor);
  * makes React start a render of the page and abandon it. The head manager registers its tags during
  * render, so an abandoned render leaves them in the head for good, on every later page.
  */
+// eslint-disable-next-line react-refresh/only-export-components -- D-MANIFEST reads the route table in this file, and this needs that table.
 export const preloadRoute = async (path: string) => {
   await routeElements.find((route) => route.path === path)?.preload();
 };
