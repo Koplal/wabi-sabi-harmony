@@ -1,6 +1,6 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
 import type { LcpRoute, RenderEntry } from "./dist-checks";
-import { BROWSER, CLS_TOLERANCE, FAQ_ROUTE, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES } from "./rules";
+import { BROWSER, CLS_TOLERANCE, FAQ_ROUTE, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES, type SiteDown, type TypedMoment } from "./rules";
 import {
   canonicalJson,
   canonicalPath,
@@ -401,14 +401,22 @@ interface EarlyStep {
 export interface EarlyReading {
   /** Scroll position just before the scripts were released, and after React attached. */
   scroll?: EarlyStep & { before: number; after: number };
-  /** By route: what the form sent, and whether the send stopped in the browser. */
-  forms: Record<string, EarlyStep & { body: string; stopped: boolean }>;
+  /** By route: what the form sent, whether the send stopped in the browser, and the form's text with no script run. */
+  forms: Record<string, EarlyStep & { body: string; stopped: boolean; help: string }>;
   /** By route: a press of Enter went to another URL, which would lose what was typed. */
   enterLeft: Record<string, boolean>;
   /** The page's script failed once. loads counts documents, and the reload must then attach. */
   retry?: { loads: number; attached: boolean };
   /** The page's script failed every time. It must reload once, stop, and leave the page on screen. */
   giveUp?: { loads: number; heading: boolean };
+  /** The page's script failed and the site check got no good answer. A reload would risk the browser's error page. */
+  siteDown: Partial<Record<SiteDown, { loads: number; heading: boolean; settled: boolean }>>;
+  /** The page's script failed with text in the form, before the failure or during the site check. A reload would lose it. */
+  typed: Partial<Record<TypedMoment, { loads: number; kept: boolean }>>;
+  /** Every field, read as the reload leaves the page. reached says the reload started, and a field that can still take text fails. */
+  reloading?: { reached: boolean; editable: boolean };
+  /** By route: the send answered 502. The visitor is told, and what they typed stays. */
+  sendFailed: Record<string, { told: boolean; kept: boolean }>;
   /** /cart with a saved cart: the text of <main> before React attached, and after. */
   cart?: EarlyStep & { before: string; after: string };
   /** Why a step did not finish, by step name. */
@@ -417,7 +425,7 @@ export interface EarlyReading {
 
 /** R2-FR-03 before load: what a visitor did to the built page survives React attaching to it. */
 export function checkEarly(reading: EarlyReading): Finding[] {
-  const { scroll, forms, chunk, cart } = BROWSER.early;
+  const { scroll, forms, chunk, cart, help, siteDown, typed } = BROWSER.early;
   const findings: Finding[] = [];
   const add = (file: string, message: string) => findings.push({ rule: "BR-EARLY", row: "R2-FR-03", file, message });
   const unfinished = (name: string, route: string) => add(`${route} [${name}]`, `the step did not finish: ${reading.errors[name] ?? "no reading"}`);
@@ -446,6 +454,9 @@ export function checkEarly(reading: EarlyReading): Finding[] {
     }
     inWindow(plan.route, seen);
     if (!seen.stopped) add(plan.route, "the form's send was not stopped in the browser");
+    for (const text of help) {
+      if (!seen.help.includes(text)) add(plan.route, `the built form does not give ${text}`);
+    }
     for (const text of [...Object.values(plan.early), ...Object.values(plan.late)]) {
       if (!seen.body.includes(text)) add(plan.route, `"${text}" was entered, but the request did not carry it`);
     }
@@ -460,6 +471,40 @@ export function checkEarly(reading: EarlyReading): Finding[] {
   else {
     if (reading.giveUp.loads !== 2) add(chunk.route, `${reading.giveUp.loads} page loads with the script always failing, expected 2`);
     if (!reading.giveUp.heading) add(chunk.route, "the built page did not stay on screen after the script failed");
+  }
+  for (const answer of siteDown) {
+    const seen = reading.siteDown[answer];
+    if (!seen) {
+      unfinished(`site check ${answer}`, chunk.route);
+      continue;
+    }
+    if (seen.loads !== 1) add(chunk.route, `${seen.loads} page loads with the site check ${answer}, expected 1`);
+    if (!seen.heading) add(chunk.route, `the built page did not stay on screen with the site check ${answer}`);
+    if (!seen.settled) add(chunk.route, `the site check was still waiting with the site check ${answer}`);
+  }
+  for (const moment of typed) {
+    const seen = reading.typed[moment];
+    if (!seen) {
+      unfinished(`text ${moment} the site check`, chunk.route);
+      continue;
+    }
+    if (seen.loads !== 1) add(chunk.route, `${seen.loads} page loads with text in the form ${moment} the site check, expected 1`);
+    if (!seen.kept) add(chunk.route, `text in the form ${moment} the site check was lost`);
+  }
+
+  if (!reading.reloading) unfinished("reloading", chunk.route);
+  else {
+    if (!reading.reloading.reached) add(chunk.route, "the reload never started, so this proves nothing");
+    if (reading.reloading.editable) add(chunk.route, "the form still took text while the reload was on its way");
+  }
+  for (const plan of forms) {
+    const seen = reading.sendFailed[plan.route];
+    if (!seen) {
+      unfinished(`failed send ${plan.route}`, plan.route);
+      continue;
+    }
+    if (!seen.told) add(plan.route, "a failed send told the visitor nothing");
+    if (!seen.kept) add(plan.route, "a failed send lost what was typed");
   }
 
   if (!reading.cart) unfinished("saved cart", cart.route);

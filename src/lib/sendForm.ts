@@ -3,6 +3,9 @@ export type FormName = "contact" | "booking" | "careers";
 /** Longer than the function's own limit on Resend, so its answer arrives first. */
 const TIMEOUT_MS = 15000;
 
+/** Shown after a send fails for a reason the customer can't fix. State is kept, so nothing typed is lost. */
+export const FORM_FAILED = "We couldn't send this, but your details are still here. Please call 250-896-5971 or email hello@wabisabiservices.ca.";
+
 /** A refusal the customer can fix, such as a mistyped email address. */
 export class FormRefused extends Error {}
 

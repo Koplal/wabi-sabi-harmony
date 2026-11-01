@@ -670,10 +670,13 @@ export interface CartStepPlan {
   cleared?: boolean;
 }
 
+export type SiteDown = "aborted" | "refused" | "stalled";
+export type TypedMoment = "before" | "during";
+
 /** One form in BR-EARLY. Each map is a selector and the text that goes in it. */
 export interface EarlyFormPlan {
   route: string;
-  /** The Supabase function its send goes to. The request stops in the browser. */
+  /** The end of the URL its send goes to. The request stops in the browser. */
   action: string;
   /** Filled before React attaches. */
   early: Record<string, string>;
@@ -771,24 +774,31 @@ export const BROWSER = {
     forms: [
       {
         route: "/contact",
-        action: "send-contact-email",
+        action: "/api/send-form-email",
         early: { "#name": "Early Name", "#email": "early@example.com", "#phone": "Early Phone", "#address": "Early Address" },
         late: { "#notes": "Late Notes" },
       },
       {
         route: "/book",
-        action: "send-contact-email",
+        action: "/api/send-form-email",
         early: { "#name": "Early Name", "#email": "early@example.com", "#phone": "Early Phone", "#address": "Early Address", "#preferredTime1": "Early Monday" },
         late: { "#preferredTime3": "Late Friday" },
       },
       {
         route: "/careers",
-        action: "send-application-email",
+        action: "/api/send-form-email",
         early: { "#name": "Early Name", "#email": "early@example.com", "#position": "Early Position", "#experience": "Early Experience" },
         late: { "#message": "Late Message" },
       },
     ] as EarlyFormPlan[],
-    chunk: { route: "/contact", script: "**/assets/Contact-*.js" },
+    chunk: { route: "/contact", script: "**/assets/Contact-*.js", field: "#name", text: "Early Name" },
+    /** How the site check goes wrong, and when text can reach a form. Each must end with no reload. */
+    siteDown: ["aborted", "refused", "stalled"] as SiteDown[],
+    typed: ["before", "during"] as TypedMoment[],
+    /** Read with no script run, because they are the way out when none can. */
+    help: ["250-896-5971", "hello@wabisabiservices.ca"],
+    /** The start of what a visitor reads after a send fails. */
+    sendFailed: "We couldn't send this",
     /**
      * A saved cart loads only after React attaches, which can take seconds on a phone, and Stripe's
      * cancel URL lands here. Until then the built page must not call that cart this word.
@@ -845,11 +855,15 @@ export const LIVE = {
   redirects: [
     { from: "/the-ritual", to: "/ritual" },
     { from: "/index.html", to: "/" },
+    { from: "/about/index.html", to: "/about" },
+    { from: "/services/cleaning/index.html", to: "/services/cleaning" },
     { from: "/home", to: "/" },
     { from: "/home/", to: "/", maxHops: 2 },
     { from: "/the-ritual/", to: "/ritual", maxHops: 2 },
     { from: "/services/errands/", to: "/services/errands" },
   ] as Array<{ from: string; to: string; maxHops?: number }>,
+  /** Paths the redirects must leave alone. Only the absence of a redirect is checked, so a GET is enough. */
+  notRedirected: ["/api/send-form-email", "/sitemap.xml"],
   utilityRoutes: ["/cart", "/checkout", STRIPE_RETURN],
   releaseOne: ["LV-HOST", "LV-FILES"],
   all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY", "LV-SITEMAP"],

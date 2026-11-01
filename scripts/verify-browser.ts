@@ -34,7 +34,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type ConsoleMessage, type Page, type Route } from "playwright-core";
-import { BROWSER, type EarlyFormPlan, FAQ_FILES, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES } from "./verify/rules";
+import { BROWSER, type EarlyFormPlan, FAQ_FILES, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES, type SiteDown, type TypedMoment } from "./verify/rules";
 import { type Finding, htmlFileOfRoute, listValue, median, parseArgs, pathOfHref, rawHeadingsOf, report, routeList, textWords, UsageError } from "./verify/lib";
 import {
   BROWSER_RULES,
@@ -662,6 +662,7 @@ async function sendEarly(page: Page, session: Session, plan: EarlyFormPlan): Pro
   const release = await holdScripts(page);
   await loadBuiltPage(page, session, plan.route);
   const held = !(await reactOwnsPage(page));
+  const help = await page.locator("form").innerText({ timeout: RENDER_TIMEOUT });
   for (const [selector, text] of Object.entries(plan.early)) await page.locator(selector).fill(text, { timeout: RENDER_TIMEOUT });
 
   const attached = await attach(page, release);
@@ -672,23 +673,123 @@ async function sendEarly(page: Page, session: Session, plan: EarlyFormPlan): Pro
   const sending = page.waitForRequest((request) => request.method() === "POST" && request.url().endsWith(plan.action), { timeout: RENDER_TIMEOUT });
   await page.locator('form button[type="submit"]').click({ timeout: RENDER_TIMEOUT });
   const sent = await sending;
-  // Settles once guardRequests has answered it. The answer has no CORS headers, so the page may see a failure.
+  // Settles once guardRequests has answered it.
   await sent.response().catch(() => null);
-  return { held, attached, stopped: session.blockedWrites.length > writes, body: sent.postData() ?? "" };
+  return { held, attached, stopped: session.blockedWrites.length > writes, body: sent.postData() ?? "", help };
+}
+
+/** Counts the documents a page loads, because a reload is what these steps watch for. */
+function countLoads(page: Page) {
+  let loads = 0;
+  page.on("response", (response) => {
+    if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) loads++;
+  });
+  return () => loads;
 }
 
 /** Loads the page with its script failing, and returns how many documents had loaded by the time it would have attached. */
 async function failPageScript(page: Page, session: Session, times?: number) {
   const { route, script } = BROWSER.early.chunk;
-  let loads = 0;
-  page.on("response", (response) => {
-    if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) loads++;
-  });
+  const loads = countLoads(page);
   await page.route(script, (blocked) => blocked.abort(), { times });
   await loadBuiltPage(page, session, route);
   await settle(page);
   await page.waitForTimeout(HYDRATION_QUIET);
-  return loads;
+  return loads();
+}
+
+/** As failPageScript, with the page's own URL answering badly. Only the script's HEAD check does, or the page could not load at all. */
+async function failSiteCheck(page: Page, session: Session, answer: SiteDown) {
+  const { route } = BROWSER.early.chunk;
+  let settled = answer !== "stalled";
+  page.on("requestfailed", (request) => {
+    if (request.method() === "HEAD") settled = true;
+  });
+  await page.route(`${session.origin}${route}`, async (request) => {
+    if (request.request().method() !== "HEAD") await request.fallback();
+    else if (answer === "aborted") await request.abort();
+    else if (answer === "refused") await request.fulfill({ status: 503 });
+    else await new Promise(() => undefined);
+  });
+  const loads = await failPageScript(page, session);
+  return { loads, heading: await page.locator("h1").first().isVisible(), settled };
+}
+
+/** Lets the page's script fail with text in the form: typed while the scripts wait, or while the site check waits. */
+async function failWithText(page: Page, session: Session, moment: TypedMoment) {
+  const { route, script, field, text } = BROWSER.early.chunk;
+  const fill = () => page.locator(field).fill(text, { timeout: RENDER_TIMEOUT });
+  const loads = countLoads(page);
+  let release = () => {};
+  if (moment === "before") {
+    release = await holdScripts(page);
+  } else {
+    const answer = new Promise<void>((done) => {
+      release = done;
+    });
+    await page.route(`${session.origin}${route}`, async (request) => {
+      if (request.request().method() === "HEAD") await answer;
+      await request.fallback().catch(() => undefined);
+    });
+  }
+  const asked = moment === "during" ? page.waitForRequest((request) => request.method() === "HEAD", { timeout: RENDER_TIMEOUT }) : undefined;
+  await page.route(script, (blocked) => blocked.abort());
+  await loadBuiltPage(page, session, route);
+  await asked;
+  await fill();
+  release();
+  await settle(page);
+  await page.waitForTimeout(HYDRATION_QUIET);
+  return { loads: loads(), kept: (await page.locator(field).inputValue()) === text };
+}
+
+const RELOAD_READING = "fields-locked-at-reload";
+const FORM_FIELDS = "form input[id], form textarea[id]";
+
+/**
+ * Reads the form as the reload leaves the page, and keeps the answer in session storage for the next page to give back.
+ * Nothing holds the reload open, because a read sent to a page waiting on a navigation may never return.
+ */
+async function failWhileReloading(page: Page, session: Session) {
+  const { route, script } = BROWSER.early.chunk;
+  await page.addInitScript(
+    ([selector, key]) => {
+      addEventListener("beforeunload", () => {
+        const fields = [...document.querySelectorAll<HTMLInputElement>(selector)];
+        sessionStorage.setItem(key, String(fields.length > 0 && fields.every((field) => field.readOnly)));
+      });
+    },
+    [FORM_FIELDS, RELOAD_READING]
+  );
+  await page.route(script, (blocked) => blocked.abort());
+  await loadBuiltPage(page, session, route);
+  const locked = await page.waitForFunction((key) => sessionStorage.getItem(key), RELOAD_READING, { timeout: RENDER_TIMEOUT }).then(
+    (found) => found.jsonValue(),
+    () => null
+  );
+  return { reached: locked !== null, editable: locked !== null && locked !== "true" };
+}
+
+/** Sends a form that fails after React attached, the one way a visitor meets this. */
+async function failSend(page: Page, session: Session, plan: EarlyFormPlan) {
+  const [[selector, text]] = Object.entries(plan.early);
+  await page.route(`**${plan.action}`, (request) => request.fulfill({ status: 502 }));
+  const release = await holdScripts(page);
+  await loadBuiltPage(page, session, plan.route);
+  for (const [early, value] of Object.entries(plan.early)) await page.locator(early).fill(value, { timeout: RENDER_TIMEOUT });
+  await attach(page, release);
+  await chooseOptions(page);
+  await skipValidation(page);
+  await page.locator('form button[type="submit"]').click({ timeout: RENDER_TIMEOUT });
+  const told = await page
+    .getByText(BROWSER.early.sendFailed)
+    .first()
+    .waitFor({ timeout: RENDER_TIMEOUT })
+    .then(
+      () => true,
+      () => false
+    );
+  return { told, kept: (await page.locator(selector).inputValue()) === text };
 }
 
 const mainText = (page: Page) => page.evaluate(() => document.querySelector<HTMLElement>("main")?.innerText.trim() ?? "");
@@ -705,13 +806,28 @@ async function readCartEarly(page: Page, session: Session): Promise<EarlyReading
   return { held, attached, before, after: await mainText(page) };
 }
 
+/** Longer than any step here takes. A stuck browser call then fails its step, and the run still ends. */
+const STEP_LIMIT = 60_000;
+
+async function withinLimit<T>(work: Promise<T>): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  const limit = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`no result after ${STEP_LIMIT / 1000} seconds`)), STEP_LIMIT);
+  });
+  try {
+    return await Promise.race([work, limit]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function earlyFindings(browser: Browser, session: Session): Promise<Finding[]> {
   const errors: EarlyReading["errors"] = {};
 
   async function step<T>(name: string, act: (page: Page) => Promise<T>, scenario?: Scenario): Promise<T | undefined> {
     const { context, page } = await newPage(browser, session, scenario);
     try {
-      return await act(page);
+      return await withinLimit(act(page));
     } catch (error) {
       if (error instanceof PreviewProtected) throw error;
       errors[name] = error instanceof Error ? error.message.split("\n")[0] : String(error);
@@ -738,8 +854,24 @@ async function earlyFindings(browser: Browser, session: Session): Promise<Findin
     const loads = await failPageScript(page, session);
     return { loads, heading: await page.locator("h1").first().isVisible() };
   });
+  const siteDown: EarlyReading["siteDown"] = {};
+  for (const answer of BROWSER.early.siteDown) {
+    const seen = await step(`site check ${answer}`, (page) => failSiteCheck(page, session, answer));
+    if (seen) siteDown[answer] = seen;
+  }
+  const typed: EarlyReading["typed"] = {};
+  for (const moment of BROWSER.early.typed) {
+    const seen = await step(`text ${moment} the site check`, (page) => failWithText(page, session, moment));
+    if (seen) typed[moment] = seen;
+  }
+  const reloading = await step("reloading", (page) => failWhileReloading(page, session));
+  const sendFailed: EarlyReading["sendFailed"] = {};
+  for (const plan of BROWSER.early.forms) {
+    const seen = await step(`failed send ${plan.route}`, (page) => failSend(page, session, plan));
+    if (seen) sendFailed[plan.route] = seen;
+  }
   const cart = await step("saved cart", (page) => readCartEarly(page, session), "seeded cart");
-  return checkEarly({ scroll, forms, enterLeft, retry, giveUp, cart, errors });
+  return checkEarly({ scroll, forms, enterLeft, retry, giveUp, siteDown, typed, reloading, sendFailed, cart, errors });
 }
 
 async function missingUrlFindings(browser: Browser, session: Session): Promise<Finding[]> {

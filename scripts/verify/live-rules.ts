@@ -65,6 +65,12 @@ export function checkRaw(route: string, status: number, html: string, expectedH1
   return findings;
 }
 
+/** The redirects are patterns, and one that grew too wide would catch a working path with nothing else failing. */
+export function checkNotRedirected(path: string, chain: Chain): Finding[] {
+  if (redirects(chain).length === 0) return [];
+  return [{ rule: "LV-REDIRECT", file: path, message: `expected no redirect: ${describeChain(chain)}` }];
+}
+
 export function checkRedirect(from: string, to: string, base: string, chain: Chain, maxHops = 1): Finding[] {
   const hops = redirects(chain);
   const expected = new URL(to, base).href;

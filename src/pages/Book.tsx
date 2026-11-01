@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
-import { formFailure, FormRefused, sendForm } from "@/lib/sendForm";
+import { FormHelp } from "@/components/FormHelp";
+import { FORM_FAILED, formFailure, FormRefused, sendForm } from "@/lib/sendForm";
 import { trackEvent } from "@/lib/analytics";
 import { useBuiltForm } from "@/hooks/use-built-form";
 import bookHero from "@/assets/book-hero.jpg";
@@ -51,7 +52,7 @@ const Book = () => {
       });
     } catch (error) {
       console.error("Error sending booking:", error);
-      toast.error(error instanceof FormRefused ? error.message : "Something went wrong. Please try emailing us directly.");
+      toast.error(error instanceof FormRefused ? error.message : FORM_FAILED);
     } finally {
       setIsSubmitting(false);
     }
@@ -221,6 +222,7 @@ const Book = () => {
                 <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit}>
                   {isSubmitting ? "Sending..." : "Submit Booking Request"}
                 </Button>
+                <FormHelp />
               </div>
             </form>
           </div>

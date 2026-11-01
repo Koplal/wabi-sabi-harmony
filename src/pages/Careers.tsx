@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useBuiltForm } from "@/hooks/use-built-form";
-import { formFailure, FormRefused, sendForm } from "@/lib/sendForm";
+import { FormHelp } from "@/components/FormHelp";
+import { FORM_FAILED, formFailure, FormRefused, sendForm } from "@/lib/sendForm";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import careersHero from "@/assets/careers-hero.jpg";
@@ -52,7 +53,7 @@ const Careers = () => {
       console.error("Error submitting application:", error);
       toast({
         title: "Error",
-        description: error instanceof FormRefused ? error.message : "Failed to submit application. Please try again.",
+        description: error instanceof FormRefused ? error.message : FORM_FAILED,
         variant: "destructive",
       });
     } finally {
@@ -195,6 +196,7 @@ const Careers = () => {
                 <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit} className="w-full">
                   {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>
+                <FormHelp />
               </form>
             </div>
           </div>

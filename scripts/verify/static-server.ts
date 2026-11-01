@@ -33,7 +33,13 @@ interface VercelConfig {
   trailingSlash?: boolean;
 }
 
-const matches = (source: string, pathname: string) => new RegExp(`^${source}$`).test(pathname);
+/**
+ * vercel.json takes path-to-regexp. This project uses one named form, /:path+, one or more whole
+ * segments. A dot is literal unless a quantifier follows it, as in a rewrite's (.*).
+ */
+const NAMED_PATH = /:\w+\+/;
+const matcher = (source: string) => new RegExp(`^${source.replace(/\.(?![*+?])/g, "\\.").replace(NAMED_PATH, "([^/]+(?:/[^/]+)*)")}$`);
+const matches = (source: string, pathname: string) => matcher(source).test(pathname);
 
 /** One hop. trailingSlash goes first, so /home/ takes two hops to reach /, as LIVE.redirects allows. */
 function redirectFor(config: VercelConfig, pathname: string): { status: number; location: string } | undefined {
@@ -41,7 +47,9 @@ function redirectFor(config: VercelConfig, pathname: string): { status: number; 
     return { status: 308, location: pathname.replace(/\/+$/, "") || "/" };
   }
   const rule = config.redirects?.find((entry) => matches(entry.source, pathname));
-  return rule ? { status: rule.permanent === false ? 307 : 308, location: rule.destination } : undefined;
+  if (!rule) return undefined;
+  const named = matcher(rule.source).exec(pathname)?.[1] ?? "";
+  return { status: rule.permanent === false ? 307 : 308, location: rule.destination.replace(NAMED_PATH, named) };
 }
 
 export interface RunningServer {

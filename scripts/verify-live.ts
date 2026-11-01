@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { BROWSER, COPY_PAGES, LASTMOD_FILE, LIVE, PARITY_EXEMPT, RENDER_BASELINE_FILE } from "./verify/rules";
 import { type Finding, listValue, parseArgs, report, UsageError } from "./verify/lib";
 import type { RenderBaseline } from "./verify/dist-checks";
-import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, describeChain } from "./verify/live-rules";
+import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkNotRedirected, checkRedirect, checkSitemapDates, checkUtility, describeChain } from "./verify/live-rules";
 import { type RunningServer, startStaticServer } from "./verify/static-server";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -147,6 +147,11 @@ async function check(base: string, selected: string[]): Promise<number> {
       const chain = await follow(`${base}${from}`, base);
       say("LV-REDIRECT", chain);
       findings.push(...checkRedirect(from, to, base, chain, maxHops));
+    }
+    for (const path of LIVE.notRedirected) {
+      const chain = await follow(`${base}${path}`, base);
+      say("LV-REDIRECT", chain);
+      findings.push(...checkNotRedirected(path, chain));
     }
   }
   if (selected.includes("LV-UTILITY")) {

@@ -69,7 +69,7 @@ import {
   type PageSnapshot,
   runsMissingUrl,
 } from "../browser-rules";
-import { checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, type Chain } from "../live-rules";
+import { checkFile, checkHost, checkMissing, checkNotRedirected, checkRaw, checkRedirect, checkSitemapDates, checkUtility, type Chain } from "../live-rules";
 
 type Files = Map<string, string>;
 
@@ -601,9 +601,9 @@ sourceCase("S-PRICES", "reports an item missing from the catalogue", "fail", (fi
 const FORM_PAGE = FORM_FILES.pages[1].file;
 const OTHER_FORM_PAGE = FORM_FILES.pages[2].file;
 sourceCase("S-FORMS", "reports a page field the function drops", "fail", (files) => replaceIn(files, FORM_PAGE, 'phone: ""', 'phone: "", budget: ""'));
-sourceCase("S-FORMS", "reports a function field no page sends", "fail", (files) => replaceIn(files, FORM_FILES.handler, '["phone", "Phone"],', '["phone", "Phone"],\n      ["budget", "Budget"],'));
+sourceCase("S-FORMS", "reports a function field no page sends", fails("field list has budget, which the page does not send"), (files) => replaceIn(files, FORM_FILES.handler, '["phone", "Phone"],', '["phone", "Phone"],\n      ["budget", "Budget"],'));
 sourceCase("S-FORMS", "reports a form missing from the function", "fail", (files) => replaceIn(files, FORM_FILES.handler, "careers: {", "jobs: {"));
-sourceCase("S-FORMS", "reports a field list it cannot read", "fail", (files) => replaceIn(files, FORM_FILES.handler, "fields: [", "items: ["));
+sourceCase("S-FORMS", "reports a field list it cannot read", fails("has no field list"), (files) => replaceIn(files, FORM_FILES.handler, "fields: [", "items: ["));
 sourceCase("S-FORMS", "reports a page posting another form", "fail", (files) => replaceIn(files, FORM_PAGE, 'sendForm("booking"', 'sendForm("contact"'));
 sourceCase("S-FORMS", "reports a page with no form state", "fail", (files) => replaceIn(files, FORM_PAGE, "useState({", "useReducer({"));
 sourceCase("S-FORMS", "reports an option with no label", "fail", (files) => replaceIn(files, FORM_PAGE, 'value="fixture-option"', 'value="other-option"'));
@@ -1242,13 +1242,19 @@ browserCase("BR-INTERACT", "reports a step with no reading", fails("the step did
 const EARLY = BROWSER.early;
 const CONTACT_FORM = EARLY.forms[0];
 const formTexts = (plan: EarlyFormPlan) => [...Object.values(plan.early), ...Object.values(plan.late)];
-const sentForm = (plan: EarlyFormPlan) => ({ held: true, attached: true, stopped: true, body: JSON.stringify(formTexts(plan)) });
+const sentForm = (plan: EarlyFormPlan) => ({ held: true, attached: true, stopped: true, body: JSON.stringify(formTexts(plan)), help: EARLY.help.join(" ") });
+const staysUp = { loads: 1, heading: true, settled: true };
+const staysFilled = { loads: 1, kept: true };
 const early = (fields: Partial<EarlyReading> = {}): EarlyReading => ({
   scroll: { held: true, attached: true, before: EARLY.scroll.to, after: EARLY.scroll.to },
   forms: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, sentForm(plan)])),
   enterLeft: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, false])),
   retry: { loads: 2, attached: true },
   giveUp: { loads: 2, heading: true },
+  siteDown: { aborted: staysUp, refused: staysUp, stalled: staysUp },
+  typed: { before: staysFilled, during: staysFilled },
+  reloading: { reached: true, editable: false },
+  sendFailed: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, { told: true, kept: true }])),
   cart: { held: true, attached: true, before: "Your Selections", after: `Your Selections ${BROWSER.seededCart[0].name}` },
   errors: {},
   ...fields,
@@ -1271,6 +1277,22 @@ browserCase("BR-EARLY", "reports a failed script with no reload", fails("1 page 
 browserCase("BR-EARLY", "reports a reload that does not attach", fails("React did not attach after the reload"), () => checkEarly(early({ retry: { loads: 2, attached: false } })));
 browserCase("BR-EARLY", "reports a reload loop", fails("5 page loads with the script always failing, expected 2"), () => checkEarly(early({ giveUp: { loads: 5, heading: true } })));
 browserCase("BR-EARLY", "reports a page lost after the script failed", fails("the built page did not stay on screen"), () => checkEarly(early({ giveUp: { loads: 2, heading: false } })));
+browserCase("BR-EARLY", "reports a form with no phone number in its built text", fails(`the built form does not give ${EARLY.help[0]}`), () => checkEarly(earlyContact({ help: EARLY.help[1] })));
+browserCase("BR-EARLY", "reports a form with no email in its built text", fails(`the built form does not give ${EARLY.help[1]}`), () => checkEarly(earlyContact({ help: EARLY.help[0] })));
+browserCase("BR-EARLY", "reports a reload with the site check aborted", fails("2 page loads with the site check aborted, expected 1"), () => checkEarly(early({ siteDown: { ...early().siteDown, aborted: { ...staysUp, loads: 2 } } })));
+browserCase("BR-EARLY", "reports a reload with the site check refused", fails("2 page loads with the site check refused, expected 1"), () => checkEarly(early({ siteDown: { ...early().siteDown, refused: { ...staysUp, loads: 2 } } })));
+browserCase("BR-EARLY", "reports a page lost with the site check aborted", fails("the built page did not stay on screen with the site check aborted"), () => checkEarly(early({ siteDown: { ...early().siteDown, aborted: { ...staysUp, heading: false } } })));
+browserCase("BR-EARLY", "reports a site check that never gives up", fails("the site check was still waiting with the site check stalled"), () => checkEarly(early({ siteDown: { ...early().siteDown, stalled: { ...staysUp, settled: false } } })));
+browserCase("BR-EARLY", "reports a site check step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ siteDown: { aborted: staysUp, refused: staysUp }, errors: { "site check stalled": "Timeout" } })));
+browserCase("BR-EARLY", "reports a reload over text typed before the failure", fails("2 page loads with text in the form before the site check, expected 1"), () => checkEarly(early({ typed: { ...early().typed, before: { ...staysFilled, loads: 2 } } })));
+browserCase("BR-EARLY", "reports a reload over text typed during the site check", fails("2 page loads with text in the form during the site check, expected 1"), () => checkEarly(early({ typed: { ...early().typed, during: { ...staysFilled, loads: 2 } } })));
+browserCase("BR-EARLY", "reports text lost during the site check", fails("text in the form during the site check was lost"), () => checkEarly(early({ typed: { ...early().typed, during: { ...staysFilled, kept: false } } })));
+browserCase("BR-EARLY", "reports a form that takes text during the reload", fails("the form still took text while the reload was on its way"), () => checkEarly(early({ reloading: { reached: true, editable: true } })));
+browserCase("BR-EARLY", "reports a reload that never started, which proves nothing", fails("the reload never started"), () => checkEarly(early({ reloading: { reached: false, editable: false } })));
+browserCase("BR-EARLY", "reports a failed send that says nothing", fails("a failed send told the visitor nothing"), () => checkEarly(early({ sendFailed: { ...early().sendFailed, [CONTACT_FORM.route]: { told: false, kept: true } } })));
+browserCase("BR-EARLY", "reports a failed send that loses the text", fails("a failed send lost what was typed"), () => checkEarly(early({ sendFailed: { ...early().sendFailed, [CONTACT_FORM.route]: { told: true, kept: false } } })));
+browserCase("BR-EARLY", "reports a failed send step that did not finish", fails("the step did not finish: Timeout"), () => { const { [CONTACT_FORM.route]: _, ...rest } = early().sendFailed; return checkEarly(early({ sendFailed: rest, errors: { [`failed send ${CONTACT_FORM.route}`]: "Timeout" } })); });
+browserCase("BR-EARLY", "reports a text step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ typed: { before: staysFilled }, errors: { "text during the site check": "Timeout" } })));
 browserCase("BR-EARLY", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkEarly(early({ retry: undefined })));
 browserCase("BR-EARLY", "reports a built /cart that calls a saved cart empty", fails(`reads "${EARLY.cart.falseClaim}" before React attaches`), () => checkEarly(earlyCart({ before: "Your Selections Are Empty" })));
 browserCase("BR-EARLY", "reports a saved cart that never appears", fails("the saved cart was not on the page"), () => checkEarly(earlyCart({ after: "Your Selections Are Empty" })));
@@ -1309,6 +1331,8 @@ liveCase("LV-RAW", "reports the right H1 with the wrong canonical", "fail", () =
 liveCase("LV-RAW", "reports no baseline H1", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title"), undefined));
 liveCase("LV-RAW", "reports too little body text", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title", 10), "Title"));
 liveCase("LV-REDIRECT", "good fixture", "pass", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 200])));
+liveCase("LV-REDIRECT", "a path left alone may answer anything but a redirect", "pass", () => checkNotRedirected("/api/send-form-email", chain([`${APEX}/api/send-form-email`, 405])));
+liveCase("LV-REDIRECT", "reports a redirect on a path it must leave alone", fails("expected no redirect"), () => checkNotRedirected("/api/send-form-email", chain([`${APEX}/api/send-form-email`, 308], [`${APEX}/`, 200])));
 liveCase("LV-REDIRECT", "reports a temporary redirect", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 307], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "/home goes to the home page", "pass", () => checkRedirect("/home", "/", APEX, chain([`${APEX}/home`, 308], [`${APEX}/`, 200])));
 const SLASH_HOPS = LIVE.redirects.find((item) => item.from === "/home/")?.maxHops;
