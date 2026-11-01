@@ -3,6 +3,8 @@
  *
  *   npm run verify:browser                         all routes and rules, on dist/
  *   npm run verify:browser -- --route=/a,/b        only these routes
+ *   npm run verify:browser -- --route=/does-not-exist  the 404 page: BR-404 runs and BR-HYDRATE,
+ *     which needs a page built for the URL, leaves it out
  *   npm run verify:browser -- --skip=/a,/b         all routes except these
  *   npm run verify:browser -- --rules=BR-H1,BR-NAV only these rules
  *   npm run verify:browser -- --base=<url>         a deployment instead of dist/
@@ -56,10 +58,12 @@ import {
   type EarlyReading,
   fromPrerenderedProblem,
   type HydrationSnapshot,
+  hydrationUrls,
   type InteractReading,
   type LcpMeasure,
   type NavStep,
   type PageSnapshot,
+  runsMissingUrl,
 } from "./verify/browser-rules";
 import type { LcpLab, RankBaseline, RenderBaseline, RenderEntry } from "./verify/dist-checks";
 import { faqAnswers } from "./verify/source-checks";
@@ -687,11 +691,25 @@ async function failPageScript(page: Page, session: Session, times?: number) {
   return loads;
 }
 
+const mainText = (page: Page) => page.evaluate(() => document.querySelector<HTMLElement>("main")?.innerText.trim() ?? "");
+
+/** What a returning visitor reads on the built /cart, and then once their saved cart has loaded. */
+async function readCartEarly(page: Page, session: Session): Promise<EarlyReading["cart"]> {
+  const release = await holdScripts(page);
+  await loadBuiltPage(page, session, BROWSER.early.cart.route);
+  // The parser is done by now, because module scripts wait for it and readyState moves first.
+  await page.waitForFunction(() => document.readyState !== "loading", undefined, { timeout: RENDER_TIMEOUT });
+  const held = !(await reactOwnsPage(page));
+  const before = await mainText(page);
+  const attached = await attach(page, release);
+  return { held, attached, before, after: await mainText(page) };
+}
+
 async function earlyFindings(browser: Browser, session: Session): Promise<Finding[]> {
   const errors: EarlyReading["errors"] = {};
 
-  async function step<T>(name: string, act: (page: Page) => Promise<T>): Promise<T | undefined> {
-    const { context, page } = await newPage(browser, session);
+  async function step<T>(name: string, act: (page: Page) => Promise<T>, scenario?: Scenario): Promise<T | undefined> {
+    const { context, page } = await newPage(browser, session, scenario);
     try {
       return await act(page);
     } catch (error) {
@@ -720,7 +738,8 @@ async function earlyFindings(browser: Browser, session: Session): Promise<Findin
     const loads = await failPageScript(page, session);
     return { loads, heading: await page.locator("h1").first().isVisible() };
   });
-  return checkEarly({ scroll, forms, enterLeft, retry, giveUp, errors });
+  const cart = await step("saved cart", (page) => readCartEarly(page, session), "seeded cart");
+  return checkEarly({ scroll, forms, enterLeft, retry, giveUp, cart, errors });
 }
 
 async function missingUrlFindings(browser: Browser, session: Session): Promise<Finding[]> {
@@ -1076,14 +1095,14 @@ async function run(): Promise<number> {
 
     if (has("BR-NAV") && (!requested || named.includes("BR-NAV"))) findings.push(...(await navFindings(browser, session)));
     if (has("BR-CART") && (!requested || named.includes("BR-CART"))) findings.push(...(await cartFindings(browser, session)));
-    if (has("BR-404") && (!requested || named.includes("BR-404"))) findings.push(...(await missingUrlFindings(browser, session)));
+    if (has("BR-404") && runsMissingUrl(requested, named)) findings.push(...(await missingUrlFindings(browser, session)));
     const interacting = has("BR-INTERACT") && (!requested || named.includes("BR-INTERACT"));
     if (interacting) findings.push(...(await interactFindings(browser, session)));
     // After BR-INTERACT, which reports any write during its own steps, because each form here sends one.
     const early = has("BR-EARLY") && (!requested || named.includes("BR-EARLY"));
     if (early) findings.push(...(await earlyFindings(browser, session)));
 
-    const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).filter((route) => !skipped.includes(route)) : [];
+    const { routes: hydrationRoutes, outside } = has("BR-HYDRATE") ? hydrationUrls(requested, skipped) : { routes: [], outside: [] };
     findings.push(...(await hydrationFindings(browser, session, hydrationRoutes)));
     if (has("BR-LCP")) findings.push(...(await lcpFindings(browser, session, requested ?? BROWSER.lcp.routes)));
 
@@ -1093,8 +1112,9 @@ async function run(): Promise<number> {
       const later = hydrationRoutes.filter((route) => BROWSER.clockRoutes.includes(route));
       console.log(`BR-HYDRATE: ${plural(hydrationRoutes.length, "route")}${devReact ? " with development React" : ""}, each with an empty and a seeded cart${later.length > 0 ? `, and ${later.join(", ")} on a later date` : ""}.`);
     }
+    if (outside.length > 0) console.log(`BR-HYDRATE: not loaded, because no page is built for it: ${outside.join(", ")}`);
     if (interacting) console.log("BR-INTERACT: an FAQ answer, the mobile menu, the nav dropdown, a form field and a scroll reset, with nothing submitted.");
-    if (early) console.log("BR-EARLY: scrolling and filling in forms before React attaches, then a page script that fails once and every time. Each send stopped in the browser.");
+    if (early) console.log("BR-EARLY: scrolling and filling in forms before React attaches, a page script that fails once and every time, and /cart with a saved cart. Each send stopped in the browser.");
     if (session.blockedWrites.length > 0) {
       const unique = [...new Set(session.blockedWrites)];
       console.log(`Blocked ${session.blockedWrites.length} write request${session.blockedWrites.length === 1 ? "" : "s"}: ${unique.join(", ")}`);

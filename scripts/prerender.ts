@@ -111,7 +111,7 @@ function outPathFor(routePath: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Emit one page per route. Utility routes build too, in their empty-cart state, because the
+// Emit one page per route. Utility routes build too, with no saved cart read yet, because the
 // catch-all that served them is gone and Stripe returns to /cart and /checkout-success.
 // ---------------------------------------------------------------------------
 

@@ -61,10 +61,12 @@ import {
   checkRendered,
   fromPrerenderedProblem,
   type HydrationSnapshot,
+  hydrationUrls,
   type EarlyReading,
   type InteractReading,
   type LcpMeasure,
   type PageSnapshot,
+  runsMissingUrl,
 } from "../browser-rules";
 import { checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, type Chain } from "../live-rules";
 
@@ -1225,11 +1227,13 @@ const early = (fields: Partial<EarlyReading> = {}): EarlyReading => ({
   enterLeft: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, false])),
   retry: { loads: 2, attached: true },
   giveUp: { loads: 2, heading: true },
+  cart: { held: true, attached: true, before: "Your Selections", after: `Your Selections ${BROWSER.seededCart[0].name}` },
   errors: {},
   ...fields,
 });
 const earlyContact = (fields: Partial<EarlyReading["forms"][string]>) => early({ forms: { ...early().forms, [CONTACT_FORM.route]: { ...sentForm(CONTACT_FORM), ...fields } } });
 const earlyScroll = (fields: Partial<NonNullable<EarlyReading["scroll"]>>) => early({ scroll: { ...(early().scroll as NonNullable<EarlyReading["scroll"]>), ...fields } });
+const earlyCart = (fields: Partial<NonNullable<EarlyReading["cart"]>>) => early({ cart: { ...(early().cart as NonNullable<EarlyReading["cart"]>), ...fields } });
 browserCase("BR-EARLY", "good fixture", "pass", () => checkEarly(early()));
 browserCase("BR-EARLY", "reports a scroll position lost on attaching", fails(`scrolled to ${EARLY.scroll.to} before React attached, then moved to 0`), () => checkEarly(earlyScroll({ after: 0 })));
 browserCase("BR-EARLY", "reports a page that never scrolled, which proves nothing", fails("the page was not scrolled before React attached"), () => checkEarly(earlyScroll({ before: 0, after: 0 })));
@@ -1246,6 +1250,11 @@ browserCase("BR-EARLY", "reports a reload that does not attach", fails("React di
 browserCase("BR-EARLY", "reports a reload loop", fails("5 page loads with the script always failing, expected 2"), () => checkEarly(early({ giveUp: { loads: 5, heading: true } })));
 browserCase("BR-EARLY", "reports a page lost after the script failed", fails("the built page did not stay on screen"), () => checkEarly(early({ giveUp: { loads: 2, heading: false } })));
 browserCase("BR-EARLY", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkEarly(early({ retry: undefined })));
+browserCase("BR-EARLY", "reports a built /cart that calls a saved cart empty", fails(`reads "${EARLY.cart.falseClaim}" before React attaches`), () => checkEarly(earlyCart({ before: "Your Selections Are Empty" })));
+browserCase("BR-EARLY", "reports a saved cart that never appears", fails("the saved cart was not on the page"), () => checkEarly(earlyCart({ after: "Your Selections Are Empty" })));
+browserCase("BR-EARLY", "reports a built /cart with no text, which proves nothing", fails("the built page had no text"), () => checkEarly(earlyCart({ before: "" })));
+browserCase("BR-EARLY", "reports a /cart read after React attached, which proves nothing", fails("React had attached before the step acted"), () => checkEarly(earlyCart({ held: false })));
+browserCase("BR-EARLY", "reports a /cart step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ cart: undefined, errors: { "saved cart": "Timeout" } })));
 
 browserCase("BR-GA", "good fixture", "pass", () => checkGa(snapshot({ gaConfigs: 1 })));
 browserCase("BR-GA", "reports two page views from one load", "fail", () => checkGa(snapshot({ gaConfigs: 2 })));
@@ -1341,6 +1350,24 @@ function argumentChecks(): string[] {
   expectGuard(true, false, ["/about"], true);
   expectGuard(true, true, ["/about"], false);
   expectGuard(false, true, undefined, false);
+  // R2-21's proof is a run on the missing path alone: BR-404 must read it, and BR-HYDRATE must not.
+  const expectHydration = (requested: string[] | undefined, skipped: string[], routes: string[], outside: string[]) => {
+    const actual = hydrationUrls(requested, skipped);
+    if (JSON.stringify(actual) !== JSON.stringify({ routes, outside })) problems.push(`BR-HYDRATE on ${requested} skipping ${skipped} chose ${JSON.stringify(actual)}`);
+  };
+  expectHydration([LIVE.missingPath], [], [], [LIVE.missingPath]);
+  expectHydration(["/about", LIVE.missingPath], [], ["/about"], [LIVE.missingPath]);
+  expectHydration([STRIPE_RETURN], [], [STRIPE_RETURN], []);
+  expectHydration(["/about", "/faq"], ["/faq"], ["/about"], []);
+  const everyRoute = hydrationUrls(undefined, UTILITY_ROUTES);
+  if (everyRoute.routes.join() !== INDEXABLE_ROUTES.join() || everyRoute.outside.length > 0) problems.push("a full BR-HYDRATE pass does not load the route list less what it skips");
+  const expectMissing = (requested: string[] | undefined, named: string[], runs: boolean) => {
+    if (runsMissingUrl(requested, named) !== runs) problems.push(`BR-404 with routes ${requested} and rules ${named} should ${runs ? "run" : "not run"}`);
+  };
+  expectMissing(undefined, [], true);
+  expectMissing([LIVE.missingPath], [], true);
+  expectMissing(["/about"], [], false);
+  expectMissing(["/about"], ["BR-404"], true);
   return problems;
 }
 

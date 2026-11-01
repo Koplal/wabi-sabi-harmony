@@ -774,6 +774,11 @@ export const BROWSER = {
       },
     ] as EarlyFormPlan[],
     chunk: { route: "/contact", script: "**/assets/Contact-*.js" },
+    /**
+     * A saved cart loads only after React attaches, which can take seconds on a phone, and Stripe's
+     * cancel URL lands here. Until then the built page must not call that cart this word.
+     */
+    cart: { route: "/cart", falseClaim: "empty" },
   },
   /** --dev-react. The marker is a string that only development React contains. */
   devReact: {
