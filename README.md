@@ -10,7 +10,7 @@ Professional cleaning, organizing, and household management services in Victoria
 - **Seasonal Services**: Pumpkin decorating, holiday decorations, and more
 - **SEO Optimized**: Dynamic sitemap, semantic HTML, meta tags, structured data
 - **Mobile Responsive**: Fully responsive design
-- **Contact Forms**: Booking with price estimator, contact, and careers forms
+- **Contact Forms**: Contact, booking, and careers forms
 
 ## Tech Stack
 
@@ -79,5 +79,7 @@ curl https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
 npm install
 npm run dev
 ```
+
+`npm run dev` doesn't serve `/api`, so the forms and checkout show their error messages. Use `vercel dev` to test them locally. It also needs `RESEND_API_KEY` and `STRIPE_SECRET_KEY` in your local environment, because Vercel holds them for Production and Preview only.
 
 Visit: https://lovable.dev/projects/34b89b2f-7919-42d7-87e2-4e9631bf2ff0

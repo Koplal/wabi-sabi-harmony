@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
-import { sendForm } from "@/lib/sendForm";
+import { formFailure, FormRefused, sendForm } from "@/lib/sendForm";
 import { trackEvent } from "@/lib/analytics";
 import bookHero from "@/assets/book-hero.jpg";
 
@@ -32,7 +32,7 @@ const Book = () => {
 
     try {
       const response = await sendForm("booking", formData);
-      if (!response.ok) throw new Error("Form was not sent");
+      if (!response.ok) throw await formFailure(response);
 
       trackEvent("consultation_booking", { service_type: formData.serviceType });
       toast.success("Booking request received! We'll confirm your appointment shortly.");
@@ -49,7 +49,7 @@ const Book = () => {
       });
     } catch (error) {
       console.error("Error sending booking:", error);
-      toast.error("Something went wrong. Please try emailing us directly.");
+      toast.error(error instanceof FormRefused ? error.message : "Something went wrong. Please try emailing us directly.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,6 +101,7 @@ const Book = () => {
                   <Input
                     id="name"
                     required
+                    maxLength={200}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="rounded-none border-border bg-background"
@@ -113,6 +114,7 @@ const Book = () => {
                     id="email"
                     type="email"
                     required
+                    maxLength={200}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="rounded-none border-border bg-background"

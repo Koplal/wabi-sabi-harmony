@@ -124,6 +124,9 @@ export const BANS: Ban[] = [
       "Business Profile",
       "consent to marketing",
       "\\bor an ad\\b",
+      // B-15: the forms left these providers, so the page must not name them again.
+      "Lovable",
+      "Supabase",
     ],
     scope: ["src/pages/Privacy.tsx"],
     allow: [
@@ -292,6 +295,8 @@ export const REQUIRED: Required[] = [
   { row: "FR-8", text: "Privacy Policy", files: [TERMS, AGREEMENT] },
   { row: "FR-8", text: "Microsoft Clarity", files: [PRIVACY] },
   { row: "FR-8", text: "Stripe", files: [PRIVACY] },
+  { row: "FR-8", text: "Resend", files: [PRIVACY] },
+  { row: "FR-8", text: "runs our forms", files: [PRIVACY] },
   { row: "FR-8", text: FOUNDER_NAME, files: [PRIVACY] },
   { row: "FR-8", text: "hello@wabisabiservices.ca", files: [PRIVACY] },
 ];
@@ -472,6 +477,17 @@ export const MASK_FILES = [CONTACT, "src/pages/Book.tsx", "src/pages/Careers.tsx
 export const MASK_ATTRIBUTE = 'data-clarity-mask="true"';
 
 export const PRICE_FILES = { catalogue: "api/create-checkout.ts", seasonalDir: "src/pages/seasonal/" };
+
+export const FORM_FILES = {
+  handler: "api/send-form-email.ts",
+  /** Read by name in the function, so they are not in its field lists. */
+  directKeys: ["name", "email"],
+  pages: [
+    { form: "contact", file: CONTACT },
+    { form: "booking", file: "src/pages/Book.tsx" },
+    { form: "careers", file: "src/pages/Careers.tsx" },
+  ],
+};
 
 export const OVERLAP = {
   words: 8,

@@ -2,21 +2,50 @@
  * Emails the contact, booking and careers forms to the business inbox through Resend.
  * Kept in one file with no local imports, so it deploys as a single Vercel Function.
  * Personal details are never logged.
+ *
+ * FORMS and OPTION_LABELS mirror the form pages, and S-FORMS in the verify harness fails
+ * if they drift apart. `vite dev` doesn't serve /api: use `vercel dev` to test the forms
+ * locally, with RESEND_API_KEY in your local environment.
  */
 
 const RESEND_URL = "https://api.resend.com/emails";
+const RESEND_TIMEOUT_MS = 8000;
 const INBOX = "hello@wabisabiservices.ca";
 const SENDER_ADDRESS = "onboarding@wabisabiservices.ca";
 const MAX_NAME_LENGTH = 200;
 const MAX_FIELD_LENGTH = 5000;
+const MAX_LOGGED_REASON = 300;
 
-/** Fields whose values are form slugs such as "residential-deep", shown as readable labels. */
-const SLUG_FIELDS = new Set(["serviceType", "cadence"]);
+/** One address with a dotted domain. A comma or semicolon would turn reply_to into a list. */
+const EMAIL = /^[^\s@,;<>"]+@[^\s@,;<>".]+(\.[^\s@,;<>".]+)+$/;
+
+/** Resend statuses about the account, whose reasons can't repeat what a visitor typed. */
+const ACCOUNT_STATUSES = new Set([401, 403, 429]);
+
+/** Fields filled from a select, whose values are slugs such as "residential-deep". */
+const OPTION_FIELDS = new Set(["serviceType", "cadence"]);
+
+/** The words the customer saw for each select value, matching the form pages. */
+const OPTION_LABELS: Record<string, string> = {
+  "residential-maintenance": "Residential Maintenance",
+  "residential-deep": "Residential Deep Reset",
+  "residential-move": "Moving Prep / Listing-Ready",
+  residential: "Residential",
+  commercial: "Commercial",
+  "post-construction": "Post-Construction",
+  consultation: "Consultation Only",
+  weekly: "Weekly",
+  biweekly: "Bi-Weekly",
+  monthly: "Monthly",
+  "one-time": "One-Time",
+};
 
 interface FormDefinition {
   sender: string;
   subject: string;
   fields: [key: string, label: string][];
+  /** Keys that must hold text. The pages require them too, but spaces pass the browser's check. */
+  required?: string[];
 }
 
 const FORMS: Record<string, FormDefinition> = {
@@ -43,6 +72,7 @@ const FORMS: Record<string, FormDefinition> = {
       ["preferredTime2", "Preferred Time 2"],
       ["preferredTime3", "Preferred Time 3"],
     ],
+    required: ["phone", "address"],
   },
   careers: {
     sender: "Wabi-Sabi Careers",
@@ -67,9 +97,10 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-const slugToLabel = (value: string) => value.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+const displayValue = (key: string, value: string) =>
+  OPTION_FIELDS.has(key) && Object.hasOwn(OPTION_LABELS, value) ? OPTION_LABELS[value] : value;
 
-const row = (label: string, value: string) =>
+const row =(label: string, value: string) =>
   `<p><strong>${label}:</strong> ${escapeHtml(value).replace(/\r?\n/g, "<br>")}</p>`;
 
 /** Returns the trimmed text of a field, "" if it is absent, or null if it is not usable text. */
@@ -85,6 +116,11 @@ export async function POST(request: Request): Promise<Response> {
   if (!apiKey) {
     console.error("RESEND_API_KEY is not set");
     return json({ error: "Forms are unavailable" }, 500);
+  }
+
+  // A browser must preflight a cross-site JSON post, and this function never approves one.
+  if (!request.headers.get("content-type")?.includes("application/json")) {
+    return json({ error: "Invalid request" }, 400);
   }
 
   let body: Record<string, unknown> | null;
@@ -103,17 +139,18 @@ export async function POST(request: Request): Promise<Response> {
   }
   const form = FORMS[formName];
 
+  // Messages on a 400 are shown to the customer, so each one says what to correct.
   const name = readField(body, "name", MAX_NAME_LENGTH);
+  if (!name) return json({ error: "Name is required" }, 400);
   const email = readField(body, "email", MAX_NAME_LENGTH);
-  if (!name || !email || !/^\S+@\S+$/.test(email)) {
-    return json({ error: "Name and email are required" }, 400);
-  }
+  if (!email || !EMAIL.test(email)) return json({ error: "Please check your email address" }, 400);
 
   const rows: string[] = [];
   for (const [key, label] of form.fields) {
     const value = readField(body, key, MAX_FIELD_LENGTH);
-    if (value === null) return json({ error: "Invalid request" }, 400);
-    if (value) rows.push(row(label, SLUG_FIELDS.has(key) ? slugToLabel(value) : value));
+    if (value === null) return json({ error: `${label} is too long` }, 400);
+    if (value) rows.push(row(label, displayValue(key, value)));
+    else if (form.required?.includes(key)) return json({ error: `${label} is required` }, 400);
   }
 
   const subjectName = name.replace(/\s+/g, " ");
@@ -122,6 +159,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const response = await fetch(RESEND_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(RESEND_TIMEOUT_MS),
       // Resend refuses API requests that have no User-Agent.
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -137,11 +175,12 @@ export async function POST(request: Request): Promise<Response> {
       }),
     });
     if (!response.ok) {
-      console.error("Resend rejected the email, status", response.status);
+      const reason = ACCOUNT_STATUSES.has(response.status) ? (await response.text()).slice(0, MAX_LOGGED_REASON) : "";
+      console.error("Resend rejected the email, status", response.status, reason);
       return json({ error: "The email could not be sent" }, 502);
     }
-  } catch {
-    console.error("Could not reach Resend");
+  } catch (error) {
+    console.error("Could not reach Resend:", error instanceof Error ? error.name : "unknown error");
     return json({ error: "The email could not be sent" }, 502);
   }
 
