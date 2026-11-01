@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { sendForm } from "@/lib/sendForm";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import careersHero from "@/assets/careers-hero.jpg";
@@ -29,13 +29,8 @@ const Careers = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("send-application-email", {
-        body: formData,
-      });
-
-      if (error) throw error;
-      // The function answers 200 even when Resend rejects the email, so check its result too.
-      if (data?.data?.error) throw new Error("Email was not sent");
+      const response = await sendForm("careers", formData);
+      if (!response.ok) throw new Error("Form was not sent");
 
       toast({
         title: "Application Submitted!",
@@ -161,7 +156,7 @@ const Careers = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="experience">Relevant Experience</Label>
-                  <Textarea
+                  <Textarea maxLength={5000}
                     id="experience"
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
@@ -182,7 +177,7 @@ const Careers = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Additional Information</Label>
-                  <Textarea
+                  <Textarea maxLength={5000}
                     id="message"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}

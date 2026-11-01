@@ -292,7 +292,6 @@ export const REQUIRED: Required[] = [
   { row: "FR-8", text: "Privacy Policy", files: [TERMS, AGREEMENT] },
   { row: "FR-8", text: "Microsoft Clarity", files: [PRIVACY] },
   { row: "FR-8", text: "Stripe", files: [PRIVACY] },
-  { row: "FR-8", text: "Lovable Cloud", files: [PRIVACY] },
   { row: "FR-8", text: FOUNDER_NAME, files: [PRIVACY] },
   { row: "FR-8", text: "hello@wabisabiservices.ca", files: [PRIVACY] },
 ];

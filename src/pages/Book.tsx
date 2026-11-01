@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { sendForm } from "@/lib/sendForm";
 import { trackEvent } from "@/lib/analytics";
 import bookHero from "@/assets/book-hero.jpg";
 
@@ -30,19 +30,9 @@ const Book = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { preferredTime1, preferredTime2, preferredTime3, ...details } = formData;
-    const preferredTimes = [preferredTime1, preferredTime2, preferredTime3]
-      .filter((time) => time.trim())
-      .map((time, index) => `Preferred time ${index + 1}: ${time}`);
-
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: { ...details, notes: ["Booking request", ...preferredTimes].join("\n") }
-      });
-
-      if (error) throw error;
-      // The function answers 200 even when Resend rejects the email, so check its result too.
-      if (data?.data?.error) throw new Error("Email was not sent");
+      const response = await sendForm("booking", formData);
+      if (!response.ok) throw new Error("Form was not sent");
 
       trackEvent("consultation_booking", { service_type: formData.serviceType });
       toast.success("Booking request received! We'll confirm your appointment shortly.");

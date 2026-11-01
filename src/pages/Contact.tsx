@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { sendForm } from "@/lib/sendForm";
 import { trackEvent } from "@/lib/analytics";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
@@ -30,13 +30,8 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("send-contact-email", {
-        body: formData,
-      });
-
-      if (error) throw error;
-      // The function answers 200 even when Resend rejects the email, so check its result too.
-      if (data?.data?.error) throw new Error("Email was not sent");
+      const response = await sendForm("contact", formData);
+      if (!response.ok) throw new Error("Form was not sent");
 
       trackEvent("contact_submit", { service_type: formData.serviceType });
       toast.success("Thank you! We'll reply within one business day.");
@@ -197,7 +192,7 @@ const Contact = () => {
                 <Label htmlFor="notes" className="text-xs uppercase tracking-wider">
                   Notes
                 </Label>
-                <Textarea
+                <Textarea maxLength={5000}
                   id="notes"
                   rows={5}
                   value={formData.notes}

@@ -17,8 +17,8 @@ Professional cleaning, organizing, and household management services in Victoria
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS + shadcn/ui
-- Lovable Cloud (Supabase)
-- Supabase Edge Functions (Deno)
+- Vercel Functions
+- Supabase Edge Functions (Deno), for the monthly blog SEO job only
 
 ## Blog Article Publishing System
 
@@ -67,10 +67,11 @@ curl https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
 ## Edge Functions
 
 - **generate-blog-seo**: Generates SEO content for published articles
-- **send-price-estimate-email**: Price estimator booking requests (from PriceEstimator component)
-- **send-booking-email**: Booking confirmations (legacy)
-- **send-contact-email**: Contact form submissions
-- **send-application-email**: Career applications
+
+## Vercel Functions
+
+- **api/create-checkout.ts**: Prices the cart from a server catalogue and opens Stripe Checkout. Needs `STRIPE_SECRET_KEY`
+- **api/send-form-email.ts**: Emails the contact, booking and careers forms through Resend. Needs `RESEND_API_KEY`
 
 ## Development
 

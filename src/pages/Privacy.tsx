@@ -149,13 +149,11 @@ const Privacy = () => (
               <strong>Google</strong> provides Analytics and web fonts.
             </li>
             <li>
-              <strong>Vercel</strong> hosts the website, runs checkout, and measures site performance and usage.
+              <strong>Vercel</strong> hosts the website, runs our forms and checkout, and measures site performance and
+              usage.
             </li>
             <li>
               <strong>Resend</strong> delivers the emails our forms send.
-            </li>
-            <li>
-              <strong>Lovable Cloud and Supabase</strong> run our contact, booking and careers forms.
             </li>
             <li>
               <strong>Microsoft</strong> provides Clarity (site-usage analytics).
