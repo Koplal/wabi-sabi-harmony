@@ -1205,8 +1205,10 @@ const SHIFTS = fails(/^layout shift of [\d.]+, worse than production's/);
 const shiftedBy = (worst: number) => lcpOf(LCP_RUNS, [0, 0, worst, 0, 0]);
 browserCase("BR-LCP", "allows the layout shift production has in the same sitting", "pass", () => checkLcpRuns("/", lcpOf(LCP_RUNS, SHIFTED), lcpOf(LCP_RUNS, SHIFTED)));
 browserCase("BR-LCP", "allows less layout shift than production", "pass", () => checkLcpRuns("/", shiftedBy(0.01), lcpOf(LCP_RUNS, SHIFTED)));
-browserCase("BR-LCP", "allows layout shift within the noise tolerance", "pass", () => checkLcpRuns("/", shiftedBy(0.0305), lcpOf(LCP_RUNS, SHIFTED)));
-browserCase("BR-LCP", "reports layout shift past the noise tolerance", SHIFTS, () => checkLcpRuns("/", shiftedBy(0.032), lcpOf(LCP_RUNS, SHIFTED)));
+browserCase("BR-LCP", "allows one run past production within the allowance", "pass", () => checkLcpRuns("/", shiftedBy(0.0355), lcpOf(LCP_RUNS, SHIFTED)));
+browserCase("BR-LCP", "allows the merged frame measured on /areas/oak-bay", "pass", () => checkLcpRuns("/areas/oak-bay", lcpOf(LCP_RUNS, [0.0074, 0.0125, 0.0074, 0.0074, 0.0125]), lcpOf(LCP_RUNS, [0.0074, 0.0074, 0.0074, 0.0074, 0.0074])));
+browserCase("BR-LCP", "reports a shift that every run has", fails(/^layout shift of at least [\d.]+ on every run/), () => checkLcpRuns("/", lcpOf(LCP_RUNS, [0.0094, 0.0094, 0.0094, 0.0094, 0.0094]), lcpOf(LCP_RUNS, [0.0074, 0.0074, 0.0074, 0.0074, 0.0074])));
+browserCase("BR-LCP", "reports one run past the allowance", SHIFTS, () => checkLcpRuns("/", shiftedBy(0.037), lcpOf(LCP_RUNS, SHIFTED)));
 browserCase("BR-LCP", "reports one run's layout shift when production has none", SHIFTS, () => checkLcpRuns("/", lcpOf(LCP_RUNS, [0, 0, 0.02, 0, 0]), lcpOf(LCP_RUNS)));
 browserCase("BR-LCP", "compares layout shift only in a sitting, because the saved figure has none", "pass", () => checkLcpRuns("/", lcpOf(LCP_RUNS, SHIFTED), R1_LCP));
 

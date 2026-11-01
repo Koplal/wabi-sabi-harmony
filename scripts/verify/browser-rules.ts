@@ -1,6 +1,6 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
 import type { LcpRoute, RenderEntry } from "./dist-checks";
-import { BROWSER, CLS_TOLERANCE, FAQ_ROUTE, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES, type SiteDown, type TypedMoment } from "./rules";
+import { BROWSER, CLS_ONE_RUN_ALLOWANCE, CLS_TOLERANCE, FAQ_ROUTE, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES, type SiteDown, type TypedMoment } from "./rules";
 import {
   canonicalJson,
   canonicalPath,
@@ -307,8 +307,8 @@ export interface LcpMeasure extends LcpRoute {
  * R2-FR-12 on a deployment. Fastest runs are compared, for the reason at BROWSER.lcp.tolerance, so
  * this catches a page that got slower, and not one that was unlucky. comparison is production from
  * the same sitting, or the saved R1 figure when production is the target. Layout shift compares
- * the largest of each target's runs, and the saved figure has none, so it is compared in a sitting
- * only.
+ * each target's largest run and its lowest, so an occasional spike and an every-load shift have
+ * their own limits. The saved figure has no shifts, so they are compared in a sitting only.
  */
 export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: (LcpRoute & { shifts?: number[] }) | undefined): Finding[] {
   const { runs, tolerance } = BROWSER.lcp;
@@ -317,7 +317,12 @@ export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: (L
   if (comparison?.shifts) {
     const worst = Math.max(0, ...measured.shifts);
     const production = Math.max(0, ...comparison.shifts);
-    if (worst > production + CLS_TOLERANCE) findings.push(finding(`layout shift of ${worst.toFixed(4)}, worse than production's ${production.toFixed(4)} by more than ${CLS_TOLERANCE}`));
+    if (worst > production + CLS_ONE_RUN_ALLOWANCE) findings.push(finding(`layout shift of ${worst.toFixed(4)}, worse than production's ${production.toFixed(4)} by more than ${CLS_ONE_RUN_ALLOWANCE}`));
+    if (measured.shifts.length > 0 && comparison.shifts.length > 0) {
+      const lowest = Math.min(...measured.shifts);
+      const productionLowest = Math.min(...comparison.shifts);
+      if (lowest > productionLowest + CLS_TOLERANCE) findings.push(finding(`layout shift of at least ${lowest.toFixed(4)} on every run, production's lowest is ${productionLowest.toFixed(4)}`));
+    }
   }
   if (measured.runsMs.length < runs) findings.push(finding(`${measured.runsMs.length} of ${runs} runs gave a figure`));
   if (!comparison) findings.push(finding("no R1 figure to compare with"));
