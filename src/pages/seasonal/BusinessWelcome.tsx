@@ -7,19 +7,8 @@ import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-business-welcome-hero.jpg";
-import { useCart } from "@/contexts/CartContext";
 
 const BusinessWelcome = () => {
-  const { addToCart } = useCart();
-
-  const packageItem = {
-    id: 'business-welcome',
-    name: 'The Business Welcome',
-    price: 799,
-    description: 'Professional Holiday Décor for Your Business',
-    image: heroImage,
-  };
-
   return (
     <Layout>
       <SEO
@@ -33,7 +22,7 @@ const BusinessWelcome = () => {
         offers={{
           price: "799",
           priceCurrency: "CAD",
-          availability: "https://schema.org/PreOrder",
+          availability: "https://schema.org/OutOfStock",
           url: "https://wabisabiservices.ca/seasoning/the-business-welcome",
         }}
       />
@@ -93,18 +82,11 @@ const BusinessWelcome = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$799</div>
                   <p className="text-muted-foreground">Commercial package with consultation</p>
-                  <p className="text-sm font-medium mt-3">Available: November through December</p>
+                  <p className="text-sm font-medium mt-3">2026 season closed. 2027 waitlist open.</p>
                 </div>
-                <Button 
-                  size="lg" 
-                  className="w-full mb-4"
-                  onClick={() => addToCart(packageItem)}
-                >
-                  Add to Cart
-                </Button>
-                <Link to="/contact">
-                  <Button variant="outline" size="lg" className="w-full">
-                    Request a Private Consultation
+                <Link to="/contact?interest=seasonal-2027-waitlist">
+                  <Button size="lg" className="w-full">
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -185,33 +167,21 @@ const BusinessWelcome = () => {
                     <h4 className="font-semibold">Post-Holiday Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'business-welcome-removal', name: 'Post-Holiday Removal & Composting', price: 99, description: 'Complete cleanup and eco-friendly disposal', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Planter Display</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Extend styling for larger storefronts</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'business-welcome-planter', name: 'Additional Planter Display', price: 75, description: 'Extend styling for larger storefronts', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Extend styling for larger storefronts</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'business-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural winter scent to complement your display', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
                 </Card>
               </div>
             </div>

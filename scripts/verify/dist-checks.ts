@@ -405,8 +405,13 @@ export function checkParity(ctx: DistCtx): Finding[] {
 
     if (path.startsWith("src/pages/seasonal/")) {
       const built = new Map<string, number>();
+      const listed = /availability:\s*"([^"]+)"/.exec(text)?.[1];
       for (const node of blockNodes(html)) {
-        if (typesOf(node).includes("Product") && isNode(node.offers)) built.set(String(node.name), Number(node.offers.price));
+        if (!typesOf(node).includes("Product") || !isNode(node.offers)) continue;
+        built.set(String(node.name), Number(node.offers.price));
+        if (listed && node.offers.availability !== listed) {
+          findings.push({ rule: "D-PARITY", row: "DJ-19", file: path, message: `${String(node.name)} is ${listed} on the page and ${String(node.offers.availability)} in built HTML` });
+        }
       }
       for (const [name, price] of pricesOf(text)) {
         pricesCompared++;

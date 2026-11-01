@@ -12,6 +12,7 @@ import {
   CONSULTATION,
   FAQ_FILES,
   FAQ_SECTIONS,
+  FORM_FILES,
   FREE_ESTIMATES,
   GA_EVENTS,
   INDEXABLE_ROUTES,
@@ -103,6 +104,12 @@ function goodSource(): Files {
 
   add(`${PRICE_FILES.seasonalDir}FixturePackage.tsx`, `const packageItem = { id: 'fixture-package', name: 'The Fixture Package', price: 399, description: "x" };\n`);
   add(PRICE_FILES.catalogue, `const CATALOGUE = {\n  "fixture-package": { name: "The Fixture Package", price: 399 },\n};\n`);
+
+  for (const { form, file } of FORM_FILES.pages) {
+    add(file, `const [formData, setFormData] = useState({ name: "", email: "", phone: "" });\nawait sendForm("${form}", formData);\n<SelectItem value="fixture-option">Fixture Option</SelectItem>\n`);
+  }
+  const formEntries = FORM_FILES.pages.map(({ form }) => `  ${form}: {\n    fields: [\n      ["phone", "Phone"],\n    ],\n  },\n`);
+  add(FORM_FILES.handler, `const OPTION_LABELS: Record<string, string> = {\n  "fixture-option": "Fixture Option",\n};\n\nconst FORMS = {\n${formEntries.join("")}};\n`);
   return files;
 }
 
@@ -326,7 +333,13 @@ sourceCase("BAN-23", "bans a Maps identifier", "fail", (files) => editFile(files
 sourceCase("BAN-23", "allows heatmaps in the Clarity paragraph", "pass", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Clarity produces heatmaps and session replays.</p>\n"));
 sourceCase("BAN-23", "allows heatmaps only once", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Clarity produces heatmaps.</p>\n<p>We also review heatmaps.</p>\n"));
 sourceCase("BAN-23", "applies only to its scope", "pass", (files) => editFile(files, HOME, "<p>We use Zapier.</p>\n"));
+sourceCase("BAN-23", "bans the old forms provider", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Lovable Cloud runs our forms.</p>\n"));
+sourceCase("BAN-23", "bans the old database provider", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Supabase runs our forms.</p>\n"));
 const PACKAGE_PAGE = "src/pages/seasonal/GrandCelebration.tsx";
+sourceCase("BAN-25", "bans a cart button on a winter page", "fail", (files) => editFile(files, "src/pages/seasonal/CozyCabin.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
+sourceCase("BAN-25", "bans a 2026 consultation button on the winter hub", "fail", (files) => editFile(files, "src/pages/seasonal/WinterHoliday.tsx", "<a>Request a Private Consultation</a>\n"));
+sourceCase("BAN-25", "bans the old preorder availability on a winter page", "fail", (files) => editFile(files, "src/pages/seasonal/CozyCabin.tsx", '<p>{"https://schema.org/PreOrder"}</p>\n'));
+sourceCase("BAN-25", "leaves a cart button on another season's page", "pass", (files) => editFile(files, "src/pages/seasonal/AbundantHarmony.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
 sourceCase("BAN-24", "bans a roofline promise on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>Built for long rooflines.</p>\n"));
 sourceCase("BAN-24", "bans work at height on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>A crew handles the heights.</p>\n"));
 sourceCase("BAN-24", "bans wiring work on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>We handle the wiring.</p>\n"));
@@ -386,9 +399,25 @@ sourceCase("S-MASK", "reports a form with no wrapper", "fail", (files) => files.
 sourceCase("S-MASK", "reports the attribute on the form itself", "fail", (files) => files.set(MASK_FILES[1], `<form ${MASK_ATTRIBUTE}></form>\n`));
 sourceCase("S-MASK", "reports a wrapper closed before the form", "fail", (files) => files.set(MASK_FILES[2], `<div ${MASK_ATTRIBUTE}></div><form></form>\n`));
 sourceCase("S-MASK", "reports a wrapper closed inside the form", "fail", (files) => files.set(MASK_FILES[3], `<div ${MASK_ATTRIBUTE}><form></div></form>\n`));
+sourceCase("S-PRICES", "reports a closed package still on sale", "fail", (files) => editFile(files, PRICE_FILES.catalogue, '  "cozy-cabin": { name: "The Cozy Cabin", price: 474 },\n'));
+sourceCase("S-PRICES", "reports a closed package's add-on still on sale", "fail", (files) => editFile(files, PRICE_FILES.catalogue, '  "cozy-cabin-candles": { name: "Candles", price: 75, addOnFor: "The Cozy Cabin" },\n'));
+sourceCase("S-PRICES", "accepts a closed package marked closed", "pass", (files) => editFile(files, PRICE_FILES.catalogue, '  "cozy-cabin": { name: "The Cozy Cabin", price: 474, closed: true },\n'));
 sourceCase("S-PRICES", "reports a price that differs", "fail", (files) => replaceIn(files, PRICE_FILES.catalogue, "price: 399", "price: 499"));
 sourceCase("S-PRICES", "reports a name that differs", "fail", (files) => replaceIn(files, PRICE_FILES.catalogue, "The Fixture Package", "The Other Package"));
 sourceCase("S-PRICES", "reports an item missing from the catalogue", "fail", (files) => replaceIn(files, PRICE_FILES.catalogue, '"fixture-package"', '"other-package"'));
+const FORM_PAGE = FORM_FILES.pages[1].file;
+const OTHER_FORM_PAGE = FORM_FILES.pages[2].file;
+sourceCase("S-FORMS", "reports a page field the function drops", "fail", (files) => replaceIn(files, FORM_PAGE, 'phone: ""', 'phone: "", budget: ""'));
+sourceCase("S-FORMS", "reports a function field no page sends", "fail", (files) => replaceIn(files, FORM_FILES.handler, '["phone", "Phone"],', '["phone", "Phone"],\n      ["budget", "Budget"],'));
+sourceCase("S-FORMS", "reports a form missing from the function", "fail", (files) => replaceIn(files, FORM_FILES.handler, "careers: {", "jobs: {"));
+sourceCase("S-FORMS", "reports a field list it cannot read", "fail", (files) => replaceIn(files, FORM_FILES.handler, "fields: [", "items: ["));
+sourceCase("S-FORMS", "reports a page posting another form", "fail", (files) => replaceIn(files, FORM_PAGE, 'sendForm("booking"', 'sendForm("contact"'));
+sourceCase("S-FORMS", "reports a page with no form state", "fail", (files) => replaceIn(files, FORM_PAGE, "useState({", "useReducer({"));
+sourceCase("S-FORMS", "reports an option with no label", "fail", (files) => replaceIn(files, FORM_PAGE, 'value="fixture-option"', 'value="other-option"'));
+sourceCase("S-FORMS", "reports a label that differs from the page", "fail", (files) => replaceIn(files, FORM_FILES.handler, '"Fixture Option"', '"Other Option"'));
+sourceCase("S-FORMS", "reports a missing function", "fail", (files) => files.delete(FORM_FILES.handler));
+sourceCase("S-FORMS", "reports a missing page", "fail", (files) => files.delete(FORM_PAGE));
+sourceCase("S-FORMS", "checks only the pages in scope", "pass", (files) => replaceIn(files, OTHER_FORM_PAGE, 'phone: ""', 'phone: "", budget: ""'), { scope: [FORM_PAGE] });
 
 const HIDDEN_TERM = "zzplaceholder-term";
 const leakCommit = (fields: Partial<{ message: string; patch: string }>) => [{ hash: "abcdef1234", message: "Neutral", patch: "", ...fields }];
@@ -487,6 +516,7 @@ distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(file
 distCase("D-SITEMAP", "reports a utility route", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-PARITY", "reports a title that differs", "fail", () => undefined, { page: pageSource.replace('title="Fixture', 'title="Other') });
 distCase("D-PARITY", "reports a description that differs", "fail", () => undefined, { page: pageSource.replace('description="Description', 'description="Other') });
+distCase("D-PARITY", "reports availability that differs from the built Product", "fail", () => undefined, { page: `${pageSource}\navailability: "https://schema.org/OutOfStock"` });
 distCase("D-PARITY", "reports a package price that differs", "fail", () => undefined, { page: pageSource.replace("price: 399", "price: 499") });
 distCase("D-RANK", "reports a changed title", "fail", (files) => replaceIn(files, HOME_HTML, "<title>Fixture", "<title>Changed"));
 distCase("D-RANK", "reports a changed description", "fail", (files) => replaceIn(files, "services/cleaning/index.html", 'content="Description of', 'content="Changed'));

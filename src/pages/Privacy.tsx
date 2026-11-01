@@ -5,7 +5,7 @@ import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 /** Written at sign-off. The "Last updated" line stays hidden while this is empty. */
-const LAST_UPDATED: string = "October 31, 2026";
+const LAST_UPDATED: string = "November 1, 2026";
 
 const SECTION = "space-y-4";
 const H2 = "text-3xl font-serif mb-4";
@@ -149,13 +149,11 @@ const Privacy = () => (
               <strong>Google</strong> provides Analytics and web fonts.
             </li>
             <li>
-              <strong>Vercel</strong> hosts the website, runs checkout, and measures site performance and usage.
+              <strong>Vercel</strong> hosts the website, runs our forms and checkout, and measures site performance and
+              usage.
             </li>
             <li>
               <strong>Resend</strong> delivers the emails our forms send.
-            </li>
-            <li>
-              <strong>Lovable Cloud and Supabase</strong> run our contact, booking and careers forms.
             </li>
             <li>
               <strong>Microsoft</strong> provides Clarity (site-usage analytics).

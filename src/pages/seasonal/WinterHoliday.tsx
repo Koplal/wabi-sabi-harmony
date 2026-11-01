@@ -138,7 +138,7 @@ const WinterHoliday = () => {
           offers={{
             price: String(pkg.price),
             priceCurrency: "CAD",
-            availability: "https://schema.org/PreOrder",
+            availability: "https://schema.org/OutOfStock",
             url: `https://wabisabiservices.ca/seasoning/${pkg.name.toLowerCase().replace(/\s+/g, "-")}`,
           }}
         />
@@ -162,7 +162,7 @@ const WinterHoliday = () => {
               Fresh wreaths, garland, and lighting, designed and installed at your door
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
-              Available: November through December
+              2027 waitlist open
             </Badge>
           </div>
         </section>
@@ -172,8 +172,8 @@ const WinterHoliday = () => {
             <p className="text-lg text-muted-foreground leading-relaxed">
               Five winter packages, from a single welcoming doorway to a full estate facade. We source the greens,
               build the arrangements, and install everything ourselves. Post-season removal is available as an add-on.
-              The Cozy Cabin, The Winter Wonderland, and The Festive Estate install from November 20 - December 5.
-              Choose a package below, or talk with us about a display shaped to your home.
+              Our 2026 winter season is closed, and the 2027 waitlist is open.
+              Browse the packages below, then join the 2027 waitlist.
             </p>
           </div>
         </section>
@@ -265,15 +265,13 @@ const WinterHoliday = () => {
 
         <section className="py-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-3xl mb-6">Planning Your Holidays?</h2>
+            <h2 className="font-serif text-3xl mb-6">Planning Next Year's Holidays?</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              The December calendar fills quickly. Start with a $150 in-home consultation, credited in full toward
-              your first service, and we will walk your entrance together and plan the season's display.
-              Free estimates by phone or email.
+              Join the waitlist and we will contact you when 2027 dates are set.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/contact">Request a Private Consultation</Link>
+                <Link to="/contact?interest=seasonal-2027-waitlist">Join 2027 waitlist</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/seasoning">View All Seasonal Services</Link>

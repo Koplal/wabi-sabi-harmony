@@ -680,6 +680,7 @@ interface SeasonalEntry {
 }
 
 const PRE = "https://schema.org/PreOrder";
+const CLOSED = "https://schema.org/OutOfStock";
 
 const seasonalPackages: SeasonalEntry[] = [
   // Autumn
@@ -764,7 +765,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "A warm winter entrance with a fresh evergreen wreath, door swag, and planter greens, styled and installed on site.",
       price: "474",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Cozy Cabin",
   },
@@ -778,7 +779,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "A frost-inspired holiday entrance with premium evergreens, frosted branches, and warm lighting, installed on site.",
       price: "924",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Winter Wonderland",
   },
@@ -792,7 +793,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "A holiday display for multi-level entries and wide facades, with coordinated wreaths, railing garland, and abundant planter arrangements.",
       price: "1424",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Festive Estate",
   },
@@ -806,7 +807,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Our most involved holiday installation for estate properties, with extensive lighting and garland, a dedicated project manager, and weekly seasonal care.",
       price: "1924",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Grand Celebration",
   },
@@ -820,7 +821,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Holiday styling for a Victoria business entrance, with a commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained.",
       price: "799",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Business Welcome",
   },

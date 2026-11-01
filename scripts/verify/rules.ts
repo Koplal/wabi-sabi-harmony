@@ -124,6 +124,9 @@ export const BANS: Ban[] = [
       "Business Profile",
       "consent to marketing",
       "\\bor an ad\\b",
+      // B-15: the forms left these providers, so the page must not name them again.
+      "Lovable",
+      "Supabase",
     ],
     scope: ["src/pages/Privacy.tsx"],
     allow: [
@@ -139,6 +142,12 @@ export const BANS: Ban[] = [
     row: "DJ-15",
     patterns: ["rooflines?", "the heights", "the wiring", "mature trees"],
     scope: ["src/pages/seasonal/"],
+  },
+  {
+    id: "BAN-25",
+    row: "DJ-19",
+    patterns: ["addToCart", "useCart", "Add to Cart", "Request a Private Consultation", "November 20", "December 5", "Available: November", "December calendar", "schema\\.org/PreOrder"],
+    scope: ["CozyCabin", "WinterWonderland", "FestiveEstate", "GrandCelebration", "BusinessWelcome", "WinterHoliday"].map((page) => `src/pages/seasonal/${page}.tsx`),
   },
 ];
 
@@ -172,9 +181,9 @@ export const GUARANTEE_LIMIT = "This guarantee applies only to areas cleaned dur
 export const AREA_LINE = "Greater Victoria (Capital Regional District), from Sidney to Metchosin.";
 export const AREA_OUTSIDE = "Homes outside this area, including the Gulf Islands, are considered case by case at the estimate.";
 export const WAITLIST_2027 = "Join 2027 waitlist";
-export const INSTALL_WINDOW = "Install window: November 20 - December 5";
-export const WINTER_AVAILABLE = "Available: November through December";
-export const WINTER_INTRO = "The Cozy Cabin, The Winter Wonderland, and The Festive Estate install from November 20 - December 5.";
+export const WINTER_CLOSED = "2026 season closed. 2027 waitlist open.";
+export const WINTER_INSTALL = "To be confirmed for 2027";
+export const WINTER_INTRO = "Our 2026 winter season is closed, and the 2027 waitlist is open.";
 
 /** Strings that may match the sibling repo word for word (S-OVERLAP). */
 export const VERBATIM_STRINGS: string[] = [
@@ -254,8 +263,8 @@ const WAITLIST_PAGES = [
   "SummerStorefront",
 ].map(seasonal);
 
-const WINTER_DATED_PAGES = ["CozyCabin", "WinterWonderland", "FestiveEstate"].map(seasonal);
-const WINTER_UNDATED_PAGES = ["GrandCelebration", "BusinessWelcome"].map(seasonal);
+const WINTER_WINDOW_PAGES = ["CozyCabin", "WinterWonderland", "FestiveEstate"].map(seasonal);
+const WINTER_OTHER_PAGES = ["GrandCelebration", "BusinessWelcome"].map(seasonal);
 
 export const REQUIRED: Required[] = [
   { row: "T-01", text: FOUNDER_NAME, files: [ABOUT, LLMS] },
@@ -285,14 +294,19 @@ export const REQUIRED: Required[] = [
   { row: "T-24", text: AREA_OUTSIDE, files: [FAQ_DATA, LLMS] },
   { row: "T-30", text: WAITLIST_2027, files: WAITLIST_PAGES },
   { row: "T-30", text: "2027 waitlist", files: [seasonal("FallPumpkins")] },
-  { row: "T-30", text: "Request a Private Consultation", files: [...WINTER_DATED_PAGES, ...WINTER_UNDATED_PAGES] },
-  { row: "T-30", text: INSTALL_WINDOW, files: WINTER_DATED_PAGES },
-  { row: "T-30", text: WINTER_AVAILABLE, files: WINTER_UNDATED_PAGES },
-  { row: "T-30", text: WINTER_INTRO, files: [seasonal("WinterHoliday")] },
+  { row: "DJ-19", text: WAITLIST_2027, files: [...WINTER_WINDOW_PAGES, ...WINTER_OTHER_PAGES, seasonal("WinterHoliday")] },
+  { row: "DJ-19", text: WINTER_CLOSED, files: [...WINTER_WINDOW_PAGES, ...WINTER_OTHER_PAGES, "src/pages/Seasoning.tsx", LLMS] },
+  { row: "DJ-19", text: "https://schema.org/OutOfStock", files: [...WINTER_WINDOW_PAGES, ...WINTER_OTHER_PAGES, seasonal("WinterHoliday")] },
+  { row: "DJ-19", text: "availability: CLOSED", files: ["scripts/prerender.ts"] },
+  { row: "DJ-19", text: "/contact?interest=seasonal-2027-waitlist", files: [...WINTER_WINDOW_PAGES, ...WINTER_OTHER_PAGES, seasonal("WinterHoliday")] },
+  { row: "DJ-19", text: 'value="seasonal-2027-waitlist"', files: [CONTACT] },
+  { row: "DJ-19", text: WINTER_INSTALL, files: WINTER_WINDOW_PAGES },
+  { row: "DJ-19", text: WINTER_INTRO, files: [seasonal("WinterHoliday")] },
   { row: "FR-8", text: "Privacy Policy", files: [TERMS, AGREEMENT] },
   { row: "FR-8", text: "Microsoft Clarity", files: [PRIVACY] },
   { row: "FR-8", text: "Stripe", files: [PRIVACY] },
-  { row: "FR-8", text: "Lovable Cloud", files: [PRIVACY] },
+  { row: "FR-8", text: "Resend", files: [PRIVACY] },
+  { row: "FR-8", text: "runs our forms", files: [PRIVACY] },
   { row: "FR-8", text: FOUNDER_NAME, files: [PRIVACY] },
   { row: "FR-8", text: "hello@wabisabiservices.ca", files: [PRIVACY] },
 ];
@@ -473,6 +487,19 @@ export const MASK_FILES = [CONTACT, "src/pages/Book.tsx", "src/pages/Careers.tsx
 export const MASK_ATTRIBUTE = 'data-clarity-mask="true"';
 
 export const PRICE_FILES = { catalogue: "api/create-checkout.ts", seasonalDir: "src/pages/seasonal/" };
+/** Catalogue ids of packages whose season is closed (DJ-19). Each one and its add-ons must carry closed: true. */
+export const CLOSED_PACKAGES = ["cozy-cabin", "winter-wonderland", "festive-estate", "grand-celebration", "business-welcome"];
+
+export const FORM_FILES = {
+  handler: "api/send-form-email.ts",
+  /** Read by name in the function, so they are not in its field lists. */
+  directKeys: ["name", "email"],
+  pages: [
+    { form: "contact", file: CONTACT },
+    { form: "booking", file: "src/pages/Book.tsx" },
+    { form: "careers", file: "src/pages/Careers.tsx" },
+  ],
+};
 
 export const OVERLAP = {
   words: 8,

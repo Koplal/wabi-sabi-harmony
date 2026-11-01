@@ -18,6 +18,8 @@ const METADATA_MAX_LENGTH = 500;
 interface CatalogueItem {
   name: string;
   price: number;
+  /** Still listed, but refused at checkout, so a saved cart can't buy a closed season. */
+  closed?: boolean;
   addOnFor?: string;
 }
 
@@ -60,26 +62,26 @@ const CATALOGUE: Record<string, CatalogueItem> = {
   "botanical-estate-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Botanical Estate" },
   "botanical-estate-planters": { name: "Additional Planter Arrangements (2)", price: 75, addOnFor: "The Botanical Estate" },
   "botanical-estate-removal": { name: "Post-Season Removal & Composting", price: 99, addOnFor: "The Botanical Estate" },
-  "business-welcome": { name: "The Business Welcome", price: 799 },
-  "business-welcome-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Business Welcome" },
-  "business-welcome-planter": { name: "Additional Planter Display", price: 75, addOnFor: "The Business Welcome" },
-  "business-welcome-removal": { name: "Post-Holiday Removal & Composting", price: 99, addOnFor: "The Business Welcome" },
+  "business-welcome": { name: "The Business Welcome", price: 799, closed: true },
+  "business-welcome-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, closed: true, addOnFor: "The Business Welcome" },
+  "business-welcome-planter": { name: "Additional Planter Display", price: 75, closed: true, addOnFor: "The Business Welcome" },
+  "business-welcome-removal": { name: "Post-Holiday Removal & Composting", price: 99, closed: true, addOnFor: "The Business Welcome" },
   "coastal-cottage": { name: "The Coastal Cottage", price: 474 },
   "coastal-cottage-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Coastal Cottage" },
   "coastal-cottage-planter": { name: "Additional Planter Display", price: 75, addOnFor: "The Coastal Cottage" },
   "coastal-cottage-removal": { name: "Post-Season Removal", price: 99, addOnFor: "The Coastal Cottage" },
-  "cozy-cabin": { name: "The Cozy Cabin", price: 474 },
-  "cozy-cabin-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Cozy Cabin" },
-  "cozy-cabin-candles": { name: "Additional LED Candles (4)", price: 75, addOnFor: "The Cozy Cabin" },
-  "cozy-cabin-removal": { name: "Post-Holiday Removal & Composting", price: 99, addOnFor: "The Cozy Cabin" },
+  "cozy-cabin": { name: "The Cozy Cabin", price: 474, closed: true },
+  "cozy-cabin-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, closed: true, addOnFor: "The Cozy Cabin" },
+  "cozy-cabin-candles": { name: "Additional LED Candles (4)", price: 75, closed: true, addOnFor: "The Cozy Cabin" },
+  "cozy-cabin-removal": { name: "Post-Holiday Removal & Composting", price: 99, closed: true, addOnFor: "The Cozy Cabin" },
   "estate-collection": { name: "The Estate Collection", price: 1899 },
   "estate-collection-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Estate Collection" },
   "estate-collection-pumpkins": { name: "24 Mini Pumpkins", price: 75, addOnFor: "The Estate Collection" },
   "estate-collection-removal": { name: "Post-Halloween Removal & Composting", price: 99, addOnFor: "The Estate Collection" },
-  "festive-estate": { name: "The Festive Estate", price: 1424 },
-  "festive-estate-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Festive Estate" },
-  "festive-estate-garland": { name: "Additional Garland (10 feet)", price: 75, addOnFor: "The Festive Estate" },
-  "festive-estate-removal": { name: "Post-Holiday Removal & Composting", price: 99, addOnFor: "The Festive Estate" },
+  "festive-estate": { name: "The Festive Estate", price: 1424, closed: true },
+  "festive-estate-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, closed: true, addOnFor: "The Festive Estate" },
+  "festive-estate-garland": { name: "Additional Garland (10 feet)", price: 75, closed: true, addOnFor: "The Festive Estate" },
+  "festive-estate-removal": { name: "Post-Holiday Removal & Composting", price: 99, closed: true, addOnFor: "The Festive Estate" },
   "fresh-start": { name: "The Fresh Start", price: 474 },
   "fresh-start-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Fresh Start" },
   "fresh-start-planter": { name: "Additional Planter Display", price: 75, addOnFor: "The Fresh Start" },
@@ -92,10 +94,10 @@ const CATALOGUE: Record<string, CatalogueItem> = {
   "gathered-abundance-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Gathered Abundance" },
   "gathered-abundance-pumpkins": { name: "24 Mini Pumpkins", price: 75, addOnFor: "The Gathered Abundance" },
   "gathered-abundance-removal": { name: "Post-Halloween Removal & Composting", price: 99, addOnFor: "The Gathered Abundance" },
-  "grand-celebration": { name: "The Grand Celebration", price: 1924 },
-  "grand-celebration-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Grand Celebration" },
-  "grand-celebration-removal": { name: "Post-Holiday Removal & Composting", price: 99, addOnFor: "The Grand Celebration" },
-  "grand-celebration-wreath": { name: "Additional Premium Wreath", price: 75, addOnFor: "The Grand Celebration" },
+  "grand-celebration": { name: "The Grand Celebration", price: 1924, closed: true },
+  "grand-celebration-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, closed: true, addOnFor: "The Grand Celebration" },
+  "grand-celebration-removal": { name: "Post-Holiday Removal & Composting", price: 99, closed: true, addOnFor: "The Grand Celebration" },
+  "grand-celebration-wreath": { name: "Additional Premium Wreath", price: 75, closed: true, addOnFor: "The Grand Celebration" },
   "island-retreat": { name: "The Island Retreat", price: 924 },
   "island-retreat-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Island Retreat" },
   "island-retreat-lantern": { name: "Additional Hurricane Lantern", price: 75, addOnFor: "The Island Retreat" },
@@ -121,10 +123,10 @@ const CATALOGUE: Record<string, CatalogueItem> = {
   "summer-storefront-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Summer Storefront" },
   "summer-storefront-planter": { name: "Additional Planter Display", price: 75, addOnFor: "The Summer Storefront" },
   "summer-storefront-removal": { name: "Post-Season Removal", price: 99, addOnFor: "The Summer Storefront" },
-  "winter-wonderland": { name: "The Winter Wonderland", price: 924 },
-  "winter-wonderland-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, addOnFor: "The Winter Wonderland" },
-  "winter-wonderland-lighting": { name: "Additional Lighting Strand (100)", price: 75, addOnFor: "The Winter Wonderland" },
-  "winter-wonderland-removal": { name: "Post-Holiday Removal & Composting", price: 99, addOnFor: "The Winter Wonderland" },
+  "winter-wonderland": { name: "The Winter Wonderland", price: 924, closed: true },
+  "winter-wonderland-aromatherapy": { name: "Seasonal Aromatherapy Spray", price: 35, closed: true, addOnFor: "The Winter Wonderland" },
+  "winter-wonderland-lighting": { name: "Additional Lighting Strand (100)", price: 75, closed: true, addOnFor: "The Winter Wonderland" },
+  "winter-wonderland-removal": { name: "Post-Holiday Removal & Composting", price: 99, closed: true, addOnFor: "The Winter Wonderland" },
 };
 
 const json = (body: unknown, status = 200) =>
@@ -138,6 +140,7 @@ function priceCart(items: unknown): PricedCart | { error: string } {
   }
 
   const seen: string[] = [];
+  const closedItems: string[] = [];
   const lines: PricedLine[] = [];
   for (const item of items) {
     const id = (item as { id?: unknown } | null)?.id;
@@ -146,8 +149,13 @@ function priceCart(items: unknown): PricedCart | { error: string } {
     }
     seen.push(id);
 
-    const { name, price, addOnFor } = CATALOGUE[id];
+    const { name, price, addOnFor, closed } = CATALOGUE[id];
+    if (closed) closedItems.push(addOnFor ? `${name} (add-on for ${addOnFor})` : name);
     lines.push({ name, unitAmount: price * 100, description: addOnFor && `Add-on for ${addOnFor}` });
+  }
+
+  if (closedItems.length > 0) {
+    return { error: `Closed for 2026, please remove: ${closedItems.join(", ")}.` };
   }
 
   const subtotal = lines.reduce((sum, line) => sum + line.unitAmount, 0);
