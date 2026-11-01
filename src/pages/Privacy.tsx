@@ -5,7 +5,7 @@ import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 /** Written at sign-off. The "Last updated" line stays hidden while this is empty. */
-const LAST_UPDATED: string = "October 31, 2026";
+const LAST_UPDATED: string = "November 1, 2026";
 
 const SECTION = "space-y-4";
 const H2 = "text-3xl font-serif mb-4";
