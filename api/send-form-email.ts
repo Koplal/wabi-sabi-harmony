@@ -5,7 +5,8 @@
  *
  * FORMS and OPTION_LABELS mirror the form pages, and S-FORMS in the verify harness fails
  * if they drift apart. `vite dev` doesn't serve /api: use `vercel dev` to test the forms
- * locally, with RESEND_API_KEY in your local environment.
+ * locally, with RESEND_API_KEY in your local environment. `npm run verify:forms` checks
+ * this function with Resend stubbed.
  */
 
 const RESEND_URL = "https://api.resend.com/emails";
@@ -100,8 +101,11 @@ const escapeHtml = (value: string) =>
 const displayValue = (key: string, value: string) =>
   OPTION_FIELDS.has(key) && Object.hasOwn(OPTION_LABELS, value) ? OPTION_LABELS[value] : value;
 
-const row =(label: string, value: string) =>
+const row = (label: string, value: string) =>
   `<p><strong>${label}:</strong> ${escapeHtml(value).replace(/\r?\n/g, "<br>")}</p>`;
+
+/** The media type of a Content-Type header, without parameters such as charset. */
+const mediaType = (header: string | null) => header?.split(";")[0].trim().toLowerCase();
 
 /** Returns the trimmed text of a field, "" if it is absent, or null if it is not usable text. */
 function readField(body: Record<string, unknown>, key: string, maxLength: number): string | null {
@@ -118,8 +122,9 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: "Forms are unavailable" }, 500);
   }
 
-  // A browser must preflight a cross-site JSON post, and this function never approves one.
-  if (!request.headers.get("content-type")?.includes("application/json")) {
+  // Exact, because a browser reads "text/plain; application/json" as text/plain and skips the preflight.
+  // JSON needs one, which this function never approves. That only stops other sites: a script can still post.
+  if (mediaType(request.headers.get("content-type")) !== "application/json") {
     return json({ error: "Invalid request" }, 400);
   }
 
