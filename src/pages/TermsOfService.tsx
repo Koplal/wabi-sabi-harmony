@@ -27,7 +27,7 @@ export default function TermsOfService() {
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>
         <h2 className="text-2xl font-serif mb-2">Client Care Agreement & Terms of Service</h2>
-        <p className="text-muted-foreground mb-12">Effective June 1, 2026</p>
+        <p className="text-muted-foreground mb-12">Effective October 31, 2026</p>
 
         <div className="prose prose-lg max-w-none space-y-8">
           <section>
