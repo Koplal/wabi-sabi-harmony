@@ -108,13 +108,6 @@ const Organizing = () => {
                     <li>Set up functional systems from day one</li>
                   </ul>
                 </div>
-
-                <div>
-                  <h3 className="font-serif text-2xl mb-4">Digital Organization</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Physical clutter isn't the only kind that drains us. We offer support organizing digital files, photo libraries, and email inboxes—creating systems that are easy to maintain.
-                  </p>
-                </div>
               </div>
             </section>
 
@@ -158,14 +151,14 @@ const Organizing = () => {
                 Clutter isn't just visual noise. Research shows it increases cortisol levels, impairs focus, and makes decision-making harder. An organized space doesn't just look better—it genuinely helps you think more clearly and feel more in control.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                We're not here to create magazine-perfect spaces. We're here to build systems that work for your real life—so your home supports you instead of overwhelming you.
+                We keep to a deliberate standard: homes that are lived in beautifully. We're here to build systems that work for your real life—so your home supports you instead of overwhelming you.
               </p>
             </section>
 
             <section className="bg-secondary/30 rounded-lg p-10 text-center">
               <h2 className="font-serif text-3xl mb-6">Reclaim Your Space</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                We begin with a $150 in-home consultation, credited in full toward your first service, to understand your space and how you want it to work.
+                We begin with a $150 in-home consultation, credited in full toward your first service, to understand your space and how you want it to work. Free estimates by phone or email.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/contact">

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
@@ -26,7 +27,7 @@ export default function TermsOfService() {
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>
         <h2 className="text-2xl font-serif mb-2">Client Care Agreement & Terms of Service</h2>
-        <p className="text-muted-foreground mb-12">Effective June 1, 2026</p>
+        <p className="text-muted-foreground mb-12">Effective October 31, 2026</p>
 
         <div className="prose prose-lg max-w-none space-y-8">
           <section>
@@ -55,7 +56,7 @@ export default function TermsOfService() {
               <li><strong>Deep Cleaning:</strong> Detailed cleaning including baseboards, light fixtures, and hard-to-reach areas</li>
               <li><strong>Move-In/Move-Out Cleaning:</strong> Thorough cleaning for vacant properties</li>
               <li><strong>Post-Construction Cleaning:</strong> Specialized cleaning after renovations</li>
-              <li><strong>Eco-Luxury Packages:</strong> Premium services using exclusively organic, non-toxic products</li>
+              <li><strong>Eco-Luxury Package:</strong> Premium services using exclusively organic, non-toxic products</li>
             </ul>
           </section>
 
@@ -95,8 +96,7 @@ export default function TermsOfService() {
 
             <h3 className="text-2xl font-serif mb-3 mt-6">5.2 Payment Methods</h3>
             <p>
-              We accept credit cards, debit cards, and e-transfers. Payment is due upon booking for first-time clients and 
-              on the day of service for regular clients.
+              Payment is by credit card, debit card, or e-transfer. A credit card is kept on file for every booking.
             </p>
 
             <h3 className="text-2xl font-serif mb-3 mt-6">5.3 Price Adjustments</h3>
@@ -129,8 +129,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-3xl font-serif mb-4">7. Quality Guarantee</h2>
             <p>
-              We stand behind our work. If you're not satisfied with any aspect of our service, notify us within 24 hours with 
-              specific concerns and photos if applicable. We will return within 48 hours to address the issues at no additional charge. 
+              Tell us within 24 hours and we'll return within 48 hours to make it right, at no charge.
               This guarantee applies only to areas cleaned during the original service.
             </p>
           </section>
@@ -146,14 +145,15 @@ export default function TermsOfService() {
 
             <h3 className="text-2xl font-serif mb-3 mt-6">8.2 Eco-Friendly Products</h3>
             <p>
-              We use non-toxic, biodegradable cleaning products. If you have specific allergies or sensitivities, please inform us. 
+              We use low-toxicity products. If you have specific allergies or sensitivities, please inform us.
               You may also provide your own products for us to use.
             </p>
 
             <h3 className="text-2xl font-serif mb-3 mt-6">8.3 Safety Limitations</h3>
             <p>
-              Our team cannot: work above 2 ladder steps, move heavy furniture (over 25 lbs), handle hazardous materials, 
-              clean biohazards, or work in unsafe conditions.
+              Our team cannot: move heavy furniture (over 25 lbs), handle hazardous materials,
+              clean biohazards, or work in unsafe conditions. Work above floor level is limited to a 3-step ladder,
+              arranged in advance during your walkthrough estimate.
             </p>
           </section>
 
@@ -168,7 +168,7 @@ export default function TermsOfService() {
 
             <h3 className="text-2xl font-serif mb-3 mt-6">9.2 Insurance Coverage</h3>
             <p>
-              We carry general liability insurance. In the unlikely event of damage, we will assess and handle
+              Fully insured: $2 million commercial general liability coverage per occurrence. In the unlikely event of damage, we will assess and handle
               claims promptly and professionally.
             </p>
 
@@ -195,7 +195,9 @@ export default function TermsOfService() {
             <h2 className="text-3xl font-serif mb-4">11. Privacy and Confidentiality</h2>
             <p>
               We respect your privacy. All client information, access codes, and details about your property are kept strictly 
-              confidential. We will never share your information with third parties without your explicit consent. Any photos taken 
+              confidential. We don't sell your personal information. We never share access codes without your written permission.
+              We share other client details only with the service providers and partners who help us serve you, as described in
+              our <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>. Any photos taken
               for quality control or marketing purposes require your written permission.
             </p>
           </section>

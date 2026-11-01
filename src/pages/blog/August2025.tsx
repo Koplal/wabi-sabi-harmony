@@ -101,8 +101,6 @@ const August2025 = () => {
             <h3>Beach and Water Equipment:</h3>
             <ul>
               <li>Clean and dry all beach toys thoroughly</li>
-              <li>Wash beach towels with vinegar to remove sunscreen</li>
-              <li>Clean coolers with baking soda solution</li>
               <li>Sort and donate outgrown water gear</li>
               <li>Organize remaining items for easy access</li>
             </ul>
@@ -172,7 +170,7 @@ const August2025 = () => {
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">Ease into the season</h3>
               <p className="mb-6">
-                If you would rather hand the seasonal reset to someone who treats your home with care, our concierge team can carry it for you. We begin with a $150 in-home consultation, credited in full toward your first service.
+                If you would rather hand the indoor reset to someone who treats your home with care, our concierge team can carry it for you. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <Link to="/contact">
                 <Button size="lg">Request a Private Consultation</Button>

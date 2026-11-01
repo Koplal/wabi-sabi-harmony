@@ -24,12 +24,12 @@ const EstateCollection = () => {
     <Layout>
       <SEO
         title="The Estate Collection | Autumn Pumpkin Package"
-        description="Our most involved autumn pumpkin installation: rare specimen varieties, a dedicated project manager, and twice-weekly care for Greater Victoria estates."
+        description="Our most involved autumn pumpkin installation: rare specimen varieties, a dedicated project manager, and professional photo and video for Greater Victoria estates."
         canonical="https://wabisabiservices.ca/seasoning/estate-collection"
       />
       <ProductSchema
         name="The Estate Collection"
-        description="Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and twice-weekly seasonal care."
+        description="Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and professional photo and video."
         offers={{
           price: "1899",
           priceCurrency: "CAD",
@@ -71,7 +71,7 @@ const EstateCollection = () => {
               Where Grandeur Meets Grace
             </p>
             <p className="text-lg text-muted-foreground">
-              Planned over weeks, installed in a day, and tended through the season.
+              Planned over weeks and installed in a day.
             </p>
           </div>
         </section>
@@ -86,7 +86,7 @@ const EstateCollection = () => {
                   The Estate Collection is the most involved autumn display we offer. It begins two weeks before installation, with a walk of your grounds and a plan drawn for your specific sightlines, light, and architecture. On the day itself, a four-person team works through to dusk so the result reads as one composition rather than a set of arrangements.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Once it is in place, we return twice a week to keep every specimen at its best. It suits owners who would rather oversee nothing and simply walk up to a finished, well-kept entrance each morning.
+                  It suits owners who would rather oversee nothing and simply walk up to a finished, well-kept entrance each morning.
                 </p>
               </div>
               <Card className="p-8">
@@ -103,7 +103,7 @@ const EstateCollection = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -114,26 +114,14 @@ const EstateCollection = () => {
               <h3 className="font-serif text-3xl mb-8">What's Included</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 {[
-                  "3 Museum-Grade Grand Prize Pumpkins (competition quality)",
-                  "10 Large Heritage Pumpkins (rare Victorian varieties)",
-                  "12 Medium Heirloom Pumpkins",
-                  "16 Antique White Pumpkins (including rare Lumina variety)",
-                  "12 Artisan Pie Pumpkins",
-                  "24 Miniature Pumpkins (including rare Jack-Be-Little)",
-                  "20+ Rare Specimen Pumpkins (one-of-a-kind varieties)",
-                  "3 Premium hay bales with custom covers",
-                  "Extensive ornamental gourd collection",
-                  "Preserved maple and oak branches",
-                  "Dried flower arrangements (designed by florist)",
-                  "Living succulent pumpkin arrangements",
-                  "Custom wooden signage (optional)",
-                  "Full landscape-grade installation",
-                  "Opening ceremony with professional photographer",
+                  "3 Museum-Grade Grand Prize Pumpkins",
+                  "10 Large Heritage Pumpkins",
+                  "16 Antique White Pumpkins",
+                  "20+ Rare Specimen Pumpkins",
+                  "24 Miniature Pumpkins",
+                  "3 Premium hay bales",
                   "Dedicated project manager",
-                  "2-week collaborative planning process",
-                  "Twice-weekly service visits",
-                  "Professional photo & video documentation",
-                  "Pressed botanical keepsake book"
+                  "Professional photo & video"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -162,13 +150,7 @@ const EstateCollection = () => {
                 <Card className="p-6">
                   <h4 className="font-serif text-xl mb-3">Layered, not piled</h4>
                   <p className="text-muted-foreground">
-                    Branches, gourds, and dried arrangements are set in scale so large and small pieces read together.
-                  </p>
-                </Card>
-                <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Kept at its best</h4>
-                  <p className="text-muted-foreground">
-                    Twice-weekly visits replace anything past its prime, so the entrance looks freshly done all season.
+                    Large and small pieces are set in scale so they read together.
                   </p>
                 </Card>
               </div>
@@ -177,7 +159,7 @@ const EstateCollection = () => {
             {/* Package Features */}
             <div className="mb-16">
               <h3 className="font-serif text-3xl mb-8">How the Season Unfolds</h3>
-              <div className="grid md:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Discovery Phase</h4>
                   <p className="text-muted-foreground text-sm">2 weeks before installation</p>
@@ -189,10 +171,6 @@ const EstateCollection = () => {
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
                   <p className="text-muted-foreground text-sm">Full day with 4-person team</p>
-                </Card>
-                <Card className="p-6">
-                  <h4 className="font-semibold mb-2">Maintenance</h4>
-                  <p className="text-muted-foreground text-sm">Twice-weekly throughout season</p>
                 </Card>
               </div>
             </div>
@@ -228,9 +206,9 @@ const EstateCollection = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural autumn scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural autumn scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'estate-collection-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural autumn scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'estate-collection-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural autumn scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

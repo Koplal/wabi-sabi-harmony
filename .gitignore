@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .lh/
+
+# Private SEO strategy docs (this repo is public)
+docs/seo/

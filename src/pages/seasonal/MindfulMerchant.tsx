@@ -86,7 +86,7 @@ const MindfulMerchant = () => {
                   The Mindful Merchant is built for shops, studios, and offices along Victoria's high streets. We work to the scale of a commercial entrance, using larger, hardier varieties and fire-retardant bales so the display holds up through six to eight weeks of foot traffic and Island weather.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Installation is scheduled around your hours, including after close, and we return on a bi-weekly visit to keep everything tidy. The aim is simple: an entrance that reads as cared-for, and gives people walking by a reason to stop.
+                  Installation is scheduled around your hours, and we return on a bi-weekly visit to keep everything tidy. The aim is simple: an entrance that reads as cared-for, and gives people walking by a reason to stop.
                 </p>
               </div>
               <Card className="p-8">
@@ -103,7 +103,7 @@ const MindfulMerchant = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -127,8 +127,7 @@ const MindfulMerchant = () => {
                   "Liability insurance coverage ($2M)",
                   "Bi-weekly maintenance service",
                   "Social media photo package",
-                  "Marketing templates and hashtags",
-                  "Complete cleanup and removal"
+                  "Marketing templates and hashtags"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -192,7 +191,7 @@ const MindfulMerchant = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
-                  <p className="text-muted-foreground">Flexible scheduling including after-hours</p>
+                  <p className="text-muted-foreground">Flexible scheduling</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Duration</h4>
@@ -236,9 +235,9 @@ const MindfulMerchant = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural autumn scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural autumn scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'mindful-merchant-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural autumn scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'mindful-merchant-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural autumn scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

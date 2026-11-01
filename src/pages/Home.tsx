@@ -2,10 +2,14 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
+import { ParentOrganizationSchema } from "@/components/structured-data";
+import { googleReviews } from "@/data/googleReviews";
 import heroImage from "@/assets/hero-image.jpg";
 import commercialService from "@/assets/commercial-service.jpg";
 import postConstructionService from "@/assets/post-construction-service.jpg";
 import residentialService from "@/assets/residential-service.jpg";
+
+const featuredReview = googleReviews[0];
 
 const Home = () => {
   return (
@@ -15,6 +19,7 @@ const Home = () => {
         description="Quiet luxury, immaculately kept. Cleaning, organizing, and household services in Victoria, BC — museum-level precision and discreet, sustainable care."
         keywords="luxury cleaning Victoria BC, professional cleaning Victoria, house cleaning Victoria, commercial cleaning Victoria, mindful cleaning services"
       />
+      <ParentOrganizationSchema />
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center py-20">
         <div
@@ -66,8 +71,8 @@ const Home = () => {
             <div className="text-center">
               <h3 className="font-serif text-2xl mb-4">Vetted & Discreet</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Your privacy is paramount. Each member of our team is carefully vetted, fully insured, and trained to
-                work quietly in the background—the soul of discretion for households where confidentiality is
+                Your privacy is paramount. Every team member is background-checked and vetted. WorkSafeBC registered.
+                We work quietly in the background—the soul of discretion for households where confidentiality is
                 non-negotiable.
               </p>
             </div>
@@ -76,7 +81,7 @@ const Home = () => {
               <h3 className="font-serif text-2xl mb-4">Heritage-Aware Care</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Victoria's finest homes carry irreplaceable materials and histories. We treat heritage windows, natural
-                stone, and salt-air-exposed surfaces with the considered, surface-safe methods they deserve—protecting
+                stone, and other fine surfaces with the considered, surface-safe methods they deserve—protecting
                 your home, your family, and the character that makes it singular.
               </p>
             </div>
@@ -151,8 +156,10 @@ const Home = () => {
           <h2 className="font-serif text-4xl md:text-5xl mb-8">Where We Serve</h2>
           <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-2xl mx-auto">
             Wabi Sabi Services is a luxury cleaning, organizing, and concierge company serving Greater
-            Victoria, BC — fully insured and bonded. We tend the region's most distinguished
-            neighbourhoods, from heritage estates to waterfront retreats, with the same quiet precision.
+            Victoria, BC. Fully insured: $2 million commercial general liability coverage per occurrence.
+            Insured and bonded: our policy includes a third-party employee dishonesty bond that protects
+            client property. We tend the region's most distinguished neighbourhoods, from heritage estates
+            to waterfront retreats, with the same quiet precision.
           </p>
           <p className="text-base text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto">
             Request a private consultation at{" "}
@@ -206,7 +213,7 @@ const Home = () => {
             It begins with a{" "}
             <span className="text-foreground font-medium">$150 in-home consultation, credited in full toward your
             first service</span>. We listen, study your home and its materials, and design a tailored plan built
-            around precision, discretion, and care.
+            around precision, discretion, and care. Free estimates by phone or email.
           </p>
           <Button asChild>
             <Link to="/contact">Request a Private Consultation</Link>
@@ -219,7 +226,11 @@ const Home = () => {
         <div className="container mx-auto max-w-6xl">
           <h2 className="font-serif text-4xl md:text-5xl text-center mb-20">What Clients Say</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div
+            className={
+              featuredReview ? "grid grid-cols-1 md:grid-cols-2 gap-12" : "grid grid-cols-1 gap-12 max-w-2xl mx-auto"
+            }
+          >
             <div className="border-l-2 border-accent pl-6">
               <p className="text-lg mb-4 leading-relaxed">
                 "Listing went live at 10am and sold in 48 hours. The house felt like a boutique hotel."
@@ -227,10 +238,12 @@ const Home = () => {
               <p className="text-sm text-muted-foreground">— S.K., Uplands</p>
             </div>
 
-            <div className="border-l-2 border-accent pl-6">
-              <p className="text-lg mb-4 leading-relaxed">"They care for our marble like it's their own."</p>
-              <p className="text-sm text-muted-foreground">— M.D., Bear Mountain</p>
-            </div>
+            {featuredReview && (
+              <div className="border-l-2 border-accent pl-6">
+                <p className="text-lg mb-4 leading-relaxed">"{featuredReview.quote}"</p>
+                <p className="text-sm text-muted-foreground">— {featuredReview.author}</p>
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-12">

@@ -81,7 +81,6 @@ const October2025 = () => {
             <h3>Mindful Window Cleaning:</h3>
             <ul>
               <li>Start with gratitude for the view they provide</li>
-              <li>Use a solution of warm water, white vinegar, and lavender essential oil</li>
               <li>Clean on overcast days to avoid streaking</li>
               <li>Don't forget window tracks – accumulated dust affects seal efficiency</li>
               <li>Consider leaving one small smudge as a reminder of wabi-sabi's beauty in imperfection</li>
@@ -120,17 +119,14 @@ const October2025 = () => {
             <ul>
               <li>Remove everything mindfully</li>
               <li>Check expiration dates without judgment</li>
-              <li>Wipe shelves with rosemary-infused vinegar (naturally antibacterial)</li>
               <li>Organize with winter cooking in mind: soups, stews, baking supplies accessible</li>
               <li>Create a "give" box for food bank donations before the holiday rush</li>
             </ul>
 
             <h3>Appliance Deep Clean:</h3>
             <ul>
-              <li><strong>Oven:</strong> Use baking soda paste overnight, honoring this hearth's hard work</li>
               <li><strong>Refrigerator:</strong> Clean coils for efficiency as it works harder in heated homes</li>
               <li><strong>Range Hood:</strong> Degrease filters, which matter more once windows stay closed</li>
-              <li><strong>Small Appliances:</strong> Descale kettles and coffee makers with white vinegar</li>
             </ul>
 
             <h2>Bedroom Sanctuary: Creating Hygge Haven</h2>
@@ -139,7 +135,6 @@ const October2025 = () => {
             <h3>Mattress Renewal:</h3>
             <ul>
               <li>Vacuum thoroughly with HEPA filter</li>
-              <li>Sprinkle with baking soda and lavender, leave for 2 hours</li>
               <li>Flip or rotate mindfully, considering even wear</li>
               <li>Protect with breathable, organic cotton covers</li>
             </ul>
@@ -167,7 +162,7 @@ const October2025 = () => {
             <div className="mt-12 p-8 bg-muted rounded-lg">
               <h3 className="text-2xl font-serif mb-4">Settle in for autumn</h3>
               <p className="mb-6">
-                When you would rather spend the season enjoying your home than readying it, our concierge team can take the work in hand. We begin with a $150 in-home consultation, credited in full toward your first service.
+                When you would rather spend the season enjoying your home than readying it, our concierge team can take the work in hand. We begin with a $150 in-home consultation, credited in full toward your first service. Free estimates by phone or email.
               </p>
               <Link to="/contact">
                 <Button size="lg">Request a Private Consultation</Button>

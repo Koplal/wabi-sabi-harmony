@@ -47,7 +47,7 @@ const SeasideEstate = () => {
         offers={{
           price: "1924",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-seaside-estate",
         }}
       />
@@ -103,7 +103,7 @@ const SeasideEstate = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -223,9 +223,9 @@ const SeasideEstate = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Coastal breeze scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Coastal breeze scent to complement display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'seaside-estate-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Coastal breeze scent to complement display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'seaside-estate-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Coastal breeze scent to complement display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

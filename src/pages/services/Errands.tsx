@@ -81,7 +81,7 @@ const Errands = () => {
                 <div>
                   <h3 className="font-serif text-2xl mb-4">Meal Preparation</h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Take the stress out of daily cooking with personalized meal preparation services. We handle the planning, shopping, and cooking so you can enjoy nutritious, home-cooked meals without the time investment.
+                    Meal preparation for households that would rather not plan around the kitchen. We handle the planning, shopping, and cooking, so nutritious, home-cooked meals are simply there.
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li>Weekly meal planning based on dietary preferences</li>
@@ -122,7 +122,7 @@ const Errands = () => {
                 <div>
                   <h3 className="font-serif text-2xl mb-4">Pet Care Support</h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Your pets deserve attention even when you're busy:
+                    Care for the animals in your household, handled as quietly as the rest of the home:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li>Vet appointment transportation</li>
@@ -168,13 +168,14 @@ const Errands = () => {
                     <li>Letting in contractors or service providers</li>
                     <li>Hardware store runs for supplies</li>
                     <li>Light bulb and filter replacements</li>
+                    <li>Exterior window cleaning arranged through trusted partners</li>
                   </ul>
                 </div>
 
                 <div>
                   <h3 className="font-serif text-2xl mb-4">Vehicle Services</h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Keep your car maintained without the hassle:
+                    Your vehicles kept in order, without a trip on your calendar:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li>Drop-off and pickup for maintenance</li>
@@ -236,7 +237,7 @@ const Errands = () => {
             <section className="bg-secondary/30 rounded-lg p-10 text-center">
               <h2 className="font-serif text-3xl mb-6">Let Us Handle the Details</h2>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                We begin with a $150 in-home consultation, credited in full toward your first service, to learn how your household runs and where we can lighten the load.
+                We begin with a $150 in-home consultation, credited in full toward your first service, to learn how your household runs and where we can lighten the load. Free estimates by phone or email.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/contact">

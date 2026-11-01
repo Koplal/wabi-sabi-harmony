@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
@@ -26,7 +27,7 @@ export default function ClientAgreement() {
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-serif mb-4">Wabi Sabi Services</h1>
         <h2 className="text-2xl font-serif mb-2">Client Care Agreement</h2>
-        <p className="text-muted-foreground mb-2">Effective June 1, 2026</p>
+        <p className="text-muted-foreground mb-2">Effective October 31, 2026</p>
         <p className="text-muted-foreground mb-12">Servicing Area: Greater Victoria, BC</p>
 
         <div className="prose prose-lg max-w-none space-y-8">
@@ -42,9 +43,9 @@ export default function ClientAgreement() {
           <section>
             <h2 className="text-3xl font-serif mb-4">2. Scheduling & Arrival Window</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Services take place Monday–Friday between 8:00 AM – 6:00 PM unless otherwise agreed upon.</li>
+              <li>Monday to Friday, 8 am–6 pm. Weekends on request.</li>
               <li>You'll receive email and/or text reminders before each visit.</li>
-              <li>Arrival times are given in a 2-hour window based on route + traffic.</li>
+              <li>Our team operates within a 60-minute arrival window of your scheduled time.</li>
             </ul>
           </section>
 
@@ -76,7 +77,7 @@ export default function ClientAgreement() {
           <section>
             <h2 className="text-3xl font-serif mb-4">5. Service Pricing & Payment</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Payment due upon invoice by e-transfer, card, or bank transfer.</li>
+              <li>A credit card is kept on file for every booking.</li>
               <li>Outstanding balances must be cleared before future bookings.</li>
             </ul>
           </section>
@@ -97,7 +98,8 @@ export default function ClientAgreement() {
             <h2 className="text-3xl font-serif mb-4">7. What We Do / Do Not Move</h2>
             <ul className="list-disc pl-6 space-y-2">
               <li>We do not move heavy furniture, appliances, or items attached to walls.</li>
-              <li>We clean from the floor or a step stool only (no ladders, no climbing on counters).</li>
+              <li>Work above floor level is limited to a 3-step ladder, arranged in advance during your walkthrough estimate.</li>
+              <li>We do not climb on counters.</li>
             </ul>
             <p className="mt-4">If you want behind or under furniture cleaned, please move it before service.</p>
           </section>
@@ -113,8 +115,8 @@ export default function ClientAgreement() {
           <section>
             <h2 className="text-3xl font-serif mb-4">9. Breakage & Liability</h2>
             <p>
-              We are insured and treat your home with care. If something is accidentally damaged, we will report it immediately 
-              and discuss repair or replacement.
+              Fully insured: $2 million commercial general liability coverage per occurrence. We treat your home with care.
+              If something is accidentally damaged, we will report it immediately and discuss repair or replacement.
             </p>
             <p className="mt-4">We are not liable for:</p>
             <ul className="list-disc pl-6 space-y-2 mt-3">
@@ -127,8 +129,10 @@ export default function ClientAgreement() {
           <section>
             <h2 className="text-3xl font-serif mb-4">10. Privacy & Confidentiality</h2>
             <p>
-              Your home and information are always kept confidential. We do not share client details, access codes, or photos 
-              without written permission. Optional before/after photos exclude identifying features.
+              Your home and information are always kept confidential. We do not share access codes or photos without written
+              permission, and we share client details only with the service providers and partners who help us serve you, as
+              described in our <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>. Optional
+              before/after photos exclude identifying features.
             </p>
           </section>
 

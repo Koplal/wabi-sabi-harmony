@@ -93,6 +93,7 @@ const CozyCabin = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$474</div>
                   <p className="text-muted-foreground">Complete package with installation</p>
+                  <p className="text-sm font-medium mt-3">Install window: November 20 - December 5</p>
                 </div>
                 <Button 
                   size="lg" 
@@ -103,7 +104,7 @@ const CozyCabin = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Request a Private Consultation
                   </Button>
                 </Link>
               </Card>
@@ -232,7 +233,7 @@ const CozyCabin = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural winter scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -241,7 +242,7 @@ const CozyCabin = () => {
                       id: 'cozy-cabin-aromatherapy',
                       name: 'Seasonal Aromatherapy Spray',
                       price: 35,
-                      description: 'Natural winter scent to complement your display',
+                      description: 'Essential-oil aromatherapy spray. Natural winter scent to complement your display',
                       image: heroImage,
                     })}
                   >

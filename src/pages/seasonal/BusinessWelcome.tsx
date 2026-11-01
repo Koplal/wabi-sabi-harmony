@@ -86,13 +86,14 @@ const BusinessWelcome = () => {
                   The Business Welcome is the restrained option for professional entrances: law and design offices, clinics, galleries, and showrooms where the holiday note should be present but never loud. We work to your brand's palette and keep the materials weatherproof and low-maintenance.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Installation is arranged around your hours, and we return mid-season to refresh the greens before taking everything down in the new year. The result tells clients you pay attention to detail, without the display ever doing the talking for you.
+                  Installation is arranged around your hours, and we return mid-season to refresh the greens. Removal is available as an add-on. The result tells clients you pay attention to detail, without the display ever doing the talking for you.
                 </p>
               </div>
               <Card className="p-8">
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$799</div>
                   <p className="text-muted-foreground">Commercial package with consultation</p>
+                  <p className="text-sm font-medium mt-3">Available: November through December</p>
                 </div>
                 <Button 
                   size="lg" 
@@ -103,7 +104,7 @@ const BusinessWelcome = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Request a Private Consultation
                   </Button>
                 </Link>
               </Card>
@@ -123,8 +124,7 @@ const BusinessWelcome = () => {
                   "Seasonal consultation",
                   "Brand-aligned design",
                   "Flexible installation scheduling",
-                  "Mid-season maintenance visit",
-                  "Complete removal & cleanup"
+                  "Mid-season maintenance visit"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -163,7 +163,7 @@ const BusinessWelcome = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
-                  <p className="text-muted-foreground">Flexible scheduling including after-hours</p>
+                  <p className="text-muted-foreground">Flexible scheduling</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Duration</h4>
@@ -207,9 +207,9 @@ const BusinessWelcome = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural winter scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'business-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural winter scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'business-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural winter scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

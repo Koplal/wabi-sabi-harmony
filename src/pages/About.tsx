@@ -64,6 +64,14 @@ const About = () => {
               That's when I realized there was space for something different.
             </p>
 
+            <p className="text-muted-foreground leading-relaxed">
+              Jalene Plamondon, Founder. Founded in 2025.
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed">
+              Wabi Sabi Services and Pearly's Cleaning Co. are sister companies under VCS Inc., both founded by Jalene Plamondon.
+            </p>
+
             <div className="my-20" />
 
             <h2 className="font-serif text-3xl md:text-4xl mb-6">What We Do</h2>
@@ -85,7 +93,7 @@ const About = () => {
             </p>
 
             <p className="text-muted-foreground leading-relaxed">
-              Victoria's most distinguished homes are built of irreplaceable materials—marble and limestone, heritage windows, fine millwork, and natural stone weathered by salt air. We bring genuine material and heritage expertise to their care, choosing surface-safe methods that protect both the finish and the character that makes each home singular.
+              Victoria's most distinguished homes are built of irreplaceable materials—marble and limestone, heritage windows, fine millwork, and natural stone. We bring genuine material and heritage expertise to their care, choosing surface-safe methods that protect both the finish and the character that makes each home singular.
             </p>
 
             <p className="text-muted-foreground leading-relaxed">
@@ -136,7 +144,7 @@ const About = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    We use eco-conscious products and methods that are safe for your family, pets, and the planet.
+                    We use low-toxicity products and methods chosen with your family, pets, and the planet in mind.
                   </p>
                 </CardContent>
               </Card>
@@ -150,7 +158,7 @@ const About = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    Your privacy is absolute. Each member of our team is carefully vetted and fully insured, and what we see in your home stays entirely confidential—the soul of discretion for homes where it matters most.
+                    Your privacy is absolute. Every team member is background-checked and vetted. WorkSafeBC registered. Fully insured: $2 million commercial general liability coverage per occurrence. What we see in your home stays entirely confidential—the soul of discretion for homes where it matters most.
                   </p>
                 </CardContent>
               </Card>

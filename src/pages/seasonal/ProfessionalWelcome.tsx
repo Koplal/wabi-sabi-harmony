@@ -47,7 +47,7 @@ const ProfessionalWelcome = () => {
         offers={{
           price: "799",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-professional-welcome",
         }}
       />
@@ -86,7 +86,7 @@ const ProfessionalWelcome = () => {
                   The Professional Welcome is for Victoria businesses where the entrance does real work. A spring display at the door tells clients and customers, before a word is spoken, that you pay attention to the details. We design to your brand colours and the way people actually arrive.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Everything is built to hold up outdoors and to ask little of your staff. We install on a schedule that fits your hours, return mid-season to keep the display fresh, and handle removal when spring gives way to summer.
+                  Everything is built to hold up outdoors and to ask little of your staff. We install on a schedule that fits your hours and return mid-season to keep the display fresh. Removal is available as an add-on.
                 </p>
               </div>
               <Card className="p-8">
@@ -103,7 +103,7 @@ const ProfessionalWelcome = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -123,8 +123,7 @@ const ProfessionalWelcome = () => {
                   "Installation & consultation",
                   "Seasonal refresh recommendations",
                   "Flexible installation scheduling",
-                  "Mid-season maintenance visit",
-                  "Complete removal & cleanup"
+                  "Mid-season maintenance visit"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -163,7 +162,7 @@ const ProfessionalWelcome = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation</h4>
-                  <p className="text-muted-foreground">Flexible scheduling including after-hours</p>
+                  <p className="text-muted-foreground">Flexible scheduling</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Duration</h4>
@@ -207,9 +206,9 @@ const ProfessionalWelcome = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Natural spring scent to complement your display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural spring scent to complement your display</p>
                   <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'professional-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Natural spring scent to complement your display', image: heroImage})}>
+                    onClick={() => addToCart({id: 'professional-welcome-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural spring scent to complement your display', image: heroImage})}>
                     Add to Cart
                   </Button>
                 </Card>

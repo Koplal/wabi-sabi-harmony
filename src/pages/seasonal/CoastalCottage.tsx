@@ -47,7 +47,7 @@ const CoastalCottage = () => {
         offers={{
           price: "474",
           priceCurrency: "CAD",
-          availability: "https://schema.org/InStock",
+          availability: "https://schema.org/PreOrder",
           url: "https://wabisabiservices.ca/seasoning/the-coastal-cottage",
         }}
       />
@@ -103,7 +103,7 @@ const CoastalCottage = () => {
                 </Button>
                 <Link to="/contact">
                   <Button variant="outline" size="lg" className="w-full">
-                    Join 2026 Waitlist
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -232,7 +232,7 @@ const CoastalCottage = () => {
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Ocean-inspired scent to complement display</p>
+                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Ocean-inspired scent to complement display</p>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -241,7 +241,7 @@ const CoastalCottage = () => {
                       id: 'coastal-cottage-aromatherapy',
                       name: 'Seasonal Aromatherapy Spray',
                       price: 35,
-                      description: 'Ocean-inspired scent to complement display',
+                      description: 'Essential-oil aromatherapy spray. Ocean-inspired scent to complement display',
                       image: heroImage,
                     })}
                   >

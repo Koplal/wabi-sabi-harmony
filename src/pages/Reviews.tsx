@@ -2,6 +2,9 @@ import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Button } from "@/components/ui/button";
+import { googleReviews } from "@/data/googleReviews";
+import { GOOGLE_REVIEWS_URL } from "@/data/organization";
 import reviewsHero from "@/assets/reviews-hero.jpg";
 
 const Reviews = () => {
@@ -10,25 +13,14 @@ const Reviews = () => {
       quote: "The attention to detail was remarkable. Our home has never looked this pristine.",
       author: "S.K., Uplands"
     },
-    {
-      quote: "They care for our marble like it's their own.",
-      author: "M.D., Bear Mountain"
-    },
-    {
-      quote: "Wabi Sabi Services elevated our home beyond clean—it felt like a boutique retreat.",
-      author: "A.L., Oak Bay"
-    },
-    {
-      quote: "Discreet to a fault, and exacting about the things most people miss. We trust them completely.",
-      author: "J.R., Bear Mountain"
-    }
+    ...googleReviews
   ];
 
   return (
     <Layout>
       <SEO
         title="Client Reviews & Testimonials"
-        description="What discerning clients across Greater Victoria, BC say about Wabi Sabi Services — concierge cleaning reviews from Uplands, Oak Bay, and Bear Mountain."
+        description="What discerning clients across Greater Victoria, BC say about Wabi Sabi Services and its quiet, discreet concierge cleaning."
         keywords="cleaning reviews Victoria BC, cleaning testimonials Victoria, best cleaners Victoria, luxury cleaning reviews"
         canonical="https://wabisabiservices.ca/reviews"
       />
@@ -63,7 +55,11 @@ const Reviews = () => {
             The quiet satisfaction of a space thoughtfully cared for.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div
+            className={
+              reviews.length > 1 ? "grid grid-cols-1 md:grid-cols-2 gap-12" : "grid grid-cols-1 gap-12 max-w-2xl mx-auto"
+            }
+          >
             {reviews.map((review, index) => (
               <div
                 key={index}
@@ -76,6 +72,14 @@ const Reviews = () => {
                 <p className="text-sm text-muted-foreground">— {review.author}</p>
               </div>
             ))}
+          </div>
+
+          <div className="text-center mt-20">
+            <Button asChild variant="outline">
+              <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer">
+                Read our Google Reviews
+              </a>
+            </Button>
           </div>
         </div>
       </div>

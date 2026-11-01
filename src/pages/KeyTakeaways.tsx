@@ -75,10 +75,11 @@ export default function KeyTakeaways() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    Each member of our team is carefully vetted, background-checked,
-                    and fully insured and bonded. Many clients trust us with keys and
-                    the run of homes they cannot always be present to manage. What we
-                    see in your home stays in your home.
+                    Every team member is background-checked and vetted. WorkSafeBC
+                    registered. Insured and bonded: our policy includes a third-party
+                    employee dishonesty bond that protects client property. Many
+                    clients trust us with keys and the run of homes they cannot always
+                    be present to manage. What we see in your home stays in your home.
                   </p>
                 </CardContent>
               </Card>
@@ -125,7 +126,7 @@ export default function KeyTakeaways() {
             <p className="text-muted-foreground leading-relaxed">
               The visit is a <strong>$150 in-home consultation, credited in full
               toward your first service.</strong> It is simply the right way to begin
-              a relationship built on trust.
+              a relationship built on trust. Free estimates by phone or email.
             </p>
           </section>
 
