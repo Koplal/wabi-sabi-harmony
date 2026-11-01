@@ -1,10 +1,1 @@
 project_id = "kwtvfjrrrkvdtydarfni"
-
-[functions.send-contact-email]
-verify_jwt = false
-
-[functions.send-booking-email]
-verify_jwt = false
-
-[functions.send-application-email]
-verify_jwt = false

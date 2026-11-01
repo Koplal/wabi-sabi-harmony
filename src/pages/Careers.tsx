@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { formFailure, FormRefused, sendForm } from "@/lib/sendForm";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import careersHero from "@/assets/careers-hero.jpg";
@@ -29,13 +29,8 @@ const Careers = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("send-application-email", {
-        body: formData,
-      });
-
-      if (error) throw error;
-      // The function answers 200 even when Resend rejects the email, so check its result too.
-      if (data?.data?.error) throw new Error("Email was not sent");
+      const response = await sendForm("careers", formData);
+      if (!response.ok) throw await formFailure(response);
 
       toast({
         title: "Application Submitted!",
@@ -55,7 +50,7 @@ const Careers = () => {
       console.error("Error submitting application:", error);
       toast({
         title: "Error",
-        description: "Failed to submit application. Please try again.",
+        description: error instanceof FormRefused ? error.message : "Failed to submit application. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -120,6 +115,7 @@ const Careers = () => {
                   <Label htmlFor="name">Full Name *</Label>
                   <Input
                     id="name"
+                    maxLength={200}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
@@ -132,6 +128,7 @@ const Careers = () => {
                     <Input
                       id="email"
                       type="email"
+                      maxLength={200}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
@@ -163,6 +160,7 @@ const Careers = () => {
                   <Label htmlFor="experience">Relevant Experience</Label>
                   <Textarea
                     id="experience"
+                    maxLength={5000}
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     placeholder="Tell us about your experience..."
@@ -184,6 +182,7 @@ const Careers = () => {
                   <Label htmlFor="message">Additional Information</Label>
                   <Textarea
                     id="message"
+                    maxLength={5000}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Anything else you'd like us to know..."
