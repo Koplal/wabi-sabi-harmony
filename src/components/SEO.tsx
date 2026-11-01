@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
 
 interface SEOProps {
   title: string;
@@ -34,7 +35,9 @@ export const SEO = ({
 }: SEOProps) => {
   const siteUrl = "https://wabisabiservices.ca";
   const fullTitle = `${title} | Wabi Sabi Services`;
-  const canonicalPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  // The router's path, because the build renders pages with no window.
+  const { pathname } = useLocation();
+  const canonicalPath = pathname.replace(/\/+$/, "") || "/";
   const canonicalUrl = canonical || siteUrl + canonicalPath;
   const fullImageUrl = ogImage.startsWith("http") ? ogImage : siteUrl + ogImage;
 
