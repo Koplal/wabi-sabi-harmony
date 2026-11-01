@@ -7,12 +7,14 @@
  *   npm run verify:browser -- --rules=BR-H1,BR-NAV only these rules
  *   npm run verify:browser -- --base=<url>         a deployment instead of dist/
  *   npm run verify:browser -- --expect-clarity=<id>  a build made with that Clarity ID
- *   npm run verify:browser -- --dev-react          BR-HYDRATE on a sample of routes with development
- *     React, which alone reports attribute mismatches. Build with NODE_ENV=development npm run build
- *     first, and run npm run build again before any other pass
- *   npm run verify:browser -- --rules=BR-LCP --base=<url>  compares a deployment's lab LCP with R1
- *   npm run verify:browser -- --measure-lcp --base=<url>   saves that lab LCP as the R1 figure
- *   npm run verify:browser -- --write-render-baseline  saves each route's rendered text
+ *   npm run verify:browser -- --dev-react          BR-HYDRATE with development React, which alone
+ *     reports attribute mismatches. Build with NODE_ENV=development npm run build first, and run
+ *     npm run build again before any other pass
+ *   npm run verify:browser -- --rules=BR-LCP --base=<url>  R2-FR-12: lab LCP and layout shift on a
+ *     deployment, against production in the same sitting. With production as --base, the saved R1
+ *     figure is the comparison
+ *   npm run verify:browser -- --measure-lcp --base=<site>  saves production's lab LCP as the R1 figure
+ *   npm run verify:browser -- --write-render-baseline  saves each route's rendered text, from dist/ only
  *     with --route=/a,/b                          only these routes, keeping the rest
  *     with --from-prerendered                     allows a prerendered build, which replaces R1 text
  *
@@ -27,7 +29,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type ConsoleMessage, type Page, type Route } from "playwright-core";
-import { BROWSER, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, UTILITY_ROUTES } from "./verify/rules";
+import { BROWSER, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES } from "./verify/rules";
 import { type Finding, htmlFileOfRoute, listValue, median, parseArgs, pathOfHref, rawHeadingsOf, report, routeList, textWords, UsageError } from "./verify/lib";
 import {
   BROWSER_RULES,
@@ -36,6 +38,7 @@ import {
   checkCart,
   checkClarity,
   checkConsole,
+  checkGa,
   checkH1,
   checkHead,
   checkHydrate,
@@ -45,6 +48,7 @@ import {
   checkRank,
   checkRawPage,
   type HydrationSnapshot,
+  type LcpMeasure,
   type NavStep,
   type PageSnapshot,
 } from "./verify/browser-rules";
@@ -72,7 +76,7 @@ const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline", "from-prerendered
 const KNOWN_VALUES = ["route", "skip", "rules", "base", "expect-clarity"];
 
 /** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE and BR-CART make their own visits. */
-const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-RAW"];
+const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW"];
 
 class PreviewProtected extends Error {}
 
@@ -201,7 +205,7 @@ async function settle(page: Page) {
 
 type PageReading = Pick<
   PageSnapshot,
-  "finalPath" | "h1s" | "canonicals" | "descriptions" | "jsonLd" | "areaLinks" | "hasNameField" | "clarityScript" | "clarityScriptSrc"
+  "finalPath" | "h1s" | "canonicals" | "descriptions" | "jsonLd" | "areaLinks" | "hasNameField" | "clarityScript" | "clarityScriptSrc" | "gaConfigs"
 >;
 
 const readPage = (page: Page): Promise<PageReading> =>
@@ -217,6 +221,7 @@ const readPage = (page: Page): Promise<PageReading> =>
       hasNameField: Boolean(document.querySelector("#name")),
       clarityScript: Boolean(clarity),
       clarityScriptSrc: clarity?.src,
+      gaConfigs: ((window as unknown as { dataLayer?: ArrayLike<unknown>[] }).dataLayer ?? []).filter((entry) => entry[0] === "config").length,
     };
   });
 
@@ -301,6 +306,7 @@ interface ProbeWindow {
   __verifyMarkup?: { content: Element | null; heading: Element | null; empty: boolean };
   __verifyCartWrites?: string[];
   __verifyLcp?: number;
+  __verifyShift?: number;
 }
 
 /**
@@ -451,30 +457,59 @@ async function missingUrlFindings(browser: Browser, session: Session): Promise<F
   }
 }
 
+/**
+ * Radix fills the hidden native <select> behind a closed Select after mount, and innerText reads
+ * it although nobody sees it. Those options are a menu's open state, which R2-FR-01 leaves out and
+ * no prerender can hold, so the selects leave the layout for the moment of the read.
+ */
 const readRendered = (page: Page) =>
   page.evaluate(() => {
     const root = document.getElementById("root");
     const hrefs = [...(root?.querySelectorAll("a[href]") ?? [])].map((link) => link.getAttribute("href") ?? "");
+    const selects = [...(root?.querySelectorAll<HTMLElement>('select[aria-hidden="true"]') ?? [])];
+    const displays = selects.map((select) => select.style.display);
+    selects.forEach((select) => {
+      select.style.display = "none";
+    });
+    const text = (root?.innerText ?? "").replace(/\s+/g, " ").trim();
+    selects.forEach((select, index) => {
+      select.style.display = displays[index];
+    });
     return {
       finalPath: location.pathname,
       h1: (document.querySelector("h1")?.textContent ?? "").replace(/\s+/g, " ").trim(),
-      text: (root?.innerText ?? "").replace(/\s+/g, " ").trim(),
+      text,
       links: [...new Set(hrefs.filter((href) => href.startsWith("/")).map((href) => href.split(/[?#]/)[0]))].sort(),
     };
   });
 
-const LCP_NOTE = "lab is the R2-FR-12 baseline: BROWSER.lcp on R1 production, repeated on a deployment by BR-LCP. field is an optional Speed Insights reading with its sample count and dates. Never estimate either.";
+const LCP_NOTE = "lab is the R2-FR-12 record: BROWSER.lcp on R1 production, with measuredOn in UTC. BR-LCP compares a deployment with production in one sitting while R1 is live, and with this figure after that. field is an optional Speed Insights reading with its sample count and dates. Never estimate either.";
 const LCP_NOT_MEASURED: RenderBaseline["mobileLcp"] = { lab: null, field: null, note: LCP_NOTE };
 
 const watchLcp = () => {
+  const probe = window as unknown as ProbeWindow;
+  probe.__verifyShift = 0;
   new PerformanceObserver((list) => {
     const entries = list.getEntries();
-    (window as unknown as ProbeWindow).__verifyLcp = entries[entries.length - 1].startTime;
+    probe.__verifyLcp = entries[entries.length - 1].startTime;
   }).observe({ type: "largest-contentful-paint", buffered: true });
+  new PerformanceObserver((list) => {
+    for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean }>) {
+      if (!entry.hadRecentInput) probe.__verifyShift = (probe.__verifyShift ?? 0) + entry.value;
+    }
+  }).observe({ type: "layout-shift", buffered: true });
 };
 
-/** A cold load with the BROWSER.lcp settings, in a new context so nothing is cached. */
-async function lcpRun(browser: Browser, session: Session, route: string): Promise<number | undefined> {
+interface LcpReading {
+  lcp: number;
+  shift: number;
+}
+
+/**
+ * A cold load with the BROWSER.lcp settings, in a new context so nothing is cached. Only the page
+ * that was asked for counts: an error page or a redirect to a lighter page would read as fast.
+ */
+async function lcpRun(browser: Browser, session: Session, route: string): Promise<LcpReading | undefined> {
   const { viewport, deviceScaleFactor, latencyMs, downloadBytesPerSecond, uploadBytesPerSecond, cpuSlowdown } = BROWSER.lcp.settings;
   const { context, page } = await newPage(browser, session, undefined, { viewport, deviceScaleFactor, isMobile: true, hasTouch: true });
   try {
@@ -485,9 +520,15 @@ async function lcpRun(browser: Browser, session: Session, route: string): Promis
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: cpuSlowdown });
     const response = await page.goto(`${session.origin}${route}`, { waitUntil: "load", timeout: LCP_TIMEOUT });
     if (response?.status() === 401) throw new PreviewProtected();
+    if (!response?.ok()) throw new Error(`status ${response?.status()}`);
     await page.waitForLoadState("networkidle", { timeout: LCP_TIMEOUT }).catch(() => undefined);
     await page.waitForTimeout(LCP_QUIET);
-    return await page.evaluate(() => (window as unknown as ProbeWindow).__verifyLcp);
+    const { finalPath, lcp, shift } = await page.evaluate(() => {
+      const probe = window as unknown as ProbeWindow;
+      return { finalPath: location.pathname, lcp: probe.__verifyLcp, shift: probe.__verifyShift ?? 0 };
+    });
+    if (finalPath !== route) throw new Error(`ended at ${finalPath}`);
+    return lcp === undefined ? undefined : { lcp, shift };
   } catch (error) {
     if (error instanceof PreviewProtected) throw error;
     console.log(`LCP: ${route} gave no figure: ${error instanceof Error ? error.message : String(error)}`);
@@ -497,19 +538,50 @@ async function lcpRun(browser: Browser, session: Session, route: string): Promis
   }
 }
 
-/** One load at a time, because pages side by side would compete for the CPU being measured. */
-async function measureLcp(browser: Browser, session: Session): Promise<LcpLab["routes"]> {
-  const measured: LcpLab["routes"] = {};
-  for (const route of BROWSER.lcp.routes) {
-    const runsMs: number[] = [];
+/**
+ * One load at a time, because pages side by side would compete for the CPU being measured. With
+ * two sessions the runs alternate, so both see the same machine, network and hour. The result has
+ * one entry per session, in the same order.
+ */
+async function measureLcp(browser: Browser, sessions: Session[], routes: string[]): Promise<Array<Record<string, LcpMeasure>>> {
+  const measured = sessions.map((): Record<string, LcpMeasure> => ({}));
+  for (const route of routes) {
+    const readings = sessions.map((): LcpReading[] => []);
     for (let run = 0; run < BROWSER.lcp.runs; run++) {
-      const value = await lcpRun(browser, session, route);
-      if (value !== undefined) runsMs.push(Math.round(value));
+      for (const [index, session] of sessions.entries()) {
+        const reading = await lcpRun(browser, session, route);
+        if (reading) readings[index].push(reading);
+      }
     }
-    measured[route] = { runsMs, medianMs: median(runsMs) };
-    console.log(`LCP: ${route} median ${measured[route].medianMs} ms from ${runsMs.join(", ")}`);
+    for (const [index, session] of sessions.entries()) {
+      const runsMs = readings[index].map((reading) => Math.round(reading.lcp));
+      const shifts = readings[index].map((reading) => reading.shift);
+      measured[index][route] = { runsMs, medianMs: median(runsMs), shifts };
+      console.log(`LCP: ${session.origin}${route} median ${measured[index][route].medianMs} ms from ${runsMs.join(", ")}, largest layout shift ${Math.max(0, ...shifts).toFixed(4)}`);
+    }
   }
   return measured;
+}
+
+const browserName = (browser: Browser) => `${browser.browserType().name()} ${browser.version()}`;
+
+/**
+ * R2-FR-12. While R1 is live, the deployment and production run in one sitting, which takes the
+ * day, the machine and the browser out of the comparison. Once R2 is production, the saved figure
+ * is all that is left of R1, and those differences are back, so the run says so.
+ */
+async function lcpFindings(browser: Browser, session: Session, routes: string[]): Promise<Finding[]> {
+  if (session.origin !== SITE) {
+    // baseMode is off so the deployment's bypass token is never sent to production.
+    const production: Session = { origin: SITE, baseMode: false, blockedWrites: session.blockedWrites, realFonts: true };
+    const [measured, comparison] = await measureLcp(browser, [session, production], routes);
+    console.log(`BR-LCP: ${session.origin} against production in the same sitting.`);
+    return routes.flatMap((route) => checkLcpRuns(route, measured[route], comparison[route]));
+  }
+  const { lab } = loadRenderBaseline().mobileLcp;
+  const [measured] = await measureLcp(browser, [session], routes);
+  console.log(`BR-LCP: against the R1 figure from ${lab?.measuredOn} on ${lab?.browser}, today on ${browserName(browser)}, so another sitting and possibly another machine.`);
+  return routes.flatMap((route) => checkLcpRuns(route, measured[route], lab?.routes[route]));
 }
 
 function loadRenderBaseline(): RenderBaseline {
@@ -519,19 +591,22 @@ function loadRenderBaseline(): RenderBaseline {
 
 /** R1 stops being live at the R2 deploy, so a saved figure is never replaced by accident. */
 async function writeLcpBaseline(browser: Browser, session: Session) {
+  if (session.origin !== SITE) throw new UsageError(`The R1 figure must come from ${SITE}, not ${session.origin}`);
   const baseline = loadRenderBaseline();
   if (baseline.mobileLcp.lab) throw new UsageError(`The R1 figure from ${baseline.mobileLcp.lab.measuredOn} is saved. To compare, use --rules=BR-LCP. To replace it, delete mobileLcp.lab by hand first.`);
-  const routes = await measureLcp(browser, session);
-  const short = BROWSER.lcp.routes.filter((route) => routes[route].runsMs.length < BROWSER.lcp.runs);
+  const [measured] = await measureLcp(browser, [session], BROWSER.lcp.routes);
+  const short = BROWSER.lcp.routes.filter((route) => measured[route].runsMs.length < BROWSER.lcp.runs);
   if (short.length > 0) throw new UsageError(`Nothing saved: too few runs gave a figure on ${short.join(", ")}`);
-  const lab: LcpLab = { measuredOn: new Date().toISOString().slice(0, 10), target: session.origin, browser: `${browser.browserType().name()} ${browser.version()}`, settings: BROWSER.lcp.settings, routes };
+  const routes = Object.fromEntries(Object.entries(measured).map(([route, { runsMs, medianMs }]) => [route, { runsMs, medianMs }]));
+  const lab: LcpLab = { measuredOn: new Date().toISOString().slice(0, 10), target: session.origin, browser: browserName(browser), settings: BROWSER.lcp.settings, routes };
   writeFileSync(RENDER_BASELINE, `${JSON.stringify({ ...baseline, mobileLcp: { ...baseline.mobileLcp, lab } }, null, 2)}\n`);
   console.log(`Wrote the lab LCP to ${RENDER_BASELINE_FILE} from ${session.origin}`);
 }
 
 /**
- * Menus stay closed, so nothing from their open states is counted (R2-FR-01). The saved text is
- * the Release 1 record, so a build that already has page bodies cannot replace it by accident.
+ * Menus stay closed, and readRendered leaves out what a closed Select keeps behind it, so nothing
+ * from their open states is counted (R2-FR-01). The saved text is the Release 1 record, so a build
+ * that already has page bodies cannot replace it by accident.
  */
 async function writeRenderBaseline(browser: Browser, session: Session, capturedFrom: string, requested: string[] | undefined, fromPrerendered: boolean) {
   const all = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
@@ -579,7 +654,7 @@ function routesToVisit(selected: string[], requested: string[] | undefined, skip
   if (requested) return requested.filter((route) => !skipped.includes(route));
 
   const all = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
-  const needsAll = selected.some((rule) => ["BR-CONSOLE", "BR-H1", "BR-HEAD", "BR-RAW"].includes(rule)) || (selected.includes("BR-CLARITY") && !expectClarity);
+  const needsAll = selected.some((rule) => ["BR-CONSOLE", "BR-H1", "BR-HEAD", "BR-GA", "BR-RAW"].includes(rule)) || (selected.includes("BR-CLARITY") && !expectClarity);
   const needed = new Set<string>(needsAll ? all : []);
   if (selected.includes("BR-AREAS")) needed.add("/areas");
   if (selected.includes("BR-RANK")) RANK_ROUTES.forEach((route) => needed.add(route));
@@ -602,12 +677,28 @@ async function launch(): Promise<Browser> {
   throw new UsageError("Neither Edge nor Chrome could be started");
 }
 
+function distScripts(): string[] {
+  const assets = resolve(ROOT, "dist/assets");
+  if (!existsSync(assets)) return [];
+  return readdirSync(assets).filter((file) => file.endsWith(".js")).map((file) => readFileSync(resolve(assets, file), "utf8"));
+}
+
 /** Fails on a production build, which cannot report what --dev-react exists to find. */
 function requireDevReact() {
-  const assets = resolve(ROOT, "dist/assets");
-  const scripts = existsSync(assets) ? readdirSync(assets).filter((file) => file.endsWith(".js")) : [];
-  if (scripts.some((file) => readFileSync(resolve(assets, file), "utf8").includes(BROWSER.devReact.marker))) return;
+  if (distScripts().some((text) => text.includes(BROWSER.devReact.marker))) return;
   throw new UsageError("dist/ has production React. Run NODE_ENV=development npm run build first.");
+}
+
+/** VITE_GOOGLE_REVIEWS is JSON in a string in the bundle, so this reads what was actually built. */
+const BUILT_REVIEWS = /\\?"quote\\?"\s*:/;
+
+/**
+ * The baseline is a tracked file in a public repo, and the review text must never enter the repo
+ * (googleReviews.ts). A deployment and a build with that variable both render it.
+ */
+function refuseReviewText(base: string | undefined) {
+  if (base) throw new UsageError("--write-render-baseline reads dist/ only, because a deployment renders its reviews, which must stay out of this repo");
+  if (distScripts().some((text) => BUILT_REVIEWS.test(text))) throw new UsageError("This build holds VITE_GOOGLE_REVIEWS, which must stay out of this repo. Unset it and run npm run build first.");
 }
 
 async function writeRankH1(browser: Browser, session: Session) {
@@ -637,6 +728,7 @@ async function run(): Promise<number> {
   const base = args.values.get("base")?.replace(/\/+$/, "");
   if (devReact && base) throw new UsageError("--dev-react reads dist/, so it does not run with --base");
   if ((measuring || selected.includes("BR-LCP")) && !base) throw new UsageError("Lab LCP is only comparable on a deployment, so it needs --base");
+  if (args.flags.has("write-render-baseline")) refuseReviewText(base);
   const expectClarity = args.values.get("expect-clarity");
   const requested = routeList(args, "route");
   const skipped = routeList(args, "skip") ?? [];
@@ -663,7 +755,7 @@ async function run(): Promise<number> {
     }
     if (args.flags.has("write-render-baseline")) {
       const commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
-      await writeRenderBaseline(browser, session, base ?? commit, requested, args.flags.has("from-prerendered"));
+      await writeRenderBaseline(browser, session, commit, requested, args.flags.has("from-prerendered"));
       return 0;
     }
     if (measuring) {
@@ -692,6 +784,7 @@ async function run(): Promise<number> {
       if (has("BR-HEAD")) findings.push(...checkHead(snapshot));
       if (has("BR-RANK")) findings.push(...checkRank(snapshot, baseline?.pages[snapshot.route]?.h1));
       if (has("BR-CLARITY")) findings.push(...checkClarity(snapshot, expectClarity));
+      if (has("BR-GA")) findings.push(...checkGa(snapshot));
       if (has("BR-RAW")) findings.push(...checkRawPage(snapshot));
     });
 
@@ -699,14 +792,9 @@ async function run(): Promise<number> {
     if (has("BR-CART") && (!requested || named.includes("BR-CART"))) findings.push(...(await cartFindings(browser, session)));
     if (has("BR-404") && (!requested || named.includes("BR-404"))) findings.push(...(await missingUrlFindings(browser, session)));
 
-    const everyRoute = devReact ? BROWSER.devReact.routes : [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
-    const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? everyRoute).filter((route) => !skipped.includes(route)) : [];
+    const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).filter((route) => !skipped.includes(route)) : [];
     findings.push(...(await hydrationFindings(browser, session, hydrationRoutes)));
-    if (has("BR-LCP")) {
-      const { lab } = loadRenderBaseline().mobileLcp;
-      const measured = await measureLcp(browser, session);
-      for (const route of BROWSER.lcp.routes) findings.push(...checkLcpRuns(route, measured[route].runsMs, lab?.routes[route]));
-    }
+    if (has("BR-LCP")) findings.push(...(await lcpFindings(browser, session, requested ?? BROWSER.lcp.routes)));
 
     console.log(`Checked ${routes.length} route${routes.length === 1 ? "" : "s"} (${targets.length} page loads) against ${base ?? "dist/"}.`);
     if (hydrationRoutes.length > 0) {

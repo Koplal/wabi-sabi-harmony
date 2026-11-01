@@ -65,11 +65,13 @@ export function checkRaw(route: string, status: number, html: string, expectedH1
   return findings;
 }
 
-export function checkRedirect(from: string, to: string, base: string, chain: Chain): Finding[] {
+export function checkRedirect(from: string, to: string, base: string, chain: Chain, maxHops = 1): Finding[] {
   const hops = redirects(chain);
   const expected = new URL(to, base).href;
-  if (hops.length === 1 && [301, 308].includes(hops[0].status) && finalUrl(chain) === expected && finalStatus(chain) === 200) return [];
-  return [{ rule: "LV-REDIRECT", file: from, message: `expected one permanent redirect to ${to}, ending at 200: ${describeChain(chain)}` }];
+  const permanent = hops.length >= 1 && hops.length <= maxHops && hops.every((hop) => [301, 308].includes(hop.status));
+  if (permanent && finalUrl(chain) === expected && finalStatus(chain) === 200) return [];
+  const wanted = maxHops === 1 ? "one permanent redirect" : `at most ${maxHops} permanent redirects`;
+  return [{ rule: "LV-REDIRECT", file: from, message: `expected ${wanted} to ${to}, ending at 200: ${describeChain(chain)}` }];
 }
 
 export function checkUtility(route: string, status: number, html: string): Finding[] {

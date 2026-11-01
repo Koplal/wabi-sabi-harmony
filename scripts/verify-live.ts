@@ -96,10 +96,10 @@ async function run(): Promise<number> {
     }
   }
   if (selected.includes("LV-REDIRECT")) {
-    for (const { from, to } of LIVE.redirects) {
+    for (const { from, to, maxHops } of LIVE.redirects) {
       const chain = await follow(`${base}${from}`, base);
       say("LV-REDIRECT", chain);
-      findings.push(...checkRedirect(from, to, base, chain));
+      findings.push(...checkRedirect(from, to, base, chain, maxHops));
     }
   }
   if (selected.includes("LV-UTILITY")) {

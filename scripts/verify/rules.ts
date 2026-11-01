@@ -752,7 +752,6 @@ export const BROWSER = {
   /** --dev-react. The marker is a string that only development React contains. */
   devReact: {
     marker: "Extra attributes from the server",
-    routes: ["/", "/faq", "/contact", "/checkout", "/checkout-success"],
   },
   /**
    * R2-FR-12. The same lab run on R1 and on a deployment, so the two compare like with like. A
@@ -764,6 +763,12 @@ export const BROWSER = {
     runs: 5,
     /** The day R1 went live. An earlier figure does not describe R1. */
     liveFrom: "2026-10-31",
+    /**
+     * How far a deployment's fastest run may pass R1's. Lab noise only adds time, so the fastest
+     * run is the steady figure: over two sittings of unchanged R1, the median on / went from 4200
+     * to 5092 ms, while no route's fastest run moved more than 2.1%.
+     */
+    tolerance: 0.05,
     settings: {
       viewport: { width: 412, height: 823 },
       deviceScaleFactor: 1.75,
@@ -786,14 +791,19 @@ export const LIVE = {
   missingPath: "/does-not-exist",
   rawRoutes: ["/areas/oak-bay", "/services/cleaning", "/faq", "/seasoning/winter-holiday"],
   rawMinWords: 150,
+  /**
+   * One permanent redirect each, except a slash form of a redirected path. Vercel applies
+   * trailingSlash before redirects, so with "trailingSlash": false that path goes /home/ to /home
+   * to /, and both hops are permanent. R2-FR-10 asks only that the slash form redirects.
+   */
   redirects: [
     { from: "/the-ritual", to: "/ritual" },
     { from: "/index.html", to: "/" },
     { from: "/home", to: "/" },
-    { from: "/home/", to: "/" },
-    { from: "/the-ritual/", to: "/ritual" },
+    { from: "/home/", to: "/", maxHops: 2 },
+    { from: "/the-ritual/", to: "/ritual", maxHops: 2 },
     { from: "/services/errands/", to: "/services/errands" },
-  ],
+  ] as Array<{ from: string; to: string; maxHops?: number }>,
   utilityRoutes: ["/cart", "/checkout", STRIPE_RETURN],
   releaseOne: ["LV-HOST", "LV-FILES"],
   all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY"],

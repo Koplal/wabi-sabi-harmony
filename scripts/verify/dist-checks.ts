@@ -389,6 +389,9 @@ export function checkTodo(ctx: DistCtx): Finding[] {
 
 const expectedCanonical = (route: string) => (route === "/" ? `${SITE}/` : `${SITE}${route}`);
 
+/** Dates here are written with toISOString, so they compare in UTC. */
+const todayUtc = () => new Date().toISOString().slice(0, 10);
+
 export function checkRoutes(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   const add = (message: string, file?: string) => findings.push({ rule: "D-ROUTES", file, message });
@@ -396,7 +399,13 @@ export function checkRoutes(ctx: DistCtx): Finding[] {
   const built = new Set(pages.map(({ path }) => routeOfHtmlFile(path)));
 
   for (const route of ctx.routes) if (!built.has(route)) add(`no built HTML for ${route}`);
-  for (const route of built) if (!ctx.routes.includes(route)) add(`unexpected built HTML for ${route}`);
+  for (const route of built) {
+    const file = htmlFileOfRoute(route);
+    // R2-20 gives the utility routes files. They are pages, but never indexable ones.
+    if (UTILITY_ROUTES.includes(route)) {
+      if (!(metaContent(ctx.files.get(file) as string, "robots") ?? "").includes("noindex")) add(`${route} has no noindex`, file);
+    } else if (!ctx.routes.includes(route)) add(`unexpected built HTML for ${route}`);
+  }
 
   const titles = new Map<string, string>();
   const descriptions = new Map<string, string>();
@@ -426,6 +435,11 @@ export function checkSitemap(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   for (const url of expected) if (!locs.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `missing ${url}` });
   for (const url of locs) if (!expected.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `not an indexable route: ${url}` });
+
+  const lastmods = [...sitemap.matchAll(/<lastmod>\s*([^<]+?)\s*<\/lastmod>/g)].map((match) => match[1].slice(0, 10));
+  const lastmod = (message: string) => findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
+  if (lastmods.length > 1 && new Set(lastmods).size === 1) lastmod(`every URL has the lastmod ${lastmods[0]}, which is a build date or a placeholder`);
+  for (const date of new Set(lastmods)) if (date > todayUtc()) lastmod(`lastmod ${date} is in the future`);
   return findings;
 }
 
@@ -636,7 +650,8 @@ function lcpLabProblems(lab: LcpLab): string[] {
   const { liveFrom, routes, runs, settings } = BROWSER.lcp;
   const problems: string[] = [];
   if (!isDate(lab.measuredOn) || lab.measuredOn < liveFrom) problems.push(`measuredOn is ${lab.measuredOn}, but R1 went live on ${liveFrom}`);
-  if (!lab.target) problems.push("no target URL");
+  else if (lab.measuredOn > todayUtc()) problems.push(`measuredOn is ${lab.measuredOn}, which is later than today in UTC`);
+  if (lab.target !== SITE) problems.push(`the target is ${lab.target || "missing"}, but the R1 figure must come from ${SITE}`);
   if (!lab.browser) problems.push("no browser version");
   if (!isSameJson(lab.settings, settings)) problems.push("the settings differ from BROWSER.lcp.settings, so no deployment can repeat this run");
   for (const route of routes) {
@@ -682,6 +697,16 @@ function routerPaths(app: string) {
   return { plain, built };
 }
 
+/** The router uses the imported list in code, under whatever name it imported it. */
+function usesRouteList(app: string): boolean {
+  const { routeExport, routeImport } = MANIFEST;
+  const statement = new RegExp(`import\\s*\\{([^}]*)\\}\\s*${routeImport}`).exec(app);
+  const binding = statement?.[1].split(",").map((item) => item.trim().split(/\s+as\s+/)).find(([name]) => name === routeExport);
+  if (!statement || !binding) return false;
+  const code = app.replace(statement[0], "").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  return new RegExp(`\\b${binding[binding.length - 1]}\\b`).test(code);
+}
+
 type AddFinding = (message: string, file?: string) => void;
 
 function checkRouter(ctx: DistCtx, known: Set<string>, add: AddFinding) {
@@ -696,7 +721,10 @@ function checkRouter(ctx: DistCtx, known: Set<string>, add: AddFinding) {
 
   // A path built from the route list is compared through the list itself, which must then name
   // each route's page file, because the router has no line left for D-COPY and D-PARITY to read.
+  // An import alone proves nothing, and a path written beside it is the second list R2-FR-11 removes.
   if (readsList) {
+    if (!usesRouteList(app)) add("the router imports the route list but does not build its routes from it", appFile);
+    for (const route of plain) if (known.has(route)) add(`${route} is written by hand beside the route list`, appFile);
     for (const route of ctx.manifest.listed ?? []) {
       if (!route.startsWith(COPY_PAGES.areaPrefix) && !ctx.manifest.pages?.[route]) add(`${route} names no page file`, MANIFEST.routeFile);
     }

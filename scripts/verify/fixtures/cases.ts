@@ -3,7 +3,7 @@
  * The good fixtures are built from rules.ts in memory. The private ban terms here are
  * made-up placeholders, and never real ones.
  */
-import { formatFinding, type Finding, htmlFileOfRoute, rawHeadingsOf, rawLinksOf, rawTextOf, SourceText, textWords, undoMsysPath } from "../lib";
+import { formatFinding, type Finding, htmlFileOfRoute, median, rawHeadingsOf, rawLinksOf, rawTextOf, SourceText, textWords, undoMsysPath } from "../lib";
 import {
   ABSENT,
   BANS,
@@ -44,6 +44,7 @@ import {
   checkCart,
   checkClarity,
   checkConsole,
+  checkGa,
   checkH1,
   checkHead as checkBrowserHead,
   checkHydrate,
@@ -53,6 +54,7 @@ import {
   checkRank as checkBrowserRank,
   checkRawPage,
   type HydrationSnapshot,
+  type LcpMeasure,
   type PageSnapshot,
 } from "../browser-rules";
 import { checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkUtility, type Chain } from "../live-rules";
@@ -618,8 +620,19 @@ distCase("D-ROUTES", "reports an unexpected route", "fail", (files) => files.set
 distCase("D-ROUTES", "reports a canonical on another route", "fail", (files) => replaceIn(files, ABOUT_HTML, `<link rel="canonical" href="${SITE}/about"`, `<link rel="canonical" href="${SITE}/"`));
 distCase("D-ROUTES", "reports a shared title", "fail", (files) => replaceIn(files, ABOUT_HTML, "<title>Fixture /about", "<title>Fixture /book"));
 distCase("D-ROUTES", "reports a shared description", "fail", (files) => replaceIn(files, ABOUT_HTML, 'content="Description of /about"', 'content="Description of /book"'));
+const noindexPage = (route: string) => pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
+distCase("D-ROUTES", "allows the file R2-20 builds for a utility route", "pass", (files) => files.set("cart/index.html", noindexPage("/cart")));
+distCase("D-ROUTES", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
 distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/privacy</loc></url>`, ""));
 distCase("D-SITEMAP", "reports a utility route", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
+const withLastmods = (files: Files, dateOf: (index: number) => string) => {
+  let index = 0;
+  files.set("sitemap.xml", (files.get("sitemap.xml") as string).replace(/<\/loc>/g, () => `</loc><lastmod>${dateOf(index++)}</lastmod>`));
+};
+distCase("D-SITEMAP", "allows lastmod dates that differ", "pass", (files) => withLastmods(files, (index) => (index % 2 === 0 ? "2026-01-01" : "2026-02-01")));
+distCase("D-SITEMAP", "reports one lastmod on every URL", "fail", (files) => withLastmods(files, () => "2026-10-31"));
+distCase("D-SITEMAP", "reports one lastmod with a time on every URL", "fail", (files) => withLastmods(files, (index) => `2026-10-31T00:00:${String(index % 60).padStart(2, "0")}Z`));
+distCase("D-SITEMAP", "reports a lastmod in the future", "fail", (files) => withLastmods(files, (index) => (index === 0 ? "2999-01-01" : "2026-01-01")));
 distCase("D-PARITY", "reports a title that differs", "fail", () => undefined, { page: pageSource.replace('title="Fixture', 'title="Other') });
 distCase("D-PARITY", "reports a description that differs", "fail", () => undefined, { page: pageSource.replace('description="Description', 'description="Other') });
 distCase("D-PARITY", "reports a package price that differs", "fail", () => undefined, { page: pageSource.replace("price: 399", "price: 499") });
@@ -692,6 +705,9 @@ distCase("D-LCP", "reports R1 not measured", "fail", () => undefined, editLcp((l
 distCase("D-LCP", "reports no baseline file", "fail", () => undefined, { renderBaseline: null });
 distCase("D-LCP", "reports a figure from before R1 went live", "fail", () => undefined, withLab({ measuredOn: "2026-10-01" }));
 distCase("D-LCP", "reports a date it cannot read", "fail", () => undefined, withLab({ measuredOn: "soon" }));
+distCase("D-LCP", "reports a figure dated later than today", "fail", () => undefined, withLab({ measuredOn: "2999-01-01" }));
+distCase("D-LCP", "reports a figure measured on a preview", "fail", () => undefined, withLab({ target: "https://preview.vercel.app" }));
+distCase("D-LCP", "reports a figure with no target", "fail", () => undefined, withLab({ target: "" }));
 distCase("D-LCP", "reports settings a deployment could not repeat", "fail", () => undefined, withLab({ settings: { ...BROWSER.lcp.settings, cpuSlowdown: 1 } }));
 distCase("D-LCP", "reports a route with no figure", "fail", () => undefined, withLab({ routes: {} }));
 distCase("D-LCP", "reports too few runs", "fail", () => undefined, withRouteLcp({ runsMs: [3000], medianMs: 3000 }));
@@ -750,6 +766,15 @@ routerCase("reports a generated path it cannot read", "fail", `${releaseOneRoute
 routerCase("reports a router with no routes it can read", "fail", "");
 routerCase("reports a list the router does not read", "fail", releaseOneRouter, LIST_MANIFEST);
 routerCase("allows a router built from the list", "pass", listRouter, LIST_MANIFEST);
+routerCase("allows the catch-all beside the list", "pass", `${listRouter}\n<Route path="*" element={<NotFound />} />`, LIST_MANIFEST);
+routerCase("reads the list under another name", "pass", listRouter.replace("{ ROUTES }", "{ ROUTES as SITE_ROUTES }").replace("{ROUTES.map", "{SITE_ROUTES.map"), LIST_MANIFEST);
+const LIST_IMPORT = 'import { ROUTES } from "./data/routes";';
+routerCase("reports the list imported beside every plain path", "fail", `${LIST_IMPORT}\n${releaseOneRouter}`, LIST_MANIFEST);
+routerCase("reports the list used beside every plain path", "fail", `${LIST_IMPORT}\nconsole.log(ROUTES);\n${releaseOneRouter}`, LIST_MANIFEST);
+routerCase("reports one plain path beside a built router", "fail", `${listRouter}\n<Route path="/about" element={<Page />} />`, LIST_MANIFEST);
+routerCase("reports a list import nothing uses", "fail", `${LIST_IMPORT}\n<Route path={route} element={<Page />} />`, LIST_MANIFEST);
+routerCase("reports a list named only in a comment", "fail", `${LIST_IMPORT}\n// ROUTES drives this\n/* ROUTES */\n<Route path={route} element={<Page />} />`, LIST_MANIFEST);
+routerCase("reports another name imported from the list file", "fail", 'import { helper } from "./data/routes";\nhelper(ROUTES);', LIST_MANIFEST);
 distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/about</loc></url>`, ""));
 distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
@@ -954,11 +979,21 @@ browserCase("BR-CART", "reports a paid item left in the stored cart", "fail", ()
 browserCase("BR-CART", "reports a paid item back after a reload", "fail", () => checkCart(atStep("reload after the order", { storedIds: PAID_ITEM })));
 browserCase("BR-CART", "reports the order page sending the visitor away", "fail", () => checkCart(atStep("order complete", { finalPath: "/cart" })));
 
-browserCase("BR-LCP", "good fixture", "pass", () => checkLcpRuns("/", [2000, 2100, 2200, 2300, 2400], R1_LCP));
-browserCase("BR-LCP", "allows noise within R1's own runs", "pass", () => checkLcpRuns("/", [3300, 3350, 3400, 3450, 3500], R1_LCP));
-browserCase("BR-LCP", "reports a median past the slowest R1 run", "fail", () => checkLcpRuns("/", [3500, 3550, 3600, 3650, 3700], R1_LCP));
-browserCase("BR-LCP", "reports too few runs", "fail", () => checkLcpRuns("/", [2000], R1_LCP));
-browserCase("BR-LCP", "reports no R1 figure", "fail", () => checkLcpRuns("/", LCP_RUNS, undefined));
+const lcpOf = (runsMs: number[], shifts: number[] = runsMs.map(() => 0)): LcpMeasure => ({ runsMs, medianMs: median(runsMs), shifts });
+browserCase("BR-LCP", "good fixture", "pass", () => checkLcpRuns("/", lcpOf([2000, 2100, 2200, 2300, 2400]), R1_LCP));
+browserCase("BR-LCP", "allows a fastest run within the tolerance", "pass", () => checkLcpRuns("/", lcpOf([3140, 3300, 3400, 3500, 3600]), R1_LCP));
+browserCase("BR-LCP", "reports a fastest run past the tolerance", "fail", () => checkLcpRuns("/", lcpOf([3160, 3170, 3180, 3190, 3200]), R1_LCP));
+browserCase("BR-LCP", "gives a slow median no say, as on unchanged R1", "pass", () => checkLcpRuns("/", lcpOf([3000, 3050, 3900, 3950, 4000]), R1_LCP));
+browserCase("BR-LCP", "reports too few runs", "fail", () => checkLcpRuns("/", lcpOf([2000]), R1_LCP));
+browserCase("BR-LCP", "reports no R1 figure", "fail", () => checkLcpRuns("/", lcpOf(LCP_RUNS), undefined));
+browserCase("BR-LCP", "reports too few R1 runs in the sitting", "fail", () => checkLcpRuns("/", lcpOf(LCP_RUNS), { runsMs: [3200], medianMs: 3200 }));
+browserCase("BR-LCP", "reports one run with a layout shift", "fail", () => checkLcpRuns("/", lcpOf(LCP_RUNS, [0, 0, 0.02, 0, 0]), R1_LCP));
+
+browserCase("BR-GA", "good fixture", "pass", () => checkGa(snapshot({ gaConfigs: 1 })));
+browserCase("BR-GA", "reports two page views from one load", "fail", () => checkGa(snapshot({ gaConfigs: 2 })));
+browserCase("BR-GA", "reports a page with no tag", "fail", () => checkGa(snapshot({ gaConfigs: 0 })));
+browserCase("BR-GA", "reports a load with no reading", "fail", () => checkGa(snapshot()));
+browserCase("BR-GA", "leaves the 404 page alone", "pass", () => checkGa(snapshot({ route: LIVE.missingPath, gaConfigs: 0 })));
 
 const liveCase = (rule: string, name: string, expect: Case["expect"], run: () => Finding[]) => cases.push({ rule, name, expect, run });
 const APEX = LIVE.apex;
@@ -987,8 +1022,11 @@ liveCase("LV-RAW", "reports too little body text", "fail", () => checkRaw(OAK_BA
 liveCase("LV-REDIRECT", "good fixture", "pass", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "reports a temporary redirect", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 307], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "/home goes to the home page", "pass", () => checkRedirect("/home", "/", APEX, chain([`${APEX}/home`, 308], [`${APEX}/`, 200])));
-liveCase("LV-REDIRECT", "/home/ goes straight to the home page", "pass", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/`, 200])));
-liveCase("LV-REDIRECT", "reports /home/ going through /home", "fail", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 308], [`${APEX}/`, 200])));
+const SLASH_HOPS = LIVE.redirects.find((item) => item.from === "/home/")?.maxHops;
+liveCase("LV-REDIRECT", "/home/ goes straight to the home page", "pass", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "/home/ may go through /home, as trailingSlash does", "pass", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 308], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "reports a temporary hop on a slash form", "fail", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 307], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "reports three hops on a slash form", "fail", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 308], [`${APEX}/index.html`, 308], [`${APEX}/`, 200]), SLASH_HOPS));
 liveCase("LV-REDIRECT", "reports a 200 with no redirect, as in Release 1", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 200])));
 liveCase("LV-REDIRECT", "reports two hops", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/the-ritual/`, 308], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "reports the wrong destination", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/`, 200])));

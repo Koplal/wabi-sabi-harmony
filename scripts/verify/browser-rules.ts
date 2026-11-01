@@ -6,7 +6,6 @@ import {
   canonicalPath,
   duplicateProblems,
   type Finding,
-  median,
   missingPageProblems,
   parseBlock,
   pathOfHref,
@@ -39,6 +38,8 @@ export interface PageSnapshot {
   html?: string;
   /** The same load after hydration, for comparing with html. */
   rendered?: RenderedPage;
+  /** gtag config calls this load made. Each one sends a page_view. */
+  gaConfigs?: number;
 }
 
 export const label = (snapshot: PageSnapshot) =>
@@ -83,6 +84,15 @@ export function checkMissingUrl(snapshot: PageSnapshot, origin: string): Finding
   findings.push(...missingPageProblems(snapshot.html ?? "", SITE, MISSING_PAGE.brand).map(finding));
   findings.push(...checkConsole(snapshot, origin).map((item) => finding(item.message)));
   return findings;
+}
+
+/**
+ * R2-FR-13. The analytics hosts are blocked, so this counts the calls and nothing is sent. A URL
+ * outside the route list is the static 404 page, which need not carry the tag.
+ */
+export function checkGa(snapshot: PageSnapshot): Finding[] {
+  if (![...INDEXABLE_ROUTES, ...UTILITY_ROUTES].includes(snapshot.route) || snapshot.gaConfigs === 1) return [];
+  return [{ rule: "BR-GA", row: "R2-FR-13", file: label(snapshot), message: `${snapshot.gaConfigs ?? 0} gtag config calls, expected 1` }];
 }
 
 export function checkH1(snapshot: PageSnapshot): Finding[] {
@@ -267,18 +277,33 @@ export function checkCart(steps: CartStep[]): Finding[] {
   return findings;
 }
 
+/** One route's lab runs on one target, with the layout shift each run added up. */
+export interface LcpMeasure extends LcpRoute {
+  shifts: number[];
+}
+
 /**
- * R2-FR-12 on a deployment. "No worse" allows for lab noise with no invented margin: the median
- * must not pass the slowest R1 run of the same route.
+ * R2-FR-12 on a deployment. Fastest runs are compared, for the reason at BROWSER.lcp.tolerance, so
+ * this catches a page that got slower, and not one that was unlucky. comparison is R1 from the
+ * same sitting while R1 is live, and its saved figure after that.
  */
-export function checkLcpRuns(route: string, runsMs: number[], baseline: LcpRoute | undefined): Finding[] {
-  const finding = (message: string): Finding[] => [{ rule: "BR-LCP", row: "R2-FR-12", file: route, message }];
-  if (!baseline) return finding("no R1 figure to compare with");
-  if (runsMs.length < BROWSER.lcp.runs) return finding(`${runsMs.length} of ${BROWSER.lcp.runs} runs gave a figure`);
-  const measured = median(runsMs);
-  const limit = Math.max(...baseline.runsMs);
-  return measured > limit ? finding(`median ${measured} ms, but the slowest R1 run was ${limit} ms`) : [];
+export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: LcpRoute | undefined): Finding[] {
+  const { runs, tolerance } = BROWSER.lcp;
+  const finding = (message: string): Finding => ({ rule: "BR-LCP", row: "R2-FR-12", file: route, message });
+  const findings: Finding[] = [];
+  const worstShift = Math.max(0, ...measured.shifts);
+  if (worstShift > 0) findings.push(finding(`layout shift of ${worstShift.toFixed(4)}, but CLS must stay 0`));
+  if (measured.runsMs.length < runs) findings.push(finding(`${measured.runsMs.length} of ${runs} runs gave a figure`));
+  if (!comparison) findings.push(finding("no R1 figure to compare with"));
+  else if (comparison.runsMs.length < runs) findings.push(finding(`${comparison.runsMs.length} of ${runs} R1 runs gave a figure`));
+  else if (measured.runsMs.length >= runs) {
+    const fastest = Math.min(...measured.runsMs);
+    const fastestR1 = Math.min(...comparison.runsMs);
+    const limit = Math.round(fastestR1 * (1 + tolerance));
+    if (fastest > limit) findings.push(finding(`fastest run ${fastest} ms, over the ${limit} ms limit (R1's fastest ${fastestR1} ms plus ${tolerance * 100}%)`));
+  }
+  return findings;
 }
 
 /** BR-LCP needs a deployment and many slow loads, so it runs only when named. */
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-RAW", "BR-404", "BR-HYDRATE", "BR-CART", "BR-LCP"];
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-404", "BR-HYDRATE", "BR-CART", "BR-LCP"];
