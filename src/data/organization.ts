@@ -1,8 +1,6 @@
 /**
  * The only copy of the organization data. LocalBusinessSchema and
- * ParentOrganizationSchema render it at runtime, and scripts/prerender.ts writes
- * it into the static head, so the two cannot drift. It imports nothing from
- * React or assets, because prerender.ts runs it under tsx.
+ * ParentOrganizationSchema render it, in the build and in the browser alike.
  */
 
 const SITE = "https://wabisabiservices.ca";
@@ -18,16 +16,10 @@ const LOGO_URL = `${SITE}/og-image.png`;
 /** The short link for visible links until the full Maps URL is set. It never goes in JSON-LD. */
 export const GOOGLE_SHARE_URL = "https://share.google/qpmn3a6VHcDFweao6";
 
-// prerender.ts runs under tsx, where import.meta.env is undefined, so it reads
-// process.env. In the browser, naming the variable in full lets Vite inline just
-// this value. Any other form inlines the whole env object into the main chunk.
-const mapsUrlSetting: string | undefined =
-  typeof window === "undefined"
-    ? (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env.VITE_GOOGLE_MAPS_URL
-    : import.meta.env.VITE_GOOGLE_MAPS_URL;
-
+// Naming the variable in full lets Vite inline just this value, in both build passes, so the built
+// HTML and the browser agree. Any other form inlines the whole env object into the main chunk.
 /** The full Maps URL from VITE_GOOGLE_MAPS_URL, or "" until it is set. */
-export const GOOGLE_MAPS_URL = (mapsUrlSetting ?? "").trim();
+export const GOOGLE_MAPS_URL = (import.meta.env.VITE_GOOGLE_MAPS_URL ?? "").trim();
 
 /** Where the visible Google Reviews links go. */
 export const GOOGLE_REVIEWS_URL = GOOGLE_MAPS_URL || GOOGLE_SHARE_URL;

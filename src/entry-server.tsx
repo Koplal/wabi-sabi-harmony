@@ -6,6 +6,7 @@ import { StaticRouter } from "react-router-dom/server";
 import { preloadRoute } from "./App";
 import Root from "./Root";
 
+export { GOOGLE_REVIEWS_URL, GOOGLE_SHARE_URL } from "./data/organization";
 export { builtOn } from "./hooks/use-today";
 
 export interface RenderedRoute {
