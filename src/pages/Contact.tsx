@@ -30,11 +30,13 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.functions.invoke("send-contact-email", {
+      const { data, error } = await supabase.functions.invoke("send-contact-email", {
         body: formData,
       });
 
       if (error) throw error;
+      // The function answers 200 even when Resend rejects the email, so check its result too.
+      if (data?.data?.error) throw new Error("Email was not sent");
 
       trackEvent("contact_submit", { service_type: formData.serviceType });
       toast.success("Thank you! We'll reply within one business day.");
