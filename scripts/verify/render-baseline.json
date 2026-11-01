@@ -5,10 +5,66 @@
     "height": 900
   },
   "mobileLcp": {
-    "status": "blocked",
-    "p75Ms": null,
-    "owner": "Justin",
-    "note": "Not read from Speed Insights yet. R1 went live on Oct 31, so wait for enough field data. Record the mobile p75 LCP here from the Vercel dashboard before the R2 gate and set status to recorded. Never estimate it."
+    "lab": {
+      "measuredOn": "2026-11-01",
+      "target": "https://wabisabiservices.ca",
+      "browser": "chromium 156.0.4314.58",
+      "settings": {
+        "viewport": {
+          "width": 412,
+          "height": 823
+        },
+        "deviceScaleFactor": 1.75,
+        "latencyMs": 562.5,
+        "downloadBytesPerSecond": 180000,
+        "uploadBytesPerSecond": 84375,
+        "cpuSlowdown": 4
+      },
+      "routes": {
+        "/": {
+          "runsMs": [
+            4236,
+            4116,
+            4156,
+            4200,
+            4232
+          ],
+          "medianMs": 4200
+        },
+        "/areas/oak-bay": {
+          "runsMs": [
+            8532,
+            8168,
+            7948,
+            7932,
+            7936
+          ],
+          "medianMs": 7948
+        },
+        "/services/cleaning": {
+          "runsMs": [
+            4304,
+            4404,
+            4284,
+            4308,
+            4460
+          ],
+          "medianMs": 4308
+        },
+        "/blog/july-2026": {
+          "runsMs": [
+            5772,
+            5744,
+            5636,
+            5976,
+            5632
+          ],
+          "medianMs": 5744
+        }
+      }
+    },
+    "field": null,
+    "note": "lab is the R2-FR-12 baseline: BROWSER.lcp on R1 production, repeated on a deployment by BR-LCP. field is an optional Speed Insights reading with its sample count and dates. Never estimate either."
   },
   "routes": {
     "/": {

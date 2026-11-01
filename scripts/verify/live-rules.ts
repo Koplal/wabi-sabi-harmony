@@ -1,6 +1,6 @@
 /** Live rules as pure checks on fetched responses, so the self-test can run them on fixtures. */
 import { LIVE, MISSING_PAGE, SITE } from "./rules";
-import { type Finding, metaContent, missingPageProblems } from "./lib";
+import { canonicalsOf, type Finding, metaContent, missingPageProblems, rawHeadingsOf, routeUrl } from "./lib";
 
 export interface Hop {
   url: string;
@@ -48,11 +48,18 @@ const visibleWords = (html: string) =>
     .split(/\s+/)
     .filter(Boolean).length;
 
-export function checkRaw(route: string, status: number, html: string): Finding[] {
+/** After R2 every page has an H1 and body text, so the canonical and H1 prove it is the right page. */
+export function checkRaw(route: string, status: number, html: string, expectedH1: string | undefined): Finding[] {
   const findings: Finding[] = [];
   const add = (message: string) => findings.push({ rule: "LV-RAW", file: route, message });
   if (status !== 200) add(`status ${status}`);
-  if (!/<h1[\s>]/i.test(html)) add("no H1 in raw HTML");
+  const heading = rawHeadingsOf(html)[0];
+  if (heading === undefined) add("no H1 in raw HTML");
+  else if (expectedH1 === undefined) add("no baseline H1 for this route");
+  else if (heading !== expectedH1) add(`raw H1 is "${heading}", expected "${expectedH1}"`);
+  const canonicals = canonicalsOf(html);
+  const canonical = routeUrl(SITE, route);
+  if (canonicals.length !== 1 || canonicals[0] !== canonical) add(`canonical is ${canonicals.join(", ") || "missing"}, expected ${canonical}`);
   const words = visibleWords(html);
   if (words < LIVE.rawMinWords) add(`${words} words of body text in raw HTML, expected at least ${LIVE.rawMinWords}`);
   return findings;

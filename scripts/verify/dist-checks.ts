@@ -1,6 +1,7 @@
 /** Dist rules. Each check takes a DistCtx, so the self-test can run it on fixtures. */
 import {
   BANS,
+  BROWSER,
   CLARITY_PROJECT_ID,
   COPY_PAGES,
   FALLBACK,
@@ -34,6 +35,7 @@ import {
   isNode,
   jsonLdBlocksOf,
   type JsonNode,
+  median,
   metaContent,
   missingPageProblems,
   parseBlock,
@@ -85,12 +87,35 @@ export interface RenderEntry extends RenderedPage {
   capturedFrom?: string;
 }
 
+export interface LcpRoute {
+  runsMs: number[];
+  medianMs: number;
+}
+
+/** One lab measurement of R1, made with BROWSER.lcp so a deployment can repeat it exactly. */
+export interface LcpLab {
+  measuredOn: string;
+  target: string;
+  browser: string;
+  settings: typeof BROWSER.lcp.settings;
+  routes: Record<string, LcpRoute>;
+}
+
+/** A Speed Insights reading. It is optional, and means little without its sample count and dates. */
+export interface LcpField {
+  p75Ms: number;
+  samples: number;
+  from: string;
+  to: string;
+  readOn: string;
+}
+
 export interface RenderBaseline {
   capturedFrom: string;
   viewport: { width: number; height: number };
   routes: Record<string, RenderEntry>;
-  /** The mobile LCP from Speed Insights. No figure is stored unless it was read from there. */
-  mobileLcp: { status: "recorded" | "blocked"; p75Ms: number | null; owner: string; note: string };
+  /** Figures are measured or read, never estimated. */
+  mobileLcp: { lab: LcpLab | null; field: LcpField | null; note: string };
 }
 
 /** The route list and the neighbourhood data, loaded as modules. */
@@ -100,6 +125,8 @@ export interface RouteManifest {
   listError?: string;
   /** One route per neighbourhood. Undefined when the data could not be loaded. */
   areas?: string[];
+  /** Route to page file, from the list's `page` fields. Undefined when no entry names one. */
+  pages?: Record<string, string>;
 }
 
 export interface DistCtx {
@@ -420,6 +447,13 @@ function routesByComponent(appText: string): Map<string, string> {
   return routes;
 }
 
+/** Page file to route: from the route list when it names them, otherwise from the router. */
+function pageRoutes(ctx: DistCtx): Map<string, string> {
+  const { pages } = ctx.manifest;
+  if (pages) return new Map(Object.entries(pages).map(([route, page]) => [`src/pages/${page}.tsx`, route]));
+  return routesByComponent(ctx.readSource(MANIFEST.appFile) ?? "");
+}
+
 const jsxAttribute = (block: string, name: string) => {
   const match = new RegExp(`\\b${name}=(?:"([^"]*)"|\\{"((?:[^"\\\\]|\\\\.)*)"\\})`).exec(block);
   return match ? (match[1] ?? match[2]).replace(/&apos;/g, "'").replace(/&amp;/g, "&") : undefined;
@@ -439,9 +473,8 @@ function pricesOf(pageText: string): Map<string, number> {
 }
 
 export function checkParity(ctx: DistCtx): Finding[] {
-  const app = ctx.readSource("src/App.tsx");
-  if (app === undefined) return [{ rule: "D-PARITY", message: "src/App.tsx not found" }];
-  const routes = routesByComponent(app);
+  if (ctx.readSource(MANIFEST.appFile) === undefined) return [{ rule: "D-PARITY", message: `${MANIFEST.appFile} not found` }];
+  const routes = pageRoutes(ctx);
   const findings: Finding[] = [];
   let pagesCompared = 0;
   let pricesCompared = 0;
@@ -597,14 +630,43 @@ export function checkMissingPage(ctx: DistCtx): Finding[] {
   return missingPageProblems(html, SITE, brand).map(finding);
 }
 
+const isDate = (value: unknown) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
+
+function lcpLabProblems(lab: LcpLab): string[] {
+  const { liveFrom, routes, runs, settings } = BROWSER.lcp;
+  const problems: string[] = [];
+  if (!isDate(lab.measuredOn) || lab.measuredOn < liveFrom) problems.push(`measuredOn is ${lab.measuredOn}, but R1 went live on ${liveFrom}`);
+  if (!lab.target) problems.push("no target URL");
+  if (!lab.browser) problems.push("no browser version");
+  if (!isSameJson(lab.settings, settings)) problems.push("the settings differ from BROWSER.lcp.settings, so no deployment can repeat this run");
+  for (const route of routes) {
+    const entry = lab.routes?.[route];
+    if (!entry) problems.push(`no figure for ${route}`);
+    else if (entry.runsMs.length < runs || entry.runsMs.some((value) => !(value > 0))) problems.push(`${route} needs ${runs} positive runs`);
+    else if (entry.medianMs !== median(entry.runsMs)) problems.push(`${route}: medianMs is not the median of its runs`);
+  }
+  return problems;
+}
+
+function lcpFieldProblems(field: LcpField): string[] {
+  const { liveFrom } = BROWSER.lcp;
+  const problems: string[] = [];
+  if (!(field.p75Ms > 0)) problems.push("the field figure has no p75Ms");
+  if (!(field.samples > 0)) problems.push("the field figure has no sample count");
+  if (![field.from, field.to, field.readOn].every(isDate)) problems.push("the field figure needs from, to and readOn dates");
+  else if (field.from < liveFrom || field.to < field.from || field.readOn < field.to) {
+    problems.push(`the field dates must start on or after ${liveFrom}, run in order and end by readOn`);
+  }
+  return problems;
+}
+
 /** R2-FR-12 compares against the R1 figure, and R1 stops being live at the R2 deploy. */
 export function checkLcp(ctx: DistCtx): Finding[] {
-  const finding = (message: string): Finding[] => [{ rule: "D-LCP", row: "R2-FR-12", file: RENDER_BASELINE_FILE, message }];
+  const finding = (message: string): Finding => ({ rule: "D-LCP", row: "R2-FR-12", file: RENDER_BASELINE_FILE, message });
   const lcp = ctx.renderBaseline?.mobileLcp;
-  if (!lcp) return finding("no mobile LCP in the render baseline");
-  if (lcp.status !== "recorded") return finding(`the R1 mobile p75 LCP is not recorded (owner: ${lcp.owner}): ${lcp.note}`);
-  if (typeof lcp.p75Ms !== "number" || lcp.p75Ms <= 0) return finding("the status is recorded, but there is no figure");
-  return [];
+  if (!lcp) return [finding("no mobile LCP in the render baseline")];
+  if (!lcp.lab) return [finding(`the R1 lab LCP is not measured. While R1 is live, run npm run verify:browser -- --measure-lcp --base=${SITE}`)];
+  return [...lcpLabProblems(lcp.lab), ...(lcp.field ? lcpFieldProblems(lcp.field) : [])].map(finding);
 }
 
 /** Every link in llms.txt on this site, as a route or a file path. */
@@ -632,8 +694,14 @@ function checkRouter(ctx: DistCtx, known: Set<string>, add: AddFinding) {
   if (!readsList && plain.length + built.length === 0) add("no routes could be read from the router", appFile);
   for (const route of plain) if (!known.has(route)) add(`the router serves ${route}, which is not a known route`, appFile);
 
-  // A path built from the route list is compared through the list itself.
-  if (readsList) return;
+  // A path built from the route list is compared through the list itself, which must then name
+  // each route's page file, because the router has no line left for D-COPY and D-PARITY to read.
+  if (readsList) {
+    for (const route of ctx.manifest.listed ?? []) {
+      if (!route.startsWith(COPY_PAGES.areaPrefix) && !ctx.manifest.pages?.[route]) add(`${route} names no page file`, MANIFEST.routeFile);
+    }
+    return;
+  }
   const served = new Set(plain);
   for (const path of built) {
     if (path === areaTemplate) ctx.manifest.areas?.forEach((route) => served.add(route));
@@ -749,7 +817,7 @@ export function checkCopy(ctx: DistCtx): Finding[] {
   };
 
   const sourceByRoute = new Map<string, string>();
-  for (const [file, route] of routesByComponent(ctx.readSource(MANIFEST.appFile) ?? "")) {
+  for (const [file, route] of pageRoutes(ctx)) {
     sourceByRoute.set(route, COPY_PAGES.aliases[file] ?? file);
   }
 

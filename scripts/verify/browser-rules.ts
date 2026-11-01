@@ -1,12 +1,15 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
+import type { LcpRoute } from "./dist-checks";
 import { BROWSER, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES } from "./rules";
 import {
   canonicalJson,
   canonicalPath,
   duplicateProblems,
   type Finding,
+  median,
   missingPageProblems,
   parseBlock,
+  pathOfHref,
   rawProblems,
   type RenderedPage,
   routeUrl,
@@ -192,9 +195,11 @@ export interface HydrationSnapshot {
    * What became of the page's <main> from the HTML, which sits inside the Suspense boundary.
    * The toast region outside it hydrates even when the page does not, so it proves nothing.
    */
-  markup: "none" | "attached" | "replaced" | "not attached";
+  markup: "none" | "no main" | "attached" | "replaced" | "not attached";
   /** The server-rendered H1 is still on the page. Undefined when the HTML has none. */
   headingKept?: boolean;
+  /** False for a utility route with no built file, which the catch-all answers with the home page. */
+  fileBuilt?: boolean;
 }
 
 /**
@@ -205,18 +210,24 @@ export function checkHydrate(snapshot: HydrationSnapshot): Finding[] {
   const file = `${snapshot.route} [${snapshot.scenario}]`;
   const finding = (message: string): Finding => ({ rule: "BR-HYDRATE", row: "R2-FR-03", file, message });
   const warning = new RegExp(BROWSER.hydrationErrors.join("|"), "i");
+  const path = pathOfHref(snapshot.route);
+
+  if (snapshot.fileBuilt === false) {
+    return [finding(`no built file until R2-20, so this URL serves the home page and cannot match. Until then pass --skip=${UTILITY_ROUTES.join(",")}`)];
+  }
 
   const findings = [...snapshot.pageErrors, ...snapshot.consoleErrors.map((entry) => entry.text)]
     .filter((text) => warning.test(text))
     .map((text) => finding(`hydration warning: ${text}`));
 
   // A utility page may send the visitor on, as an empty /checkout does. That is not a mismatch.
-  const leftPage = UTILITY_ROUTES.includes(snapshot.route) && snapshot.finalPath !== snapshot.route;
+  const leftPage = UTILITY_ROUTES.includes(path) && snapshot.finalPath !== path;
   if (snapshot.markup === "none") findings.push(finding("#root has no server-rendered page markup to attach to"));
+  else if (snapshot.markup === "no main") findings.push(finding("the server-rendered page has no <main>, so attaching to it cannot be proved"));
   else if (snapshot.markup === "not attached") findings.push(finding("React had not attached to the server-rendered page when the wait ended"));
   else if (snapshot.markup === "replaced" && !leftPage) findings.push(finding("React replaced the server-rendered markup instead of attaching to it"));
   // A cart that fills after load may swap the H1 on a utility page. That is not a mismatch.
-  else if (snapshot.headingKept === false && !UTILITY_ROUTES.includes(snapshot.route)) {
+  else if (snapshot.headingKept === false && !UTILITY_ROUTES.includes(path)) {
     findings.push(finding("the server-rendered H1 was replaced"));
   }
   return findings;
@@ -231,6 +242,8 @@ export interface CartStep {
   hasNameField: boolean;
   /** Times this load wrote an empty list over the stored cart. */
   emptyWrites: number;
+  /** The stored cart must be empty after this step. */
+  cleared?: boolean;
 }
 
 export function checkCart(steps: CartStep[]): Finding[] {
@@ -242,6 +255,10 @@ export function checkCart(steps: CartStep[]): Finding[] {
   for (const step of steps) {
     const add = (message: string) => findings.push({ rule: "BR-CART", row: "R2-FR-03", file: `${step.route} [${step.name}]`, message });
     if (step.finalPath !== step.route) add(`ended at ${step.finalPath}`);
+    if (step.cleared) {
+      if (step.storedIds.length > 0) add("the order is complete, but the stored cart still holds its item");
+      continue;
+    }
     if (!step.storedIds.includes(item.id)) add("the stored cart lost its item");
     if (step.emptyWrites > 0) add("an empty list was written over the stored cart");
     if (step.route === "/cart" && !step.itemShown) add("the item is not on the page");
@@ -250,4 +267,18 @@ export function checkCart(steps: CartStep[]): Finding[] {
   return findings;
 }
 
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-RAW", "BR-404", "BR-HYDRATE", "BR-CART"];
+/**
+ * R2-FR-12 on a deployment. "No worse" allows for lab noise with no invented margin: the median
+ * must not pass the slowest R1 run of the same route.
+ */
+export function checkLcpRuns(route: string, runsMs: number[], baseline: LcpRoute | undefined): Finding[] {
+  const finding = (message: string): Finding[] => [{ rule: "BR-LCP", row: "R2-FR-12", file: route, message }];
+  if (!baseline) return finding("no R1 figure to compare with");
+  if (runsMs.length < BROWSER.lcp.runs) return finding(`${runsMs.length} of ${BROWSER.lcp.runs} runs gave a figure`);
+  const measured = median(runsMs);
+  const limit = Math.max(...baseline.runsMs);
+  return measured > limit ? finding(`median ${measured} ms, but the slowest R1 run was ${limit} ms`) : [];
+}
+
+/** BR-LCP needs a deployment and many slow loads, so it runs only when named. */
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-RAW", "BR-404", "BR-HYDRATE", "BR-CART", "BR-LCP"];

@@ -8,10 +8,15 @@
  * LV-HOST checks the production hosts, so it does not run with --base.
  * Exit codes: 0 pass, 1 findings, 2 usage or network error.
  */
-import { BROWSER, LIVE } from "./verify/rules";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { BROWSER, LIVE, RENDER_BASELINE_FILE } from "./verify/rules";
 import { type Finding, listValue, parseArgs, report, UsageError } from "./verify/lib";
+import type { RenderBaseline } from "./verify/dist-checks";
 import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkUtility, describeChain } from "./verify/live-rules";
 
+const RENDER_BASELINE = resolve(dirname(fileURLToPath(import.meta.url)), "..", RENDER_BASELINE_FILE);
 const MAX_HOPS = 6;
 const KNOWN_VALUES = ["base", "rules"];
 
@@ -83,9 +88,11 @@ async function run(): Promise<number> {
     findings.push(...checkMissing(chain, html));
   }
   if (selected.includes("LV-RAW")) {
+    if (!existsSync(RENDER_BASELINE)) throw new UsageError(`${RENDER_BASELINE_FILE} not found`);
+    const { routes } = JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline;
     for (const route of LIVE.rawRoutes) {
       const { status, html } = await page(`${base}${route}`, base);
-      findings.push(...checkRaw(route, status, html));
+      findings.push(...checkRaw(route, status, html, routes[route]?.h1));
     }
   }
   if (selected.includes("LV-REDIRECT")) {

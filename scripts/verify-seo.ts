@@ -197,9 +197,11 @@ async function loadManifest(): Promise<RouteManifest> {
   try {
     const list = await loadExport(MANIFEST.routeFile, MANIFEST.routeExport);
     if (!Array.isArray(list)) throw new Error(`it does not export ${MANIFEST.routeExport} as a list`);
-    const paths = list.map((item: unknown) => (typeof item === "string" ? item : (item as { path?: unknown })?.path));
-    if (paths.some((path) => typeof path !== "string")) throw new Error("an entry has no path");
-    manifest.listed = paths as string[];
+    const entries = list.map((item: unknown) => (typeof item === "string" ? { path: item } : (item as { path?: unknown; page?: unknown })));
+    if (entries.some((entry) => typeof entry?.path !== "string")) throw new Error("an entry has no path");
+    manifest.listed = entries.map((entry) => entry.path as string);
+    const pages = entries.flatMap((entry) => (typeof entry.page === "string" ? [[entry.path as string, entry.page]] : []));
+    if (pages.length > 0) manifest.pages = Object.fromEntries(pages);
   } catch (error) {
     manifest.listError = `it could not be loaded: ${error instanceof Error ? error.message : String(error)}`;
   }

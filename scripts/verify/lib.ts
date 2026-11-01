@@ -296,7 +296,7 @@ export const rawHeadingsOf = (html: string) =>
     .map((match) => collapse(decodeHtml(match[1].replace(/<[^>]+>/g, ""))))
     .filter(Boolean);
 
-const pathOfHref = (href: string) => href.split(/[?#]/)[0];
+export const pathOfHref = (href: string) => href.split(/[?#]/)[0];
 
 export const rawLinksOf = (html: string) =>
   tagsNamed(bodyMarkup(html), "a")
@@ -486,3 +486,9 @@ export const routeOfHtmlFile = (path: string) => {
 };
 
 export const htmlFileOfRoute = (route: string) => (route === "/" ? "index.html" : `${route.slice(1)}/index.html`);
+
+export function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}

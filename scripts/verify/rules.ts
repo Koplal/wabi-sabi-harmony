@@ -653,8 +653,11 @@ export const MISSING_PAGE = { file: "404.html", brand: "Wabi Sabi Services" };
 
 /**
  * The one route list (R2-FR-11). Until it exists, D-MANIFEST fails. The harness loads routeFile as
- * a module, so it may build its paths from neighborhoods.ts. It must stay free of page imports, and
- * routeExport must be a list of paths or of objects with a `path`.
+ * a module, so it may build its paths from neighborhoods.ts. It must stay free of page imports.
+ * routeExport is a list of `{ path, page }`, where page is the file under src/pages with no
+ * extension, such as "services/Cleaning". Area routes share a template, so they leave page out.
+ * A router built from this list has no `<Route path="...">` lines, so page is how D-COPY and
+ * D-PARITY find a route's source, and D-MANIFEST fails an entry without one.
  */
 export const MANIFEST = {
   routeFile: "src/data/routes.ts",
@@ -680,6 +683,19 @@ export const COPY_PAGES = {
 // Browser rules
 // ---------------------------------------------------------------------------
 
+/** Stripe's success URL (api/create-checkout.ts). The page renders the session ID from it. */
+export const STRIPE_RETURN = "/checkout-success?session_id=cs_test_verify";
+
+export interface CartStepPlan {
+  name: string;
+  route: string;
+  reload: boolean;
+  /** The URL to load, when it differs from the route. */
+  url?: string;
+  /** The stored cart must be empty after this step. */
+  cleared?: boolean;
+}
+
 export const BROWSER = {
   blockedHosts: ["googletagmanager.com", "google-analytics.com", "clarity.ms"],
   fontHosts: ["fonts.googleapis.com", "fonts.gstatic.com"],
@@ -697,9 +713,11 @@ export const BROWSER = {
   /** A same-origin page with no app code, so the cart can be stored before the app first loads. */
   seedPage: "/robots.txt",
   /**
-   * BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL.
-   * This rule passes on Release 1, which reads the cart before its first render. It guards the
-   * move to a cart that starts empty and loads after hydration.
+   * BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL, and the
+   * last two steps are its success URL, where a paid cart must empty and stay empty.
+   * This is the one new rule that passes on Release 1, which reads the cart before its first
+   * render. It guards the move to a cart that starts empty and loads after hydration: the save
+   * effect can then overwrite the stored cart, and a late load can restore an item already paid for.
    */
   cartSteps: [
     { name: "first load", route: "/cart", reload: false },
@@ -707,12 +725,20 @@ export const BROWSER = {
     { name: "another page", route: "/seasoning", reload: false },
     { name: "return to the cart", route: "/cart", reload: false },
     { name: "full load of checkout", route: "/checkout", reload: false },
-  ],
-  /** BR-HYDRATE. A production build reports these React errors by number only. */
+    { name: "order complete", route: "/checkout-success", url: STRIPE_RETURN, reload: false, cleared: true },
+    { name: "reload after the order", route: "/checkout-success", reload: true, cleared: true },
+  ] as CartStepPlan[],
+  /**
+   * BR-HYDRATE. Production React reports text and structure mismatches by number and attribute
+   * mismatches not at all, so a shifted useId passes on dist/ with a clean console. The wording
+   * here comes from development React, which only a --dev-react pass can print.
+   */
   hydrationErrors: [
     "hydrat",
     "did not match",
     "server.rendered HTML",
+    "server HTML",
+    "Extra attributes from the server",
     "Text content does not match",
     "Minified React error #(?:418|419|421|422|423|425)\\b",
   ],
@@ -721,6 +747,32 @@ export const BROWSER = {
    * next. The footer's year (Layout.tsx) is on every page and the journal filters posts by today.
    */
   clockRoutes: ["/", "/blog"],
+  /** URLs BR-HYDRATE loads beyond the route list, because they render differently from the bare route. */
+  hydrationUrls: [STRIPE_RETURN],
+  /** --dev-react. The marker is a string that only development React contains. */
+  devReact: {
+    marker: "Extra attributes from the server",
+    routes: ["/", "/faq", "/contact", "/checkout", "/checkout-success"],
+  },
+  /**
+   * R2-FR-12. The same lab run on R1 and on a deployment, so the two compare like with like. A
+   * preview has no visitors, so a field figure cannot stand in for this. Network and CPU are
+   * slow 4G and 4x CPU, with the factors Lighthouse applies for DevTools throttling.
+   */
+  lcp: {
+    routes: ["/", "/areas/oak-bay", "/services/cleaning", "/blog/july-2026"],
+    runs: 5,
+    /** The day R1 went live. An earlier figure does not describe R1. */
+    liveFrom: "2026-10-31",
+    settings: {
+      viewport: { width: 412, height: 823 },
+      deviceScaleFactor: 1.75,
+      latencyMs: 562.5,
+      downloadBytesPerSecond: 180_000,
+      uploadBytesPerSecond: 84_375,
+      cpuSlowdown: 4,
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -738,9 +790,11 @@ export const LIVE = {
     { from: "/the-ritual", to: "/ritual" },
     { from: "/index.html", to: "/" },
     { from: "/home", to: "/" },
+    { from: "/home/", to: "/" },
+    { from: "/the-ritual/", to: "/ritual" },
     { from: "/services/errands/", to: "/services/errands" },
   ],
-  utilityRoutes: ["/cart", "/checkout", "/checkout-success?session_id=test"],
+  utilityRoutes: ["/cart", "/checkout", STRIPE_RETURN],
   releaseOne: ["LV-HOST", "LV-FILES"],
   all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY"],
 };

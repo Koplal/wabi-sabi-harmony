@@ -32,10 +32,11 @@ import {
   REQUIRED_ORDER,
   SITE,
   STAFF_LINE,
+  STRIPE_RETURN,
   UTILITY_ROUTES,
 } from "../rules";
 import { parsePrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "../source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "../dist-checks";
+import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "../dist-checks";
 import {
   BROWSER_RULES,
   type CartStep,
@@ -46,6 +47,7 @@ import {
   checkH1,
   checkHead as checkBrowserHead,
   checkHydrate,
+  checkLcpRuns,
   checkMissingUrl,
   checkNav,
   checkRank as checkBrowserRank,
@@ -261,17 +263,40 @@ function goodDist(): Files {
   return files;
 }
 
-const appSource = `import { ROUTES } from "./data/routes";\n${[...FILE_ROUTES]
-  .map(([file, route], index) => {
-    const module = file.replace(/^src\/pages\//, "").replace(/\.tsx$/, "");
-    return `const Page${index} = lazy(() => import("./pages/${module}"));\n<Route path="${route}" element={<Page${index} />} />`;
-  })
-  .join("\n")}`;
-const faqSource = `export const faqItems = [${FAQ_ANSWERS.map((answer) => `{ question: "Fixture?", answer: ${JSON.stringify(answer)} }`).join(", ")}];`;
 const ALL_ROUTES = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
 const AREA_ROUTES = INDEXABLE_ROUTES.filter((route) => route.startsWith("/areas/"));
+const moduleOf = (file: string) => file.replace(/^src\/pages\//, "").replace(/\.tsx$/, "");
+
+/** Release 1's router: one plain line per page. The harness reads this shape until R2-10. */
+const plainPageRouter = [...FILE_ROUTES]
+  .map(([file, route], index) => `const Page${index} = lazy(() => import("./pages/${moduleOf(file)}"));\n<Route path="${route}" element={<Page${index} />} />`)
+  .join("\n");
+
+/** The router R2-10 must leave. It writes no path and no page, so only the list can place a page. */
+const listRouter = `import { ROUTES } from "./data/routes";
+const pages = import.meta.glob("./pages/**/*.tsx");
+{ROUTES.map(({ path, page }) => (<Route key={path} path={path} element={<LazyPage load={pages[page]} />} />))}`;
+
+const pageOfRoute = new Map([...FILE_ROUTES].map(([file, route]) => [route, moduleOf(file)]));
+const LISTED_PAGES = Object.fromEntries(
+  ALL_ROUTES.filter((route) => !AREA_ROUTES.includes(route)).map((route, index) => [route, pageOfRoute.get(route) ?? `Fixture${index}`])
+);
+const LIST_MANIFEST: RouteManifest = { listed: ALL_ROUTES, areas: AREA_ROUTES, pages: LISTED_PAGES };
+
+const faqSource = `export const faqItems = [${FAQ_ANSWERS.map((answer) => `{ question: "Fixture?", answer: ${JSON.stringify(answer)} }`).join(", ")}];`;
 const pageSource = `<SEO title="Fixture /seasoning/quiet-grace" description="Description of /seasoning/quiet-grace" />
 const packageItem = { id: 'fixture-package', name: 'The Fixture Package', price: 399 };`;
+
+const LCP_RUNS = [3000, 3100, 3200, 3300, 3400];
+const R1_LCP: LcpRoute = { runsMs: LCP_RUNS, medianMs: 3200 };
+const goodLab = (): LcpLab => ({
+  measuredOn: BROWSER.lcp.liveFrom,
+  target: SITE,
+  browser: "fixture",
+  settings: BROWSER.lcp.settings,
+  routes: Object.fromEntries(BROWSER.lcp.routes.map((route) => [route, R1_LCP])),
+});
+const goodField: LcpField = { p75Ms: 3000, samples: 40, from: BROWSER.lcp.liveFrom, to: "2026-11-20", readOn: "2026-11-21" };
 
 /** The good fixture as a browser would have rendered it. */
 function renderBaselineOf(files: Files): RenderBaseline {
@@ -282,7 +307,7 @@ function renderBaselineOf(files: Files): RenderBaseline {
     routes[route] = { finalPath: route, h1: rawHeadingsOf(html)[0], words: textWords(text).length, links: [...new Set(rawLinksOf(html))], text };
   }
   for (const route of UTILITY_ROUTES) routes[route] = { finalPath: route, h1: "Utility", words: 1, links: [], text: "Utility" };
-  return { capturedFrom: "fixture", viewport: { width: 1280, height: 900 }, routes, mobileLcp: { status: "recorded", p75Ms: 1000, owner: "fixture", note: "fixture" } };
+  return { capturedFrom: "fixture", viewport: { width: 1280, height: 900 }, routes, mobileLcp: { lab: goodLab(), field: null, note: "fixture" } };
 }
 
 interface DistOptions {
@@ -304,7 +329,7 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
   const good = goodDist();
   for (const route of RANK_ROUTES) pages[route] = rankEntryFromHtml(good.get(htmlFileOfRoute(route)) as string);
   const sources: Record<string, string | undefined> = {
-    "src/App.tsx": appSource,
+    "src/App.tsx": listRouter,
     "src/pages/seasonal/QuietGrace.tsx": options.page ?? pageSource,
     [FAQ_FILES.data]: faqSource,
     ...options.sources,
@@ -317,7 +342,7 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     baseline: options.baseline ?? { capturedFrom: "fixture", pages },
     renderBaseline,
     baselineDrift: options.baselineDrift,
-    manifest: options.manifest ?? { listed: ALL_ROUTES, areas: AREA_ROUTES },
+    manifest: options.manifest ?? LIST_MANIFEST,
     privateBans: parsePrivateBans(options.privateBans === null ? undefined : options.privateBans ?? PLACEHOLDER_BANS, "SEO_PRIVATE_BANS is not set"),
     readSource: (path) => sources[path],
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
@@ -657,13 +682,26 @@ const withExtraAnswer = (answer: string) => ({ sources: { [FAQ_FILES.data]: faqS
 distCase("D-FAQRAW", "reports an answer in a template literal", "fail", () => undefined, withExtraAnswer("`Fixture answer one.`"));
 distCase("D-FAQRAW", "reports an answer joined from pieces", "fail", () => undefined, withExtraAnswer('"Fixture answer one." + " And more."'));
 
-distCase("D-LCP", "reports a figure that is not recorded, as now", "fail", () => undefined, {
-  editRenderBaseline: (baseline) => (baseline.mobileLcp = { status: "blocked", p75Ms: null, owner: "fixture", note: "fixture" }),
-});
-distCase("D-LCP", "reports a recorded status with no figure", "fail", () => undefined, {
-  editRenderBaseline: (baseline) => (baseline.mobileLcp = { status: "recorded", p75Ms: null, owner: "fixture", note: "fixture" }),
-});
+const editLcp = (edit: (lcp: RenderBaseline["mobileLcp"]) => void): DistOptions => ({ editRenderBaseline: (baseline) => edit(baseline.mobileLcp) });
+const withLab = (fields: Partial<LcpLab>) => editLcp((lcp) => void (lcp.lab = { ...goodLab(), ...fields }));
+const withField = (fields: Partial<LcpField>) => editLcp((lcp) => void (lcp.field = { ...goodField, ...fields }));
+const withRouteLcp = (entry: LcpRoute) => withLab({ routes: { ...goodLab().routes, [BROWSER.lcp.routes[0]]: entry } });
+distCase("D-LCP", "needs no field figure", "pass", () => undefined, editLcp((lcp) => void (lcp.field = null)));
+distCase("D-LCP", "allows a field figure with its samples and dates", "pass", () => undefined, withField({}));
+distCase("D-LCP", "reports R1 not measured", "fail", () => undefined, editLcp((lcp) => void (lcp.lab = null)));
 distCase("D-LCP", "reports no baseline file", "fail", () => undefined, { renderBaseline: null });
+distCase("D-LCP", "reports a figure from before R1 went live", "fail", () => undefined, withLab({ measuredOn: "2026-10-01" }));
+distCase("D-LCP", "reports a date it cannot read", "fail", () => undefined, withLab({ measuredOn: "soon" }));
+distCase("D-LCP", "reports settings a deployment could not repeat", "fail", () => undefined, withLab({ settings: { ...BROWSER.lcp.settings, cpuSlowdown: 1 } }));
+distCase("D-LCP", "reports a route with no figure", "fail", () => undefined, withLab({ routes: {} }));
+distCase("D-LCP", "reports too few runs", "fail", () => undefined, withRouteLcp({ runsMs: [3000], medianMs: 3000 }));
+distCase("D-LCP", "reports a run of zero", "fail", () => undefined, withRouteLcp({ runsMs: [0, ...LCP_RUNS.slice(1)], medianMs: 3200 }));
+distCase("D-LCP", "reports a median that is not its runs' median", "fail", () => undefined, withRouteLcp({ runsMs: LCP_RUNS, medianMs: 1000 }));
+distCase("D-LCP", "reports a field figure with no sample count", "fail", () => undefined, withField({ samples: 0 }));
+distCase("D-LCP", "reports a field figure with no value", "fail", () => undefined, withField({ p75Ms: 0 }));
+distCase("D-LCP", "reports a field period from before R1", "fail", () => undefined, withField({ from: "2026-10-01" }));
+distCase("D-LCP", "reports a field reading dated before its period ends", "fail", () => undefined, withField({ readOn: "2026-11-01" }));
+distCase("D-LCP", "reports a field date it cannot read", "fail", () => undefined, withField({ to: "soon" }));
 
 distCase("D-NOFALLBACK", "reports head-only pages, as in Release 1", "fail", headOnly);
 distCase("D-NOFALLBACK", "reports the loading fallback", "fail", (files) => setBody(files, ABOUT_HTML, '<div id="root"><div class="min-h-screen" aria-busy="true"></div></div>'));
@@ -679,7 +717,7 @@ distCase("D-404", "reports no brand", "fail", (files) => replaceIn(files, MISSIN
 distCase("D-404", "reports no H1 without JavaScript", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"><a href="/">Home</a></div>'));
 distCase("D-404", "reports no way home without JavaScript", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"><h1>Not found</h1></div>'));
 
-const listedWith = (edit: (routes: string[]) => string[]): RouteManifest => ({ listed: edit(ALL_ROUTES), areas: AREA_ROUTES });
+const listedWith = (edit: (routes: string[]) => string[]): RouteManifest => ({ ...LIST_MANIFEST, listed: edit(ALL_ROUTES) });
 const NO_LIST: RouteManifest = { listError: "the file does not exist", areas: AREA_ROUTES };
 /** The router as in Release 1: plain paths, and one generated path per neighbourhood. */
 const plainRouter = ALL_ROUTES.filter((route) => !AREA_ROUTES.includes(route))
@@ -687,7 +725,6 @@ const plainRouter = ALL_ROUTES.filter((route) => !AREA_ROUTES.includes(route))
   .join("\n");
 const areaRouter = "{Object.values(neighborhoods).map((n) => (<Route key={n.slug} path={`/areas/${n.slug}`} element={<Area data={n} />} />))}";
 const releaseOneRouter = `${plainRouter}\n${areaRouter}`;
-const listRouter = `import { ROUTES } from "@/data/routes";\n{ROUTES.map((route) => (<Route key={route.path} path={route.path} element={route.element} />))}`;
 /** Runs with the given router and keeps only what the rule says about it. */
 const routerCase = (name: string, expect: Case["expect"], app: string, manifest: RouteManifest = NO_LIST) =>
   cases.push({
@@ -702,16 +739,17 @@ distCase("D-MANIFEST", "reports a route list that cannot be loaded", "fail", () 
 distCase("D-MANIFEST", "reports a route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/about")) });
 distCase("D-MANIFEST", "reports a utility route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/cart")) });
 distCase("D-MANIFEST", "reports a listed route the harness does not know", "fail", () => undefined, { manifest: listedWith((routes) => [...routes, "/extra"]) });
-distCase("D-MANIFEST", "reports a route only the router has", "fail", () => undefined, { sources: { "src/App.tsx": `${appSource}\n<Route path="/extra" element={<Extra />} />` } });
-distCase("D-MANIFEST", "reports a neighbourhood with no route", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, areas: [...AREA_ROUTES, "/areas/new-area"] } });
-distCase("D-MANIFEST", "reports an area route with no neighbourhood", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, areas: AREA_ROUTES.slice(1) } });
-distCase("D-MANIFEST", "reports neighbourhood data that cannot be loaded", "fail", () => undefined, { manifest: { listed: ALL_ROUTES } });
+distCase("D-MANIFEST", "reports a route only the router has", "fail", () => undefined, { sources: { "src/App.tsx": `${listRouter}\n<Route path="/extra" element={<Extra />} />` } });
+distCase("D-MANIFEST", "reports a neighbourhood with no route", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, areas: [...AREA_ROUTES, "/areas/new-area"] } });
+distCase("D-MANIFEST", "reports an area route with no neighbourhood", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, areas: AREA_ROUTES.slice(1) } });
+distCase("D-MANIFEST", "reports neighbourhood data that cannot be loaded", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, pages: LISTED_PAGES } });
+distCase("D-MANIFEST", "reports list entries that name no page file", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, areas: AREA_ROUTES } });
 routerCase("reads the generated area routes, as in Release 1", "pass", releaseOneRouter);
 routerCase("reports a route missing from a router with plain paths", "fail", releaseOneRouter.replace('<Route path="/about" element={<Page />} />', ""));
 routerCase("reports a generated path it cannot read", "fail", `${releaseOneRouter}\n<Route path={extraPath} element={<Page />} />`);
 routerCase("reports a router with no routes it can read", "fail", "");
-routerCase("reports a list the router does not read", "fail", releaseOneRouter, { listed: ALL_ROUTES, areas: AREA_ROUTES });
-routerCase("allows a router built from the list", "pass", listRouter, { listed: ALL_ROUTES, areas: AREA_ROUTES });
+routerCase("reports a list the router does not read", "fail", releaseOneRouter, LIST_MANIFEST);
+routerCase("allows a router built from the list", "pass", listRouter, LIST_MANIFEST);
 distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/about</loc></url>`, ""));
 distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
@@ -749,7 +787,11 @@ distCase("D-COPY", "matches a private term, and hides the text", "fail", (files)
 distCase("D-COPY", "matches a private term in the head, and hides the text", "fail", (files) => replaceIn(files, HOME_HTML, "</head>", `<meta name="keywords" content="${HIDDEN_TERM}"></head>`), {}, HIDDEN_TERM);
 distCase("D-COPY", "fails with no ban file", "fail", () => undefined, { privateBans: null });
 distCase("D-COPY", "reports a required page that is not built", "fail", (files) => files.delete(ABOUT_HTML));
-distCase("D-COPY", "reports a router it can no longer read", "fail", () => undefined, { sources: { "src/App.tsx": "" } });
+distCase("D-COPY", "reports a router it can no longer read", "fail", () => undefined, { manifest: NO_LIST, sources: { "src/App.tsx": "" } });
+const plainRouted: DistOptions = { manifest: NO_LIST, sources: { "src/App.tsx": plainPageRouter } };
+distCase("D-COPY", "places pages through a Release 1 router", "pass", () => undefined, plainRouted);
+distCase("D-PARITY", "places pages through a Release 1 router", "pass", () => undefined, plainRouted);
+distCase("D-PARITY", "reports a page the route list does not name", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
 
 const snapshot = (fields: Partial<PageSnapshot> = {}): PageSnapshot => {
   const route = fields.route ?? "/about";
@@ -877,10 +919,25 @@ browserCase("BR-HYDRATE", "does not report another error", "pass", () => checkHy
 browserCase("BR-HYDRATE", "reports an H1 replaced after load", "fail", () => checkHydrate(hydrated({ headingKept: false })));
 browserCase("BR-HYDRATE", "allows a cart page to swap its H1", "pass", () => checkHydrate(hydrated({ route: "/cart", scenario: "seeded cart", headingKept: false })));
 browserCase("BR-HYDRATE", "allows a page with no H1 in its HTML", "pass", () => checkHydrate(hydrated({ route: "/checkout", headingKept: undefined })));
+browserCase("BR-HYDRATE", "reports a page with no <main>", "fail", () => checkHydrate(hydrated({ markup: "no main" })));
+const stripeReturn = (fields: Partial<HydrationSnapshot> = {}) => hydrated({ route: STRIPE_RETURN, finalPath: "/checkout-success", ...fields });
+browserCase("BR-HYDRATE", "Stripe's return URL stays on its page", "pass", () => checkHydrate(stripeReturn()));
+browserCase("BR-HYDRATE", "reports a mismatch on Stripe's return URL", "fail", () => checkHydrate(stripeReturn({ pageErrors: ["Minified React error #418"] })));
+browserCase("BR-HYDRATE", "reports Stripe's return URL losing its markup", "fail", () => checkHydrate(stripeReturn({ markup: "replaced" })));
+browserCase("BR-HYDRATE", "names the row when a utility route has no file", "fail", () => checkHydrate(hydrated({ route: "/cart", finalPath: "/cart", fileBuilt: false })));
+for (const text of [
+  "Warning: Prop `id` did not match. Server: \":R1:\" Client: \":R2:\"",
+  "Warning: Extra attributes from the server: class",
+  "Warning: Expected server HTML to contain a matching <div> in <div>.",
+  "Warning: Did not expect server HTML to contain a <div> in <div>.",
+]) {
+  browserCase("BR-HYDRATE", `reports what development React prints: ${text.slice(9, 30)}`, "fail", () => checkHydrate(hydrated({ consoleErrors: [{ text, url: "" }] })));
+}
 
 const cartSteps = (edit: (step: CartStep) => Partial<CartStep> = () => ({})): CartStep[] =>
-  BROWSER.cartSteps.map(({ name, route }) => {
-    const step: CartStep = { name, route, finalPath: route, storedIds: [BROWSER.seededCart[0].id], itemShown: route === "/cart", hasNameField: route === "/checkout", emptyWrites: 0 };
+  BROWSER.cartSteps.map(({ name, route, cleared }) => {
+    const storedIds = cleared ? [] : [BROWSER.seededCart[0].id];
+    const step: CartStep = { name, route, cleared, finalPath: route, storedIds, itemShown: route === "/cart", hasNameField: route === "/checkout", emptyWrites: cleared ? 1 : 0 };
     return { ...step, ...edit(step) };
   });
 const atStep = (name: string, fields: Partial<CartStep>) => cartSteps((step) => (step.name === name ? fields : {}));
@@ -892,6 +949,16 @@ browserCase("BR-CART", "reports a stored item that is not on the page", "fail", 
 browserCase("BR-CART", "reports checkout leaving the form", "fail", () => checkCart(atStep("full load of checkout", { finalPath: "/cart", hasNameField: false })));
 browserCase("BR-CART", "reports checkout with no form", "fail", () => checkCart(atStep("full load of checkout", { hasNameField: false })));
 browserCase("BR-CART", "reports a step that did not run", "fail", () => checkCart(cartSteps().slice(0, 2)));
+const PAID_ITEM = [BROWSER.seededCart[0].id];
+browserCase("BR-CART", "reports a paid item left in the stored cart", "fail", () => checkCart(atStep("order complete", { storedIds: PAID_ITEM })));
+browserCase("BR-CART", "reports a paid item back after a reload", "fail", () => checkCart(atStep("reload after the order", { storedIds: PAID_ITEM })));
+browserCase("BR-CART", "reports the order page sending the visitor away", "fail", () => checkCart(atStep("order complete", { finalPath: "/cart" })));
+
+browserCase("BR-LCP", "good fixture", "pass", () => checkLcpRuns("/", [2000, 2100, 2200, 2300, 2400], R1_LCP));
+browserCase("BR-LCP", "allows noise within R1's own runs", "pass", () => checkLcpRuns("/", [3300, 3350, 3400, 3450, 3500], R1_LCP));
+browserCase("BR-LCP", "reports a median past the slowest R1 run", "fail", () => checkLcpRuns("/", [3500, 3550, 3600, 3650, 3700], R1_LCP));
+browserCase("BR-LCP", "reports too few runs", "fail", () => checkLcpRuns("/", [2000], R1_LCP));
+browserCase("BR-LCP", "reports no R1 figure", "fail", () => checkLcpRuns("/", LCP_RUNS, undefined));
 
 const liveCase = (rule: string, name: string, expect: Case["expect"], run: () => Finding[]) => cases.push({ rule, name, expect, run });
 const APEX = LIVE.apex;
@@ -908,11 +975,20 @@ liveCase("LV-404", "good fixture", "pass", () => checkMissing(chain([`${APEX}/do
 liveCase("LV-404", "reports a soft 404", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 200]), notFoundHtml()));
 liveCase("LV-404", "reports the platform's own 404 page", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 404]), "<html><head><title>404: NOT_FOUND</title></head><body><h1>404</h1></body></html>"));
 liveCase("LV-404", "reports a 404 page with a home canonical", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 404]), notFoundHtml().replace("</head>", `<link rel="canonical" href="${APEX}/" /></head>`)));
-liveCase("LV-RAW", "good fixture", "pass", () => checkRaw("/areas/oak-bay", 200, `<html><head></head><body><h1>Title</h1><p>${"word ".repeat(200)}</p></body></html>`));
-liveCase("LV-RAW", "reports a head-only page", "fail", () => checkRaw("/areas/oak-bay", 200, '<html><head><title>x</title></head><body><div id="root"></div></body></html>'));
+const OAK_BAY = "/areas/oak-bay";
+const liveHtml = (canonical: string, h1: string, words = 200) => `<html><head><link rel="canonical" href="${canonical}" /></head><body><h1>${h1}</h1><p>${"word ".repeat(words)}</p></body></html>`;
+liveCase("LV-RAW", "good fixture", "pass", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title"), "Title"));
+liveCase("LV-RAW", "reports a head-only page", "fail", () => checkRaw(OAK_BAY, 200, '<html><head><title>x</title></head><body><div id="root"></div></body></html>', "Title"));
+liveCase("LV-RAW", "reports the home page served for this route", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}/`, "Home"), "Title"));
+liveCase("LV-RAW", "reports the right canonical with the wrong H1", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Other"), "Title"));
+liveCase("LV-RAW", "reports the right H1 with the wrong canonical", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}/`, "Title"), "Title"));
+liveCase("LV-RAW", "reports no baseline H1", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title"), undefined));
+liveCase("LV-RAW", "reports too little body text", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title", 10), "Title"));
 liveCase("LV-REDIRECT", "good fixture", "pass", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "reports a temporary redirect", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 307], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "/home goes to the home page", "pass", () => checkRedirect("/home", "/", APEX, chain([`${APEX}/home`, 308], [`${APEX}/`, 200])));
+liveCase("LV-REDIRECT", "/home/ goes straight to the home page", "pass", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/`, 200])));
+liveCase("LV-REDIRECT", "reports /home/ going through /home", "fail", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 308], [`${APEX}/`, 200])));
 liveCase("LV-REDIRECT", "reports a 200 with no redirect, as in Release 1", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 200])));
 liveCase("LV-REDIRECT", "reports two hops", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/the-ritual/`, 308], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "reports the wrong destination", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/`, 200])));
@@ -947,7 +1023,12 @@ function coverageProblems(): string[] {
     if (!cases.some((item) => item.rule === rule && item.expect === "fail")) problems.push(`${rule} has no bad fixture`);
   }
   for (const ban of BANS) if (!(ban.id in SOURCE_CHECKS)) problems.push(`${ban.id} has no check`);
-  if (!LIVE.redirects.some(({ from, to }) => from === "/home" && to === "/")) problems.push("LV-REDIRECT does not cover /home");
+  // The forms Google reported, with and without the slash.
+  for (const [from, to] of [["/home", "/"], ["/home/", "/"], ["/the-ritual", "/ritual"], ["/the-ritual/", "/ritual"]]) {
+    if (!LIVE.redirects.some((item) => item.from === from && item.to === to)) problems.push(`LV-REDIRECT does not cover ${from}`);
+  }
+  if (!BROWSER.hydrationUrls.includes(STRIPE_RETURN)) problems.push("BR-HYDRATE does not load Stripe's return URL");
+  if (!LIVE.utilityRoutes.includes(STRIPE_RETURN)) problems.push("LV-UTILITY does not load Stripe's return URL");
   return problems;
 }
 
