@@ -106,7 +106,7 @@ function goodSource(): Files {
   add(PRICE_FILES.catalogue, `const CATALOGUE = {\n  "fixture-package": { name: "The Fixture Package", price: 399 },\n};\n`);
 
   for (const { form, file } of FORM_FILES.pages) {
-    add(file, `const [formData, setFormData] = useState({ name: "", email: "", phone: "" });\nawait sendForm("${form}", formData);\n<SelectItem value="fixture-option">Fixture Option</SelectItem>\n`);
+    add(file, `const [formData, setFormData] = useState({ name: "", email: "", phone: "" });\nconst response = await sendForm("${form}", formData);\nif (!(await formSent(response))) throw error;\n<fieldset disabled={isSubmitting}>\n<SelectItem value="fixture-option">Fixture Option</SelectItem>\n`);
   }
   const formEntries = FORM_FILES.pages.map(({ form }) => `  ${form}: {\n    fields: [\n      ["phone", "Phone"],\n    ],\n  },\n`);
   add(FORM_FILES.handler, `const OPTION_LABELS: Record<string, string> = {\n  "fixture-option": "Fixture Option",\n};\n\nconst FORMS = {\n${formEntries.join("")}};\n`);
@@ -429,6 +429,8 @@ sourceCase("S-FORMS", "reports an option with no label", "fail", (files) => repl
 sourceCase("S-FORMS", "reports a label that differs from the page", "fail", (files) => replaceIn(files, FORM_FILES.handler, '"Fixture Option"', '"Other Option"'));
 sourceCase("S-FORMS", "reports a missing function", "fail", (files) => files.delete(FORM_FILES.handler));
 sourceCase("S-FORMS", "reports a missing page", "fail", (files) => files.delete(FORM_PAGE));
+sourceCase("S-FORMS", "reports a page that trusts any 2xx", "fail", (files) => replaceIn(files, FORM_PAGE, "!(await formSent(response))", "!response.ok"));
+sourceCase("S-FORMS", "reports a page that leaves fields open while sending", "fail", (files) => replaceIn(files, FORM_PAGE, "<fieldset disabled={isSubmitting}>", "<fieldset>"));
 sourceCase("S-FORMS", "checks only the pages in scope", "pass", (files) => replaceIn(files, OTHER_FORM_PAGE, 'phone: ""', 'phone: "", budget: ""'), { scope: [FORM_PAGE] });
 
 const HIDDEN_TERM = "zzplaceholder-term";

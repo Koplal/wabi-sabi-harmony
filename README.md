@@ -71,7 +71,8 @@ curl https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
 ## Vercel Functions
 
 - **api/create-checkout.ts**: Prices the cart from a server catalogue and opens Stripe Checkout. Needs `STRIPE_SECRET_KEY`
-- **api/send-form-email.ts**: Emails the contact, booking and careers forms through Resend. Needs `RESEND_API_KEY`
+- **api/send-form-email.ts**: Emails the contact, booking and careers forms through Resend. Needs `RESEND_API_KEY`, and reports failed sends to Sentry if `SENTRY_DSN` is set
+- **api/resend-webhook.ts**: Receives Resend's failed, bounced, suppressed and complained events and reports them to Sentry. Needs `RESEND_WEBHOOK_SECRET`, and refuses events without it
 - **api/report-vitals.ts**: Forwards real visitors' LCP to Axiom. Needs `AXIOM_TOKEN` and `AXIOM_DATASET`, and drops reports without them
 
 ## Development
