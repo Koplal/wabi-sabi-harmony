@@ -653,7 +653,7 @@ export const COPY_PAGES = {
 /**
  * BR-LCP: how far a deployment's lowest run may pass production's lowest in the same sitting.
  * A change that shifts the page on every load raises every run, so this is the limit for those.
- * Unchanged R1 reads 0.0011 to 0.0290 by route, so 0 cannot be the line.
+ * Production repeats its figure from run to run on the routes measured, so this stays small.
  */
 export const CLS_TOLERANCE = 0.001;
 

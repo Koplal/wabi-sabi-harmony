@@ -984,7 +984,7 @@ async function measureLcp(browser: Browser, sessions: Session[], routes: string[
       const runsMs = readings[index].map((reading) => Math.round(reading.lcp));
       const shifts = readings[index].map((reading) => reading.shift);
       measured[index][route] = { runsMs, medianMs: median(runsMs), shifts };
-      console.log(`LCP: ${session.origin}${route} median ${measured[index][route].medianMs} ms from ${runsMs.join(", ")}, largest layout shift ${Math.max(0, ...shifts).toFixed(4)}`);
+      console.log(`LCP: ${session.origin}${route} median ${measured[index][route].medianMs} ms from ${runsMs.join(", ")}, layout shift ${Math.min(...shifts, Infinity).toFixed(4)} to ${Math.max(0, ...shifts).toFixed(4)}`);
     }
   }
   return measured;
