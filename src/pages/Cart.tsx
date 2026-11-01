@@ -82,9 +82,10 @@ const Cart = () => {
                   </div>
                   <div className="border-t border-border pt-4">
                     <div className="flex justify-between text-2xl font-serif">
-                      <span>Total</span>
+                      <span>Before GST</span>
                       <span>${total}</span>
                     </div>
+                    <p className="text-sm text-muted-foreground mt-2">5% GST is added at checkout.</p>
                   </div>
                 </div>
                 <Button

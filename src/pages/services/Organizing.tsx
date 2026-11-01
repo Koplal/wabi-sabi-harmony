@@ -82,7 +82,7 @@ const Organizing = () => {
                     <li><strong>Closets:</strong> Wardrobe ordering, seasonal storage, accessible systems</li>
                     <li><strong>Home Offices:</strong> Paper management, filing systems, workspace flow</li>
                     <li><strong>Garages & Storage Areas:</strong> Categorizing, shelving, accessibility</li>
-                    <li><strong>Children's Spaces:</strong> Toy rotation, easy-access systems, teaching organization habits</li>
+                    <li><strong>Children's Spaces:</strong> Easy-access systems, teaching organization habits</li>
                   </ul>
                 </div>
 

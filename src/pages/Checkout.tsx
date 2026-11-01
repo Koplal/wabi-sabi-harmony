@@ -31,6 +31,16 @@ const Checkout = () => {
     }
   }, [isCartEmpty, navigate]);
 
+  // Browser Back from Stripe can restore this page with its state intact, including the spinner.
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setIsProcessing(false);
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -170,9 +180,10 @@ const Checkout = () => {
                     
                       <div className="border-t border-border pt-4">
                         <div className="flex justify-between text-2xl font-serif">
-                          <span>Total</span>
+                          <span>Before GST</span>
                           <span>${total}</span>
                         </div>
+                        <p className="text-sm text-muted-foreground mt-2">5% GST is added at checkout, on the next step.</p>
                       </div>
                     </div>
 
