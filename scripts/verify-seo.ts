@@ -197,11 +197,11 @@ function lastCommitDate(path: string): string | undefined {
 
 const fileVersions = new Map<string, Array<{ hash: string; date: string; path: string }>>();
 
-/** Every version of a file, newest first. Blog posts have been renamed, so this follows renames. */
+/** Every version of a file, newest first. Blog posts have been renamed, so this follows renames. -m keeps a merge that changed the file, which --follow otherwise drops. */
 function versionsOf(path: string) {
   const known = fileVersions.get(path);
   if (known) return known;
-  const log = git(["log", "--follow", "--format=%x00%H %cs", "--name-only", "--", path]).output;
+  const log = git(["log", "--follow", "-m", "--format=%x00%H %cs", "--name-only", "--", path]).output;
   const versions = log.split("\0").filter(Boolean).map((entry) => {
     const [head, ...rest] = entry.split("\n").filter(Boolean);
     const [hash, date] = head.split(" ");
