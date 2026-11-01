@@ -1,12 +1,11 @@
 /**
  * Build-time prerender for AEO / crawlability.
  *
- * For every key route, writes dist/<route>/index.html — a copy of the SPA shell
- * (dist/index.html) with that route's <title>, meta description, canonical,
- * Open Graph/Twitter tags, and JSON-LD injected into the raw HTML <head>.
- * Non-JS consumers (AI answer engines, social scrapers, first-pass crawlers)
- * read these static signals directly; the SPA still boots and routes
- * client-side as normal.
+ * For every indexable route, writes dist/<route>/index.html — the SPA shell
+ * (dist/index.html) with that route's page body rendered into #root and its
+ * <title>, meta description, canonical, Open Graph/Twitter tags, and JSON-LD in
+ * the raw HTML <head>. Non-JS consumers (AI answer engines, social scrapers,
+ * first-pass crawlers) read the whole page; the SPA still boots as normal.
  *
  * The route table below mirrors each page component's <SEO ...> props
  * (title/description/canonical) and its JSON-LD intent (Service, BlogPosting,
@@ -14,11 +13,14 @@
  * with what React renders at runtime. Area pages are generated from
  * src/data/neighborhoods.ts.
  *
- * Runs after `vite build` (see package.json "build"). No headless browser required.
+ * Runs after both `vite build` passes (see package.json "build"): the second one
+ * bundles src/entry-server.tsx into dist-ssr, which this script loads. No headless
+ * browser or runtime server is involved. The build fails if a route cannot render,
+ * has no SEO data, or is an indexable route with no H1 (R2-FR-07).
  */
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { neighborhoods } from "../src/data/neighborhoods";
 import { faqItems } from "../src/data/faqItems";
 import {
@@ -28,13 +30,23 @@ import {
   ORGANIZATION,
   PARENT_ORGANIZATION,
 } from "../src/data/organization";
+import { ROUTES } from "../src/data/routes";
+import type { RenderedRoute } from "../src/entry-server";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const DIST = resolve(ROOT, "dist");
 const SITE = "https://wabisabiservices.ca";
+const EMPTY_ROOT = '<div id="root"></div>';
 
 const template = readFileSync(resolve(DIST, "index.html"), "utf8");
+if (!template.includes(EMPTY_ROOT)) {
+  throw new Error("[prerender] dist/index.html already holds a page. Run npm run build, not this script alone.");
+}
+
+// The bundle reads this at runtime, and without it Node would load React's development build.
+process.env.NODE_ENV ??= "production";
+const { render } = (await import(pathToFileURL(resolve(ROOT, "dist-ssr/entry-server.js")).href)) as typeof import("../src/entry-server");
 
 // Home LCP is the hero background image (src/pages/Home.tsx), a CSS background
 // that the browser only discovers after the JS bundle boots and React mounts.
@@ -208,8 +220,21 @@ interface RouteMeta {
   jsonLdBlocks: unknown[];
 }
 
-function renderPage(meta: RouteMeta): string {
-  let html = template;
+/** Stops the build on a page that should never ship (R2-FR-05, R2-FR-07). */
+function assertComplete(path: string, { html, helmet }: RenderedRoute) {
+  const problems: string[] = [];
+  if (!/<title[^>]*>[^<]/.test(helmet.title.toString())) problems.push("no title");
+  if (!helmet.meta.toString().includes('name="description"')) problems.push("no meta description");
+  if (!helmet.link.toString().includes('rel="canonical"')) problems.push("no canonical");
+  if (!/<h1[\s>]/.test(html)) problems.push("no H1");
+  if (html.includes('aria-busy="true"') || html.includes("<!--$?-->") || html.includes("<!--$!-->")) problems.push("the loading fallback is in the HTML");
+  if (problems.length > 0) throw new Error(`[prerender] ${path}: ${problems.join(", ")}`);
+}
+
+async function renderPage(meta: RouteMeta): Promise<string> {
+  const page = await render(meta.path);
+  assertComplete(meta.path, page);
+  let html = template.replace(EMPTY_ROOT, () => `<div id="root">${page.html}</div>`);
   const fullTitle = `${meta.title} | ${BRAND}`;
   const canonical = meta.path === "/" ? `${SITE}/` : `${SITE}${meta.path}`;
 
@@ -1059,22 +1084,11 @@ for (const hub of seasonalHubs) {
 // Emit all static-route HTML.
 // ---------------------------------------------------------------------------
 
-let count = 0;
-for (const route of routes) {
-  write(outPathFor(route.path), renderPage(route));
-  count++;
-}
-console.log(`[prerender] wrote ${count} static route pages to dist/`);
-
 // ---------------------------------------------------------------------------
 // /areas hub + one static page per neighborhood (existing behavior, preserved).
 // ---------------------------------------------------------------------------
 
-let areaCount = 0;
-
-write(
-  "areas/index.html",
-  renderPage({
+routes.push({
     path: "/areas",
     title: "Service Areas",
     description:
@@ -1082,15 +1096,11 @@ write(
     jsonLdBlocks: [
       breadcrumb([bcHome, { name: "Service Areas", url: `${SITE}/areas` }]),
     ],
-  })
-);
-areaCount++;
+});
 
 for (const n of Object.values(neighborhoods)) {
   const canonical = `${SITE}/areas/${n.slug}`;
-  write(
-    `areas/${n.slug}/index.html`,
-    renderPage({
+  routes.push({
       path: `/areas/${n.slug}`,
       title: `Luxury Cleaning in ${n.name}`,
       description: n.metaDescription,
@@ -1109,12 +1119,22 @@ for (const n of Object.values(neighborhoods)) {
           { name: n.name, url: canonical },
         ]),
       ],
-    })
-  );
-  areaCount++;
+  });
 }
 
-console.log(`[prerender] wrote ${areaCount} static area pages to dist/areas/`);
+// ---------------------------------------------------------------------------
+// Emit one page per indexable route in the route list.
+// ---------------------------------------------------------------------------
+
+let count = 0;
+for (const { path, utility } of ROUTES) {
+  if (utility) continue;
+  const meta = routes.find((route) => route.path === path);
+  if (!meta) throw new Error(`[prerender] ${path}: no SEO data`);
+  write(outPathFor(path), await renderPage(meta));
+  count++;
+}
+console.log(`[prerender] wrote ${count} pages to dist/`);
 
 // ---------------------------------------------------------------------------
 // llms.txt is copied from public/ as it stands, so its visible link is swapped

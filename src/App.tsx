@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { type ComponentType, useEffect, lazy, Suspense } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { type ComponentType, type ReactNode, useEffect, lazy, Suspense } from "react";
 import ClarityLoader from "@/components/Clarity";
 import { Layout } from "@/components/Layout";
 import NotFound from "./pages/NotFound";
@@ -46,13 +46,14 @@ const ScrollToTop = () => {
   return null;
 };
 
-const App = () => (
+/** BrowserRouter in the browser, StaticRouter in the build. */
+const App = ({ Router }: { Router: ComponentType<{ children?: ReactNode }> }) => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <ClarityLoader />
-      <BrowserRouter>
+      <Router>
         <ScrollToTop />
         <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
         <Routes>
@@ -62,7 +63,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>
-      </BrowserRouter>
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );
