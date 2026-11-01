@@ -544,6 +544,59 @@ export const INDEXABLE_ROUTES: string[] = ROUTES.filter((route) => !route.utilit
 
 export const UTILITY_ROUTES: string[] = ROUTES.filter((route) => route.utility).map((route) => route.path);
 
+/** The only reasons a listed exception may give. This file is public, so nothing more goes here. */
+export const AUDIT_REASONS = {
+  frozen: "frozen by owner decision",
+  kept: "kept by owner decision",
+  held: "held for owner review",
+  pending: "pending owner review text",
+};
+
+const frozen = (...routes: string[]) => Object.fromEntries(routes.map((route) => [route, AUDIT_REASONS.frozen]));
+
+/** The page limits D-AUDIT and LV-AUDIT share. Every route left out of a limit is listed here. */
+export const AUDIT = {
+  titleMax: 60,
+  descriptionMax: 160,
+  minWords: 150,
+  minLinks: 3,
+  /** Booking, contact and legal pages, which need no word floor. */
+  wordExempt: ["/book", "/contact", "/privacy", "/terms-of-service", "/client-agreement"],
+  wordPending: { "/reviews": AUDIT_REASONS.pending } as Record<string, string>,
+  titleExempt: frozen(
+    "/seasoning/winter-holiday",
+    "/seasoning/the-business-welcome",
+    "/seasoning/the-winter-wonderland",
+    "/seasoning/the-grand-celebration",
+    "/seasoning/the-festive-estate",
+    "/seasoning/mindful-merchant",
+    "/seasoning/gathered-abundance",
+    "/seasoning/estate-collection",
+    "/seasoning/abundant-harmony",
+    "/seasoning/fall-pumpkins",
+    "/seasoning/quiet-grace"
+  ) as Record<string, string>,
+  descriptionExempt: {} as Record<string, string>,
+  /** Temporary: over a limit until the head work lands, then settled into the lists above. */
+  limitPending: {
+    titles: [
+      "/blog/march-2026",
+      "/blog/august-2025",
+      "/blog/july-2026",
+      "/blog/september-2025",
+      "/blog/november-2025",
+      "/blog/may-2026",
+      "/blog/february-2026",
+      "/blog/october-2025",
+      "/blog/april-2026",
+      "/blog/december-2025",
+      "/blog/january-2026",
+      "/blog/june-2026",
+    ],
+    descriptions: ["/seasoning/estate-collection"],
+  },
+};
+
 export const RANK_ROUTES = [
   "/",
   "/services",
@@ -857,7 +910,7 @@ export const BROWSER = {
    * slow 4G and 4x CPU, with the factors Lighthouse applies for DevTools throttling.
    */
   lcp: {
-    routes: ["/", "/areas/oak-bay", "/services/cleaning", "/blog/july-2026"],
+    routes: ["/", "/services", "/areas/oak-bay", "/services/cleaning", "/blog/july-2026"],
     runs: 5,
     /** The day R1 went live. An earlier figure does not describe R1. */
     liveFrom: "2026-10-31",
@@ -887,6 +940,8 @@ export const LIVE = {
   hostStarts: ["http://wabisabiservices.ca", "https://www.wabisabiservices.ca", "https://wabisabiservices.ca"],
   files: ["/robots.txt", "/llms.txt", "/sitemap.xml"],
   missingPath: "/does-not-exist",
+  /** A plain path and each dynamic segment, because each is served by its own route. */
+  missingPaths: ["/does-not-exist", "/blog/does-not-exist", "/seasoning/does-not-exist", "/areas/does-not-exist"],
   rawRoutes: ["/areas/oak-bay", "/services/cleaning", "/faq", "/seasoning/winter-holiday"],
   rawMinWords: 150,
   /**
@@ -907,6 +962,21 @@ export const LIVE = {
   /** Paths the redirects must leave alone. Only the absence of a redirect is checked, so a GET is enough. */
   notRedirected: ["/api/send-form-email", "/sitemap.xml"],
   utilityRoutes: ["/cart", "/checkout", STRIPE_RETURN],
+  /**
+   * LV-HOPS: exact redirects from each start to the apex page, with and without the query. slash is
+   * the path with a trailing slash. Only the www rows depend on the live www rule, and --www-slash
+   * says which rule is live, so a change to that rule needs no commit here.
+   */
+  hops: {
+    path: "/services/cleaning",
+    query: "?utm_source=x&gclid=y",
+    table: [
+      { origin: "https://wabisabiservices.ca", bare: 0, slash: { before: 1, after: 1 } },
+      { origin: "http://wabisabiservices.ca", bare: 1, slash: { before: 2, after: 2 } },
+      { origin: "https://www.wabisabiservices.ca", bare: 1, slash: { before: 2, after: 1 } },
+      { origin: "http://www.wabisabiservices.ca", bare: 2, slash: { before: 3, after: 2 } },
+    ],
+  },
   releaseOne: ["LV-HOST", "LV-FILES"],
-  all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY", "LV-SITEMAP"],
+  all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY", "LV-SITEMAP", "LV-AUDIT", "LV-HOPS"],
 };

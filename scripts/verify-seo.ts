@@ -7,6 +7,8 @@
  *   npm run verify -- --scope=<paths>   source rules on these files or folders
  *   npm run verify -- --rules=<ids>     only these rules, S-BAN or a single BAN-nn
  *   npm run verify -- --self-test       every rule against good and bad fixtures
+ *   npm run verify -- --dist --rules=D-AUDIT --strict-titles=/a,/b  also holds these routes to the
+ *     title limit, even if a list excuses them. --strict-descriptions does the same for descriptions
  *
  * Other flags: --expect-clarity=<id>, --pearlys=<path>, --write-rank-baseline, and --write-lastmod,
  * which saves each route's last copy change from committed history, after a build.
@@ -19,7 +21,7 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { BANS, COPY_BASE_COMMIT, COPY_PAGES, INDEXABLE_ROUTES, LASTMOD_FILE, MANIFEST, OVERLAP, RANK_ROUTES, RENDER_BASELINE_FILE, REQUIRED, SCAN } from "./verify/rules";
-import { type Args, type Finding, listValue, parseArgs, report, routeOfHtmlFile, SourceText, UsageError } from "./verify/lib";
+import { type Args, type Finding, listValue, parseArgs, report, routeList, routeOfHtmlFile, SourceText, UsageError } from "./verify/lib";
 import { type CommitRecord, copySegments, type GitInput, parsePrivateBans, type PrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "./verify/source-checks";
 import { DIST_CHECKS, type DistCtx, lastCopyDates, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "./verify/dist-checks";
 import { runSelfTest } from "./verify/fixtures/cases";
@@ -31,7 +33,7 @@ const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 const LASTMODS = resolve(ROOT, LASTMOD_FILE);
 
 const KNOWN_FLAGS = ["source", "dist", "self-test", "write-rank-baseline", "write-lastmod"];
-const KNOWN_VALUES = ["scope", "rules", "expect-clarity", "pearlys"];
+const KNOWN_VALUES = ["scope", "rules", "expect-clarity", "pearlys", "strict-titles", "strict-descriptions"];
 const TEXT_EXTENSIONS = [".html", ".js", ".txt", ".xml", ".css", ".json"];
 
 const toPosix = (path: string) => path.replace(/\\/g, "/");
@@ -267,8 +269,17 @@ function distFiles(): Map<string, string> {
   return files;
 }
 
+/** Read as a route list because Git Bash rewrites a leading slash. */
+function strictRoutes(args: Args, name: string): string[] | undefined {
+  const routes = routeList(args, name);
+  const unknown = routes?.filter((route) => !INDEXABLE_ROUTES.includes(route)) ?? [];
+  if (unknown.length > 0) throw new UsageError(`--${name} names a route outside the sitemap: ${unknown.join(", ")}`);
+  return routes;
+}
+
 async function buildDistCtx(args: Args): Promise<DistCtx> {
   const renderBaseline = loadRenderBaseline();
+  const auditStrict = { titles: strictRoutes(args, "strict-titles"), descriptions: strictRoutes(args, "strict-descriptions") };
   return {
     files: distFiles(),
     routes: INDEXABLE_ROUTES,
@@ -291,6 +302,7 @@ async function buildDistCtx(args: Args): Promise<DistCtx> {
       return pages;
     },
     expectClarity: args.values.get("expect-clarity"),
+    auditStrict,
     note: (message) => console.log(message),
   };
 }
