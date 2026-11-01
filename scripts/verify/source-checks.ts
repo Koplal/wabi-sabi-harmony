@@ -12,6 +12,7 @@ import {
   FAQ_FILES,
   FAQ_PLACEMENT,
   FAQ_SECTIONS,
+  FORM_FILES,
   FREE_ESTIMATES,
   GA_EVENTS,
   MASK_ATTRIBUTE,
@@ -492,6 +493,60 @@ export function checkPrices(ctx: SourceCtx): Finding[] {
 }
 
 // ---------------------------------------------------------------------------
+// S-FORMS
+// ---------------------------------------------------------------------------
+
+/** The keys in one form's field list in the function, or undefined if the form is not there. */
+function functionFields(source: string, form: string): string[] | undefined {
+  const block = new RegExp(`^\\s*${form}: \\{[\\s\\S]*?fields: \\[((?:\\s*\\[[^\\]]*\\],?)*)\\s*\\]`, "m").exec(source)?.[1];
+  return block === undefined ? undefined : [...block.matchAll(/\[\s*"(\w+)"/g)].map((match) => match[1]);
+}
+
+/** A field on a page that the function does not list would never reach the inbox, with no error. */
+export function checkForms(ctx: SourceCtx): Finding[] {
+  const pages = FORM_FILES.pages.filter(({ file }) => ctx.inScope(file));
+  if (pages.length === 0) return [];
+  const finding = (file: string, message: string): Finding => ({ rule: "S-FORMS", row: "B-15", file, message });
+
+  const source = ctx.read(FORM_FILES.handler);
+  if (source === undefined) return [finding(FORM_FILES.handler, "form function not found")];
+  const labelBlock = /OPTION_LABELS[^=]*=\s*\{([\s\S]*?)\n\};/.exec(source)?.[1] ?? "";
+  const labels = new Map([...labelBlock.matchAll(/^\s*"?([a-z0-9-]+)"?:\s*"([^"]*)",?$/gm)].map((match) => [match[1], match[2]]));
+
+  const findings: Finding[] = [];
+  for (const { form, file } of pages) {
+    const text = ctx.read(file);
+    if (text === undefined) {
+      findings.push(finding(file, "file not found"));
+      continue;
+    }
+    if (!text.includes(`sendForm("${form}"`)) findings.push(finding(file, `does not post the ${form} form`));
+
+    const state = /useState\(\{([^}]*)\}\)/.exec(text)?.[1];
+    const fields = functionFields(source, form);
+    if (state === undefined) findings.push(finding(file, "form state not found"));
+    if (fields === undefined || fields.length === 0) findings.push(finding(FORM_FILES.handler, `form ${form} has no field list`));
+    if (state !== undefined && fields?.length) {
+      const pageKeys = [...state.matchAll(/(\w+):\s*""/g)].map((match) => match[1]);
+      for (const key of pageKeys) {
+        if (!FORM_FILES.directKeys.includes(key) && !fields.includes(key)) findings.push(finding(file, `field ${key} never reaches the inbox: it is not in the ${form} field list`));
+      }
+      for (const key of fields) {
+        if (!pageKeys.includes(key)) findings.push(finding(FORM_FILES.handler, `the ${form} field list has ${key}, which the page does not send`));
+      }
+    }
+
+    for (const match of text.matchAll(/<SelectItem value="([^"]+)">([^<]+)<\/SelectItem>/g)) {
+      const [, value, label] = match;
+      const mapped = labels.get(value);
+      if (mapped === undefined) findings.push(finding(file, `option ${value} is not in OPTION_LABELS`));
+      else if (mapped !== label) findings.push(finding(file, `option ${value} reads "${label}" on the page, the email says "${mapped}"`));
+    }
+  }
+  return findings;
+}
+
+// ---------------------------------------------------------------------------
 // S-LEAK
 // ---------------------------------------------------------------------------
 
@@ -608,6 +663,7 @@ export const SOURCE_CHECKS: Record<string, (ctx: SourceCtx) => Finding[]> = {
   "S-ABSENT": checkAbsent,
   "S-MASK": checkMask,
   "S-PRICES": checkPrices,
+  "S-FORMS": checkForms,
   "S-LEAK": checkLeak,
   "S-OVERLAP": checkOverlap,
 };

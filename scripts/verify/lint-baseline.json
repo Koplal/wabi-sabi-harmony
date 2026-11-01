@@ -1,6 +1,6 @@
 {
   "capturedFrom": "04b0d88",
-  "errors": 11,
+  "errors": 7,
   "warnings": 9,
   "files": {
     "src/components/structured-data/ArticleSchema.tsx": {
@@ -82,34 +82,6 @@
       "errors": 0,
       "warnings": 1,
       "errorRules": {}
-    },
-    "supabase/functions/send-application-email/index.ts": {
-      "errors": 1,
-      "warnings": 0,
-      "errorRules": {
-        "@typescript-eslint/no-explicit-any": 1
-      }
-    },
-    "supabase/functions/send-booking-email/index.ts": {
-      "errors": 1,
-      "warnings": 0,
-      "errorRules": {
-        "@typescript-eslint/no-explicit-any": 1
-      }
-    },
-    "supabase/functions/send-contact-email/index.ts": {
-      "errors": 1,
-      "warnings": 0,
-      "errorRules": {
-        "@typescript-eslint/no-explicit-any": 1
-      }
-    },
-    "supabase/functions/send-price-estimate-email/index.ts": {
-      "errors": 1,
-      "warnings": 0,
-      "errorRules": {
-        "@typescript-eslint/no-explicit-any": 1
-      }
     },
     "tailwind.config.ts": {
       "errors": 1,

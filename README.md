@@ -10,15 +10,15 @@ Professional cleaning, organizing, and household management services in Victoria
 - **Seasonal Services**: Pumpkin decorating, holiday decorations, and more
 - **SEO Optimized**: Dynamic sitemap, semantic HTML, meta tags, structured data
 - **Mobile Responsive**: Fully responsive design
-- **Contact Forms**: Booking with price estimator, contact, and careers forms
+- **Contact Forms**: Contact, booking, and careers forms
 
 ## Tech Stack
 
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS + shadcn/ui
-- Lovable Cloud (Supabase)
-- Supabase Edge Functions (Deno)
+- Vercel Functions
+- Supabase Edge Functions (Deno), for the monthly blog SEO job only
 
 ## Blog Article Publishing System
 
@@ -67,10 +67,11 @@ curl https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
 ## Edge Functions
 
 - **generate-blog-seo**: Generates SEO content for published articles
-- **send-price-estimate-email**: Price estimator booking requests (from PriceEstimator component)
-- **send-booking-email**: Booking confirmations (legacy)
-- **send-contact-email**: Contact form submissions
-- **send-application-email**: Career applications
+
+## Vercel Functions
+
+- **api/create-checkout.ts**: Prices the cart from a server catalogue and opens Stripe Checkout. Needs `STRIPE_SECRET_KEY`
+- **api/send-form-email.ts**: Emails the contact, booking and careers forms through Resend. Needs `RESEND_API_KEY`
 
 ## Development
 
@@ -78,5 +79,7 @@ curl https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
 npm install
 npm run dev
 ```
+
+`npm run dev` doesn't serve `/api`, so the forms and checkout show their error messages. Use `vercel dev` to test them locally. It also needs `RESEND_API_KEY` and `STRIPE_SECRET_KEY` in your local environment, because Vercel holds them for Production and Preview only.
 
 Visit: https://lovable.dev/projects/34b89b2f-7919-42d7-87e2-4e9631bf2ff0
