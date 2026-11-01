@@ -323,8 +323,8 @@ interface ProbeWindow {
 /**
  * Keeps the nodes the HTML itself put in #root. It runs at document start, and the parser sets
  * readyState to interactive before deferred and module scripts run, so app code adds nothing here.
- * <main> sits inside the Suspense boundary and React completes it after its children, so it owning
- * <main> means the page hydrated. The first child of #root is the toast region, which does not.
+ * <main> holds the page and React completes it after its children, so it owning <main> means the
+ * page hydrated. The first child of #root is the toast region, which does not.
  */
 const keepServerMarkup = () => {
   document.addEventListener(

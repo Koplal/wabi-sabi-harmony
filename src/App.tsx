@@ -14,9 +14,9 @@ import { ROUTES, type SiteRoute } from "@/data/routes";
 const pageFiles = import.meta.glob<{ default: ComponentType }>(["./pages/**/*.tsx", "!./pages/NotFound.tsx"]);
 
 /**
- * A lazy page that can also load ahead of its first render, so it renders with no suspense at all.
- * That is what attaching to built HTML needs: see preloadRoute. The first render picks one component
- * for the life of the mount, because changing the type later would remount the page.
+ * A lazy page that can also load ahead of its first render, and then renders with no Suspense
+ * boundary at all, which attaching to built HTML needs: see preloadRoute. The first render picks one
+ * path for the life of the mount, because changing the component type later would remount the page.
  */
 const preloadable = <P extends object>(load: () => Promise<{ default: ComponentType<P> }>) => {
   let loaded: ComponentType<P> | undefined;
@@ -27,8 +27,13 @@ const preloadable = <P extends object>(load: () => Promise<{ default: ComponentT
   };
   const Lazy = lazy(preload) as unknown as ComponentType<P>;
   const Page = (props: P) => {
-    const [Component] = useState(() => loaded ?? Lazy);
-    return <Component {...props} />;
+    const [Preloaded] = useState(() => loaded);
+    if (Preloaded) return <Preloaded {...props} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
+        <Lazy {...props} />
+      </Suspense>
+    );
   };
   return Object.assign(Page, { preload });
 };
@@ -56,8 +61,10 @@ const routeFor = ({ path, page, area, addLayout }: SiteRoute) => {
 const routeElements = ROUTES.map(routeFor);
 
 /**
- * Loads a route's page before its first render. A boundary still waiting on its page cannot take an
- * update, so if the cart loaded first, React would throw away the built HTML and render from nothing.
+ * Loads a route's page before its first render, so the whole page attaches to the built HTML in one
+ * pass. React leaves a Suspense boundary for a later pass, and the cart loading before that pass
+ * makes React start a render of the page and abandon it. The head manager registers its tags during
+ * render, so an abandoned render leaves them in the head for good, on every later page.
  */
 export const preloadRoute = async (path: string) => {
   await routeElements.find((route) => route.path === path)?.preload();
@@ -84,14 +91,12 @@ const App = ({ Router }: { Router: ComponentType<{ children?: ReactNode }> }) =>
       <ClarityLoader />
       <Router>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
         <Routes>
           {routeElements.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />
           ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        </Suspense>
       </Router>
     </TooltipProvider>
   </QueryClientProvider>

@@ -222,7 +222,7 @@ export interface HydrationSnapshot {
   pageErrors: string[];
   consoleErrors: Array<{ text: string; url: string }>;
   /**
-   * What became of the page's <main> from the HTML, which sits inside the Suspense boundary.
+   * What became of the page's <main> from the HTML.
    * The toast region outside it hydrates even when the page does not, so it proves nothing.
    */
   markup: "none" | "no main" | "attached" | "replaced" | "not attached";
