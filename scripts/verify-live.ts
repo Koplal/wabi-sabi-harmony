@@ -6,20 +6,22 @@
  *   npm run verify:live -- --base=<url>     a preview instead of production
  *
  * LV-HOST checks the production hosts, so it does not run with --base.
- * LV-SITEMAP compares the deployed dates with this checkout's git, so it needs a full clone.
+ * LV-SITEMAP compares each deployed date with src/data/lastmod.json in this checkout, and reads
+ * this checkout's git, so it needs a full clone.
  * Exit codes: 0 pass, 1 findings, 2 usage or network error.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BROWSER, COPY_PAGES, LIVE, PARITY_EXEMPT, RENDER_BASELINE_FILE } from "./verify/rules";
+import { BROWSER, COPY_PAGES, LASTMOD_FILE, LIVE, PARITY_EXEMPT, RENDER_BASELINE_FILE } from "./verify/rules";
 import { type Finding, listValue, parseArgs, report, UsageError } from "./verify/lib";
 import type { RenderBaseline } from "./verify/dist-checks";
 import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, describeChain } from "./verify/live-rules";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
+const LASTMODS = resolve(ROOT, LASTMOD_FILE);
 const MAX_HOPS = 6;
 const KNOWN_VALUES = ["base", "rules"];
 
@@ -137,9 +139,11 @@ async function run(): Promise<number> {
   }
 
   if (selected.includes("LV-SITEMAP")) {
+    if (!existsSync(LASTMODS)) throw new UsageError(`${LASTMOD_FILE} not found`);
+    const tracked = JSON.parse(readFileSync(LASTMODS, "utf8")) as Record<string, string>;
     const histories = pageHistories();
     const { status, html: sitemap } = await page(`${base}/sitemap.xml`, base);
-    findings.push(...checkSitemapDates(status, sitemap, histories));
+    findings.push(...checkSitemapDates(status, sitemap, histories, tracked));
   }
 
   return report(findings, "verify:live");

@@ -608,10 +608,23 @@ export const MANIFEST = {
 
 export const RENDER_BASELINE_FILE = "scripts/verify/render-baseline.json";
 
+/**
+ * The day each indexable route's copy last changed. The sitemap reads this, not git, because
+ * Vercel's clone has a depth of 10 and would give many pages one moving date. A copy change dates
+ * its page here: npm run verify -- --write-lastmod, after the commit.
+ */
+export const LASTMOD_FILE = "src/data/lastmod.json";
+
 /** Where the copy rules find a built page's text, for rules that name a source file. */
 export const COPY_PAGES = {
   /** A page whose copy lives in another file. */
   aliases: { [FAQ_PAGE]: FAQ_DATA } as Record<string, string>,
+  /** Data a page shows beside its own copy, so a change there dates the page too (R2-FR-15). */
+  pageData: {
+    "src/pages/Home.tsx": ["src/data/googleReviews.ts"],
+    "src/pages/Reviews.tsx": ["src/data/googleReviews.ts"],
+    "src/pages/areas/Index.tsx": ["src/data/neighborhoods.ts"],
+  } as Record<string, string[]>,
   areaPrefix: "/areas/",
   areaFile: "src/data/neighborhoods.ts",
   /** The copy every area page shares. */

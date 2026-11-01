@@ -3,7 +3,7 @@
  * The good fixtures are built from rules.ts in memory. The private ban terms here are
  * made-up placeholders, and never real ones.
  */
-import { formatFinding, type Finding, htmlFileOfRoute, median, rawHeadingsOf, rawLinksOf, rawTextOf, SourceText, textWords, undoMsysPath } from "../lib";
+import { formatFinding, type Finding, htmlFileOfRoute, median, rawHeadingsOf, rawLinksOf, rawTextOf, sitemapLastmods, SourceText, textWords, undoMsysPath, UsageError } from "../lib";
 import {
   ABSENT,
   BANS,
@@ -39,7 +39,7 @@ import {
   UTILITY_ROUTES,
 } from "../rules";
 import { parsePrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "../source-checks";
-import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RenderEntry, type RouteManifest } from "../dist-checks";
+import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, lastCopyDates, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RenderEntry, type RouteManifest } from "../dist-checks";
 import {
   BROWSER_RULES,
   type CartStep,
@@ -271,7 +271,7 @@ const changedOn = (file: string) => `2026-0${(file.length % 9) + 1}-15`;
 /** The date a sitemap should give a route: the later of the files its copy comes from. */
 function sitemapDate(route: string): string {
   const page = `src/pages/${LISTED_PAGES[route]}.tsx`;
-  const files = route.startsWith(COPY_PAGES.areaPrefix) ? [COPY_PAGES.areaFile, COPY_PAGES.areaTemplate] : [page, COPY_PAGES.aliases[page]];
+  const files = route.startsWith(COPY_PAGES.areaPrefix) ? [COPY_PAGES.areaFile, COPY_PAGES.areaTemplate] : [page, COPY_PAGES.aliases[page], ...(COPY_PAGES.pageData[page] ?? [])];
   return files.filter(Boolean).map(changedOn).sort().pop() as string;
 }
 
@@ -356,7 +356,17 @@ interface DistOptions {
   lastCommits?: Record<string, string | undefined>;
   /** A file's text on a past date. By default every file reads as it does now. */
   sourceOn?: DistCtx["sourceOn"];
+  /** A file's commit days. By default it has the one from lastCommits or changedOn. */
+  commitDates?: DistCtx["commitDates"];
   shallowClone?: boolean;
+  /** The tracked dates, by route. By default they match the sitemap. null means the file is unreadable. */
+  lastmods?: Record<string, string> | null;
+}
+
+/** The tracked file a sitemap was built from. */
+function lastmodsOf(files: Files): Record<string, string> {
+  const dates = [...sitemapLastmods(files.get("sitemap.xml") ?? "")];
+  return Object.fromEntries(dates.flatMap(([url, date]) => (date ? [[url.slice(SITE.length) || "/", date]] : [])));
 }
 
 const PAGE_TEXT = "<p>Fixture copy.</p>";
@@ -373,6 +383,7 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
   };
   const renderBaseline = options.renderBaseline === null ? undefined : options.renderBaseline ?? renderBaselineOf(good);
   if (renderBaseline) options.editRenderBaseline?.(renderBaseline);
+  const lastCommitDate = (path: string) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path));
   return {
     files,
     routes: INDEXABLE_ROUTES,
@@ -382,8 +393,10 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     manifest: options.manifest ?? LIST_MANIFEST,
     privateBans: parsePrivateBans(options.privateBans === null ? undefined : options.privateBans ?? PLACEHOLDER_BANS, "SEO_PRIVATE_BANS is not set"),
     readSource: (path) => (path in sources ? sources[path] : PAGE_TEXT),
-    lastCommitDate: (path) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path)),
+    lastCommitDate,
+    commitDates: options.commitDates ?? ((path) => [lastCommitDate(path) as string]),
     sourceOn: options.sourceOn ?? ((path) => (path in sources ? sources[path] : PAGE_TEXT)),
+    lastmods: options.lastmods === null ? undefined : options.lastmods ?? lastmodsOf(files),
     shallowClone: options.shallowClone,
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
     expectClarity: options.expectClarity,
@@ -713,6 +726,46 @@ distCase("D-SITEMAP", "dates an area page from its own entry in the shared data"
 cases.push({ rule: "D-SITEMAP", name: "leaves other areas' dates alone when one area's copy changes", expect: "pass", run: () => DIST_CHECKS["D-SITEMAP"](distCtx(goodDist(), SIDNEY_REWORDED)).filter((finding) => finding.message.startsWith("/areas/oak-bay")) });
 distCase("D-SITEMAP", "reports an area with no entry on its date", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is before ${COPY_PAGES.areaFile} existed`), () => undefined, { ...SIDNEY_REWORDED, sourceOn: onlyFile(COPY_PAGES.areaFile, 'export const neighborhoods = {\n  "oak-bay": {\n    intro: "Oak Bay copy.",\n  },\n};\n') });
 distCase("D-SITEMAP", "dates every area page from the shared template", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is older than a copy change in ${COPY_PAGES.areaTemplate}`), () => undefined, reworded(COPY_PAGES.areaTemplate));
+const REVIEWS_DATA = "src/data/googleReviews.ts";
+distCase("D-SITEMAP", "dates a page from the data it shows", fails(`/: lastmod ${sitemapDate("/")} is older than a copy change in ${REVIEWS_DATA}`), () => undefined, {
+  lastCommits: { [REVIEWS_DATA]: "2026-10-01" },
+  sources: { [REVIEWS_DATA]: 'export const reviews = ["New review."];' },
+  sourceOn: onlyFile(REVIEWS_DATA, 'export const reviews = ["Old review."];'),
+});
+const trackedDates = (edit: (dates: Record<string, string>) => void = () => undefined) => {
+  const dates = lastmodsOf(goodDist());
+  edit(dates);
+  return dates;
+};
+const LAST_ROUTE = INDEXABLE_ROUTES[INDEXABLE_ROUTES.length - 1];
+const LAST_LOC = `${SITE}${LAST_ROUTE}`;
+const stampedExceptLast = (files: Files) => withLastmods(files, (index) => (index < INDEXABLE_ROUTES.length - 1 ? "2026-10-31" : sitemapDate(LAST_ROUTE)));
+distCase("D-SITEMAP", "reports a date that differs from the tracked file", fails(`${SITE}/about: lastmod 2026-10-31 differs from the tracked date ${sitemapDate("/about")}`), (files) => withAboutLastmod(files, "<lastmod>2026-10-31</lastmod>"), { lastmods: trackedDates() });
+distCase("D-SITEMAP", "reports a build date on most URLs, which the shared-date check allows", fails(`${SITE}/about: lastmod 2026-10-31 differs from the tracked date`), stampedExceptLast, { lastmods: trackedDates() });
+distCase("D-SITEMAP", "allows most URLs on one date when the tracked file holds it", "pass", stampedExceptLast);
+distCase("D-SITEMAP", "reports a route with no tracked date", fails(`${SITE}/about has no tracked date`), () => undefined, { lastmods: trackedDates((dates) => delete dates["/about"]) });
+distCase("D-SITEMAP", "reports a tracked date with no URL", fails(`${LAST_LOC}x has a tracked date but is not in the sitemap`), () => undefined, { lastmods: trackedDates((dates) => (dates[`${LAST_ROUTE}x`] = "2026-01-15")) });
+distCase("D-SITEMAP", "reports a tracked file it cannot read", fails("src/data/lastmod.json could not be read"), () => undefined, { lastmods: null });
+const dateProblem = (route: string, actual: string, expectedDate: string): Finding[] => (actual === expectedDate ? [] : [{ rule: "D-SITEMAP", message: `${route} dated ${actual}, expected ${expectedDate}` }]);
+/** The route dates for an /about page with four commits, whose copy took its current form on changedFrom. */
+const savedDates = (changedFrom: string) => {
+  const ctx = distCtx(goodDist(), { commitDates: (path) => (path === ABOUT_PAGE ? ["2026-10-31", "2026-08-15", "2026-03-15", "2026-01-15"] : ["2026-01-15"]) });
+  const current = ctx.sourceOn;
+  ctx.sourceOn = (path, date) => (path === ABOUT_PAGE && date < changedFrom ? "<p>Older copy.</p>" : current(path, date));
+  return lastCopyDates(ctx);
+};
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod finds the last copy change, not the last commit", expect: "pass", run: () => dateProblem("/about", savedDates("2026-03-15")["/about"], "2026-03-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes a page's first commit when its copy never changed", expect: "pass", run: () => dateProblem("/about", savedDates("2000-01-01")["/about"], "2026-01-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes the latest of a page's sources", expect: "pass", run: () => dateProblem("/faq", lastCopyDates(distCtx(goodDist(), { commitDates: (path) => [path === FAQ_FILES.data ? "2026-05-15" : "2026-02-15"] }))["/faq"], "2026-05-15") });
+const refused = (run: () => unknown): Finding[] => {
+  try {
+    run();
+  } catch (error) {
+    if (error instanceof UsageError) return [{ rule: "D-SITEMAP", message: error.message }];
+  }
+  return [];
+};
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses copy that is not committed", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => savedDates("2999-01-01")) });
 distCase("D-SITEMAP", "reports a source file git has no date for", fails(`git has no commit date for ${ABOUT_PAGE}`), () => undefined, { lastCommits: { [ABOUT_PAGE]: undefined } });
 distCase("D-SITEMAP", "reports a route with no source file", fails("no source file found, so its lastmod cannot be checked"), () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
 distCase("D-SITEMAP", "fails in a shallow clone, whose git dates stop at its edge", fails("this clone is shallow"), () => undefined, { shallowClone: true });
@@ -1240,18 +1293,29 @@ liveCase("LV-UTILITY", "ignores noindex outside the head", "fail", () => checkUt
 liveCase("LV-UTILITY", "reports a status other than 200", "fail", () => checkUtility("/cart", 404, utilityHtml('<meta name="robots" content="noindex,follow" />')));
 
 const sitemapOf = (...dates: Array<string | undefined>) => dates.map((date, index) => `<url><loc>${APEX}/page-${index}</loc>${date ? `<lastmod>${date}</lastmod>` : ""}</url>`).join("\n");
+const trackedOf = (...dates: string[]) => Object.fromEntries(dates.map((date, index) => [`/page-${index}`, date]));
 const TWO_HISTORIES = ["2026-01-15", "2026-06-12"];
 const SAME_DATE = sitemapOf("2026-06-12", "2026-06-12", "2026-06-12");
-liveCase("LV-SITEMAP", "good fixture", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reads a date written with a time", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15T08:00:00Z", "2026-06-12"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a URL with no lastmod", fails(`${APEX}/page-1 has no lastmod`), () => checkSitemapDates(200, sitemapOf("2026-01-15", undefined), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports one date across pages with different histories", fails("all 3 URLs share the lastmod 2026-06-12, but 1 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a build date when the pages last changed together", fails("but 2 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, ["2026-01-15", "2026-01-15"]));
-liveCase("LV-SITEMAP", "allows one date when every page last changed then", "pass", () => checkSitemapDates(200, SAME_DATE, ["2026-06-12", "2026-06-12"]));
-liveCase("LV-SITEMAP", "reports a date later than today", fails(`${APEX}/page-1: lastmod 2999-01-01 is later than today`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2999-01-01"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a date it cannot read", fails(`${APEX}/page-0: lastmod soon is not a date`), () => checkSitemapDates(200, sitemapOf("soon", "2026-06-12"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a page that is not a sitemap", fails("no URLs in the sitemap"), () => checkSitemapDates(200, pageHtml("/"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a status other than 200", fails("status 404"), () => checkSitemapDates(404, "", TWO_HISTORIES));
+const SAME_TRACKED = trackedOf("2026-06-12", "2026-06-12", "2026-06-12");
+const TRACKED = trackedOf("2026-01-15", "2026-06-12", "2026-06-12");
+liveCase("LV-SITEMAP", "good fixture", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES, TRACKED));
+liveCase("LV-SITEMAP", "reads a date written with a time", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15T08:00:00Z", "2026-06-12"), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a URL with no lastmod", fails(`${APEX}/page-1 has no lastmod`), () => checkSitemapDates(200, sitemapOf("2026-01-15", undefined), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports one date across pages with different histories", fails("all 3 URLs share the lastmod 2026-06-12, but 1 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, TWO_HISTORIES, SAME_TRACKED));
+liveCase("LV-SITEMAP", "reports a build date when the pages last changed together", fails("but 2 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, ["2026-01-15", "2026-01-15"], SAME_TRACKED));
+liveCase("LV-SITEMAP", "allows one date when every page last changed then", "pass", () => checkSitemapDates(200, SAME_DATE, ["2026-06-12", "2026-06-12"], SAME_TRACKED));
+liveCase("LV-SITEMAP", "reports a date later than today", fails(`${APEX}/page-1: lastmod 2999-01-01 is later than today`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2999-01-01"), TWO_HISTORIES, trackedOf("2026-01-15", "2999-01-01")));
+liveCase("LV-SITEMAP", "reports a date it cannot read", fails(`${APEX}/page-0: lastmod soon is not a date`), () => checkSitemapDates(200, sitemapOf("soon", "2026-06-12"), TWO_HISTORIES, trackedOf("soon", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a page that is not a sitemap", fails("no URLs in the sitemap"), () => checkSitemapDates(200, pageHtml("/"), TWO_HISTORIES, TRACKED));
+liveCase("LV-SITEMAP", "reports a status other than 200", fails("status 404"), () => checkSitemapDates(404, "", TWO_HISTORIES, TRACKED));
+// What R1 really left: most pages changed on one day, and a few did not. Every date but one is shared, so sharedDateProblem stays quiet.
+const MOST_TRACKED = trackedOf("2026-10-31", "2026-10-31", "2026-10-31", "2026-10-31", "2026-07-05", "2026-07-05");
+const STAMPED = "2026-11-15";
+liveCase("LV-SITEMAP", "allows most URLs on one date when the tracked file holds it", "pass", () => checkSitemapDates(200, sitemapOf(...Object.values(MOST_TRACKED)), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports a build date on most URLs, which the shared-date check allows", fails(`${APEX}/page-0: lastmod ${STAMPED} differs from the tracked date 2026-10-31`), () => checkSitemapDates(200, sitemapOf(STAMPED, STAMPED, STAMPED, STAMPED, STAMPED, "2026-07-05"), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports the one page a stale deploy has wrong", fails(`${APEX}/page-5: lastmod 2026-06-12 differs from the tracked date 2026-07-05`), () => checkSitemapDates(200, sitemapOf("2026-10-31", "2026-10-31", "2026-10-31", "2026-10-31", "2026-07-05", "2026-06-12"), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports a deployed URL with no tracked date", fails(`${APEX}/page-2 has no tracked date`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a tracked route the deployment lacks", fails(`${APEX}/page-2 has a tracked date but is not in the sitemap`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12"), TWO_HISTORIES, TRACKED));
 
 const LIVE_RULES = LIVE.all;
 

@@ -8,7 +8,8 @@
  *   npm run verify -- --rules=<ids>     only these rules, S-BAN or a single BAN-nn
  *   npm run verify -- --self-test       every rule against good and bad fixtures
  *
- * Other flags: --expect-clarity=<id>, --pearlys=<path>, --write-rank-baseline.
+ * Other flags: --expect-clarity=<id>, --pearlys=<path>, --write-rank-baseline, and --write-lastmod,
+ * which saves each route's last copy change from committed history, after a build.
  * SEO_PRIVATE_BANS must name the private ban file. BAN-08, S-LEAK and D-COPY fail closed without
  * it, and only a --scope run may skip BAN-08.
  * Exit codes: 0 pass, 1 findings, 2 usage or setup error.
@@ -17,18 +18,19 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { BANS, COPY_BASE_COMMIT, COPY_PAGES, INDEXABLE_ROUTES, MANIFEST, OVERLAP, RANK_ROUTES, RENDER_BASELINE_FILE, REQUIRED, SCAN } from "./verify/rules";
+import { BANS, COPY_BASE_COMMIT, COPY_PAGES, INDEXABLE_ROUTES, LASTMOD_FILE, MANIFEST, OVERLAP, RANK_ROUTES, RENDER_BASELINE_FILE, REQUIRED, SCAN } from "./verify/rules";
 import { type Args, type Finding, listValue, parseArgs, report, routeOfHtmlFile, SourceText, UsageError } from "./verify/lib";
 import { type CommitRecord, copySegments, type GitInput, parsePrivateBans, type PrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "./verify/source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "./verify/dist-checks";
+import { DIST_CHECKS, type DistCtx, lastCopyDates, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "./verify/dist-checks";
 import { runSelfTest } from "./verify/fixtures/cases";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = resolve(ROOT, "dist");
 const BASELINE = resolve(ROOT, "scripts/verify/rank-baseline.json");
 const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
+const LASTMODS = resolve(ROOT, LASTMOD_FILE);
 
-const KNOWN_FLAGS = ["source", "dist", "self-test", "write-rank-baseline"];
+const KNOWN_FLAGS = ["source", "dist", "self-test", "write-rank-baseline", "write-lastmod"];
 const KNOWN_VALUES = ["scope", "rules", "expect-clarity", "pearlys"];
 const TEXT_EXTENSIONS = [".html", ".js", ".txt", ".xml", ".css", ".json"];
 
@@ -166,6 +168,14 @@ function loadBaseline(): RankBaseline {
   return JSON.parse(readFileSync(BASELINE, "utf8")) as RankBaseline;
 }
 
+function loadLastmods(): Record<string, string> | undefined {
+  try {
+    return JSON.parse(readFileSync(LASTMODS, "utf8")) as Record<string, string>;
+  } catch {
+    return undefined;
+  }
+}
+
 function loadRenderBaseline(): RenderBaseline | undefined {
   return existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
 }
@@ -200,6 +210,8 @@ function versionsOf(path: string) {
   fileVersions.set(path, versions);
   return versions;
 }
+
+const commitDatesOf = (path: string) => versionsOf(path).map((version) => version.date);
 
 const shownFiles = new Map<string, string | undefined>();
 
@@ -267,7 +279,9 @@ async function buildDistCtx(args: Args): Promise<DistCtx> {
     privateBans: loadPrivateBans(),
     readSource: readRepoFile,
     lastCommitDate,
+    commitDates: commitDatesOf,
     sourceOn,
+    lastmods: loadLastmods(),
     shallowClone: git(["rev-parse", "--is-shallow-repository"]).output.trim() === "true",
     sourcePages() {
       const pages: string[] = [];
@@ -328,6 +342,13 @@ function writeRankBaseline() {
   console.log(`Wrote ${toPosix(relative(ROOT, BASELINE))} from ${capturedFrom}`);
 }
 
+async function writeLastmods(args: Args) {
+  const ctx = await buildDistCtx(args);
+  if (ctx.shallowClone) throw new UsageError("--write-lastmod reads each page's history, so it needs a full clone. Run git fetch --unshallow.");
+  writeFileSync(LASTMODS, `${JSON.stringify(lastCopyDates(ctx), null, 2)}\n`);
+  console.log(`Wrote ${ctx.routes.length} dates to ${LASTMOD_FILE}`);
+}
+
 async function main(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
   for (const flag of args.flags) if (!KNOWN_FLAGS.includes(flag)) throw new UsageError(`Unknown flag: --${flag}`);
@@ -336,6 +357,10 @@ async function main(): Promise<number> {
   if (args.flags.has("self-test")) return runSelfTest();
   if (args.flags.has("write-rank-baseline")) {
     writeRankBaseline();
+    return 0;
+  }
+  if (args.flags.has("write-lastmod")) {
+    await writeLastmods(args);
     return 0;
   }
 

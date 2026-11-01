@@ -15,13 +15,16 @@
  * Runs after both `vite build` passes (see package.json "build"): the second one
  * bundles src/entry-server.tsx into dist-ssr, which this script loads. No headless
  * browser or runtime server is involved. The build fails if a route cannot render,
- * has no SEO data, or is an indexable route with no H1 (R2-FR-07).
+ * has no SEO data, is an indexable route with no H1 (R2-FR-07), or has no date for the
+ * sitemap (R2-FR-15).
  */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ROUTES, type SiteRoute } from "../src/data/routes";
 import type { RenderedRoute } from "../src/entry-server";
+import { lastmodProblem } from "./verify/lib";
+import { INDEXABLE_ROUTES, LASTMOD_FILE, SITE } from "./verify/rules";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -130,6 +133,22 @@ const notFound = await render(MISSING_PATH);
 assertComplete({ path: MISSING_PATH }, notFound);
 write("404.html", pageHtml(notFound));
 console.log("[prerender] wrote 404.html to dist/");
+
+// ---------------------------------------------------------------------------
+// The sitemap comes from the route list, with dates from the tracked file. A route with no date
+// stops the build, and so does a date whose route has gone.
+// ---------------------------------------------------------------------------
+
+const lastmods = JSON.parse(readFileSync(resolve(ROOT, LASTMOD_FILE), "utf8")) as Record<string, string>;
+const dateProblems = [
+  ...INDEXABLE_ROUTES.flatMap((route) => lastmodProblem(route, lastmods[route]) ?? []),
+  ...Object.keys(lastmods).filter((route) => !INDEXABLE_ROUTES.includes(route)).map((route) => `${route} is not an indexable route`),
+];
+if (dateProblems.length > 0) throw new Error(`[prerender] ${LASTMOD_FILE}: ${dateProblems.join(", ")}`);
+
+const sitemapUrls = INDEXABLE_ROUTES.map((route) => `  <url>\n    <loc>${SITE}${route}</loc>\n    <lastmod>${lastmods[route]}</lastmod>\n  </url>`);
+write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.join("\n")}\n</urlset>\n`);
+console.log(`[prerender] wrote ${sitemapUrls.length} URLs to dist/sitemap.xml`);
 
 // ---------------------------------------------------------------------------
 // llms.txt is copied from public/ as it stands, so its visible link is swapped

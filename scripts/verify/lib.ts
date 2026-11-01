@@ -420,6 +420,23 @@ export function lastmodProblem(page: string, date: string | undefined): string |
 }
 
 /**
+ * R2-FR-15 against the tracked dates, URL by URL, and shared by D-SITEMAP and LV-SITEMAP. R1 changed
+ * most pages on one day, so a shared date proves nothing either way, and only this tells that
+ * honest date from a build date stamped on most URLs. A URL with no lastmod is lastmodProblem's.
+ */
+export function trackedDateProblems(lastmods: Map<string, string | undefined>, tracked: Record<string, string>, site: string): string[] {
+  const problems: string[] = [];
+  const dated = new Map(Object.entries(tracked).map(([route, date]) => [`${site}${route}`, date]));
+  for (const [url, date] of dated) {
+    const shown = lastmods.get(url);
+    if (!lastmods.has(url)) problems.push(`${url} has a tracked date but is not in the sitemap`);
+    else if (shown && shown !== date) problems.push(`${url}: lastmod ${shown} differs from the tracked date ${date}`);
+  }
+  for (const url of lastmods.keys()) if (!dated.has(url)) problems.push(`${url} has no tracked date`);
+  return problems;
+}
+
+/**
  * R2-FR-15's shape for a build date or a placeholder: every URL on one date that is not the day
  * every page last changed. histories holds each page's latest commit. The check is against that
  * date and not only for dates that differ, because a release can touch every page on one day, as
