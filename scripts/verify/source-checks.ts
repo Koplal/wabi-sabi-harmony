@@ -273,6 +273,16 @@ export function checkConsult(ctx: SourceCtx): Finding[] {
 
 const unquote = (value: string) => value.replace(/\\(['"])/g, "$1");
 
+/**
+ * The answers in the FAQ data, as a visitor reads them. Only a complete quoted string counts, so an
+ * answer built some other way is left out rather than cut short, and D-FAQRAW reports the shortfall.
+ */
+export const faqAnswers = (dataText: string) =>
+  [...dataText.matchAll(/answer:\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')(?=\s*[,}])/g)].map((match) => unquote(match[1] ?? match[2]));
+
+export const faqQuestions = (dataText: string) =>
+  [...dataText.matchAll(/question:\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')/g)].map((match) => unquote(match[1] ?? match[2]));
+
 export function checkFaq(ctx: SourceCtx): Finding[] {
   if (!ctx.inScope(FAQ_FILES.data) && !ctx.inScope(FAQ_FILES.page)) return [];
   const finding = (file: string, message: string): Finding => ({ rule: "S-FAQ", file, message });
@@ -281,9 +291,7 @@ export function checkFaq(ctx: SourceCtx): Finding[] {
   const pageText = ctx.read(FAQ_FILES.page);
   if (dataText === undefined || pageText === undefined) return [finding(FAQ_FILES.data, "FAQ files not found")];
 
-  const questions = [...dataText.matchAll(/question:\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')/g)].map((match) =>
-    unquote(match[1] ?? match[2])
-  );
+  const questions = faqQuestions(dataText);
   const sections = [...pageText.matchAll(/heading:\s*"([^"]+)",\s*count:\s*(\d+)/g)].map((match) => ({
     heading: match[1],
     count: Number(match[2]),
@@ -529,7 +537,8 @@ interface CopySegment {
 }
 
 /** The text a visitor can read from a source file: JSX text and string literals. */
-export function copySegments(path: string, text: string): CopySegment[] {
+/** With numbers, numeric literals count too, because a price is copy when asking what changed. */
+export function copySegments(path: string, text: string, numbers = false): CopySegment[] {
   if (!/\.tsx?$/.test(path)) return lines(text).map((line, index) => ({ text: line, line: index + 1 }));
 
   const kind = path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
@@ -543,6 +552,7 @@ export function copySegments(path: string, text: string): CopySegment[] {
     if (ts.isJsxAttribute(node) && OVERLAP.nonCopyAttributes.includes(node.name.getText(source))) return;
     if (ts.isJsxText(node)) push(node, node.text);
     else if (ts.isStringLiteralLike(node)) push(node, node.text);
+    else if (numbers && ts.isNumericLiteral(node)) push(node, node.text);
     ts.forEachChild(node, visit);
   };
   visit(source);

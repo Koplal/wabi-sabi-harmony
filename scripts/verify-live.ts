@@ -6,12 +6,20 @@
  *   npm run verify:live -- --base=<url>     a preview instead of production
  *
  * LV-HOST checks the production hosts, so it does not run with --base.
+ * LV-SITEMAP compares the deployed dates with this checkout's git, so it needs a full clone.
  * Exit codes: 0 pass, 1 findings, 2 usage or network error.
  */
-import { BROWSER, LIVE } from "./verify/rules";
+import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { BROWSER, COPY_PAGES, LIVE, PARITY_EXEMPT, RENDER_BASELINE_FILE } from "./verify/rules";
 import { type Finding, listValue, parseArgs, report, UsageError } from "./verify/lib";
-import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkUtility, describeChain } from "./verify/live-rules";
+import type { RenderBaseline } from "./verify/dist-checks";
+import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, describeChain } from "./verify/live-rules";
 
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 const MAX_HOPS = 6;
 const KNOWN_VALUES = ["base", "rules"];
 
@@ -47,6 +55,30 @@ async function page(url: string, base: string): Promise<{ status: number; html: 
   return { status: response.status, html: await response.text() };
 }
 
+function git(args: string[]): string {
+  return spawnSync("git", args, { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 30 }).stdout ?? "";
+}
+
+/**
+ * Each page's latest commit: the indexable page files, with the data they read, and the area pages
+ * as one, because they share their sources. A shallow clone would date most files from its edge,
+ * and the pages would then seem to share one history.
+ */
+function pageHistories(): string[] {
+  if (git(["rev-parse", "--is-shallow-repository"]).trim() !== "false") throw new UsageError("LV-SITEMAP needs a full git clone to read the pages' histories");
+  const dates = new Map<string, string>();
+  let date = "";
+  for (const line of git(["log", "--format=date %cs", "--name-only", "--", "src"]).split("\n").filter(Boolean)) {
+    if (line.startsWith("date ")) date = line.slice(5);
+    else if (!dates.has(line)) dates.set(line, date);
+  }
+  const latest = (...files: string[]) => files.flatMap((file) => dates.get(file) ?? []).sort().pop();
+  const pages = [...dates.keys()].filter((file) => /^src\/pages\/.*\.tsx$/.test(file) && existsSync(resolve(ROOT, file)) && !PARITY_EXEMPT.some((name) => file.endsWith(`/${name}.tsx`)));
+  const histories = [...pages.map((file) => latest(file, COPY_PAGES.aliases[file])), latest(COPY_PAGES.areaFile, COPY_PAGES.areaTemplate)];
+  if (histories.some((history) => !history)) throw new UsageError("LV-SITEMAP could not read the pages' histories from git");
+  return histories as string[];
+}
+
 async function run(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
   for (const flag of args.flags) throw new UsageError(`Unknown flag: --${flag}`);
@@ -79,19 +111,22 @@ async function run(): Promise<number> {
   if (selected.includes("LV-404")) {
     const chain = await follow(`${base}${LIVE.missingPath}`, base);
     say("LV-404", chain);
-    findings.push(...checkMissing(chain));
+    const { html } = await page(`${base}${LIVE.missingPath}`, base);
+    findings.push(...checkMissing(chain, html));
   }
   if (selected.includes("LV-RAW")) {
+    if (!existsSync(RENDER_BASELINE)) throw new UsageError(`${RENDER_BASELINE_FILE} not found`);
+    const { routes } = JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline;
     for (const route of LIVE.rawRoutes) {
       const { status, html } = await page(`${base}${route}`, base);
-      findings.push(...checkRaw(route, status, html));
+      findings.push(...checkRaw(route, status, html, routes[route]?.h1));
     }
   }
   if (selected.includes("LV-REDIRECT")) {
-    for (const { from, to } of LIVE.redirects) {
+    for (const { from, to, maxHops } of LIVE.redirects) {
       const chain = await follow(`${base}${from}`, base);
       say("LV-REDIRECT", chain);
-      findings.push(...checkRedirect(from, to, base, chain));
+      findings.push(...checkRedirect(from, to, base, chain, maxHops));
     }
   }
   if (selected.includes("LV-UTILITY")) {
@@ -99,6 +134,12 @@ async function run(): Promise<number> {
       const { status, html } = await page(`${base}${route}`, base);
       findings.push(...checkUtility(route, status, html));
     }
+  }
+
+  if (selected.includes("LV-SITEMAP")) {
+    const histories = pageHistories();
+    const { status, html: sitemap } = await page(`${base}/sitemap.xml`, base);
+    findings.push(...checkSitemapDates(status, sitemap, histories));
   }
 
   return report(findings, "verify:live");

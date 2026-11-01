@@ -9,21 +9,24 @@
  *   npm run verify -- --self-test       every rule against good and bad fixtures
  *
  * Other flags: --expect-clarity=<id>, --pearlys=<path>, --write-rank-baseline.
+ * SEO_PRIVATE_BANS must name the private ban file. BAN-08, S-LEAK and D-COPY fail closed without
+ * it, and only a --scope run may skip BAN-08.
  * Exit codes: 0 pass, 1 findings, 2 usage or setup error.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { BANS, COPY_BASE_COMMIT, INDEXABLE_ROUTES, OVERLAP, RANK_ROUTES, REQUIRED, SCAN } from "./verify/rules";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { BANS, COPY_BASE_COMMIT, COPY_PAGES, INDEXABLE_ROUTES, MANIFEST, OVERLAP, RANK_ROUTES, RENDER_BASELINE_FILE, REQUIRED, SCAN } from "./verify/rules";
 import { type Args, type Finding, listValue, parseArgs, report, routeOfHtmlFile, SourceText, UsageError } from "./verify/lib";
 import { type CommitRecord, copySegments, type GitInput, parsePrivateBans, type PrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "./verify/source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline } from "./verify/dist-checks";
+import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "./verify/dist-checks";
 import { runSelfTest } from "./verify/fixtures/cases";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = resolve(ROOT, "dist");
 const BASELINE = resolve(ROOT, "scripts/verify/rank-baseline.json");
+const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 
 const KNOWN_FLAGS = ["source", "dist", "self-test", "write-rank-baseline"];
 const KNOWN_VALUES = ["scope", "rules", "expect-clarity", "pearlys"];
@@ -163,6 +166,86 @@ function loadBaseline(): RankBaseline {
   return JSON.parse(readFileSync(BASELINE, "utf8")) as RankBaseline;
 }
 
+function loadRenderBaseline(): RenderBaseline | undefined {
+  return existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
+}
+
+/** Undefined when capturedFrom is not a commit here, so no warning can be given. */
+function baselineDrift(baseline: RenderBaseline | undefined): string[] | undefined {
+  if (!baseline) return undefined;
+  const changed = git(["diff", "--name-only", baseline.capturedFrom, "--", "src", "public", "index.html"]);
+  return changed.ok ? changed.output.split("\n").filter(Boolean) : undefined;
+}
+
+const commitDates = new Map<string, string | undefined>();
+
+/** %cs is the date as committed. Area routes share one file, so each file is asked about once. */
+function lastCommitDate(path: string): string | undefined {
+  if (!commitDates.has(path)) commitDates.set(path, git(["log", "-1", "--format=%cs", "--", path]).output.trim() || undefined);
+  return commitDates.get(path);
+}
+
+const fileVersions = new Map<string, Array<{ hash: string; date: string; path: string }>>();
+
+/** Every version of a file, newest first. Blog posts have been renamed, so this follows renames. */
+function versionsOf(path: string) {
+  const known = fileVersions.get(path);
+  if (known) return known;
+  const log = git(["log", "--follow", "--format=%x00%H %cs", "--name-only", "--", path]).output;
+  const versions = log.split("\0").filter(Boolean).map((entry) => {
+    const [head, ...rest] = entry.split("\n").filter(Boolean);
+    const [hash, date] = head.split(" ");
+    return { hash, date, path: rest[0] };
+  });
+  fileVersions.set(path, versions);
+  return versions;
+}
+
+const shownFiles = new Map<string, string | undefined>();
+
+/** The version in force at the end of a date. Area routes share files, so each is read once. */
+function sourceOn(path: string, date: string): string | undefined {
+  const version = versionsOf(path).find((item) => item.date <= date);
+  if (!version) return undefined;
+  const key = `${version.hash}:${version.path}`;
+  if (!shownFiles.has(key)) {
+    const shown = git(["show", key]);
+    shownFiles.set(key, shown.ok ? shown.output : undefined);
+  }
+  return shownFiles.get(key);
+}
+
+async function loadExport(file: string, name: string): Promise<unknown> {
+  const module = (await import(pathToFileURL(resolve(ROOT, file)).href)) as Record<string, unknown>;
+  return module[name];
+}
+
+async function loadManifest(): Promise<RouteManifest> {
+  const manifest: RouteManifest = {};
+  try {
+    const data = (await loadExport(COPY_PAGES.areaFile, MANIFEST.areaExport)) as Record<string, { slug: string }>;
+    manifest.areas = Object.values(data).map(({ slug }) => `${COPY_PAGES.areaPrefix}${slug}`);
+  } catch {
+    // D-MANIFEST reports the missing data.
+  }
+  if (!existsSync(resolve(ROOT, MANIFEST.routeFile))) {
+    manifest.listError = "the file does not exist";
+    return manifest;
+  }
+  try {
+    const list = await loadExport(MANIFEST.routeFile, MANIFEST.routeExport);
+    if (!Array.isArray(list)) throw new Error(`it does not export ${MANIFEST.routeExport} as a list`);
+    const entries = list.map((item: unknown) => (typeof item === "string" ? { path: item } : (item as { path?: unknown; page?: unknown })));
+    if (entries.some((entry) => typeof entry?.path !== "string")) throw new Error("an entry has no path");
+    manifest.listed = entries.map((entry) => entry.path as string);
+    const pages = entries.flatMap((entry) => (typeof entry.page === "string" ? [[entry.path as string, entry.page]] : []));
+    if (pages.length > 0) manifest.pages = Object.fromEntries(pages);
+  } catch (error) {
+    manifest.listError = `it could not be loaded: ${error instanceof Error ? error.message : String(error)}`;
+  }
+  return manifest;
+}
+
 function distFiles(): Map<string, string> {
   if (!existsSync(resolve(DIST, "index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
   const files = new Map<string, string>();
@@ -172,12 +255,20 @@ function distFiles(): Map<string, string> {
   return files;
 }
 
-function buildDistCtx(args: Args): DistCtx {
+async function buildDistCtx(args: Args): Promise<DistCtx> {
+  const renderBaseline = loadRenderBaseline();
   return {
     files: distFiles(),
     routes: INDEXABLE_ROUTES,
     baseline: loadBaseline(),
+    renderBaseline,
+    baselineDrift: baselineDrift(renderBaseline),
+    manifest: await loadManifest(),
+    privateBans: loadPrivateBans(),
     readSource: readRepoFile,
+    lastCommitDate,
+    sourceOn,
+    shallowClone: git(["rev-parse", "--is-shallow-repository"]).output.trim() === "true",
     sourcePages() {
       const pages: string[] = [];
       walk(resolve(ROOT, "src/pages"), (path) => {
@@ -237,7 +328,7 @@ function writeRankBaseline() {
   console.log(`Wrote ${toPosix(relative(ROOT, BASELINE))} from ${capturedFrom}`);
 }
 
-function main(): number {
+async function main(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
   for (const flag of args.flags) if (!KNOWN_FLAGS.includes(flag)) throw new UsageError(`Unknown flag: --${flag}`);
   for (const key of args.values.keys()) if (!KNOWN_VALUES.includes(key)) throw new UsageError(`Unknown option: --${key}`);
@@ -256,7 +347,7 @@ function main(): number {
     for (const id of selected.source) findings.push(...SOURCE_CHECKS[id](ctx));
   }
   if (selected.dist.length > 0) {
-    const ctx = buildDistCtx(args);
+    const ctx = await buildDistCtx(args);
     for (const id of selected.dist) findings.push(...DIST_CHECKS[id](ctx));
   }
 
@@ -265,11 +356,13 @@ function main(): number {
   return report(findings, "verify");
 }
 
-try {
-  process.exitCode = main();
-} catch (error) {
-  if (error instanceof UsageError) {
-    console.error(`verify: ${error.message}`);
-    process.exitCode = 2;
-  } else throw error;
-}
+main()
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((error: unknown) => {
+    if (error instanceof UsageError) {
+      console.error(`verify: ${error.message}`);
+      process.exitCode = 2;
+    } else throw error;
+  });

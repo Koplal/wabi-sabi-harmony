@@ -431,6 +431,9 @@ export const ABSENT: Absent[] = [
 
 export const FAQ_FILES = { data: FAQ_DATA, page: FAQ_PAGE };
 
+/** The one route with FAQ answers: FAQ.tsx alone uses the accordion. */
+export const FAQ_ROUTE = "/faq";
+
 export const FAQ_SECTIONS = [
   { heading: "Getting Started with Our Services", count: 3, first: "What makes Wabi Sabi Services different?" },
   { heading: "Understanding Our Service Levels", count: 3, first: "What's included in your Mindful Standard Clean?" },
@@ -640,9 +643,74 @@ export const PARENT = {
 /** The site's Clarity project ID. D-CLARITY fails if a build with no ID contains it. */
 export const CLARITY_PROJECT_ID = "z6fydc3bvk";
 
+/**
+ * R2-FR-01: the share of a route's rendered words that its raw HTML must carry, and of its raw
+ * words, apart from closed FAQ answers, that the rendered page must show.
+ */
+export const RAW_MIN_WORD_SHARE = 0.95;
+
+export const FALLBACK = {
+  busy: 'aria-busy="true"',
+  /** React's markers for a Suspense boundary that did not finish rendering on the server. */
+  suspenseMarkers: ["<!--$?-->", "<!--$!-->"],
+};
+
+export const MISSING_PAGE = { file: "404.html", brand: "Wabi Sabi Services" };
+
+/**
+ * The one route list (R2-FR-11). Until it exists, D-MANIFEST fails. The harness loads routeFile as
+ * a module, so it may build its paths from neighborhoods.ts. It must stay free of page imports.
+ * routeExport is a list of `{ path, page }`, where page is the file under src/pages with no
+ * extension, such as "services/Cleaning". Area routes share a template, so they leave page out.
+ * A router built from this list has no `<Route path="...">` lines, so page is how D-COPY and
+ * D-PARITY find a route's source, and D-MANIFEST fails an entry without one.
+ */
+export const MANIFEST = {
+  routeFile: "src/data/routes.ts",
+  routeExport: "ROUTES",
+  /** How the router shows it reads that file. */
+  routeImport: "from\\s+[\"'][^\"']*data/routes[\"']",
+  appFile: "src/App.tsx",
+  areaExport: "neighborhoods",
+  /** The router's one generated path before that file exists. It means one route per neighbourhood. */
+  areaTemplate: "`/areas/${n.slug}`",
+};
+
+export const RENDER_BASELINE_FILE = "scripts/verify/render-baseline.json";
+
+/** Where the copy rules find a built page's text, for rules that name a source file. */
+export const COPY_PAGES = {
+  /** A page whose copy lives in another file. */
+  aliases: { [FAQ_PAGE]: FAQ_DATA } as Record<string, string>,
+  areaPrefix: "/areas/",
+  areaFile: "src/data/neighborhoods.ts",
+  /** The copy every area page shares. */
+  areaTemplate: "src/components/NeighborhoodPage.tsx",
+};
+
 // ---------------------------------------------------------------------------
 // Browser rules
 // ---------------------------------------------------------------------------
+
+/**
+ * BR-LCP: how far a deployment's largest lab layout shift may pass production's in the same
+ * sitting. Unchanged R1 reads 0.0011 to 0.0290 by route, so 0 cannot be the line. This covers
+ * measurement noise only.
+ */
+export const CLS_TOLERANCE = 0.001;
+
+/** Stripe's success URL (api/create-checkout.ts). The page renders the session ID from it. */
+export const STRIPE_RETURN = "/checkout-success?session_id=cs_test_verify";
+
+export interface CartStepPlan {
+  name: string;
+  route: string;
+  reload: boolean;
+  /** The URL to load, when it differs from the route. */
+  url?: string;
+  /** The stored cart must be empty after this step. */
+  cleared?: boolean;
+}
 
 export const BROWSER = {
   blockedHosts: ["googletagmanager.com", "google-analytics.com", "clarity.ms"],
@@ -658,6 +726,99 @@ export const BROWSER = {
       image: "/og-image.png",
     },
   ],
+  /** A same-origin page with no app code, so the cart can be stored before the app first loads. */
+  seedPage: "/robots.txt",
+  /**
+   * BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL, and the
+   * last two steps are its success URL, where a paid cart must empty and stay empty.
+   * It passes on Release 1, which reads the cart before its first render. It guards the move to a
+   * cart that starts empty and loads after hydration: the save effect can then overwrite the stored
+   * cart, and a late load can restore an item already paid for.
+   */
+  cartSteps: [
+    { name: "first load", route: "/cart", reload: false },
+    { name: "reload", route: "/cart", reload: true },
+    { name: "another page", route: "/seasoning", reload: false },
+    { name: "return to the cart", route: "/cart", reload: false },
+    { name: "full load of checkout", route: "/checkout", reload: false },
+    { name: "order complete", route: "/checkout-success", url: STRIPE_RETURN, reload: false, cleared: true },
+    { name: "reload after the order", route: "/checkout-success", reload: true, cleared: true },
+  ] as CartStepPlan[],
+  /**
+   * Empty writes one load of the order page may make. Clearing the cart takes one, but a clearCart
+   * that is not stable writes for as long as the page is open (B-10). Production React logs nothing
+   * for that loop, and the cart stays empty, so only the count shows it.
+   */
+  maxEmptyWrites: 5,
+  /**
+   * BR-HYDRATE. Production React reports text and structure mismatches by number and attribute
+   * mismatches not at all, so a shifted useId passes on dist/ with a clean console. The wording
+   * here comes from development React, which only a --dev-react pass can print.
+   */
+  hydrationErrors: [
+    "hydrat",
+    "did not match",
+    "server.rendered HTML",
+    "server HTML",
+    "Extra attributes from the server",
+    "Text content does not match",
+    "Minified React error #(?:418|419|421|422|423|425)\\b",
+  ],
+  /**
+   * BR-HYDRATE also loads these on a later date, because HTML built one year can be served the
+   * next. The footer's year (Layout.tsx) is on every page and the journal filters posts by today.
+   */
+  clockRoutes: ["/", "/blog"],
+  /** URLs BR-HYDRATE loads beyond the route list, because they render differently from the bare route. */
+  hydrationUrls: [STRIPE_RETURN],
+  /**
+   * BR-INTERACT: the R2-FR-03 behaviours no other rule exercises. Today's site is the reference.
+   * They come from shared components, so each runs once. The field is only typed into, and nothing
+   * here submits a form. scroll starts on a page that is already loaded, because a route's first
+   * load shows the short fallback, which alone would put the page back at the top.
+   */
+  interact: {
+    accordion: { route: "/faq", trigger: 'main button[aria-controls][aria-expanded="false"]' },
+    menu: {
+      route: "/ritual",
+      viewport: { width: 390, height: 844 },
+      button: 'header button[aria-label="Open menu"]',
+      links: '[role="dialog"] a[href]',
+      expected: "/faq",
+    },
+    dropdown: { route: "/ritual", button: 'header button[aria-haspopup="menu"]', links: '[role="menu"] a[href]', expected: "/services/cleaning" },
+    field: { route: "/contact", selector: "#name", text: "Verify Harness" },
+    scroll: { start: "/faq", through: "/ritual" },
+  },
+  /** --dev-react. The marker is a string that only development React contains. */
+  devReact: {
+    marker: "Extra attributes from the server",
+  },
+  /**
+   * R2-FR-12. The same lab run on R1 and on a deployment, so the two compare like with like. A
+   * preview has no visitors, so a field figure cannot stand in for this. Network and CPU are
+   * slow 4G and 4x CPU, with the factors Lighthouse applies for DevTools throttling.
+   */
+  lcp: {
+    routes: ["/", "/areas/oak-bay", "/services/cleaning", "/blog/july-2026"],
+    runs: 5,
+    /** The day R1 went live. An earlier figure does not describe R1. */
+    liveFrom: "2026-10-31",
+    /**
+     * How far a deployment's fastest run may pass R1's. Lab noise only adds time, so the fastest
+     * run is the steady figure: over two sittings of unchanged R1, the median on / went from 4200
+     * to 5092 ms, while no route's fastest run moved more than 2.1%.
+     */
+    tolerance: 0.05,
+    settings: {
+      viewport: { width: 412, height: 823 },
+      deviceScaleFactor: 1.75,
+      latencyMs: 562.5,
+      downloadBytesPerSecond: 180_000,
+      uploadBytesPerSecond: 84_375,
+      cpuSlowdown: 4,
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -671,12 +832,20 @@ export const LIVE = {
   missingPath: "/does-not-exist",
   rawRoutes: ["/areas/oak-bay", "/services/cleaning", "/faq", "/seasoning/winter-holiday"],
   rawMinWords: 150,
+  /**
+   * One permanent redirect each, except a slash form of a redirected path. Vercel applies
+   * trailingSlash before redirects, so with "trailingSlash": false that path goes /home/ to /home
+   * to /, and both hops are permanent. R2-FR-10 asks only that the slash form redirects.
+   */
   redirects: [
     { from: "/the-ritual", to: "/ritual" },
     { from: "/index.html", to: "/" },
+    { from: "/home", to: "/" },
+    { from: "/home/", to: "/", maxHops: 2 },
+    { from: "/the-ritual/", to: "/ritual", maxHops: 2 },
     { from: "/services/errands/", to: "/services/errands" },
-  ],
-  utilityRoutes: ["/cart", "/checkout", "/checkout-success?session_id=test"],
+  ] as Array<{ from: string; to: string; maxHops?: number }>,
+  utilityRoutes: ["/cart", "/checkout", STRIPE_RETURN],
   releaseOne: ["LV-HOST", "LV-FILES"],
-  all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY"],
+  all: ["LV-HOST", "LV-FILES", "LV-404", "LV-RAW", "LV-REDIRECT", "LV-UTILITY", "LV-SITEMAP"],
 };
