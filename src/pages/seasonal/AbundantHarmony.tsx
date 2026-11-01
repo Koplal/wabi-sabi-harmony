@@ -7,19 +7,8 @@ import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-abundant-harmony-hero.jpg";
-import { useCart } from "@/contexts/CartContext";
 
 const AbundantHarmony = () => {
-  const { addToCart } = useCart();
-
-  const packageItem = {
-    id: 'abundant-harmony',
-    name: 'The Abundant Harmony',
-    price: 899,
-    description: "Celebrate Autumn's Generous Spirit",
-    image: heroImage,
-  };
-
   return (
     <Layout>
       <SEO
@@ -33,7 +22,7 @@ const AbundantHarmony = () => {
         offers={{
           price: "899",
           priceCurrency: "CAD",
-          availability: "https://schema.org/PreOrder",
+          availability: "https://schema.org/OutOfStock",
           url: "https://wabisabiservices.ca/seasoning/abundant-harmony",
         }}
       />
@@ -93,16 +82,10 @@ const AbundantHarmony = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$899</div>
                   <p className="text-muted-foreground">Includes professional styling & installation</p>
+                  <p className="text-sm font-medium mt-3">2026 season closed. 2027 waitlist open.</p>
                 </div>
-                <Button 
-                  size="lg" 
-                  className="w-full mb-4"
-                  onClick={() => addToCart(packageItem)}
-                >
-                  Add to Cart
-                </Button>
-                <Link to="/contact">
-                  <Button variant="outline" size="lg" className="w-full">
+                <Link to="/contact?interest=seasonal-2027-waitlist">
+                  <Button size="lg" className="w-full">
                     Join 2027 waitlist
                   </Button>
                 </Link>
@@ -171,7 +154,7 @@ const AbundantHarmony = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Delivery Window</h4>
-                  <p className="text-muted-foreground">September 25 - October 10</p>
+                  <p className="text-muted-foreground">To be confirmed for 2027</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Display Longevity</h4>
@@ -193,33 +176,21 @@ const AbundantHarmony = () => {
                     <h4 className="font-semibold">Post-Halloween Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'abundant-harmony-removal', name: 'Post-Halloween Removal & Composting', price: 99, description: 'Complete cleanup and eco-friendly disposal', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">24 Mini Pumpkins</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Additional miniature pumpkins for enhanced detail</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'abundant-harmony-pumpkins', name: '24 Mini Pumpkins', price: 75, description: 'Additional miniature pumpkins for enhanced detail', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Additional miniature pumpkins for enhanced detail</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural autumn scent to complement your display</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'abundant-harmony-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural autumn scent to complement your display', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Essential-oil aromatherapy spray. Natural autumn scent to complement your display</p>
                 </Card>
               </div>
             </div>

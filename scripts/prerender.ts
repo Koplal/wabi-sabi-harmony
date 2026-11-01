@@ -694,7 +694,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties delivered to your door.",
       price: "399",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Quiet Grace",
   },
@@ -708,7 +708,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "A generous autumn pumpkin display for larger porches and stepped entries, with heritage varieties, seasonal botanicals, and full installation.",
       price: "899",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Abundant Harmony",
   },
@@ -722,7 +722,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "A statement autumn pumpkin display with grand-prize centerpieces, rare varieties, and landscape-level installation.",
       price: "1399",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Gathered Abundance",
   },
@@ -736,7 +736,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and professional photo and video.",
       price: "1899",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Estate Collection",
   },
@@ -750,7 +750,7 @@ const seasonalPackages: SeasonalEntry[] = [
       description:
         "Autumn storefront styling for Victoria businesses, with commercial-grade pumpkins, insured installation, and seasonal maintenance.",
       price: "799",
-      availability: PRE,
+      availability: CLOSED,
     },
     crumb: "The Mindful Merchant",
   },
