@@ -33,7 +33,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type ConsoleMessage, type Page, type Route } from "playwright-core";
-import { BROWSER, FAQ_FILES, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES } from "./verify/rules";
+import { BROWSER, type EarlyFormPlan, FAQ_FILES, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, SITE, UTILITY_ROUTES } from "./verify/rules";
 import { type Finding, htmlFileOfRoute, listValue, median, parseArgs, pathOfHref, rawHeadingsOf, report, routeList, textWords, UsageError } from "./verify/lib";
 import {
   BROWSER_RULES,
@@ -42,6 +42,7 @@ import {
   checkCart,
   checkClarity,
   checkConsole,
+  checkEarly,
   checkGa,
   checkH1,
   checkHead,
@@ -53,6 +54,7 @@ import {
   checkRank,
   checkRawPage,
   checkRendered,
+  type EarlyReading,
   fromPrerenderedProblem,
   type HydrationSnapshot,
   type InteractReading,
@@ -84,7 +86,7 @@ const LCP_QUIET = 3_000;
 const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline", "from-prerendered", "dev-react", "measure-lcp"];
 const KNOWN_VALUES = ["route", "skip", "rules", "base", "expect-clarity"];
 
-/** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE, BR-CART and BR-INTERACT make their own visits. */
+/** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE, BR-CART, BR-INTERACT and BR-EARLY make their own visits. */
 const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER"];
 
 class PreviewProtected extends Error {}
@@ -574,6 +576,154 @@ async function interactFindings(browser: Browser, session: Session): Promise<Fin
   return checkInteract({ ...reading, errors, writes: session.blockedWrites.slice(writesBefore) });
 }
 
+/** Keeps the page as its HTML built it until the result is called. A page route runs ahead of guardRequests, then falls through to it. */
+async function holdScripts(page: Page) {
+  let release = () => {};
+  const released = new Promise<void>((done) => {
+    release = done;
+  });
+  await page.route(BROWSER.early.scripts, async (route) => {
+    await released;
+    await route.fallback().catch(() => undefined);
+  });
+  return release;
+}
+
+/** With scripts held, neither the load event nor DOMContentLoaded can come. */
+async function loadBuiltPage(page: Page, session: Session, route: string) {
+  const response = await page.goto(`${session.origin}${route}`, { waitUntil: "commit" });
+  if (response?.status() === 401) throw new PreviewProtected();
+  await page.waitForSelector("main", { state: "attached", timeout: RENDER_TIMEOUT });
+}
+
+const reactOwnsPage = (page: Page) =>
+  page.evaluate(() => {
+    const main = document.querySelector("#root main");
+    return Boolean(main) && Object.keys(main as Element).some((key) => key.startsWith("__reactFiber$"));
+  });
+
+async function attach(page: Page, release: () => void) {
+  release();
+  await settle(page);
+  await page.waitForTimeout(HYDRATION_QUIET);
+  return reactOwnsPage(page);
+}
+
+async function scrollEarly(page: Page, session: Session): Promise<EarlyReading["scroll"]> {
+  const { route, to } = BROWSER.early.scroll;
+  const release = await holdScripts(page);
+  await loadBuiltPage(page, session, route);
+  // Styles give the page its height, and they are not held.
+  await page.waitForFunction((target) => document.documentElement.scrollHeight >= target + window.innerHeight, to, { timeout: RENDER_TIMEOUT });
+  const held = !(await reactOwnsPage(page));
+  const before = await page.evaluate((target) => {
+    window.scrollTo(0, target);
+    return window.scrollY;
+  }, to);
+  const attached = await attach(page, release);
+  return { held, attached, before, after: await page.evaluate(() => window.scrollY) };
+}
+
+/** Picks the first choice in each Select, which is also a later change to the form. */
+async function chooseOptions(page: Page) {
+  const selects = page.locator('form [role="combobox"]');
+  for (let index = 0; index < (await selects.count()); index++) {
+    await selects.nth(index).click({ timeout: RENDER_TIMEOUT });
+    await page.locator('[role="option"]').first().click({ timeout: RENDER_TIMEOUT });
+  }
+}
+
+/**
+ * A field left empty, or one that lost its text, stops a submit at required before anything else
+ * can happen. These steps test what comes after that, so that check must not answer for them.
+ */
+const skipValidation = (page: Page) =>
+  page.locator("form").evaluate((form: HTMLFormElement) => {
+    form.noValidate = true;
+  });
+
+/** On its own load, because leaving the page would lose the text the send below has to carry. */
+async function pressEnterEarly(page: Page, session: Session, plan: EarlyFormPlan) {
+  await holdScripts(page);
+  await loadBuiltPage(page, session, plan.route);
+  await skipValidation(page);
+  const start = page.url();
+  const [[selector, text]] = Object.entries(plan.early);
+  await page.locator(selector).fill(text, { timeout: RENDER_TIMEOUT });
+  await page.locator(selector).press("Enter", { timeout: RENDER_TIMEOUT });
+  await page.waitForTimeout(HYDRATION_QUIET);
+  return page.url() !== start;
+}
+
+async function sendEarly(page: Page, session: Session, plan: EarlyFormPlan): Promise<EarlyReading["forms"][string]> {
+  const release = await holdScripts(page);
+  await loadBuiltPage(page, session, plan.route);
+  const held = !(await reactOwnsPage(page));
+  for (const [selector, text] of Object.entries(plan.early)) await page.locator(selector).fill(text, { timeout: RENDER_TIMEOUT });
+
+  const attached = await attach(page, release);
+  for (const [selector, text] of Object.entries(plan.late)) await page.locator(selector).pressSequentially(text, { timeout: RENDER_TIMEOUT });
+  await chooseOptions(page);
+  await skipValidation(page);
+  const writes = session.blockedWrites.length;
+  const sending = page.waitForRequest((request) => request.method() === "POST" && request.url().endsWith(plan.action), { timeout: RENDER_TIMEOUT });
+  await page.locator('form button[type="submit"]').click({ timeout: RENDER_TIMEOUT });
+  const sent = await sending;
+  // Settles once guardRequests has answered it. The answer has no CORS headers, so the page may see a failure.
+  await sent.response().catch(() => null);
+  return { held, attached, stopped: session.blockedWrites.length > writes, body: sent.postData() ?? "" };
+}
+
+/** Loads the page with its script failing, and returns how many documents had loaded by the time it would have attached. */
+async function failPageScript(page: Page, session: Session, times?: number) {
+  const { route, script } = BROWSER.early.chunk;
+  let loads = 0;
+  page.on("response", (response) => {
+    if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) loads++;
+  });
+  await page.route(script, (blocked) => blocked.abort(), { times });
+  await loadBuiltPage(page, session, route);
+  await settle(page);
+  await page.waitForTimeout(HYDRATION_QUIET);
+  return loads;
+}
+
+async function earlyFindings(browser: Browser, session: Session): Promise<Finding[]> {
+  const errors: EarlyReading["errors"] = {};
+
+  async function step<T>(name: string, act: (page: Page) => Promise<T>): Promise<T | undefined> {
+    const { context, page } = await newPage(browser, session);
+    try {
+      return await act(page);
+    } catch (error) {
+      if (error instanceof PreviewProtected) throw error;
+      errors[name] = error instanceof Error ? error.message.split("\n")[0] : String(error);
+      return undefined;
+    } finally {
+      await context.close();
+    }
+  }
+
+  const scroll = await step("scroll", (page) => scrollEarly(page, session));
+  const forms: EarlyReading["forms"] = {};
+  const enterLeft: EarlyReading["enterLeft"] = {};
+  for (const plan of BROWSER.early.forms) {
+    const left = await step(`Enter ${plan.route}`, (page) => pressEnterEarly(page, session, plan));
+    if (left !== undefined) enterLeft[plan.route] = left;
+    const sent = await step(`form ${plan.route}`, (page) => sendEarly(page, session, plan));
+    if (sent) forms[plan.route] = sent;
+  }
+  const retry = await step("one failed script", async (page) => {
+    const loads = await failPageScript(page, session, 1);
+    return { loads, attached: await reactOwnsPage(page) };
+  });
+  const giveUp = await step("a script that always fails", async (page) => {
+    const loads = await failPageScript(page, session);
+    return { loads, heading: await page.locator("h1").first().isVisible() };
+  });
+  return checkEarly({ scroll, forms, enterLeft, retry, giveUp, errors });
+}
+
 async function missingUrlFindings(browser: Browser, session: Session): Promise<Finding[]> {
   try {
     return checkMissingUrl(await visit(browser, session, { route: LIVE.missingPath }, false), session.origin);
@@ -930,6 +1080,9 @@ async function run(): Promise<number> {
     if (has("BR-404") && (!requested || named.includes("BR-404"))) findings.push(...(await missingUrlFindings(browser, session)));
     const interacting = has("BR-INTERACT") && (!requested || named.includes("BR-INTERACT"));
     if (interacting) findings.push(...(await interactFindings(browser, session)));
+    // After BR-INTERACT, which reports any write during its own steps, because each form here sends one.
+    const early = has("BR-EARLY") && (!requested || named.includes("BR-EARLY"));
+    if (early) findings.push(...(await earlyFindings(browser, session)));
 
     const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).filter((route) => !skipped.includes(route)) : [];
     findings.push(...(await hydrationFindings(browser, session, hydrationRoutes)));
@@ -942,6 +1095,7 @@ async function run(): Promise<number> {
       console.log(`BR-HYDRATE: ${plural(hydrationRoutes.length, "route")}${devReact ? " with development React" : ""}, each with an empty and a seeded cart${later.length > 0 ? `, and ${later.join(", ")} on a later date` : ""}.`);
     }
     if (interacting) console.log("BR-INTERACT: an FAQ answer, the mobile menu, the nav dropdown, a form field and a scroll reset, with nothing submitted.");
+    if (early) console.log("BR-EARLY: scrolling and filling in forms before React attaches, then a page script that fails once and every time. Each send stopped in the browser.");
     if (session.blockedWrites.length > 0) {
       const unique = [...new Set(session.blockedWrites)];
       console.log(`Blocked ${session.blockedWrites.length} write request${session.blockedWrites.length === 1 ? "" : "s"}: ${unique.join(", ")}`);

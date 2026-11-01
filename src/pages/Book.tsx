@@ -10,6 +10,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
+import { useBuiltForm } from "@/hooks/use-built-form";
 import bookHero from "@/assets/book-hero.jpg";
 
 const Book = () => {
@@ -25,6 +26,7 @@ const Book = () => {
     preferredTime3: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { formRef, canSubmit } = useBuiltForm(setFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +106,7 @@ const Book = () => {
           </p>
 
           <div data-clarity-mask="true">
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-xs uppercase tracking-wider">Name</Label>
@@ -193,18 +195,21 @@ const Book = () => {
               
                 <div className="space-y-3">
                   <Input
+                    id="preferredTime1"
                     placeholder="Option 1 (e.g., Monday, Jan 15, 9am-12pm)"
                     value={formData.preferredTime1}
                     onChange={(e) => setFormData({ ...formData, preferredTime1: e.target.value })}
                     className="rounded-none border-border bg-background"
                   />
                   <Input
+                    id="preferredTime2"
                     placeholder="Option 2"
                     value={formData.preferredTime2}
                     onChange={(e) => setFormData({ ...formData, preferredTime2: e.target.value })}
                     className="rounded-none border-border bg-background"
                   />
                   <Input
+                    id="preferredTime3"
                     placeholder="Option 3"
                     value={formData.preferredTime3}
                     onChange={(e) => setFormData({ ...formData, preferredTime3: e.target.value })}
@@ -221,7 +226,7 @@ const Book = () => {
               </div>
 
               <div className="text-center">
-                <Button type="submit" size="lg" disabled={isSubmitting}>
+                <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit}>
                   {isSubmitting ? "Sending..." : "Submit Booking Request"}
                 </Button>
               </div>

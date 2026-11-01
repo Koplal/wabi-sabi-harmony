@@ -389,8 +389,81 @@ export function checkInteract(reading: InteractReading): Finding[] {
   return findings;
 }
 
+/** What one step saw of the window before React attaches, and whether it was in that window at all. */
+interface EarlyStep {
+  /** React owned nothing on the page when the step acted. Without this it proves nothing. */
+  held: boolean;
+  /** React owned the page once the scripts were released. */
+  attached: boolean;
+}
+
+/** What each BR-EARLY step saw. A step that could not finish has no reading, only an entry in errors. */
+export interface EarlyReading {
+  /** Scroll position just before the scripts were released, and after React attached. */
+  scroll?: EarlyStep & { before: number; after: number };
+  /** By route: what the form sent, and whether the send stopped in the browser. */
+  forms: Record<string, EarlyStep & { body: string; stopped: boolean }>;
+  /** By route: a press of Enter went to another URL, which would lose what was typed. */
+  enterLeft: Record<string, boolean>;
+  /** The page's script failed once. loads counts documents, and the reload must then attach. */
+  retry?: { loads: number; attached: boolean };
+  /** The page's script failed every time. It must reload once, stop, and leave the page on screen. */
+  giveUp?: { loads: number; heading: boolean };
+  /** Why a step did not finish, by step name. */
+  errors: Record<string, string>;
+}
+
+/** R2-FR-03 before load: what a visitor did to the built page survives React attaching to it. */
+export function checkEarly(reading: EarlyReading): Finding[] {
+  const { scroll, forms, chunk } = BROWSER.early;
+  const findings: Finding[] = [];
+  const add = (file: string, message: string) => findings.push({ rule: "BR-EARLY", row: "R2-FR-03", file, message });
+  const unfinished = (name: string, route: string) => add(`${route} [${name}]`, `the step did not finish: ${reading.errors[name] ?? "no reading"}`);
+  const inWindow = (file: string, { held, attached }: EarlyStep) => {
+    if (!held) add(file, "React had attached before the step acted, so it proves nothing");
+    if (!attached) add(file, "React did not attach after the scripts were released");
+  };
+
+  if (!reading.scroll) unfinished("scroll", scroll.route);
+  else {
+    inWindow(scroll.route, reading.scroll);
+    const { before, after } = reading.scroll;
+    if (before === 0) add(scroll.route, "the page was not scrolled before React attached, so this proves nothing");
+    if (after !== before) add(scroll.route, `scrolled to ${before} before React attached, then moved to ${after}`);
+  }
+
+  for (const plan of forms) {
+    const left = reading.enterLeft[plan.route];
+    if (left === undefined) unfinished(`Enter ${plan.route}`, plan.route);
+    else if (left) add(plan.route, "pressing Enter before React attached sent the page to another URL");
+
+    const seen = reading.forms[plan.route];
+    if (!seen) {
+      unfinished(`form ${plan.route}`, plan.route);
+      continue;
+    }
+    inWindow(plan.route, seen);
+    if (!seen.stopped) add(plan.route, "the form's send was not stopped in the browser");
+    for (const text of [...Object.values(plan.early), ...Object.values(plan.late)]) {
+      if (!seen.body.includes(text)) add(plan.route, `"${text}" was entered, but the request did not carry it`);
+    }
+  }
+
+  if (!reading.retry) unfinished("one failed script", chunk.route);
+  else {
+    if (reading.retry.loads !== 2) add(chunk.route, `${reading.retry.loads} page loads after the script failed once, expected 2`);
+    if (!reading.retry.attached) add(chunk.route, "React did not attach after the reload");
+  }
+  if (!reading.giveUp) unfinished("a script that always fails", chunk.route);
+  else {
+    if (reading.giveUp.loads !== 2) add(chunk.route, `${reading.giveUp.loads} page loads with the script always failing, expected 2`);
+    if (!reading.giveUp.heading) add(chunk.route, "the built page did not stay on screen after the script failed");
+  }
+  return findings;
+}
+
 /** BR-LCP needs a deployment and many slow loads, so it runs only when named. */
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER", "BR-404", "BR-HYDRATE", "BR-CART", "BR-INTERACT", "BR-LCP"];
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER", "BR-404", "BR-HYDRATE", "BR-CART", "BR-INTERACT", "BR-EARLY", "BR-LCP"];
 
 /**
  * --from-prerendered replaces Release 1 text, so it must name the routes it replaces. Without that,

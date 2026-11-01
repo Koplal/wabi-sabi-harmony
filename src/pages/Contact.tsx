@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
+import { useBuiltForm } from "@/hooks/use-built-form";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -24,6 +25,7 @@ const Contact = () => {
     notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { formRef, canSubmit } = useBuiltForm(setFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +96,7 @@ const Contact = () => {
           </p>
 
           <div data-clarity-mask="true">
-            <form onSubmit={handleSubmit} className="space-y-8 mb-16">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 mb-16">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-xs uppercase tracking-wider">
@@ -208,7 +210,7 @@ const Contact = () => {
               </div>
 
               <div className="text-center">
-                <Button type="submit" size="lg" disabled={isSubmitting}>
+                <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit}>
                   {isSubmitting ? "Sending..." : "Send Inquiry"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-4">We'll reply within one business day.</p>

@@ -639,6 +639,17 @@ export interface CartStepPlan {
   cleared?: boolean;
 }
 
+/** One form in BR-EARLY. Each map is a selector and the text that goes in it. */
+export interface EarlyFormPlan {
+  route: string;
+  /** The Supabase function its send goes to. The request stops in the browser. */
+  action: string;
+  /** Filled before React attaches. */
+  early: Record<string, string>;
+  /** Typed after, because a later change to one field must not lose what is already there. */
+  late: Record<string, string>;
+}
+
 export const BROWSER = {
   blockedHosts: ["googletagmanager.com", "google-analytics.com", "clarity.ms"],
   fontHosts: ["fonts.googleapis.com", "fonts.gstatic.com"],
@@ -716,6 +727,37 @@ export const BROWSER = {
     dropdown: { route: "/ritual", button: 'header button[aria-haspopup="menu"]', links: '[role="menu"] a[href]', expected: "/services/cleaning" },
     field: { route: "/contact", selector: "#name", text: "Verify Harness" },
     scroll: { start: "/faq", through: "/ritual" },
+  },
+  /**
+   * BR-EARLY: what a visitor can do between a built page painting and React attaching to it. Every
+   * other rule acts after that, so none of them sees this window, which Release 1 did not have. The
+   * scripts are held until each step is done. A form's send stops in the browser, where its body is
+   * read. chunk makes one page's script fail, once and then every time.
+   */
+  early: {
+    scripts: "**/assets/*.js",
+    scroll: { route: "/services/cleaning", to: 1500 },
+    forms: [
+      {
+        route: "/contact",
+        action: "send-contact-email",
+        early: { "#name": "Early Name", "#email": "early@example.com", "#phone": "Early Phone", "#address": "Early Address" },
+        late: { "#notes": "Late Notes" },
+      },
+      {
+        route: "/book",
+        action: "send-contact-email",
+        early: { "#name": "Early Name", "#email": "early@example.com", "#phone": "Early Phone", "#address": "Early Address", "#preferredTime1": "Early Monday" },
+        late: { "#preferredTime3": "Late Friday" },
+      },
+      {
+        route: "/careers",
+        action: "send-application-email",
+        early: { "#name": "Early Name", "#email": "early@example.com", "#position": "Early Position", "#experience": "Early Experience" },
+        late: { "#message": "Late Message" },
+      },
+    ] as EarlyFormPlan[],
+    chunk: { route: "/contact", script: "**/assets/Contact-*.js" },
   },
   /** --dev-react. The marker is a string that only development React contains. */
   devReact: {

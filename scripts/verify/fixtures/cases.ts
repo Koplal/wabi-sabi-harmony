@@ -12,6 +12,7 @@ import {
   CLARITY_PROJECT_ID,
   CONSULTATION,
   COPY_PAGES,
+  type EarlyFormPlan,
   FAQ_FILES,
   FAQ_SECTIONS,
   FREE_ESTIMATES,
@@ -49,6 +50,7 @@ import {
   checkH1,
   checkHead as checkBrowserHead,
   checkHydrate,
+  checkEarly,
   checkInteract,
   checkLcpRuns,
   checkMissingUrl,
@@ -58,6 +60,7 @@ import {
   checkRendered,
   fromPrerenderedProblem,
   type HydrationSnapshot,
+  type EarlyReading,
   type InteractReading,
   type LcpMeasure,
   type PageSnapshot,
@@ -1145,6 +1148,38 @@ browserCase("BR-INTERACT", "reports the wrong page after the click", fails(`ende
 browserCase("BR-INTERACT", "reports a POST", fails("a write request left the page"), () => checkInteract(interacted({ writes: ["POST https://example.com/api"] })));
 browserCase("BR-INTERACT", "reports a step that did not finish", fails("the step did not finish: no such button"), () => checkInteract(interacted({ dropdown: undefined, errors: { dropdown: "no such button" } })));
 browserCase("BR-INTERACT", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkInteract(interacted({ answer: undefined })));
+
+const EARLY = BROWSER.early;
+const CONTACT_FORM = EARLY.forms[0];
+const formTexts = (plan: EarlyFormPlan) => [...Object.values(plan.early), ...Object.values(plan.late)];
+const sentForm = (plan: EarlyFormPlan) => ({ held: true, attached: true, stopped: true, body: JSON.stringify(formTexts(plan)) });
+const early = (fields: Partial<EarlyReading> = {}): EarlyReading => ({
+  scroll: { held: true, attached: true, before: EARLY.scroll.to, after: EARLY.scroll.to },
+  forms: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, sentForm(plan)])),
+  enterLeft: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, false])),
+  retry: { loads: 2, attached: true },
+  giveUp: { loads: 2, heading: true },
+  errors: {},
+  ...fields,
+});
+const earlyContact = (fields: Partial<EarlyReading["forms"][string]>) => early({ forms: { ...early().forms, [CONTACT_FORM.route]: { ...sentForm(CONTACT_FORM), ...fields } } });
+const earlyScroll = (fields: Partial<NonNullable<EarlyReading["scroll"]>>) => early({ scroll: { ...(early().scroll as NonNullable<EarlyReading["scroll"]>), ...fields } });
+browserCase("BR-EARLY", "good fixture", "pass", () => checkEarly(early()));
+browserCase("BR-EARLY", "reports a scroll position lost on attaching", fails(`scrolled to ${EARLY.scroll.to} before React attached, then moved to 0`), () => checkEarly(earlyScroll({ after: 0 })));
+browserCase("BR-EARLY", "reports a page that never scrolled, which proves nothing", fails("the page was not scrolled before React attached"), () => checkEarly(earlyScroll({ before: 0, after: 0 })));
+browserCase("BR-EARLY", "reports text sent blank, as the forms did before this rule", fails(`"${formTexts(CONTACT_FORM)[0]}" was entered, but the request did not carry it`), () => checkEarly(earlyContact({ body: "{}" })));
+browserCase("BR-EARLY", "reports a later field lost from the request", fails(`"${Object.values(CONTACT_FORM.late)[0]}" was entered`), () => checkEarly(earlyContact({ body: JSON.stringify(Object.values(CONTACT_FORM.early)) })));
+browserCase("BR-EARLY", "reports a send that was not stopped in the browser", fails("the form's send was not stopped in the browser"), () => checkEarly(earlyContact({ stopped: false })));
+browserCase("BR-EARLY", "reports Enter leaving the page", fails("pressing Enter before React attached"), () => checkEarly(early({ enterLeft: { ...early().enterLeft, [CONTACT_FORM.route]: true } })));
+browserCase("BR-EARLY", "reports an Enter step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ enterLeft: {}, errors: { [`Enter ${CONTACT_FORM.route}`]: "Timeout" } })));
+browserCase("BR-EARLY", "reports a step that ran after React attached, which proves nothing", fails("React had attached before the step acted"), () => checkEarly(earlyContact({ held: false })));
+browserCase("BR-EARLY", "reports a page React never reached", fails("React did not attach after the scripts were released"), () => checkEarly(earlyScroll({ attached: false })));
+browserCase("BR-EARLY", "reports a form that sent nothing", fails("the step did not finish: Timeout"), () => checkEarly(early({ forms: {}, errors: { [`form ${CONTACT_FORM.route}`]: "Timeout" } })));
+browserCase("BR-EARLY", "reports a failed script with no reload", fails("1 page loads after the script failed once, expected 2"), () => checkEarly(early({ retry: { loads: 1, attached: false } })));
+browserCase("BR-EARLY", "reports a reload that does not attach", fails("React did not attach after the reload"), () => checkEarly(early({ retry: { loads: 2, attached: false } })));
+browserCase("BR-EARLY", "reports a reload loop", fails("5 page loads with the script always failing, expected 2"), () => checkEarly(early({ giveUp: { loads: 5, heading: true } })));
+browserCase("BR-EARLY", "reports a page lost after the script failed", fails("the built page did not stay on screen"), () => checkEarly(early({ giveUp: { loads: 2, heading: false } })));
+browserCase("BR-EARLY", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkEarly(early({ retry: undefined })));
 
 browserCase("BR-GA", "good fixture", "pass", () => checkGa(snapshot({ gaConfigs: 1 })));
 browserCase("BR-GA", "reports two page views from one load", "fail", () => checkGa(snapshot({ gaConfigs: 2 })));

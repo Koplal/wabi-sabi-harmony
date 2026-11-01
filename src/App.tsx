@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { type ComponentType, type ReactNode, useEffect, useState, lazy, Suspense } from "react";
+import { type ComponentType, type ReactNode, useEffect, useRef, useState, lazy, Suspense } from "react";
 import ClarityLoader from "@/components/Clarity";
 import { Layout } from "@/components/Layout";
 import NotFound from "./pages/NotFound";
@@ -73,10 +73,17 @@ export const preloadRoute = async (path: string) => {
 
 const queryClient = new QueryClient();
 
+/**
+ * Only a move to another page resets the scroll. A built page can be read and scrolled before this
+ * mounts, and the browser may have restored a position, so the first load is left alone.
+ */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+  const shownPath = useRef(pathname);
 
   useEffect(() => {
+    if (pathname === shownPath.current) return;
+    shownPath.current = pathname;
     window.scrollTo(0, 0);
   }, [pathname]);
 
