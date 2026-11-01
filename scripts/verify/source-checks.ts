@@ -273,6 +273,10 @@ export function checkConsult(ctx: SourceCtx): Finding[] {
 
 const unquote = (value: string) => value.replace(/\\(['"])/g, "$1");
 
+/** The answers in the FAQ data, as a visitor reads them. */
+export const faqAnswers = (dataText: string) =>
+  [...dataText.matchAll(/answer:\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')/g)].map((match) => unquote(match[1] ?? match[2]));
+
 export function checkFaq(ctx: SourceCtx): Finding[] {
   if (!ctx.inScope(FAQ_FILES.data) && !ctx.inScope(FAQ_FILES.page)) return [];
   const finding = (file: string, message: string): Finding => ({ rule: "S-FAQ", file, message });

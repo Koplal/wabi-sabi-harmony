@@ -60,8 +60,8 @@ export function checkRaw(route: string, status: number, html: string): Finding[]
 export function checkRedirect(from: string, to: string, base: string, chain: Chain): Finding[] {
   const hops = redirects(chain);
   const expected = new URL(to, base).href;
-  if (hops.length === 1 && [301, 308].includes(hops[0].status) && finalUrl(chain) === expected) return [];
-  return [{ rule: "LV-REDIRECT", file: from, message: `expected one permanent redirect to ${to}: ${describeChain(chain)}` }];
+  if (hops.length === 1 && [301, 308].includes(hops[0].status) && finalUrl(chain) === expected && finalStatus(chain) === 200) return [];
+  return [{ rule: "LV-REDIRECT", file: from, message: `expected one permanent redirect to ${to}, ending at 200: ${describeChain(chain)}` }];
 }
 
 export function checkUtility(route: string, status: number, html: string): Finding[] {

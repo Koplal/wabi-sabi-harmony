@@ -7,34 +7,41 @@
  *   npm run verify:browser -- --rules=BR-H1,BR-NAV only these rules
  *   npm run verify:browser -- --base=<url>         a deployment instead of dist/
  *   npm run verify:browser -- --expect-clarity=<id>  a build made with that Clarity ID
+ *   npm run verify:browser -- --write-render-baseline  saves each route's rendered text
  *
  * Analytics hosts and /_vercel/* are answered locally on every pass, including --base, and
  * nothing but GET and HEAD leaves the browser. Exit codes: 0 pass, 1 findings, 2 setup error.
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type BrowserContext, chromium, type ConsoleMessage, type Page, type Route } from "playwright-core";
 import { BROWSER, INDEXABLE_ROUTES, RANK_ROUTES, UTILITY_ROUTES } from "./verify/rules";
-import { type Finding, listValue, parseArgs, report, routeList, UsageError } from "./verify/lib";
+import { type Finding, listValue, parseArgs, report, routeList, textWords, UsageError } from "./verify/lib";
 import {
   BROWSER_RULES,
+  type CartStep,
   checkAreas,
+  checkCart,
   checkClarity,
   checkConsole,
   checkH1,
   checkHead,
+  checkHydrate,
   checkNav,
   checkRank,
   type NavStep,
   type PageSnapshot,
 } from "./verify/browser-rules";
-import type { RankBaseline } from "./verify/dist-checks";
+import type { RankBaseline, RenderBaseline, RenderEntry } from "./verify/dist-checks";
 import { type RunningServer, startStaticServer } from "./verify/static-server";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BASELINE = resolve(ROOT, "scripts/verify/rank-baseline.json");
+const RENDER_BASELINE = resolve(ROOT, "scripts/verify/render-baseline.json");
 
+const VIEWPORT = { width: 1280, height: 900 };
 const WORKERS = 4;
 const NAVIGATION_TIMEOUT = 45_000;
 const RENDER_TIMEOUT = 8_000;
@@ -42,8 +49,11 @@ const HEADING_TIMEOUT = 3_000;
 const CLARITY_WAIT = 12_000;
 const CLARITY_ABSENT_WAIT = 3_000;
 
-const KNOWN_FLAGS = ["write-rank-h1"];
+const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline"];
 const KNOWN_VALUES = ["route", "skip", "rules", "base", "expect-clarity"];
+
+/** Rules read from one visit to each route. BR-NAV, BR-HYDRATE and BR-CART make their own visits. */
+const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY"];
 
 class PreviewProtected extends Error {}
 
@@ -96,7 +106,11 @@ async function guardRequests(context: BrowserContext, session: Session) {
 }
 
 async function newPage(browser: Browser, session: Session, scenario?: Target["scenario"]) {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const context = await browser.newContext({ viewport: VIEWPORT });
+  // tsx wraps named functions in __name(), which does not exist in the page. Without this, any
+  // evaluate() that declares one throws, and a catch can hide it. Init scripts run in no set order,
+  // so the probes passed to addInitScript below declare no named functions.
+  await context.addInitScript({ content: "window.__name = (target) => target;" });
   await guardRequests(context, session);
   if (scenario === "seeded cart") {
     const cart = JSON.stringify(BROWSER.seededCart);
@@ -247,6 +261,163 @@ async function navFindings(browser: Browser, session: Session): Promise<Finding[
   }
 }
 
+interface ProbeWindow {
+  __verifyMarkup?: { root: Element | null; heading: Element | null };
+  __verifyCartWrites?: string[];
+}
+
+/**
+ * Keeps the nodes the HTML itself put in #root. It runs at document start, and the parser sets
+ * readyState to interactive before deferred and module scripts run, so app code adds nothing here.
+ */
+const keepServerMarkup = () => {
+  document.addEventListener(
+    "readystatechange",
+    () => {
+      (window as unknown as ProbeWindow).__verifyMarkup = {
+        root: document.querySelector("#root > *"),
+        heading: document.querySelector("#root h1"),
+      };
+    },
+    { once: true }
+  );
+};
+
+const readServerMarkup = (page: Page) =>
+  page.evaluate(() => {
+    const { root = null, heading = null } = (window as unknown as ProbeWindow).__verifyMarkup ?? {};
+    return {
+      hadMarkup: Boolean(root),
+      attached: Boolean(root?.isConnected) && Object.keys(root ?? {}).some((key) => key.startsWith("__reactFiber$")),
+      headingKept: heading ? heading.isConnected : undefined,
+    };
+  });
+
+async function hydrationFindings(browser: Browser, session: Session, routes: string[]): Promise<Finding[]> {
+  const targets = routes.flatMap((route) => (["empty cart", "seeded cart"] as const).map((scenario) => ({ route, scenario })));
+  const findings: Finding[] = [];
+  await inPool(targets, async ({ route, scenario }) => {
+    const { context, page } = await newPage(browser, session, scenario);
+    try {
+      await context.addInitScript(keepServerMarkup);
+      const errors = watchErrors(page);
+      const response = await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
+      if (response?.status() === 401) throw new PreviewProtected();
+      await settle(page);
+      findings.push(...checkHydrate({ route, scenario, ...errors, ...(await readServerMarkup(page)) }));
+    } catch (error) {
+      if (error instanceof PreviewProtected) throw error;
+      const message = `the page did not load: ${error instanceof Error ? error.message : String(error)}`;
+      findings.push({ rule: "BR-HYDRATE", file: `${route} [${scenario}]`, message });
+    } finally {
+      await context.close();
+    }
+  });
+  return findings;
+}
+
+const watchCartWrites = () => {
+  const writes: string[] = [];
+  (window as unknown as ProbeWindow).__verifyCartWrites = writes;
+  const setItem = Storage.prototype.setItem;
+  Storage.prototype.setItem = function (key: string, value: string) {
+    if (key === "cart") writes.push(value);
+    setItem.call(this, key, value);
+  };
+};
+
+type CartReading = Omit<CartStep, "name" | "route">;
+
+const readCart = (page: Page, itemName: string): Promise<CartReading> =>
+  page.evaluate((name) => {
+    let stored: Array<{ id: string }> = [];
+    try {
+      stored = JSON.parse(localStorage.getItem("cart") ?? "[]");
+    } catch {
+      // A damaged value reads as an empty cart.
+    }
+    return {
+      finalPath: location.pathname,
+      storedIds: stored.map((item) => item.id),
+      itemShown: (document.getElementById("root")?.innerText ?? "").includes(name),
+      hasNameField: Boolean(document.querySelector("#name")),
+      emptyWrites: ((window as unknown as ProbeWindow).__verifyCartWrites ?? []).filter((value) => value === "[]").length,
+    };
+  }, itemName);
+
+/**
+ * The cart is stored once, on a page with no app code. newPage's seeded cart cannot be used here:
+ * it stores the cart again on every load, which would hide a cart lost on reload.
+ */
+async function cartFindings(browser: Browser, session: Session): Promise<Finding[]> {
+  const { context, page } = await newPage(browser, session);
+  try {
+    await context.addInitScript(watchCartWrites);
+    const seed = await page.goto(`${session.origin}${BROWSER.seedPage}`, { waitUntil: "load" });
+    if (seed?.status() === 401) throw new PreviewProtected();
+    await page.evaluate((value) => localStorage.setItem("cart", value), JSON.stringify(BROWSER.seededCart));
+
+    const steps: CartStep[] = [];
+    for (const { name, route, reload } of BROWSER.cartSteps) {
+      if (reload) await page.reload({ waitUntil: "load" });
+      else await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
+      await settle(page);
+      steps.push({ name, route, ...(await readCart(page, BROWSER.seededCart[0].name)) });
+    }
+    return checkCart(steps);
+  } finally {
+    await context.close();
+  }
+}
+
+const readRendered = (page: Page) =>
+  page.evaluate(() => {
+    const root = document.getElementById("root");
+    const hrefs = [...(root?.querySelectorAll("a[href]") ?? [])].map((link) => link.getAttribute("href") ?? "");
+    return {
+      finalPath: location.pathname,
+      h1: (document.querySelector("h1")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+      text: (root?.innerText ?? "").replace(/\s+/g, " ").trim(),
+      links: [...new Set(hrefs.filter((href) => href.startsWith("/")).map((href) => href.split(/[?#]/)[0]))].sort(),
+    };
+  });
+
+const LCP_NOT_READ: RenderBaseline["mobileLcp"] = {
+  status: "blocked",
+  p75Ms: null,
+  note: "Not read from Speed Insights. Record the mobile p75 LCP here from the Vercel dashboard. Never estimate it.",
+};
+
+/** Menus stay closed, so nothing from their open states is counted (R2-FR-01). */
+async function writeRenderBaseline(browser: Browser, session: Session, capturedFrom: string) {
+  const routes = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
+  const entries = new Map<string, RenderEntry>();
+  await inPool(routes, async (route) => {
+    // With an empty cart /checkout leaves for /cart, so only a seeded cart shows its page.
+    const scenario = route === "/checkout" ? "seeded cart" : undefined;
+    const { context, page } = await newPage(browser, session, scenario);
+    try {
+      await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
+      await settle(page);
+      const { text, ...rendered } = await readRendered(page);
+      if (!rendered.h1) throw new UsageError(`No rendered H1 on ${route}`);
+      entries.set(route, { ...rendered, ...(scenario ? { scenario } : {}), words: textWords(text).length, text });
+    } finally {
+      await context.close();
+    }
+  });
+
+  const previous = existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
+  const baseline: RenderBaseline = {
+    capturedFrom,
+    viewport: VIEWPORT,
+    mobileLcp: previous?.mobileLcp ?? LCP_NOT_READ,
+    routes: Object.fromEntries(routes.map((route) => [route, entries.get(route) as RenderEntry])),
+  };
+  writeFileSync(RENDER_BASELINE, `${JSON.stringify(baseline, null, 2)}\n`);
+  console.log(`Wrote ${routes.length} routes to scripts/verify/render-baseline.json from ${capturedFrom}`);
+}
+
 function routesToVisit(selected: string[], requested: string[] | undefined, skipped: string[], expectClarity?: string): string[] {
   if (requested) return requested.filter((route) => !skipped.includes(route));
 
@@ -303,7 +474,7 @@ async function run(): Promise<number> {
     if (!route.startsWith("/")) throw new UsageError(`A route must start with /: ${route}`);
   }
   const routes = routesToVisit(selected, requested, skipped, expectClarity);
-  const targets = targetsFor(routes);
+  const targets = selected.some((rule) => PAGE_RULES.includes(rule)) ? targetsFor(routes) : [];
 
   let server: RunningServer | undefined;
   if (!base) {
@@ -316,6 +487,11 @@ async function run(): Promise<number> {
   try {
     if (args.flags.has("write-rank-h1")) {
       await writeRankH1(browser, session);
+      return 0;
+    }
+    if (args.flags.has("write-render-baseline")) {
+      const commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+      await writeRenderBaseline(browser, session, base ?? commit);
       return 0;
     }
 
@@ -342,10 +518,15 @@ async function run(): Promise<number> {
       if (has("BR-CLARITY")) findings.push(...checkClarity(snapshot, expectClarity));
     });
 
-    const namedNav = listValue(args, "rules")?.includes("BR-NAV");
-    if (has("BR-NAV") && (!requested || namedNav)) findings.push(...(await navFindings(browser, session)));
+    const named = listValue(args, "rules") ?? [];
+    if (has("BR-NAV") && (!requested || named.includes("BR-NAV"))) findings.push(...(await navFindings(browser, session)));
+    if (has("BR-CART") && (!requested || named.includes("BR-CART"))) findings.push(...(await cartFindings(browser, session)));
+
+    const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).filter((route) => !skipped.includes(route)) : [];
+    findings.push(...(await hydrationFindings(browser, session, hydrationRoutes)));
 
     console.log(`Checked ${routes.length} route${routes.length === 1 ? "" : "s"} (${targets.length} page loads) against ${base ?? "dist/"}.`);
+    if (hydrationRoutes.length > 0) console.log(`BR-HYDRATE: ${hydrationRoutes.length} route${hydrationRoutes.length === 1 ? "" : "s"}, each with an empty and a seeded cart.`);
     if (session.blockedWrites.length > 0) {
       const unique = [...new Set(session.blockedWrites)];
       console.log(`Blocked ${session.blockedWrites.length} write request${session.blockedWrites.length === 1 ? "" : "s"}: ${unique.join(", ")}`);

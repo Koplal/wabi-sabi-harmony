@@ -230,8 +230,10 @@ export const compileBan = (source: string, flags: string) => new RegExp(source.r
 
 export const decodeHtml = (value: string) =>
   value
+    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&nbsp;/g, " ")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -266,6 +268,65 @@ export const canonicalsOf = (html: string) =>
 
 export const jsonLdBlocksOf = (html: string) =>
   [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)].map((match) => match[1]);
+
+// ---------------------------------------------------------------------------
+// Raw HTML body
+// ---------------------------------------------------------------------------
+
+const NOT_READ = /<(script|style|noscript|template|svg)\b[\s\S]*?<\/\1>/gi;
+const BLOCK_START = /<(?=(?:p|li|ul|ol|div|h[1-6]|section|article|header|footer|main|nav|aside|table|tr|dl|dt|dd|blockquote|form|button)\b)/gi;
+
+export const bodyOf = (html: string) => /<body[^>]*>([\s\S]*)<\/body>/i.exec(html)?.[1] ?? "";
+
+/** What a reader with no JavaScript gets: no comments, scripts or styling, one block per line. */
+export const bodyMarkup = (html: string) =>
+  bodyOf(html)
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(NOT_READ, " ")
+    .replace(/\s(?:class|style)="[^"]*"/gi, "")
+    .replace(BLOCK_START, "\n<");
+
+const collapse = (text: string) => text.replace(/\s+/g, " ").trim();
+
+export const rawTextOf = (html: string) => collapse(decodeHtml(bodyMarkup(html).replace(/<[^>]+>/g, " ")));
+
+/** H1 text as textContent reads it, so a span inside a heading adds no space. */
+export const rawHeadingsOf = (html: string) =>
+  [...bodyMarkup(html).matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)]
+    .map((match) => collapse(decodeHtml(match[1].replace(/<[^>]+>/g, ""))))
+    .filter(Boolean);
+
+const pathOfHref = (href: string) => href.split(/[?#]/)[0];
+
+export const rawLinksOf = (html: string) =>
+  tagsNamed(bodyMarkup(html), "a")
+    .map((tag) => attributes(tag).href ?? "")
+    .filter((href) => href.startsWith("/"))
+    .map(pathOfHref);
+
+/** Words for comparing raw and rendered text: lower case, with no surrounding punctuation. */
+export const textWords = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/’/g, "'")
+    .split(/\s+/)
+    .map((word) => word.replace(/^[^\p{L}\p{N}$]+|[^\p{L}\p{N}%+]+$/gu, ""))
+    .filter((word) => /[\p{L}\p{N}]/u.test(word));
+
+/** How many of `words` also appear in `other`, counting repeats. */
+export function sharedWordCount(words: string[], other: string[]): number {
+  const left = new Map<string, number>();
+  for (const word of other) left.set(word, (left.get(word) ?? 0) + 1);
+  let shared = 0;
+  for (const word of words) {
+    const count = left.get(word) ?? 0;
+    if (count > 0) {
+      shared++;
+      left.set(word, count - 1);
+    }
+  }
+  return shared;
+}
 
 // ---------------------------------------------------------------------------
 // JSON-LD
@@ -385,3 +446,5 @@ export const routeOfHtmlFile = (path: string) => {
   const route = path.replace(/(?:^|\/)index\.html$/, "");
   return route ? `/${route}` : "/";
 };
+
+export const htmlFileOfRoute = (route: string) => (route === "/" ? "index.html" : `${route.slice(1)}/index.html`);

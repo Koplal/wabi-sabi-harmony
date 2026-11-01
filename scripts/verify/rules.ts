@@ -640,6 +640,34 @@ export const PARENT = {
 /** The site's Clarity project ID. D-CLARITY fails if a build with no ID contains it. */
 export const CLARITY_PROJECT_ID = "z6fydc3bvk";
 
+/** R2-FR-01: the share of a route's rendered words that its raw HTML must carry. */
+export const RAW_MIN_WORD_SHARE = 0.95;
+
+export const FALLBACK = {
+  busy: 'aria-busy="true"',
+  /** React's markers for a Suspense boundary that did not finish rendering on the server. */
+  suspenseMarkers: ["<!--$?-->", "<!--$!-->"],
+};
+
+export const MISSING_PAGE = { file: "404.html", brand: "Wabi Sabi Services" };
+
+/**
+ * The one route list (R2-FR-11). Until it exists, D-MANIFEST fails. `routePath` reads each route
+ * from its text, so that file must spell its routes as quoted paths.
+ */
+export const MANIFEST = {
+  routeFile: "src/data/routes.ts",
+  routePath: "[\"'`](/[a-z0-9/-]*)[\"'`]",
+  appFile: "src/App.tsx",
+};
+
+/** Where the copy rules find a built page's text, for rules that name a source file. */
+export const COPY_PAGES = {
+  aliases: { [FAQ_PAGE]: FAQ_DATA } as Record<string, string>,
+  areaPrefix: "/areas/",
+  areaFile: "src/data/neighborhoods.ts",
+};
+
 // ---------------------------------------------------------------------------
 // Browser rules
 // ---------------------------------------------------------------------------
@@ -658,6 +686,24 @@ export const BROWSER = {
       image: "/og-image.png",
     },
   ],
+  /** A same-origin page with no app code, so the cart can be stored before the app first loads. */
+  seedPage: "/robots.txt",
+  /** BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL. */
+  cartSteps: [
+    { name: "first load", route: "/cart", reload: false },
+    { name: "reload", route: "/cart", reload: true },
+    { name: "another page", route: "/seasoning", reload: false },
+    { name: "return to the cart", route: "/cart", reload: false },
+    { name: "full load of checkout", route: "/checkout", reload: false },
+  ],
+  /** BR-HYDRATE. A production build reports these React errors by number only. */
+  hydrationErrors: [
+    "hydrat",
+    "did not match",
+    "server.rendered HTML",
+    "Text content does not match",
+    "Minified React error #(?:418|419|421|422|423|425)\\b",
+  ],
 };
 
 // ---------------------------------------------------------------------------
@@ -674,6 +720,7 @@ export const LIVE = {
   redirects: [
     { from: "/the-ritual", to: "/ritual" },
     { from: "/index.html", to: "/" },
+    { from: "/home", to: "/" },
     { from: "/services/errands/", to: "/services/errands" },
   ],
   utilityRoutes: ["/cart", "/checkout", "/checkout-success?session_id=test"],

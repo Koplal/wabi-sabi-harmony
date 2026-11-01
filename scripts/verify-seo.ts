@@ -18,12 +18,13 @@ import { fileURLToPath } from "node:url";
 import { BANS, COPY_BASE_COMMIT, INDEXABLE_ROUTES, OVERLAP, RANK_ROUTES, REQUIRED, SCAN } from "./verify/rules";
 import { type Args, type Finding, listValue, parseArgs, report, routeOfHtmlFile, SourceText, UsageError } from "./verify/lib";
 import { type CommitRecord, copySegments, type GitInput, parsePrivateBans, type PrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "./verify/source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline } from "./verify/dist-checks";
+import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline } from "./verify/dist-checks";
 import { runSelfTest } from "./verify/fixtures/cases";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = resolve(ROOT, "dist");
 const BASELINE = resolve(ROOT, "scripts/verify/rank-baseline.json");
+const RENDER_BASELINE = resolve(ROOT, "scripts/verify/render-baseline.json");
 
 const KNOWN_FLAGS = ["source", "dist", "self-test", "write-rank-baseline"];
 const KNOWN_VALUES = ["scope", "rules", "expect-clarity", "pearlys"];
@@ -163,6 +164,10 @@ function loadBaseline(): RankBaseline {
   return JSON.parse(readFileSync(BASELINE, "utf8")) as RankBaseline;
 }
 
+function loadRenderBaseline(): RenderBaseline | undefined {
+  return existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
+}
+
 function distFiles(): Map<string, string> {
   if (!existsSync(resolve(DIST, "index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
   const files = new Map<string, string>();
@@ -177,6 +182,8 @@ function buildDistCtx(args: Args): DistCtx {
     files: distFiles(),
     routes: INDEXABLE_ROUTES,
     baseline: loadBaseline(),
+    renderBaseline: loadRenderBaseline(),
+    privateBans: loadPrivateBans(),
     readSource: readRepoFile,
     sourcePages() {
       const pages: string[] = [];

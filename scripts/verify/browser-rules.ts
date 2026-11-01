@@ -1,5 +1,5 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
-import { BROWSER, PARENT, RANK_ROUTES, SITE } from "./rules";
+import { BROWSER, PARENT, RANK_ROUTES, SITE, UTILITY_ROUTES } from "./rules";
 import { canonicalJson, canonicalPath, duplicateProblems, type Finding, parseBlock, routeUrl, topNodes } from "./lib";
 
 export interface PageSnapshot {
@@ -144,4 +144,67 @@ export function checkClarity(snapshot: PageSnapshot, expectId: string | undefine
   return [];
 }
 
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY"];
+export interface HydrationSnapshot {
+  route: string;
+  scenario: string;
+  pageErrors: string[];
+  consoleErrors: Array<{ text: string; url: string }>;
+  /** #root held server-rendered markup before any page script ran. */
+  hadMarkup: boolean;
+  /** That markup is still on the page, and React owns it. */
+  attached: boolean;
+  /** The server-rendered H1 is still on the page. Undefined when the HTML has none. */
+  headingKept?: boolean;
+}
+
+/**
+ * A page that never hydrates raises no warning, and neither does one that discards the
+ * server markup, so a clean console alone proves nothing. React must also attach to the markup.
+ */
+export function checkHydrate(snapshot: HydrationSnapshot): Finding[] {
+  const file = `${snapshot.route} [${snapshot.scenario}]`;
+  const finding = (message: string): Finding => ({ rule: "BR-HYDRATE", row: "R2-FR-03", file, message });
+  const warning = new RegExp(BROWSER.hydrationErrors.join("|"), "i");
+
+  const findings = [...snapshot.pageErrors, ...snapshot.consoleErrors.map((entry) => entry.text)]
+    .filter((text) => warning.test(text))
+    .map((text) => finding(`hydration warning: ${text}`));
+
+  if (!snapshot.hadMarkup) findings.push(finding("#root has no server-rendered markup to attach to"));
+  else if (!snapshot.attached) findings.push(finding("React replaced the server-rendered markup instead of attaching to it"));
+  // A cart that fills after load may swap the H1 on a utility page. That is not a mismatch.
+  else if (snapshot.headingKept === false && !UTILITY_ROUTES.includes(snapshot.route)) {
+    findings.push(finding("the server-rendered H1 was replaced"));
+  }
+  return findings;
+}
+
+export interface CartStep {
+  name: string;
+  route: string;
+  finalPath: string;
+  storedIds: string[];
+  itemShown: boolean;
+  hasNameField: boolean;
+  /** Times this load wrote an empty list over the stored cart. */
+  emptyWrites: number;
+}
+
+export function checkCart(steps: CartStep[]): Finding[] {
+  const item = BROWSER.seededCart[0];
+  const findings: Finding[] = [];
+  if (steps.length !== BROWSER.cartSteps.length) {
+    findings.push({ rule: "BR-CART", row: "R2-FR-03", message: `${steps.length} of ${BROWSER.cartSteps.length} steps ran` });
+  }
+  for (const step of steps) {
+    const add = (message: string) => findings.push({ rule: "BR-CART", row: "R2-FR-03", file: `${step.route} [${step.name}]`, message });
+    if (step.finalPath !== step.route) add(`ended at ${step.finalPath}`);
+    if (!step.storedIds.includes(item.id)) add("the stored cart lost its item");
+    if (step.emptyWrites > 0) add("an empty list was written over the stored cart");
+    if (step.route === "/cart" && !step.itemShown) add("the item is not on the page");
+    if (step.route === "/checkout" && !step.hasNameField) add("the form is not on the page");
+  }
+  return findings;
+}
+
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-HYDRATE", "BR-CART"];

@@ -1,34 +1,66 @@
 /** Dist rules. Each check takes a DistCtx, so the self-test can run it on fixtures. */
 import {
+  BANS,
   CLARITY_PROJECT_ID,
+  COPY_PAGES,
+  FALLBACK,
+  FAQ_FILES,
   HELMET_META_KEYS,
+  MANIFEST,
+  MISSING_PAGE,
   NAP,
   ORG,
   PARENT,
   PARITY_EXEMPT,
   PEARLY_IDS,
   RANK_ROUTES,
+  RAW_MIN_WORD_SHARE,
+  REQUIRED,
+  REQUIRED_ORDER,
   SITE,
+  UTILITY_ROUTES,
 } from "./rules";
 import {
   attributes,
+  bodyMarkup,
+  bodyOf,
   canonicalJson,
   canonicalsOf,
   duplicateProblems,
   type Finding,
   headOf,
+  htmlFileOfRoute,
   isNode,
   jsonLdBlocksOf,
   type JsonNode,
   metaContent,
   parseBlock,
+  rawHeadingsOf,
+  rawLinksOf,
+  rawTextOf,
   routeOfHtmlFile,
+  sharedWordCount,
+  SourceText,
   tagsNamed,
+  textWords,
   titleOf,
   topNodes,
   typesOf,
 } from "./lib";
-import { napProblems } from "./source-checks";
+import {
+  checkAbsent,
+  checkBan,
+  checkConsult,
+  checkExtGlass,
+  checkPearly,
+  checkRequired,
+  checkRoof,
+  faqAnswers,
+  napProblems,
+  type PrivateBans,
+  type ScanFile,
+  type SourceCtx,
+} from "./source-checks";
 
 export interface RankEntry {
   title: string;
@@ -42,11 +74,32 @@ export interface RankBaseline {
   pages: Record<string, RankEntry>;
 }
 
+/** One route as a browser rendered it, with menus closed. */
+export interface RenderEntry {
+  finalPath: string;
+  /** Set when the route needs a particular state to show its page. */
+  scenario?: string;
+  h1: string;
+  words: number;
+  links: string[];
+  text: string;
+}
+
+export interface RenderBaseline {
+  capturedFrom: string;
+  viewport: { width: number; height: number };
+  routes: Record<string, RenderEntry>;
+  /** The mobile LCP from Speed Insights. No figure is stored unless it was read from there. */
+  mobileLcp: { status: "recorded" | "blocked"; p75Ms: number | null; note: string };
+}
+
 export interface DistCtx {
   /** Every file in dist, keyed by its path relative to dist. Text files only. */
   files: Map<string, string>;
   routes: string[];
   baseline: RankBaseline;
+  renderBaseline?: RenderBaseline;
+  privateBans: PrivateBans;
   readSource(path: string): string | undefined;
   sourcePages(): string[];
   expectClarity?: string;
@@ -324,10 +377,12 @@ export function checkRoutes(ctx: DistCtx): Finding[] {
   return findings;
 }
 
+const sitemapLocs = (sitemap: string) => new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((match) => match[1]));
+
 export function checkSitemap(ctx: DistCtx): Finding[] {
   const sitemap = ctx.files.get("sitemap.xml");
   if (sitemap === undefined) return [{ rule: "D-SITEMAP", message: "dist/sitemap.xml is missing" }];
-  const locs = new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((match) => match[1]));
+  const locs = sitemapLocs(sitemap);
   const expected = new Set(ctx.routes.map(expectedCanonical));
   const findings: Finding[] = [];
   for (const url of expected) if (!locs.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `missing ${url}` });
@@ -454,6 +509,230 @@ export function checkClarity(ctx: DistCtx): Finding[] {
   return findings;
 }
 
+// ---------------------------------------------------------------------------
+// Release 2: raw HTML
+// ---------------------------------------------------------------------------
+
+export function checkRaw(ctx: DistCtx): Finding[] {
+  const baseline = ctx.renderBaseline;
+  if (!baseline) return [{ rule: "D-RAW", message: "no render baseline: run npm run verify:browser -- --write-render-baseline" }];
+
+  const findings: Finding[] = [];
+  const add = (message: string, file?: string) => findings.push({ rule: "D-RAW", row: "R2-FR-01", file, message });
+  for (const route of [...ctx.routes, ...UTILITY_ROUTES]) if (!baseline.routes[route]) add(`no baseline for ${route}`);
+
+  for (const route of ctx.routes) {
+    const entry = baseline.routes[route];
+    const file = htmlFileOfRoute(route);
+    const html = ctx.files.get(file);
+    if (html === undefined) {
+      add(`no built HTML for ${route}`);
+      continue;
+    }
+    if (!entry) continue;
+
+    const headings = rawHeadingsOf(html);
+    if (headings.length === 0) add("no H1 in raw HTML", file);
+    else if (headings[0] !== entry.h1) add(`raw H1 "${headings[0]}" differs from the rendered H1 "${entry.h1}"`, file);
+
+    const rendered = textWords(entry.text);
+    const shared = sharedWordCount(rendered, textWords(rawTextOf(html)));
+    if (rendered.length > 0 && shared / rendered.length < RAW_MIN_WORD_SHARE) {
+      const percent = Math.floor((shared / rendered.length) * 100);
+      add(`${shared} of ${rendered.length} rendered words are in raw HTML (${percent}%), expected at least ${RAW_MIN_WORD_SHARE * 100}%`, file);
+    }
+
+    const links = new Set(rawLinksOf(html));
+    const missing = entry.links.filter((link) => !links.has(link));
+    if (missing.length > 0) add(`${missing.length} rendered internal links are not in raw HTML: ${missing.slice(0, 5).join(", ")}`, file);
+  }
+  return findings;
+}
+
+export function checkFaqRaw(ctx: DistCtx): Finding[] {
+  const finding = (message: string, file?: string): Finding => ({ rule: "D-FAQRAW", row: "R2-FR-04", file, message });
+  const file = htmlFileOfRoute("/faq");
+  const html = ctx.files.get(file);
+  const data = ctx.readSource(FAQ_FILES.data);
+  if (html === undefined) return [finding("no built HTML for /faq")];
+  if (data === undefined) return [finding("FAQ data not found", FAQ_FILES.data)];
+
+  const answers = faqAnswers(data);
+  if (answers.length === 0) return [finding("no FAQ answers found", FAQ_FILES.data)];
+  const text = rawTextOf(html);
+  const missing = answers.filter((answer) => !text.includes(answer.replace(/\s+/g, " ").trim()));
+  return missing.map((answer) => finding(`answer not in raw HTML: "${answer.slice(0, 60)}..."`, file));
+}
+
+export function checkNoFallback(ctx: DistCtx): Finding[] {
+  const findings: Finding[] = [];
+  for (const { path, html } of htmlFiles(ctx)) {
+    const add = (message: string) => findings.push({ rule: "D-NOFALLBACK", row: "R2-FR-05", file: path, message });
+    const body = bodyOf(html);
+    if (body.includes(FALLBACK.busy)) add("raw HTML holds the loading fallback");
+    if (FALLBACK.suspenseMarkers.some((marker) => body.includes(marker))) add("a Suspense boundary did not finish rendering");
+    const root = bodyMarkup(html).replace(/<div id="root"[^>]*>/, "").replace(/<\/div>\s*$/, "");
+    if (root.trim() === "") add("#root is empty, so the page is not in the raw HTML");
+  }
+  return findings;
+}
+
+export function checkMissingPage(ctx: DistCtx): Finding[] {
+  const { file, brand } = MISSING_PAGE;
+  const finding = (message: string): Finding => ({ rule: "D-404", row: "R2-FR-08", file, message });
+  const html = ctx.files.get(file);
+  if (html === undefined) return [finding("the 404 page is not in dist")];
+
+  const findings: Finding[] = [];
+  if (!(metaContent(html, "robots") ?? "").includes("noindex")) findings.push(finding("no noindex"));
+  if (canonicalsOf(html).includes(`${SITE}/`)) findings.push(finding("the canonical is the home page"));
+  if (!titleOf(html).includes(brand)) findings.push(finding(`the title does not name ${brand}`));
+  if (rawHeadingsOf(html).length === 0) findings.push(finding("no H1 without JavaScript"));
+  if (!rawLinksOf(html).includes("/")) findings.push(finding("no link home without JavaScript"));
+  return findings;
+}
+
+/** Every link in llms.txt on this site, as a route or a file path. */
+function llmsPaths(text: string): string[] {
+  const links = text.split(/[\s()[\]"'<>]+/).filter((word) => word.startsWith(SITE));
+  return [...new Set(links.map((link) => link.slice(SITE.length).replace(/[.,;:]+$/, "").replace(/\/$/, "") || "/"))];
+}
+
+export function checkManifest(ctx: DistCtx): Finding[] {
+  const findings: Finding[] = [];
+  const add = (message: string, file?: string) => findings.push({ rule: "D-MANIFEST", row: "R2-FR-11", file, message });
+  const known = new Set([...ctx.routes, ...UTILITY_ROUTES]);
+
+  const listText = ctx.readSource(MANIFEST.routeFile);
+  if (listText === undefined) {
+    add("no single route list: the router, build, sitemap and harness must all read this file", MANIFEST.routeFile);
+  } else {
+    const listed = new Set([...listText.matchAll(new RegExp(MANIFEST.routePath, "g"))].map((match) => match[1]));
+    for (const route of known) if (!listed.has(route)) add(`${route} is not in the route list`, MANIFEST.routeFile);
+    for (const route of listed) if (!known.has(route)) add(`${route} is in the route list but not in the harness`, MANIFEST.routeFile);
+  }
+
+  for (const match of (ctx.readSource(MANIFEST.appFile) ?? "").matchAll(/<Route\b[^>]*\bpath="([^"]+)"/g)) {
+    if (match[1] !== "*" && !known.has(match[1])) add(`the router serves ${match[1]}, which is not a known route`, MANIFEST.appFile);
+  }
+
+  const sitemap = ctx.files.get("sitemap.xml");
+  if (sitemap === undefined) add("dist/sitemap.xml is missing");
+  else {
+    const locs = sitemapLocs(sitemap);
+    for (const route of ctx.routes) if (!locs.has(expectedCanonical(route))) add(`${route} is not in the sitemap`, "sitemap.xml");
+    for (const loc of locs) {
+      const route = loc.slice(SITE.length).replace(/\/$/, "") || "/";
+      if (!ctx.routes.includes(route)) add(`the sitemap lists ${loc}, which is not an indexable route`, "sitemap.xml");
+    }
+  }
+
+  const built = new Set(
+    htmlFiles(ctx)
+      .filter(({ path }) => /(?:^|\/)index\.html$/.test(path))
+      .map(({ path }) => routeOfHtmlFile(path))
+  );
+  for (const route of ctx.routes) if (!built.has(route)) add(`no built file for ${route}`);
+  for (const route of built) if (!known.has(route)) add(`built file for ${route}, which is not a known route`);
+  for (const route of UTILITY_ROUTES) {
+    const file = htmlFileOfRoute(route);
+    if (built.has(route) && !(metaContent(ctx.files.get(file) as string, "robots") ?? "").includes("noindex")) {
+      add(`the built file for ${route} has no noindex`, file);
+    }
+  }
+
+  for (const path of llmsPaths(ctx.files.get("llms.txt") ?? "")) {
+    if (!known.has(path) && !ctx.files.has(path.slice(1))) add(`links to ${path}, which is not a route`, "llms.txt");
+  }
+  return findings;
+}
+
+// ---------------------------------------------------------------------------
+// Release 2: the copy rules, on built pages
+// ---------------------------------------------------------------------------
+
+const NO_GIT: SourceCtx["git"] = { tracked: () => [], commits: () => [], baseText: () => undefined };
+
+/** A one-file source context, so a built page goes through the same checks as its source. */
+function pageSourceCtx(path: string, text: string, ctx: DistCtx): SourceCtx {
+  const file: ScanFile = { path, text: new SourceText(text) };
+  return {
+    files: [file],
+    all: new Map([[path, file]]),
+    scoped: false,
+    inScope: (item) => item === path,
+    read: (item) => (item === path ? text : undefined),
+    privateBans: ctx.privateBans,
+    git: NO_GIT,
+  };
+}
+
+const PRIVATE_BANS = BANS.filter((ban) => ban.private);
+const SITE_BANS = BANS.filter((ban) => !ban.private && !ban.scope);
+
+/**
+ * A scoped ban covers its page's source, which renders inside <main>. The header and footer come
+ * from the layout, so reading them would apply one page's ban to shared links. With no <main>,
+ * the ban reads the whole body.
+ */
+const PAGE_BANS = BANS.filter((ban) => !ban.private && ban.scope);
+const pageContent = (body: string) => /<main\b[\s\S]*<\/main>/i.exec(body)?.[0] ?? body;
+
+/** S-NAP is not here because D-NAP already reads each page's whole HTML. */
+const COPY_CHECKS: Array<(ctx: SourceCtx) => Finding[]> = [
+  ...SITE_BANS.map((ban) => (ctx: SourceCtx) => checkBan(ban, ctx)),
+  checkRequired,
+  checkConsult,
+  checkAbsent,
+  checkPearly,
+  checkExtGlass,
+  checkRoof,
+];
+
+export function checkCopy(ctx: DistCtx): Finding[] {
+  const findings = new Map<string, Finding>();
+  const add = (file: string | undefined, row: string | undefined, message: string) => {
+    findings.set(`${file}:${message}`, { rule: "D-COPY", row, file, message });
+  };
+
+  const sourceByRoute = new Map<string, string>();
+  for (const [file, route] of routesByComponent(ctx.readSource(MANIFEST.appFile) ?? "")) {
+    sourceByRoute.set(route, COPY_PAGES.aliases[file] ?? file);
+  }
+
+  if (!ctx.privateBans.ok) add(undefined, PRIVATE_BANS[0].row, `private ban file unavailable: ${ctx.privateBans.reason}`);
+
+  const sources = new Set<string>();
+  for (const { path, html } of htmlFiles(ctx)) {
+    const route = routeOfHtmlFile(path);
+    const source = route.startsWith(COPY_PAGES.areaPrefix) ? COPY_PAGES.areaFile : sourceByRoute.get(route) ?? path;
+    sources.add(source);
+
+    const body = bodyMarkup(html);
+    const page = pageSourceCtx(source, body, ctx);
+    for (const check of COPY_CHECKS) {
+      for (const finding of check(page)) add(path, finding.row, `${finding.rule}: ${finding.message}`);
+    }
+    const content = pageSourceCtx(source, pageContent(body), ctx);
+    for (const ban of PAGE_BANS) {
+      for (const finding of checkBan(ban, content)) add(path, finding.row, `${finding.rule}: ${finding.message}`);
+    }
+    if (ctx.privateBans.ok) {
+      const whole = pageSourceCtx(source, html, ctx);
+      for (const ban of PRIVATE_BANS) {
+        for (const finding of checkBan(ban, whole)) add(path, finding.row, `${finding.rule}: ${finding.message}`);
+      }
+    }
+  }
+
+  for (const entry of [...REQUIRED, ...REQUIRED_ORDER]) {
+    for (const file of entry.files) {
+      if (!file.endsWith(".txt") && !sources.has(file)) add(file, entry.row, "no built page for this source file");
+    }
+  }
+  return [...findings.values()];
+}
+
 export const DIST_CHECKS: Record<string, (ctx: DistCtx) => Finding[]> = {
   "D-PARSE": checkParse,
   "D-DUP": checkDup,
@@ -469,6 +748,12 @@ export const DIST_CHECKS: Record<string, (ctx: DistCtx) => Finding[]> = {
   "D-PARITY": checkParity,
   "D-RANK": checkRank,
   "D-CLARITY": checkClarity,
+  "D-RAW": checkRaw,
+  "D-FAQRAW": checkFaqRaw,
+  "D-NOFALLBACK": checkNoFallback,
+  "D-404": checkMissingPage,
+  "D-MANIFEST": checkManifest,
+  "D-COPY": checkCopy,
 };
 
 export const rankEntryFromHtml = (html: string): RankEntry => ({
