@@ -7,6 +7,7 @@ import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import blogHero from "@/assets/blog-hero.jpg";
 
+// readTime is the word count of the rendered article at 200 words a minute, rounded up.
 const allBlogArticles = [
   {
     slug: "august-2025",
@@ -14,7 +15,7 @@ const allBlogArticles = [
     excerpt: "As August unfolds in Victoria, morning mists hint at autumn's approach. Embrace mindful home renewal as we transition from summer's relaxed energy to fall's structure.",
     date: "August 2025",
     publishDate: new Date(2025, 7, 1), // August 1, 2025
-    readTime: "6 min read"
+    readTime: "3 min read"
   },
   {
     slug: "september-2025",
@@ -22,7 +23,7 @@ const allBlogArticles = [
     excerpt: "September brings the return of routines, homework stations, and packed lunches. Create a home sanctuary that naturally supports learning and growth.",
     date: "September 2025",
     publishDate: new Date(2025, 8, 1), // September 1, 2025
-    readTime: "6 min read"
+    readTime: "3 min read"
   },
   {
     slug: "october-2025",
@@ -30,7 +31,7 @@ const allBlogArticles = [
     excerpt: "As maple leaves paint Victoria's streets in amber and gold, nature reminds us of the beauty in letting go. Discover autumn cleaning as meditation on transition.",
     date: "October 2025",
     publishDate: new Date(2025, 9, 1), // October 1, 2025
-    readTime: "5 min read"
+    readTime: "3 min read"
   },
   {
     slug: "november-2025",
@@ -38,7 +39,7 @@ const allBlogArticles = [
     excerpt: "November in Victoria brings crisp mornings and the invitation to gather in gratitude. Learn how cleaning with gratitude turns routine maintenance into mindful practice.",
     date: "November 2025",
     publishDate: new Date(2025, 10, 1), // November 1, 2025
-    readTime: "7 min read"
+    readTime: "3 min read"
   },
   {
     slug: "december-2025",
@@ -46,7 +47,7 @@ const allBlogArticles = [
     excerpt: "December in Victoria sparkles with boat parades and twinkling lights. Create sacred spaces for memory-making without sacrificing your sanity or environmental values.",
     date: "December 2025",
     publishDate: new Date(2025, 11, 1), // December 1, 2025
-    readTime: "6 min read"
+    readTime: "3 min read"
   },
   {
     slug: "january-2026",
@@ -54,7 +55,7 @@ const allBlogArticles = [
     excerpt: "New Year, new perspective. As we settle into 2026, many Victorians are embracing minimalism – not as deprivation, but as liberation. Discover why less truly is more.",
     date: "January 2026",
     publishDate: new Date(2026, 0, 1), // January 1, 2026
-    readTime: "5 min read"
+    readTime: "3 min read"
   },
   {
     slug: "february-2026",
@@ -62,7 +63,7 @@ const allBlogArticles = [
     excerpt: "February in Victoria brings more than Valentine's Day – it's a time to cultivate love in all its forms. Explore how cleaning and organizing can deepen our capacity for connection.",
     date: "February 2026",
     publishDate: new Date(2026, 1, 1), // February 1, 2026
-    readTime: "6 min read"
+    readTime: "3 min read"
   },
   {
     slug: "march-2026",
@@ -70,7 +71,7 @@ const allBlogArticles = [
     excerpt: "As cherry blossoms bloom across Victoria, the urge to refresh our homes grows stronger. Your complete guide to sustainable spring cleaning that honors our Island's pristine environment.",
     date: "March 2026",
     publishDate: new Date(2026, 2, 1), // March 1, 2026
-    readTime: "6 min read"
+    readTime: "2 min read"
   },
   {
     slug: "april-2026",
@@ -78,7 +79,7 @@ const allBlogArticles = [
     excerpt: "April brings Earth Day and a global focus on environmental stewardship. Align your cleaning practices with our planet's needs while maintaining a pristine home.",
     date: "April 2026",
     publishDate: new Date(2026, 3, 1), // April 1, 2026
-    readTime: "7 min read"
+    readTime: "3 min read"
   },
   {
     slug: "may-2026",
@@ -86,7 +87,7 @@ const allBlogArticles = [
     excerpt: "May in Victoria blooms with rhododendrons and Mother's Day celebrations. Discover how a clean, organized home supports physical health, mental clarity, and emotional balance.",
     date: "May 2026",
     publishDate: new Date(2026, 4, 1), // May 1, 2026
-    readTime: "7 min read"
+    readTime: "3 min read"
   },
   {
     slug: "june-2026",
@@ -94,7 +95,7 @@ const allBlogArticles = [
     excerpt: "Victoria's pet-loving community knows the joy our four-legged friends bring. Maintain a clean, fresh home while ensuring pet safety with our complete guide.",
     date: "June 2026",
     publishDate: new Date(2026, 5, 1), // June 1, 2026
-    readTime: "7 min read"
+    readTime: "3 min read"
   },
   {
     slug: "july-2026",
@@ -102,7 +103,7 @@ const allBlogArticles = [
     excerpt: "July in Victoria is pure magic – long sunny days and outdoor living at its finest. Create easy indoor-outdoor spaces that celebrate our spectacular West Coast summer.",
     date: "July 2026",
     publishDate: new Date(2026, 6, 1), // July 1, 2026
-    readTime: "8 min read"
+    readTime: "3 min read"
   }
 ];
 
