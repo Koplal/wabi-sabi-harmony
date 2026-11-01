@@ -652,14 +652,22 @@ export const FALLBACK = {
 export const MISSING_PAGE = { file: "404.html", brand: "Wabi Sabi Services" };
 
 /**
- * The one route list (R2-FR-11). Until it exists, D-MANIFEST fails. `routePath` reads each route
- * from its text, so that file must spell its routes as quoted paths.
+ * The one route list (R2-FR-11). Until it exists, D-MANIFEST fails. The harness loads routeFile as
+ * a module, so it may build its paths from neighborhoods.ts. It must stay free of page imports, and
+ * routeExport must be a list of paths or of objects with a `path`.
  */
 export const MANIFEST = {
   routeFile: "src/data/routes.ts",
-  routePath: "[\"'`](/[a-z0-9/-]*)[\"'`]",
+  routeExport: "ROUTES",
+  /** How the router shows it reads that file. */
+  routeImport: "from\\s+[\"'][^\"']*data/routes[\"']",
   appFile: "src/App.tsx",
+  areaExport: "neighborhoods",
+  /** The router's one generated path before that file exists. It means one route per neighbourhood. */
+  areaTemplate: "`/areas/${n.slug}`",
 };
+
+export const RENDER_BASELINE_FILE = "scripts/verify/render-baseline.json";
 
 /** Where the copy rules find a built page's text, for rules that name a source file. */
 export const COPY_PAGES = {
@@ -688,7 +696,11 @@ export const BROWSER = {
   ],
   /** A same-origin page with no app code, so the cart can be stored before the app first loads. */
   seedPage: "/robots.txt",
-  /** BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL. */
+  /**
+   * BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL.
+   * This rule passes on Release 1, which reads the cart before its first render. It guards the
+   * move to a cart that starts empty and loads after hydration.
+   */
   cartSteps: [
     { name: "first load", route: "/cart", reload: false },
     { name: "reload", route: "/cart", reload: true },
@@ -704,6 +716,11 @@ export const BROWSER = {
     "Text content does not match",
     "Minified React error #(?:418|419|421|422|423|425)\\b",
   ],
+  /**
+   * BR-HYDRATE also loads these on a later date, because HTML built one year can be served the
+   * next. The footer's year (Layout.tsx) is on every page and the journal filters posts by today.
+   */
+  clockRoutes: ["/", "/blog"],
 };
 
 // ---------------------------------------------------------------------------

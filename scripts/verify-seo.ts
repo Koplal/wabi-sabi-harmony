@@ -9,22 +9,24 @@
  *   npm run verify -- --self-test       every rule against good and bad fixtures
  *
  * Other flags: --expect-clarity=<id>, --pearlys=<path>, --write-rank-baseline.
+ * SEO_PRIVATE_BANS must name the private ban file. BAN-08, S-LEAK and D-COPY fail closed without
+ * it, and only a --scope run may skip BAN-08.
  * Exit codes: 0 pass, 1 findings, 2 usage or setup error.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { BANS, COPY_BASE_COMMIT, INDEXABLE_ROUTES, OVERLAP, RANK_ROUTES, REQUIRED, SCAN } from "./verify/rules";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { BANS, COPY_BASE_COMMIT, COPY_PAGES, INDEXABLE_ROUTES, MANIFEST, OVERLAP, RANK_ROUTES, RENDER_BASELINE_FILE, REQUIRED, SCAN } from "./verify/rules";
 import { type Args, type Finding, listValue, parseArgs, report, routeOfHtmlFile, SourceText, UsageError } from "./verify/lib";
 import { type CommitRecord, copySegments, type GitInput, parsePrivateBans, type PrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "./verify/source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline } from "./verify/dist-checks";
+import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "./verify/dist-checks";
 import { runSelfTest } from "./verify/fixtures/cases";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = resolve(ROOT, "dist");
 const BASELINE = resolve(ROOT, "scripts/verify/rank-baseline.json");
-const RENDER_BASELINE = resolve(ROOT, "scripts/verify/render-baseline.json");
+const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 
 const KNOWN_FLAGS = ["source", "dist", "self-test", "write-rank-baseline"];
 const KNOWN_VALUES = ["scope", "rules", "expect-clarity", "pearlys"];
@@ -168,6 +170,42 @@ function loadRenderBaseline(): RenderBaseline | undefined {
   return existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
 }
 
+/** Undefined when capturedFrom is not a commit here, so no warning can be given. */
+function baselineDrift(baseline: RenderBaseline | undefined): string[] | undefined {
+  if (!baseline) return undefined;
+  const changed = git(["diff", "--name-only", baseline.capturedFrom, "--", "src", "public", "index.html"]);
+  return changed.ok ? changed.output.split("\n").filter(Boolean) : undefined;
+}
+
+async function loadExport(file: string, name: string): Promise<unknown> {
+  const module = (await import(pathToFileURL(resolve(ROOT, file)).href)) as Record<string, unknown>;
+  return module[name];
+}
+
+async function loadManifest(): Promise<RouteManifest> {
+  const manifest: RouteManifest = {};
+  try {
+    const data = (await loadExport(COPY_PAGES.areaFile, MANIFEST.areaExport)) as Record<string, { slug: string }>;
+    manifest.areas = Object.values(data).map(({ slug }) => `${COPY_PAGES.areaPrefix}${slug}`);
+  } catch {
+    // D-MANIFEST reports the missing data.
+  }
+  if (!existsSync(resolve(ROOT, MANIFEST.routeFile))) {
+    manifest.listError = "the file does not exist";
+    return manifest;
+  }
+  try {
+    const list = await loadExport(MANIFEST.routeFile, MANIFEST.routeExport);
+    if (!Array.isArray(list)) throw new Error(`it does not export ${MANIFEST.routeExport} as a list`);
+    const paths = list.map((item: unknown) => (typeof item === "string" ? item : (item as { path?: unknown })?.path));
+    if (paths.some((path) => typeof path !== "string")) throw new Error("an entry has no path");
+    manifest.listed = paths as string[];
+  } catch (error) {
+    manifest.listError = `it could not be loaded: ${error instanceof Error ? error.message : String(error)}`;
+  }
+  return manifest;
+}
+
 function distFiles(): Map<string, string> {
   if (!existsSync(resolve(DIST, "index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
   const files = new Map<string, string>();
@@ -177,12 +215,15 @@ function distFiles(): Map<string, string> {
   return files;
 }
 
-function buildDistCtx(args: Args): DistCtx {
+async function buildDistCtx(args: Args): Promise<DistCtx> {
+  const renderBaseline = loadRenderBaseline();
   return {
     files: distFiles(),
     routes: INDEXABLE_ROUTES,
     baseline: loadBaseline(),
-    renderBaseline: loadRenderBaseline(),
+    renderBaseline,
+    baselineDrift: baselineDrift(renderBaseline),
+    manifest: await loadManifest(),
     privateBans: loadPrivateBans(),
     readSource: readRepoFile,
     sourcePages() {
@@ -244,7 +285,7 @@ function writeRankBaseline() {
   console.log(`Wrote ${toPosix(relative(ROOT, BASELINE))} from ${capturedFrom}`);
 }
 
-function main(): number {
+async function main(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
   for (const flag of args.flags) if (!KNOWN_FLAGS.includes(flag)) throw new UsageError(`Unknown flag: --${flag}`);
   for (const key of args.values.keys()) if (!KNOWN_VALUES.includes(key)) throw new UsageError(`Unknown option: --${key}`);
@@ -263,7 +304,7 @@ function main(): number {
     for (const id of selected.source) findings.push(...SOURCE_CHECKS[id](ctx));
   }
   if (selected.dist.length > 0) {
-    const ctx = buildDistCtx(args);
+    const ctx = await buildDistCtx(args);
     for (const id of selected.dist) findings.push(...DIST_CHECKS[id](ctx));
   }
 
@@ -272,11 +313,13 @@ function main(): number {
   return report(findings, "verify");
 }
 
-try {
-  process.exitCode = main();
-} catch (error) {
-  if (error instanceof UsageError) {
-    console.error(`verify: ${error.message}`);
-    process.exitCode = 2;
-  } else throw error;
-}
+main()
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((error: unknown) => {
+    if (error instanceof UsageError) {
+      console.error(`verify: ${error.message}`);
+      process.exitCode = 2;
+    } else throw error;
+  });

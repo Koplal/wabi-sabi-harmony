@@ -1,6 +1,6 @@
 /** Live rules as pure checks on fetched responses, so the self-test can run them on fixtures. */
-import { LIVE } from "./rules";
-import type { Finding } from "./lib";
+import { LIVE, MISSING_PAGE, SITE } from "./rules";
+import { type Finding, metaContent, missingPageProblems } from "./lib";
 
 export interface Hop {
   url: string;
@@ -34,9 +34,10 @@ export function checkFile(path: string, chain: Chain): Finding[] {
   return [{ rule: "LV-FILES", file: path, message: `expected 200 with no redirect: ${describeChain(chain)}` }];
 }
 
-export function checkMissing(chain: Chain): Finding[] {
-  if (finalStatus(chain) === 404) return [];
-  return [{ rule: "LV-404", file: LIVE.missingPath, message: `expected 404: ${describeChain(chain)}` }];
+export function checkMissing(chain: Chain, html: string): Finding[] {
+  const finding = (message: string): Finding => ({ rule: "LV-404", row: "R2-FR-08", file: LIVE.missingPath, message });
+  if (finalStatus(chain) !== 404) return [finding(`expected 404: ${describeChain(chain)}`)];
+  return missingPageProblems(html, SITE, MISSING_PAGE.brand).map(finding);
 }
 
 const visibleWords = (html: string) =>
@@ -67,6 +68,6 @@ export function checkRedirect(from: string, to: string, base: string, chain: Cha
 export function checkUtility(route: string, status: number, html: string): Finding[] {
   const findings: Finding[] = [];
   if (status !== 200) findings.push({ rule: "LV-UTILITY", file: route, message: `status ${status}` });
-  if (!/<meta[^>]+name="robots"[^>]+noindex/i.test(html)) findings.push({ rule: "LV-UTILITY", file: route, message: "no noindex in raw HTML" });
+  if (!(metaContent(html, "robots") ?? "").includes("noindex")) findings.push({ rule: "LV-UTILITY", file: route, message: "no noindex in raw HTML" });
   return findings;
 }

@@ -328,6 +328,44 @@ export function sharedWordCount(words: string[], other: string[]): number {
   return shared;
 }
 
+/** One page as a browser rendered it, with menus closed. */
+export interface RenderedPage {
+  h1: string;
+  text: string;
+  links: string[];
+}
+
+/** R2-FR-01, shared by D-RAW (the saved baseline) and BR-RAW (the same build). */
+export function rawProblems(rendered: RenderedPage, html: string, minShare: number): string[] {
+  const problems: string[] = [];
+  const headings = rawHeadingsOf(html);
+  if (headings.length === 0) problems.push("no H1 in raw HTML");
+  else if (headings[0] !== rendered.h1) problems.push(`raw H1 "${headings[0]}" differs from the rendered H1 "${rendered.h1}"`);
+
+  const words = textWords(rendered.text);
+  const shared = sharedWordCount(words, textWords(rawTextOf(html)));
+  if (words.length > 0 && shared / words.length < minShare) {
+    const percent = Math.floor((shared / words.length) * 100);
+    problems.push(`${shared} of ${words.length} rendered words are in raw HTML (${percent}%), expected at least ${minShare * 100}%`);
+  }
+
+  const links = new Set(rawLinksOf(html));
+  const missing = rendered.links.filter((link) => !links.has(link));
+  if (missing.length > 0) problems.push(`${missing.length} rendered internal links are not in raw HTML: ${missing.slice(0, 5).join(", ")}`);
+  return problems;
+}
+
+/** R2-FR-08, shared by D-404, BR-404 and LV-404, so a platform's default 404 page cannot pass. */
+export function missingPageProblems(html: string, site: string, brand: string): string[] {
+  const problems: string[] = [];
+  if (!(metaContent(html, "robots") ?? "").includes("noindex")) problems.push("no noindex");
+  if (canonicalsOf(html).includes(`${site}/`)) problems.push("the canonical is the home page");
+  if (!titleOf(html).includes(brand)) problems.push(`the title does not name ${brand}`);
+  if (rawHeadingsOf(html).length === 0) problems.push("no H1 without JavaScript");
+  if (!rawLinksOf(html).includes("/")) problems.push("no link home without JavaScript");
+  return problems;
+}
+
 // ---------------------------------------------------------------------------
 // JSON-LD
 // ---------------------------------------------------------------------------

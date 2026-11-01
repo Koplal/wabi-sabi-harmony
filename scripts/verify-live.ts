@@ -79,7 +79,8 @@ async function run(): Promise<number> {
   if (selected.includes("LV-404")) {
     const chain = await follow(`${base}${LIVE.missingPath}`, base);
     say("LV-404", chain);
-    findings.push(...checkMissing(chain));
+    const { html } = await page(`${base}${LIVE.missingPath}`, base);
+    findings.push(...checkMissing(chain, html));
   }
   if (selected.includes("LV-RAW")) {
     for (const route of LIVE.rawRoutes) {

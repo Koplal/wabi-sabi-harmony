@@ -8,6 +8,8 @@
  *   npm run verify:browser -- --base=<url>         a deployment instead of dist/
  *   npm run verify:browser -- --expect-clarity=<id>  a build made with that Clarity ID
  *   npm run verify:browser -- --write-render-baseline  saves each route's rendered text
+ *     with --route=/a,/b                          only these routes, keeping the rest
+ *     with --from-prerendered                     allows a prerendered build, which replaces R1 text
  *
  * Analytics hosts and /_vercel/* are answered locally on every pass, including --base, and
  * nothing but GET and HEAD leaves the browser. Exit codes: 0 pass, 1 findings, 2 setup error.
@@ -17,8 +19,8 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type BrowserContext, chromium, type ConsoleMessage, type Page, type Route } from "playwright-core";
-import { BROWSER, INDEXABLE_ROUTES, RANK_ROUTES, UTILITY_ROUTES } from "./verify/rules";
-import { type Finding, listValue, parseArgs, report, routeList, textWords, UsageError } from "./verify/lib";
+import { BROWSER, INDEXABLE_ROUTES, LIVE, RANK_ROUTES, RENDER_BASELINE_FILE, UTILITY_ROUTES } from "./verify/rules";
+import { type Finding, listValue, parseArgs, rawHeadingsOf, report, routeList, textWords, UsageError } from "./verify/lib";
 import {
   BROWSER_RULES,
   type CartStep,
@@ -29,8 +31,11 @@ import {
   checkH1,
   checkHead,
   checkHydrate,
+  checkMissingUrl,
   checkNav,
   checkRank,
+  checkRawPage,
+  type HydrationSnapshot,
   type NavStep,
   type PageSnapshot,
 } from "./verify/browser-rules";
@@ -39,29 +44,35 @@ import { type RunningServer, startStaticServer } from "./verify/static-server";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BASELINE = resolve(ROOT, "scripts/verify/rank-baseline.json");
-const RENDER_BASELINE = resolve(ROOT, "scripts/verify/render-baseline.json");
+const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 
 const VIEWPORT = { width: 1280, height: 900 };
 const WORKERS = 4;
 const NAVIGATION_TIMEOUT = 45_000;
 const RENDER_TIMEOUT = 8_000;
 const HEADING_TIMEOUT = 3_000;
+/** React can report a mismatch, or an effect can write the cart, just after the page attaches. */
+const HYDRATION_QUIET = 500;
 const CLARITY_WAIT = 12_000;
 const CLARITY_ABSENT_WAIT = 3_000;
 
-const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline"];
+const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline", "from-prerendered"];
 const KNOWN_VALUES = ["route", "skip", "rules", "base", "expect-clarity"];
 
-/** Rules read from one visit to each route. BR-NAV, BR-HYDRATE and BR-CART make their own visits. */
-const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY"];
+/** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE and BR-CART make their own visits. */
+const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-RAW"];
 
 class PreviewProtected extends Error {}
 
+const plural = (count: number, noun: string) => `${count} ${noun}${count === 1 ? "" : "s"}`;
+
 const isHost = (hostname: string, host: string) => hostname === host || hostname.endsWith(`.${host}`);
+
+type Scenario = "seeded cart" | "empty cart" | "next year";
 
 interface Target {
   route: string;
-  scenario?: "seeded cart" | "empty cart";
+  scenario?: Scenario;
 }
 
 function targetsFor(routes: string[]): Target[] {
@@ -105,7 +116,7 @@ async function guardRequests(context: BrowserContext, session: Session) {
   await context.route("**/*", handler);
 }
 
-async function newPage(browser: Browser, session: Session, scenario?: Target["scenario"]) {
+async function newPage(browser: Browser, session: Session, scenario?: Scenario) {
   const context = await browser.newContext({ viewport: VIEWPORT });
   // tsx wraps named functions in __name(), which does not exist in the page. Without this, any
   // evaluate() that declares one throws, and a catch can hide it. Init scripts run in no set order,
@@ -116,6 +127,8 @@ async function newPage(browser: Browser, session: Session, scenario?: Target["sc
     const cart = JSON.stringify(BROWSER.seededCart);
     await context.addInitScript((value) => localStorage.setItem("cart", value), cart);
   }
+  // Only the date moves. Timers keep running, so the page loads as usual.
+  if (scenario === "next year") await context.clock.setFixedTime(new Date(new Date().getFullYear() + 1, 0, 1, 12));
   const page = await context.newPage();
   page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT);
   return { context, page };
@@ -131,13 +144,20 @@ function watchErrors(page: Page) {
   return { pageErrors, consoleErrors };
 }
 
-/** Waits for React to render, then for the head manager to stop changing the head. */
+/**
+ * Waits for React to own the page, then for the head manager to stop changing the head.
+ * Prerendered HTML has its content and H1 before any script runs, so seeing those proves nothing.
+ * React sets this key on a node only when it hydrates or creates it. It is a React internal, so a
+ * rename shows up as BR-HYDRATE failing on every route, never as a pass.
+ */
 async function settle(page: Page) {
   await page
     .waitForFunction(
       () => {
         const root = document.getElementById("root");
-        return Boolean(root && root.childElementCount > 0 && !root.querySelector('[aria-busy="true"]'));
+        if (!root || root.querySelector('[aria-busy="true"]')) return false;
+        const content = root.querySelector("main") ?? root.querySelector("h1");
+        return Boolean(content) && Object.keys(content as Element).some((key) => key.startsWith("__reactFiber$"));
       },
       undefined,
       { timeout: RENDER_TIMEOUT }
@@ -202,9 +222,11 @@ async function visit(browser: Browser, session: Session, target: Target, clarity
     const errors = watchErrors(page);
     const response = await page.goto(`${session.origin}${target.route}`, { waitUntil: "load" });
     if (response?.status() === 401) throw new PreviewProtected();
+    const html = await response?.text().catch(() => undefined);
     await settle(page);
     await waitForClarity(page, target, session, clarity);
-    return { route: target.route, scenario: target.scenario, ...errors, ...(await readPage(page)) };
+    const rendered = await readRendered(page);
+    return { route: target.route, scenario: target.scenario, status: response?.status(), html, rendered, ...errors, ...(await readPage(page)) };
   } finally {
     await context.close();
   }
@@ -262,20 +284,22 @@ async function navFindings(browser: Browser, session: Session): Promise<Finding[
 }
 
 interface ProbeWindow {
-  __verifyMarkup?: { root: Element | null; heading: Element | null };
+  __verifyMarkup?: { content: Element | null; heading: Element | null };
   __verifyCartWrites?: string[];
 }
 
 /**
  * Keeps the nodes the HTML itself put in #root. It runs at document start, and the parser sets
  * readyState to interactive before deferred and module scripts run, so app code adds nothing here.
+ * <main> sits inside the Suspense boundary and React completes it after its children, so it owning
+ * <main> means the page hydrated. The first child of #root is the toast region, which does not.
  */
 const keepServerMarkup = () => {
   document.addEventListener(
     "readystatechange",
     () => {
       (window as unknown as ProbeWindow).__verifyMarkup = {
-        root: document.querySelector("#root > *"),
+        content: document.querySelector("#root main") ?? document.querySelector("#root h1"),
         heading: document.querySelector("#root h1"),
       };
     },
@@ -283,18 +307,26 @@ const keepServerMarkup = () => {
   );
 };
 
-const readServerMarkup = (page: Page) =>
+type MarkupReading = Pick<HydrationSnapshot, "finalPath" | "markup" | "headingKept">;
+
+const readServerMarkup = (page: Page): Promise<MarkupReading> =>
   page.evaluate(() => {
-    const { root = null, heading = null } = (window as unknown as ProbeWindow).__verifyMarkup ?? {};
+    const { content = null, heading = null } = (window as unknown as ProbeWindow).__verifyMarkup ?? {};
+    const owned = Object.keys(content ?? {}).some((key) => key.startsWith("__reactFiber$"));
+    const replaced = content ? !content.isConnected : false;
     return {
-      hadMarkup: Boolean(root),
-      attached: Boolean(root?.isConnected) && Object.keys(root ?? {}).some((key) => key.startsWith("__reactFiber$")),
+      finalPath: location.pathname,
+      markup: !content ? "none" : replaced ? "replaced" : owned ? "attached" : "not attached",
       headingKept: heading ? heading.isConnected : undefined,
-    };
+    } as MarkupReading;
   });
 
 async function hydrationFindings(browser: Browser, session: Session, routes: string[]): Promise<Finding[]> {
-  const targets = routes.flatMap((route) => (["empty cart", "seeded cart"] as const).map((scenario) => ({ route, scenario })));
+  const targets = routes.flatMap((route): Array<{ route: string; scenario: Scenario }> => [
+    { route, scenario: "empty cart" },
+    { route, scenario: "seeded cart" },
+    ...(BROWSER.clockRoutes.includes(route) ? [{ route, scenario: "next year" as const }] : []),
+  ]);
   const findings: Finding[] = [];
   await inPool(targets, async ({ route, scenario }) => {
     const { context, page } = await newPage(browser, session, scenario);
@@ -304,6 +336,7 @@ async function hydrationFindings(browser: Browser, session: Session, routes: str
       const response = await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
       if (response?.status() === 401) throw new PreviewProtected();
       await settle(page);
+      await page.waitForTimeout(HYDRATION_QUIET);
       findings.push(...checkHydrate({ route, scenario, ...errors, ...(await readServerMarkup(page)) }));
     } catch (error) {
       if (error instanceof PreviewProtected) throw error;
@@ -351,22 +384,37 @@ const readCart = (page: Page, itemName: string): Promise<CartReading> =>
  */
 async function cartFindings(browser: Browser, session: Session): Promise<Finding[]> {
   const { context, page } = await newPage(browser, session);
+  const steps: CartStep[] = [];
   try {
     await context.addInitScript(watchCartWrites);
     const seed = await page.goto(`${session.origin}${BROWSER.seedPage}`, { waitUntil: "load" });
     if (seed?.status() === 401) throw new PreviewProtected();
     await page.evaluate((value) => localStorage.setItem("cart", value), JSON.stringify(BROWSER.seededCart));
 
-    const steps: CartStep[] = [];
     for (const { name, route, reload } of BROWSER.cartSteps) {
       if (reload) await page.reload({ waitUntil: "load" });
       else await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
       await settle(page);
+      await page.waitForTimeout(HYDRATION_QUIET);
       steps.push({ name, route, ...(await readCart(page, BROWSER.seededCart[0].name)) });
     }
     return checkCart(steps);
+  } catch (error) {
+    if (error instanceof PreviewProtected) throw error;
+    const message = `the steps did not finish: ${error instanceof Error ? error.message : String(error)}`;
+    return [...checkCart(steps), { rule: "BR-CART", row: "R2-FR-03", message }];
   } finally {
     await context.close();
+  }
+}
+
+async function missingUrlFindings(browser: Browser, session: Session): Promise<Finding[]> {
+  try {
+    return checkMissingUrl(await visit(browser, session, { route: LIVE.missingPath }, false), session.origin);
+  } catch (error) {
+    if (error instanceof PreviewProtected) throw error;
+    const message = `the page did not load: ${error instanceof Error ? error.message : String(error)}`;
+    return [{ rule: "BR-404", row: "R2-FR-08", file: LIVE.missingPath, message }];
   }
 }
 
@@ -385,44 +433,61 @@ const readRendered = (page: Page) =>
 const LCP_NOT_READ: RenderBaseline["mobileLcp"] = {
   status: "blocked",
   p75Ms: null,
-  note: "Not read from Speed Insights. Record the mobile p75 LCP here from the Vercel dashboard. Never estimate it.",
+  owner: "Justin",
+  note: "Not read from Speed Insights. Record the mobile p75 LCP here from the Vercel dashboard before the R2 gate. Never estimate it.",
 };
 
-/** Menus stay closed, so nothing from their open states is counted (R2-FR-01). */
-async function writeRenderBaseline(browser: Browser, session: Session, capturedFrom: string) {
-  const routes = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
+/**
+ * Menus stay closed, so nothing from their open states is counted (R2-FR-01). The saved text is
+ * the Release 1 record, so a build that already has page bodies cannot replace it by accident.
+ */
+async function writeRenderBaseline(browser: Browser, session: Session, capturedFrom: string, requested: string[] | undefined, fromPrerendered: boolean) {
+  const all = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
+  const routes = requested ?? all;
+  const unknown = routes.filter((route) => !all.includes(route));
+  if (unknown.length > 0) throw new UsageError(`Not a known route: ${unknown.join(", ")}`);
+  const previous = existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
+  if (requested && !previous) throw new UsageError("--route needs an existing baseline to keep the other routes from");
+
   const entries = new Map<string, RenderEntry>();
+  const prerendered: string[] = [];
   await inPool(routes, async (route) => {
     // With an empty cart /checkout leaves for /cart, so only a seeded cart shows its page.
     const scenario = route === "/checkout" ? "seeded cart" : undefined;
     const { context, page } = await newPage(browser, session, scenario);
     try {
-      await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
+      const response = await page.goto(`${session.origin}${route}`, { waitUntil: "load" });
+      if (rawHeadingsOf((await response?.text().catch(() => undefined)) ?? "").length > 0) prerendered.push(route);
       await settle(page);
       const { text, ...rendered } = await readRendered(page);
       if (!rendered.h1) throw new UsageError(`No rendered H1 on ${route}`);
-      entries.set(route, { ...rendered, ...(scenario ? { scenario } : {}), words: textWords(text).length, text });
+      entries.set(route, { ...rendered, ...(scenario ? { scenario } : {}), ...(requested ? { capturedFrom } : {}), words: textWords(text).length, text });
     } finally {
       await context.close();
     }
   });
+  if (prerendered.length > 0 && !fromPrerendered) {
+    throw new UsageError(`${plural(prerendered.length, "route")} already served with a page body, so this would replace the Release 1 text. Name the changed routes with --route and add --from-prerendered.`);
+  }
 
-  const previous = existsSync(RENDER_BASELINE) ? (JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline) : undefined;
   const baseline: RenderBaseline = {
-    capturedFrom,
+    capturedFrom: requested ? (previous as RenderBaseline).capturedFrom : capturedFrom,
     viewport: VIEWPORT,
     mobileLcp: previous?.mobileLcp ?? LCP_NOT_READ,
-    routes: Object.fromEntries(routes.map((route) => [route, entries.get(route) as RenderEntry])),
+    routes: Object.fromEntries(all.flatMap((route) => {
+      const entry = entries.get(route) ?? previous?.routes[route];
+      return entry ? [[route, entry]] : [];
+    })),
   };
   writeFileSync(RENDER_BASELINE, `${JSON.stringify(baseline, null, 2)}\n`);
-  console.log(`Wrote ${routes.length} routes to scripts/verify/render-baseline.json from ${capturedFrom}`);
+  console.log(`Wrote ${plural(routes.length, "route")} to ${RENDER_BASELINE_FILE} from ${capturedFrom}`);
 }
 
 function routesToVisit(selected: string[], requested: string[] | undefined, skipped: string[], expectClarity?: string): string[] {
   if (requested) return requested.filter((route) => !skipped.includes(route));
 
   const all = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
-  const needsAll = selected.some((rule) => ["BR-CONSOLE", "BR-H1", "BR-HEAD"].includes(rule)) || (selected.includes("BR-CLARITY") && !expectClarity);
+  const needsAll = selected.some((rule) => ["BR-CONSOLE", "BR-H1", "BR-HEAD", "BR-RAW"].includes(rule)) || (selected.includes("BR-CLARITY") && !expectClarity);
   const needed = new Set<string>(needsAll ? all : []);
   if (selected.includes("BR-AREAS")) needed.add("/areas");
   if (selected.includes("BR-RANK")) RANK_ROUTES.forEach((route) => needed.add(route));
@@ -491,7 +556,7 @@ async function run(): Promise<number> {
     }
     if (args.flags.has("write-render-baseline")) {
       const commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
-      await writeRenderBaseline(browser, session, base ?? commit);
+      await writeRenderBaseline(browser, session, base ?? commit, requested, args.flags.has("from-prerendered"));
       return 0;
     }
 
@@ -516,17 +581,22 @@ async function run(): Promise<number> {
       if (has("BR-HEAD")) findings.push(...checkHead(snapshot));
       if (has("BR-RANK")) findings.push(...checkRank(snapshot, baseline?.pages[snapshot.route]?.h1));
       if (has("BR-CLARITY")) findings.push(...checkClarity(snapshot, expectClarity));
+      if (has("BR-RAW")) findings.push(...checkRawPage(snapshot));
     });
 
     const named = listValue(args, "rules") ?? [];
     if (has("BR-NAV") && (!requested || named.includes("BR-NAV"))) findings.push(...(await navFindings(browser, session)));
     if (has("BR-CART") && (!requested || named.includes("BR-CART"))) findings.push(...(await cartFindings(browser, session)));
+    if (has("BR-404") && (!requested || named.includes("BR-404"))) findings.push(...(await missingUrlFindings(browser, session)));
 
     const hydrationRoutes = has("BR-HYDRATE") ? (requested ?? [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).filter((route) => !skipped.includes(route)) : [];
     findings.push(...(await hydrationFindings(browser, session, hydrationRoutes)));
 
     console.log(`Checked ${routes.length} route${routes.length === 1 ? "" : "s"} (${targets.length} page loads) against ${base ?? "dist/"}.`);
-    if (hydrationRoutes.length > 0) console.log(`BR-HYDRATE: ${hydrationRoutes.length} route${hydrationRoutes.length === 1 ? "" : "s"}, each with an empty and a seeded cart.`);
+    if (hydrationRoutes.length > 0) {
+      const later = hydrationRoutes.filter((route) => BROWSER.clockRoutes.includes(route));
+      console.log(`BR-HYDRATE: ${plural(hydrationRoutes.length, "route")}, each with an empty and a seeded cart${later.length > 0 ? `, and ${later.join(", ")} on a later date` : ""}.`);
+    }
     if (session.blockedWrites.length > 0) {
       const unique = [...new Set(session.blockedWrites)];
       console.log(`Blocked ${session.blockedWrites.length} write request${session.blockedWrites.length === 1 ? "" : "s"}: ${unique.join(", ")}`);

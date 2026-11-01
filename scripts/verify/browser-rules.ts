@@ -1,6 +1,17 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
-import { BROWSER, PARENT, RANK_ROUTES, SITE, UTILITY_ROUTES } from "./rules";
-import { canonicalJson, canonicalPath, duplicateProblems, type Finding, parseBlock, routeUrl, topNodes } from "./lib";
+import { BROWSER, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES } from "./rules";
+import {
+  canonicalJson,
+  canonicalPath,
+  duplicateProblems,
+  type Finding,
+  missingPageProblems,
+  parseBlock,
+  rawProblems,
+  type RenderedPage,
+  routeUrl,
+  topNodes,
+} from "./lib";
 
 export interface PageSnapshot {
   /** The route as requested. */
@@ -19,6 +30,12 @@ export interface PageSnapshot {
   hasNameField: boolean;
   clarityScript: boolean;
   clarityScriptSrc?: string;
+  /** The HTTP status of the document. */
+  status?: number;
+  /** The HTML as served, before any script ran. */
+  html?: string;
+  /** The same load after hydration, for comparing with html. */
+  rendered?: RenderedPage;
 }
 
 export const label = (snapshot: PageSnapshot) =>
@@ -37,11 +54,31 @@ const ignoredConsoleUrl = (url: string, origin: string) => {
 export function checkConsole(snapshot: PageSnapshot, origin: string): Finding[] {
   const file = label(snapshot);
   const findings: Finding[] = snapshot.pageErrors.map((message) => ({ rule: "BR-CONSOLE", file, message: `pageerror: ${message}` }));
+  // The browser logs a missing page's own 404. That is the page working, so it alone is exempt.
+  const ownMissing = snapshot.route === LIVE.missingPath ? `${origin}${LIVE.missingPath}` : undefined;
   for (const entry of snapshot.consoleErrors) {
     const networkFailure = entry.text.startsWith("Failed to load resource");
-    if (networkFailure && ignoredConsoleUrl(entry.url, origin)) continue;
+    if (networkFailure && (ignoredConsoleUrl(entry.url, origin) || entry.url === ownMissing)) continue;
     findings.push({ rule: "BR-CONSOLE", file, message: `console.error: ${entry.text}` });
   }
+  return findings;
+}
+
+/** R2-FR-01 within one build, so copy added after the baseline was captured is compared too. */
+export function checkRawPage(snapshot: PageSnapshot): Finding[] {
+  if (!INDEXABLE_ROUTES.includes(snapshot.route)) return [];
+  const finding = (message: string): Finding => ({ rule: "BR-RAW", row: "R2-FR-01", file: snapshot.route, message });
+  if (snapshot.html === undefined || !snapshot.rendered) return [finding("the raw HTML or the rendered text could not be read")];
+  return rawProblems(snapshot.rendered, snapshot.html, RAW_MIN_WORD_SHARE).map(finding);
+}
+
+/** A URL outside the route list, in a browser. LV-404 proves the same page on a deployment. */
+export function checkMissingUrl(snapshot: PageSnapshot, origin: string): Finding[] {
+  const finding = (message: string): Finding => ({ rule: "BR-404", row: "R2-FR-08", file: snapshot.route, message });
+  const findings: Finding[] = [];
+  if (snapshot.status !== 404) findings.push(finding(`status ${snapshot.status}, expected 404`));
+  findings.push(...missingPageProblems(snapshot.html ?? "", SITE, MISSING_PAGE.brand).map(finding));
+  findings.push(...checkConsole(snapshot, origin).map((item) => finding(item.message)));
   return findings;
 }
 
@@ -147,12 +184,15 @@ export function checkClarity(snapshot: PageSnapshot, expectId: string | undefine
 export interface HydrationSnapshot {
   route: string;
   scenario: string;
+  /** The pathname the page ended on. */
+  finalPath: string;
   pageErrors: string[];
   consoleErrors: Array<{ text: string; url: string }>;
-  /** #root held server-rendered markup before any page script ran. */
-  hadMarkup: boolean;
-  /** That markup is still on the page, and React owns it. */
-  attached: boolean;
+  /**
+   * What became of the page's <main> from the HTML, which sits inside the Suspense boundary.
+   * The toast region outside it hydrates even when the page does not, so it proves nothing.
+   */
+  markup: "none" | "attached" | "replaced" | "not attached";
   /** The server-rendered H1 is still on the page. Undefined when the HTML has none. */
   headingKept?: boolean;
 }
@@ -170,8 +210,11 @@ export function checkHydrate(snapshot: HydrationSnapshot): Finding[] {
     .filter((text) => warning.test(text))
     .map((text) => finding(`hydration warning: ${text}`));
 
-  if (!snapshot.hadMarkup) findings.push(finding("#root has no server-rendered markup to attach to"));
-  else if (!snapshot.attached) findings.push(finding("React replaced the server-rendered markup instead of attaching to it"));
+  // A utility page may send the visitor on, as an empty /checkout does. That is not a mismatch.
+  const leftPage = UTILITY_ROUTES.includes(snapshot.route) && snapshot.finalPath !== snapshot.route;
+  if (snapshot.markup === "none") findings.push(finding("#root has no server-rendered page markup to attach to"));
+  else if (snapshot.markup === "not attached") findings.push(finding("React had not attached to the server-rendered page when the wait ended"));
+  else if (snapshot.markup === "replaced" && !leftPage) findings.push(finding("React replaced the server-rendered markup instead of attaching to it"));
   // A cart that fills after load may swap the H1 on a utility page. That is not a mismatch.
   else if (snapshot.headingKept === false && !UTILITY_ROUTES.includes(snapshot.route)) {
     findings.push(finding("the server-rendered H1 was replaced"));
@@ -207,4 +250,4 @@ export function checkCart(steps: CartStep[]): Finding[] {
   return findings;
 }
 
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-HYDRATE", "BR-CART"];
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-RAW", "BR-404", "BR-HYDRATE", "BR-CART"];

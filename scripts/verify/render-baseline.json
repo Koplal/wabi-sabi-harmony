@@ -7,7 +7,8 @@
   "mobileLcp": {
     "status": "blocked",
     "p75Ms": null,
-    "note": "Not read from Speed Insights. Record the mobile p75 LCP here from the Vercel dashboard. Never estimate it."
+    "owner": "Justin",
+    "note": "Not read from Speed Insights yet. R1 went live on Oct 31, so wait for enough field data. Record the mobile p75 LCP here from the Vercel dashboard before the R2 gate and set status to recorded. Never estimate it."
   },
   "routes": {
     "/": {

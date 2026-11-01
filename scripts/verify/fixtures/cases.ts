@@ -35,7 +35,7 @@ import {
   UTILITY_ROUTES,
 } from "../rules";
 import { parsePrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "../source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline } from "../dist-checks";
+import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "../dist-checks";
 import {
   BROWSER_RULES,
   type CartStep,
@@ -46,8 +46,10 @@ import {
   checkH1,
   checkHead as checkBrowserHead,
   checkHydrate,
+  checkMissingUrl,
   checkNav,
   checkRank as checkBrowserRank,
+  checkRawPage,
   type HydrationSnapshot,
   type PageSnapshot,
 } from "../browser-rules";
@@ -259,14 +261,15 @@ function goodDist(): Files {
   return files;
 }
 
-const appSource = [...FILE_ROUTES]
+const appSource = `import { ROUTES } from "./data/routes";\n${[...FILE_ROUTES]
   .map(([file, route], index) => {
     const module = file.replace(/^src\/pages\//, "").replace(/\.tsx$/, "");
     return `const Page${index} = lazy(() => import("./pages/${module}"));\n<Route path="${route}" element={<Page${index} />} />`;
   })
-  .join("\n");
+  .join("\n")}`;
 const faqSource = `export const faqItems = [${FAQ_ANSWERS.map((answer) => `{ question: "Fixture?", answer: ${JSON.stringify(answer)} }`).join(", ")}];`;
-const routeListSource = `export const ROUTES = ${JSON.stringify([...INDEXABLE_ROUTES, ...UTILITY_ROUTES].map((path) => ({ path })))};`;
+const ALL_ROUTES = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
+const AREA_ROUTES = INDEXABLE_ROUTES.filter((route) => route.startsWith("/areas/"));
 const pageSource = `<SEO title="Fixture /seasoning/quiet-grace" description="Description of /seasoning/quiet-grace" />
 const packageItem = { id: 'fixture-package', name: 'The Fixture Package', price: 399 };`;
 
@@ -279,7 +282,7 @@ function renderBaselineOf(files: Files): RenderBaseline {
     routes[route] = { finalPath: route, h1: rawHeadingsOf(html)[0], words: textWords(text).length, links: [...new Set(rawLinksOf(html))], text };
   }
   for (const route of UTILITY_ROUTES) routes[route] = { finalPath: route, h1: "Utility", words: 1, links: [], text: "Utility" };
-  return { capturedFrom: "fixture", viewport: { width: 1280, height: 900 }, routes, mobileLcp: { status: "blocked", p75Ms: null, note: "fixture" } };
+  return { capturedFrom: "fixture", viewport: { width: 1280, height: 900 }, routes, mobileLcp: { status: "recorded", p75Ms: 1000, owner: "fixture", note: "fixture" } };
 }
 
 interface DistOptions {
@@ -291,6 +294,8 @@ interface DistOptions {
   editRenderBaseline?: (baseline: RenderBaseline) => void;
   /** Source files to replace. undefined means the file does not exist. */
   sources?: Record<string, string | undefined>;
+  manifest?: RouteManifest;
+  baselineDrift?: string[];
   privateBans?: string | null;
 }
 
@@ -302,7 +307,6 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     "src/App.tsx": appSource,
     "src/pages/seasonal/QuietGrace.tsx": options.page ?? pageSource,
     [FAQ_FILES.data]: faqSource,
-    [MANIFEST.routeFile]: routeListSource,
     ...options.sources,
   };
   const renderBaseline = options.renderBaseline === null ? undefined : options.renderBaseline ?? renderBaselineOf(good);
@@ -312,6 +316,8 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     routes: INDEXABLE_ROUTES,
     baseline: options.baseline ?? { capturedFrom: "fixture", pages },
     renderBaseline,
+    baselineDrift: options.baselineDrift,
+    manifest: options.manifest ?? { listed: ALL_ROUTES, areas: AREA_ROUTES },
     privateBans: parsePrivateBans(options.privateBans === null ? undefined : options.privateBans ?? PLACEHOLDER_BANS, "SEO_PRIVATE_BANS is not set"),
     readSource: (path) => sources[path],
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
@@ -631,6 +637,13 @@ distCase("D-RAW", "reports no baseline file", "fail", () => undefined, { renderB
 distCase("D-RAW", "reports an indexable route missing from the baseline", "fail", () => undefined, { editRenderBaseline: (baseline) => delete baseline.routes["/about"] });
 distCase("D-RAW", "reports a utility route missing from the baseline", "fail", () => undefined, { editRenderBaseline: (baseline) => delete baseline.routes["/cart"] });
 distCase("D-RAW", "reports a route with no built HTML", "fail", (files) => files.delete(AREA_HTML));
+const baselineNotes = (baselineDrift: string[]): Finding[] => {
+  const notes: string[] = [];
+  DIST_CHECKS["D-RAW"]({ ...distCtx(goodDist(), { baselineDrift }), note: (message) => notes.push(message) });
+  return notes.map((message) => ({ rule: "D-RAW", message }));
+};
+cases.push({ rule: "D-RAW", name: "warns when pages changed after the baseline", expect: "fail", run: () => baselineNotes(["src/pages/About.tsx"]) });
+cases.push({ rule: "D-RAW", name: "stays quiet when no page changed", expect: "pass", run: () => baselineNotes([]) });
 
 distCase("D-FAQRAW", "reports head-only pages, as in Release 1", "fail", headOnly);
 distCase("D-FAQRAW", "reports a missing answer", "fail", (files) => replaceIn(files, FAQ_HTML, faqAnswer(FAQ_ANSWERS[0]), ""));
@@ -640,6 +653,17 @@ distCase("D-FAQRAW", "reports an answer found only in JSON-LD", "fail", (files) 
 });
 distCase("D-FAQRAW", "reports no answers in the data", "fail", () => undefined, { sources: { [FAQ_FILES.data]: "export const faqItems = [];" } });
 distCase("D-FAQRAW", "reports a page that is not built", "fail", (files) => files.delete(FAQ_HTML));
+const withExtraAnswer = (answer: string) => ({ sources: { [FAQ_FILES.data]: faqSource.replace("];", `, { question: "Extra?", answer: ${answer} }];`) } });
+distCase("D-FAQRAW", "reports an answer in a template literal", "fail", () => undefined, withExtraAnswer("`Fixture answer one.`"));
+distCase("D-FAQRAW", "reports an answer joined from pieces", "fail", () => undefined, withExtraAnswer('"Fixture answer one." + " And more."'));
+
+distCase("D-LCP", "reports a figure that is not recorded, as now", "fail", () => undefined, {
+  editRenderBaseline: (baseline) => (baseline.mobileLcp = { status: "blocked", p75Ms: null, owner: "fixture", note: "fixture" }),
+});
+distCase("D-LCP", "reports a recorded status with no figure", "fail", () => undefined, {
+  editRenderBaseline: (baseline) => (baseline.mobileLcp = { status: "recorded", p75Ms: null, owner: "fixture", note: "fixture" }),
+});
+distCase("D-LCP", "reports no baseline file", "fail", () => undefined, { renderBaseline: null });
 
 distCase("D-NOFALLBACK", "reports head-only pages, as in Release 1", "fail", headOnly);
 distCase("D-NOFALLBACK", "reports the loading fallback", "fail", (files) => setBody(files, ABOUT_HTML, '<div id="root"><div class="min-h-screen" aria-busy="true"></div></div>'));
@@ -655,12 +679,39 @@ distCase("D-404", "reports no brand", "fail", (files) => replaceIn(files, MISSIN
 distCase("D-404", "reports no H1 without JavaScript", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"><a href="/">Home</a></div>'));
 distCase("D-404", "reports no way home without JavaScript", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"><h1>Not found</h1></div>'));
 
-const routeList = (edit: (routes: string[]) => string[]) => `export const ROUTES = ${JSON.stringify(edit([...INDEXABLE_ROUTES, ...UTILITY_ROUTES]))};`;
-distCase("D-MANIFEST", "reports no route list, as in Release 1", "fail", () => undefined, { sources: { [MANIFEST.routeFile]: undefined } });
-distCase("D-MANIFEST", "reports a route missing from the list", "fail", () => undefined, { sources: { [MANIFEST.routeFile]: routeList((routes) => routes.filter((route) => route !== "/about")) } });
-distCase("D-MANIFEST", "reports a utility route missing from the list", "fail", () => undefined, { sources: { [MANIFEST.routeFile]: routeList((routes) => routes.filter((route) => route !== "/cart")) } });
-distCase("D-MANIFEST", "reports a listed route the harness does not know", "fail", () => undefined, { sources: { [MANIFEST.routeFile]: routeList((routes) => [...routes, "/extra"]) } });
+const listedWith = (edit: (routes: string[]) => string[]): RouteManifest => ({ listed: edit(ALL_ROUTES), areas: AREA_ROUTES });
+const NO_LIST: RouteManifest = { listError: "the file does not exist", areas: AREA_ROUTES };
+/** The router as in Release 1: plain paths, and one generated path per neighbourhood. */
+const plainRouter = ALL_ROUTES.filter((route) => !AREA_ROUTES.includes(route))
+  .map((route) => `<Route path="${route}" element={<Page />} />`)
+  .join("\n");
+const areaRouter = "{Object.values(neighborhoods).map((n) => (<Route key={n.slug} path={`/areas/${n.slug}`} element={<Area data={n} />} />))}";
+const releaseOneRouter = `${plainRouter}\n${areaRouter}`;
+const listRouter = `import { ROUTES } from "@/data/routes";\n{ROUTES.map((route) => (<Route key={route.path} path={route.path} element={route.element} />))}`;
+/** Runs with the given router and keeps only what the rule says about it. */
+const routerCase = (name: string, expect: Case["expect"], app: string, manifest: RouteManifest = NO_LIST) =>
+  cases.push({
+    rule: "D-MANIFEST",
+    name,
+    expect,
+    run: () => DIST_CHECKS["D-MANIFEST"](distCtx(goodDist(), { manifest, sources: { "src/App.tsx": app } })).filter((finding) => finding.file === MANIFEST.appFile),
+  });
+
+distCase("D-MANIFEST", "reports no route list, as in Release 1", "fail", () => undefined, { manifest: NO_LIST, sources: { "src/App.tsx": releaseOneRouter } });
+distCase("D-MANIFEST", "reports a route list that cannot be loaded", "fail", () => undefined, { manifest: { listError: "it could not be loaded", areas: AREA_ROUTES } });
+distCase("D-MANIFEST", "reports a route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/about")) });
+distCase("D-MANIFEST", "reports a utility route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/cart")) });
+distCase("D-MANIFEST", "reports a listed route the harness does not know", "fail", () => undefined, { manifest: listedWith((routes) => [...routes, "/extra"]) });
 distCase("D-MANIFEST", "reports a route only the router has", "fail", () => undefined, { sources: { "src/App.tsx": `${appSource}\n<Route path="/extra" element={<Extra />} />` } });
+distCase("D-MANIFEST", "reports a neighbourhood with no route", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, areas: [...AREA_ROUTES, "/areas/new-area"] } });
+distCase("D-MANIFEST", "reports an area route with no neighbourhood", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, areas: AREA_ROUTES.slice(1) } });
+distCase("D-MANIFEST", "reports neighbourhood data that cannot be loaded", "fail", () => undefined, { manifest: { listed: ALL_ROUTES } });
+routerCase("reads the generated area routes, as in Release 1", "pass", releaseOneRouter);
+routerCase("reports a route missing from a router with plain paths", "fail", releaseOneRouter.replace('<Route path="/about" element={<Page />} />', ""));
+routerCase("reports a generated path it cannot read", "fail", `${releaseOneRouter}\n<Route path={extraPath} element={<Page />} />`);
+routerCase("reports a router with no routes it can read", "fail", "");
+routerCase("reports a list the router does not read", "fail", releaseOneRouter, { listed: ALL_ROUTES, areas: AREA_ROUTES });
+routerCase("allows a router built from the list", "pass", listRouter, { listed: ALL_ROUTES, areas: AREA_ROUTES });
 distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/about</loc></url>`, ""));
 distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
@@ -725,6 +776,11 @@ browserCase("BR-CONSOLE", "good fixture", "pass", () => checkConsole(snapshot(),
 browserCase("BR-CONSOLE", "reports a pageerror", "fail", () => checkConsole(snapshot({ pageErrors: ["ChevronRight is not defined"] }), ORIGIN));
 browserCase("BR-CONSOLE", "reports console.error", "fail", () => checkConsole(snapshot({ consoleErrors: [{ text: "boom", url: "" }] }), ORIGIN));
 browserCase("BR-CONSOLE", "reports a same-origin failed load", "fail", () => checkConsole(snapshot({ consoleErrors: [{ text: "Failed to load resource: 404", url: `${ORIGIN}/assets/x.js` }] }), ORIGIN));
+const MISSING_URL = `${ORIGIN}${LIVE.missingPath}`;
+const OWN_404 = { text: "Failed to load resource: the server responded with a status of 404 (Not Found)", url: MISSING_URL };
+browserCase("BR-CONSOLE", "allows a missing page's own 404", "pass", () => checkConsole(snapshot({ route: LIVE.missingPath, consoleErrors: [OWN_404] }), ORIGIN));
+browserCase("BR-CONSOLE", "reports a real route that returns 404", "fail", () => checkConsole(snapshot({ route: "/about", consoleErrors: [{ ...OWN_404, url: `${ORIGIN}/about` }] }), ORIGIN));
+browserCase("BR-CONSOLE", "reports another failed load on the missing page", "fail", () => checkConsole(snapshot({ route: LIVE.missingPath, consoleErrors: [{ ...OWN_404, url: `${ORIGIN}/assets/x.js` }] }), ORIGIN));
 browserCase("BR-CONSOLE", "ignores third-party and /_vercel failures", "pass", () => checkConsole(snapshot({
   consoleErrors: [
     { text: "Failed to load resource: net::ERR_FAILED", url: "https://fonts.googleapis.com/css2" },
@@ -770,20 +826,50 @@ browserCase("BR-CLARITY", "finds the expected ID on home", "pass", () => checkCl
 browserCase("BR-CLARITY", "reports the script missing from home", "fail", () => checkClarity(snapshot({ route: "/" }), "abc"));
 browserCase("BR-CLARITY", "reports the script on the success page", "fail", () => checkClarity(snapshot({ route: "/checkout-success", clarityScript: true }), "abc"));
 
+const rawSnapshot = (route: string, fields: Partial<PageSnapshot> = {}): PageSnapshot => {
+  const html = pageHtml(route);
+  return snapshot({ route, html, rendered: { h1: rawHeadingsOf(html)[0], text: rawTextOf(html), links: [...new Set(rawLinksOf(html))] }, ...fields });
+};
+const renderedPage = (fields: Partial<NonNullable<PageSnapshot["rendered"]>>) => {
+  const rendered = rawSnapshot("/about").rendered as NonNullable<PageSnapshot["rendered"]>;
+  return { ...rendered, ...fields };
+};
+const headOnlyHtml = (html: string) => html.replace(/<body>[\s\S]*<\/body>/, '<body><div id="root"></div></body>');
+browserCase("BR-RAW", "good fixture", "pass", () => checkRawPage(rawSnapshot("/about")));
+browserCase("BR-RAW", "reports a head-only page, as in Release 1", "fail", () => checkRawPage(rawSnapshot("/about", { html: headOnlyHtml(pageHtml("/about")) })));
+browserCase("BR-RAW", "reports copy added since the baseline was captured", "fail", () => {
+  const text = `${renderedPage({}).text} ${"added ".repeat(FILLER_WORDS)}`;
+  return checkRawPage(rawSnapshot("/about", { rendered: renderedPage({ text }) }));
+});
+browserCase("BR-RAW", "reports an H1 that differs from this build's", "fail", () => checkRawPage(rawSnapshot("/about", { rendered: renderedPage({ h1: "Other" }) })));
+browserCase("BR-RAW", "reports a page it could not read", "fail", () => checkRawPage(rawSnapshot("/about", { html: undefined })));
+browserCase("BR-RAW", "leaves utility routes to the other rules", "pass", () => checkRawPage(snapshot({ route: "/cart" })));
+
+const missingUrl = (fields: Partial<PageSnapshot> = {}) => snapshot({ route: LIVE.missingPath, status: 404, html: notFoundHtml(), ...fields });
+browserCase("BR-404", "good fixture", "pass", () => checkMissingUrl(missingUrl(), ORIGIN));
+browserCase("BR-404", "allows the browser's log of the page's own 404", "pass", () => checkMissingUrl(missingUrl({ consoleErrors: [OWN_404] }), ORIGIN));
+browserCase("BR-404", "reports the home page served with a 200, as in Release 1", "fail", () => checkMissingUrl(missingUrl({ status: 200, html: pageHtml("/") }), ORIGIN));
+browserCase("BR-404", "reports the console.error in NotFound, as in Release 1", "fail", () => checkMissingUrl(missingUrl({ consoleErrors: [{ text: "404 Error: User attempted to access non-existent route", url: "" }] }), ORIGIN));
+browserCase("BR-404", "reports a 404 page with no noindex", "fail", () => checkMissingUrl(missingUrl({ html: notFoundHtml().replace('content="noindex,follow"', 'content="index"') }), ORIGIN));
+
 const hydrated = (fields: Partial<HydrationSnapshot> = {}): HydrationSnapshot => ({
   route: "/about",
   scenario: "empty cart",
+  finalPath: fields.route ?? "/about",
   pageErrors: [],
   consoleErrors: [],
-  hadMarkup: true,
-  attached: true,
+  markup: "attached",
   headingKept: true,
   ...fields,
 });
 browserCase("BR-HYDRATE", "good fixture", "pass", () => checkHydrate(hydrated()));
 browserCase("BR-HYDRATE", "a seeded cart with no warnings", "pass", () => checkHydrate(hydrated({ scenario: "seeded cart" })));
-browserCase("BR-HYDRATE", "reports a page with no markup, as in Release 1", "fail", () => checkHydrate(hydrated({ hadMarkup: false, attached: false, headingKept: undefined })));
-browserCase("BR-HYDRATE", "reports markup discarded with no warning", "fail", () => checkHydrate(hydrated({ attached: false })));
+browserCase("BR-HYDRATE", "reports a page with no markup, as in Release 1", "fail", () => checkHydrate(hydrated({ markup: "none", headingKept: undefined })));
+browserCase("BR-HYDRATE", "reports markup discarded with no warning", "fail", () => checkHydrate(hydrated({ markup: "replaced" })));
+browserCase("BR-HYDRATE", "reports a page React never reached", "fail", () => checkHydrate(hydrated({ markup: "not attached" })));
+browserCase("BR-HYDRATE", "reports a mismatch that needs a later date", "fail", () => checkHydrate(hydrated({ route: "/", finalPath: "/", scenario: "next year", pageErrors: ["Minified React error #425"] })));
+browserCase("BR-HYDRATE", "allows an empty checkout that leaves for /cart", "pass", () => checkHydrate(hydrated({ route: "/checkout", finalPath: "/cart", markup: "replaced" })));
+browserCase("BR-HYDRATE", "reports a utility page that stays and loses its markup", "fail", () => checkHydrate(hydrated({ route: "/cart", markup: "replaced" })));
 browserCase("BR-HYDRATE", "reports a production hydration error", "fail", () => checkHydrate(hydrated({ pageErrors: ["Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418"] })));
 browserCase("BR-HYDRATE", "reports a production text mismatch", "fail", () => checkHydrate(hydrated({ scenario: "seeded cart", pageErrors: ["Minified React error #425"] })));
 browserCase("BR-HYDRATE", "reports a development warning", "fail", () => checkHydrate(hydrated({ consoleErrors: [{ text: "Warning: Text content did not match. Server: \"0\" Client: \"1\"", url: "" }] })));
@@ -818,8 +904,10 @@ liveCase("LV-HOST", "reports a temporary hop to the apex", "fail", () => checkHo
 liveCase("LV-HOST", "reports two hops", "fail", () => checkHost("http://wabisabiservices.ca", chain(["http://wabisabiservices.ca/", 308], ["https://www.wabisabiservices.ca/", 308], [`${APEX}/`, 200])));
 liveCase("LV-FILES", "good fixture", "pass", () => checkFile("/llms.txt", chain([`${APEX}/llms.txt`, 200])));
 liveCase("LV-FILES", "reports a redirect", "fail", () => checkFile("/llms.txt", chain([`${APEX}/llms.txt`, 307], ["https://www.wabisabiservices.ca/llms.txt", 200])));
-liveCase("LV-404", "good fixture", "pass", () => checkMissing(chain([`${APEX}/does-not-exist`, 404])));
-liveCase("LV-404", "reports a soft 404", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 200])));
+liveCase("LV-404", "good fixture", "pass", () => checkMissing(chain([`${APEX}/does-not-exist`, 404]), notFoundHtml()));
+liveCase("LV-404", "reports a soft 404", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 200]), notFoundHtml()));
+liveCase("LV-404", "reports the platform's own 404 page", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 404]), "<html><head><title>404: NOT_FOUND</title></head><body><h1>404</h1></body></html>"));
+liveCase("LV-404", "reports a 404 page with a home canonical", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 404]), notFoundHtml().replace("</head>", `<link rel="canonical" href="${APEX}/" /></head>`)));
 liveCase("LV-RAW", "good fixture", "pass", () => checkRaw("/areas/oak-bay", 200, `<html><head></head><body><h1>Title</h1><p>${"word ".repeat(200)}</p></body></html>`));
 liveCase("LV-RAW", "reports a head-only page", "fail", () => checkRaw("/areas/oak-bay", 200, '<html><head><title>x</title></head><body><div id="root"></div></body></html>'));
 liveCase("LV-REDIRECT", "good fixture", "pass", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 200])));
@@ -829,9 +917,12 @@ liveCase("LV-REDIRECT", "reports a 200 with no redirect, as in Release 1", "fail
 liveCase("LV-REDIRECT", "reports two hops", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/the-ritual/`, 308], [`${APEX}/ritual`, 200])));
 liveCase("LV-REDIRECT", "reports the wrong destination", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/`, 200])));
 liveCase("LV-REDIRECT", "reports a redirect that ends in a 404", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 404])));
-liveCase("LV-UTILITY", "good fixture", "pass", () => checkUtility("/cart", 200, '<meta name="robots" content="noindex,follow" data-rh="true" />'));
+const utilityHtml = (meta: string) => `<html><head>${meta}</head><body></body></html>`;
+liveCase("LV-UTILITY", "good fixture", "pass", () => checkUtility("/cart", 200, utilityHtml('<meta name="robots" content="noindex,follow" data-rh="true" />')));
+liveCase("LV-UTILITY", "reads content written before name", "pass", () => checkUtility("/cart", 200, utilityHtml('<meta content="noindex" name="robots" />')));
 liveCase("LV-UTILITY", "reports no noindex", "fail", () => checkUtility("/cart", 200, "<html></html>"));
-liveCase("LV-UTILITY", "reports a status other than 200", "fail", () => checkUtility("/cart", 404, '<meta name="robots" content="noindex,follow" />'));
+liveCase("LV-UTILITY", "ignores noindex outside the head", "fail", () => checkUtility("/cart", 200, '<html><head></head><body><meta name="robots" content="noindex" /></body></html>'));
+liveCase("LV-UTILITY", "reports a status other than 200", "fail", () => checkUtility("/cart", 404, utilityHtml('<meta name="robots" content="noindex,follow" />')));
 
 const LIVE_RULES = LIVE.all;
 
