@@ -507,7 +507,10 @@ export const RANK_ROUTES = [
   "/seasoning/winter-holiday",
 ];
 
-/** Pages with no built HTML until R2, so they carry no parity check. */
+/** A utility route that builds with no H1, because its page only exists with a cart (R2-FR-09). */
+export const NO_H1_ROUTE = "/checkout";
+
+/** Pages outside the indexable list, so they carry no parity check. */
 export const PARITY_EXEMPT = ["Cart", "Checkout", "CheckoutSuccess", "NotFound"];
 
 /** Every head tag SEO.tsx emits that also exists in the static head. */

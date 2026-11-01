@@ -22,8 +22,7 @@
  * BR-RENDER reads dist/ only, because a deployment renders its reviews and the saved text has none.
  * A page changed on purpose takes a new entry with --write-render-baseline --route=<route>.
  *
- * Until R2-20 builds them, the utility routes serve the home page, so an earlier row passes
- * --skip=/cart,/checkout,/checkout-success. A full pass must never skip them.
+ * A full pass must never skip /cart, /checkout or /checkout-success.
  *
  * Analytics hosts and /_vercel/* are answered locally on every pass, including --base, and
  * nothing but GET and HEAD leaves the browser. Exit codes: 0 pass, 1 findings, 2 setup error.

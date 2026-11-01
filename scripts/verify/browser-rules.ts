@@ -228,7 +228,7 @@ export interface HydrationSnapshot {
   markup: "none" | "no main" | "attached" | "replaced" | "not attached";
   /** The server-rendered H1 is still on the page. Undefined when the HTML has none. */
   headingKept?: boolean;
-  /** False for a utility route with no built file, which the catch-all answers with the home page. */
+  /** False for a utility route with no built file, so it has no page of its own to attach to. */
   fileBuilt?: boolean;
 }
 
@@ -243,7 +243,7 @@ export function checkHydrate(snapshot: HydrationSnapshot): Finding[] {
   const path = pathOfHref(snapshot.route);
 
   if (snapshot.fileBuilt === false) {
-    return [finding(`no built file until R2-20, so this URL serves the home page and cannot match. Until then pass --skip=${UTILITY_ROUTES.join(",")}`)];
+    return [finding("no built file, so this URL has no page of its own to attach to. Run npm run build.")];
   }
 
   const findings = [...snapshot.pageErrors, ...snapshot.consoleErrors.map((entry) => entry.text)]

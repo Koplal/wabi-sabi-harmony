@@ -11,6 +11,7 @@ import {
   MANIFEST,
   MISSING_PAGE,
   NAP,
+  NO_H1_ROUTE,
   ORG,
   PARENT,
   PARITY_EXEMPT,
@@ -43,6 +44,7 @@ import {
   metaContent,
   missingPageProblems,
   parseBlock,
+  rawHeadingsOf,
   rawProblems,
   rawTextOf,
   type RenderedPage,
@@ -403,20 +405,24 @@ export function checkTodo(ctx: DistCtx): Finding[] {
 
 const expectedCanonical = (route: string) => (route === "/" ? `${SITE}/` : `${SITE}${route}`);
 
+const isNoindex = (html: string) => (metaContent(html, "robots") ?? "").includes("noindex");
+
 export function checkRoutes(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   const add = (message: string, file?: string) => findings.push({ rule: "D-ROUTES", file, message });
   const pages = htmlFiles(ctx).filter(({ path }) => /(?:^|\/)index\.html$/.test(path));
   const built = new Set(pages.map(({ path }) => routeOfHtmlFile(path)));
 
-  for (const route of ctx.routes) if (!built.has(route)) add(`no built HTML for ${route}`);
+  // The utility routes need files too: with no catch-all, Stripe's return URLs would be 404s.
+  for (const route of [...ctx.routes, ...UTILITY_ROUTES]) if (!built.has(route)) add(`no built HTML for ${route}`);
   for (const route of built) {
     const file = htmlFileOfRoute(route);
-    // R2-20 gives the utility routes files. They are pages, but never indexable ones.
     if (UTILITY_ROUTES.includes(route)) {
-      if (!(metaContent(ctx.files.get(file) as string, "robots") ?? "").includes("noindex")) add(`${route} has no noindex`, file);
+      if (!isNoindex(ctx.files.get(file) as string)) add(`${route} has no noindex`, file);
     } else if (!ctx.routes.includes(route)) add(`unexpected built HTML for ${route}`);
   }
+  const noH1 = ctx.files.get(htmlFileOfRoute(NO_H1_ROUTE));
+  if (noH1 !== undefined && rawHeadingsOf(noH1).length > 0) add(`${NO_H1_ROUTE} must build in its empty-cart state, which has no H1`, htmlFileOfRoute(NO_H1_ROUTE));
 
   const titles = new Map<string, string>();
   const descriptions = new Map<string, string>();
@@ -516,6 +522,11 @@ export function checkSitemap(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   for (const url of expected) if (!locs.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `missing ${url}` });
   for (const url of locs) if (!expected.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `not an indexable route: ${url}` });
+  // This reads the page itself, so it also catches an indexable route marked noindex by mistake.
+  for (const url of locs) {
+    const html = ctx.files.get(htmlFileOfRoute(url.slice(SITE.length) || "/"));
+    if (html !== undefined && isNoindex(html)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `lists a noindex page: ${url}` });
+  }
 
   const add = (message: string) => findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
   const lastmods = sitemapLastmods(sitemap);
@@ -879,13 +890,11 @@ export function checkManifest(ctx: DistCtx): Finding[] {
       .filter(({ path }) => /(?:^|\/)index\.html$/.test(path))
       .map(({ path }) => routeOfHtmlFile(path))
   );
-  for (const route of ctx.routes) if (!built.has(route)) add(`no built file for ${route}`);
+  for (const route of known) if (!built.has(route)) add(`no built file for ${route}`);
   for (const route of built) if (!known.has(route)) add(`built file for ${route}, which is not a known route`);
   for (const route of UTILITY_ROUTES) {
     const file = htmlFileOfRoute(route);
-    if (built.has(route) && !(metaContent(ctx.files.get(file) as string, "robots") ?? "").includes("noindex")) {
-      add(`the built file for ${route} has no noindex`, file);
-    }
+    if (built.has(route) && !isNoindex(ctx.files.get(file) as string)) add(`the built file for ${route} has no noindex`, file);
   }
 
   for (const path of llmsPaths(ctx.files.get("llms.txt") ?? "")) {

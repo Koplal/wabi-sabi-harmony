@@ -1,11 +1,12 @@
 /**
  * Build-time prerender for AEO / crawlability.
  *
- * For every indexable route, writes dist/<route>/index.html — the SPA shell
- * (dist/index.html) with that route's page body rendered into #root and its
- * <title>, meta description, canonical, Open Graph/Twitter tags, and JSON-LD in
- * the raw HTML <head>. Non-JS consumers (AI answer engines, social scrapers,
- * first-pass crawlers) read the whole page; the SPA still boots as normal.
+ * For every route, writes dist/<route>/index.html — the SPA shell (dist/index.html)
+ * with that route's page body rendered into #root and its <title>, meta description,
+ * canonical, Open Graph/Twitter tags, and JSON-LD in the raw HTML <head>. Non-JS
+ * consumers (AI answer engines, social scrapers, first-pass crawlers) read the whole
+ * page; the SPA still boots as normal. dist/404.html is the same shell with NotFound
+ * in it, for every URL outside the route list.
  *
  * Nothing about a page is kept here. Routes come from src/data/routes.ts, and the
  * body and head come from rendering the page itself, so its <SEO> and JSON-LD
@@ -26,6 +27,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const DIST = resolve(ROOT, "dist");
 const EMPTY_ROOT = '<div id="root"></div>';
+/** Nothing in the route list matches this, so the router shows NotFound. */
+const MISSING_PATH = "/404";
+/** The head tags that name a page's own URL. */
+const OWN_URL_TAGS = /\s*<(?:link[^>]*rel="canonical"|meta[^>]*(?:property="og:url"|name="twitter:url"))[^>]*>/g;
 
 const template = readFileSync(resolve(DIST, "index.html"), "utf8");
 if (!template.includes(EMPTY_ROOT)) {
@@ -80,13 +85,15 @@ function assertComplete({ path, utility }: SiteRoute, { html, helmet }: Rendered
 
 // All replacements use function replacers so that "$" in the page ("$$-$$$" in JSON-LD, prices in
 // the copy) is inserted literally. String.replace treats "$$" in a string replacement as special.
-function pageHtml(route: SiteRoute, { html, helmet }: RenderedRoute): string {
+function pageHtml({ html, helmet }: RenderedRoute, path?: string): string {
   const headTags = [helmet.title, helmet.meta, helmet.link, helmet.script].map((tags) => tags.toString());
-  if (route.path === "/") headTags.push(heroPreloadTag);
+  if (path === "/") headTags.push(heroPreloadTag);
+  const head = headTags.filter(Boolean).join("\n    ");
   // main.tsx attaches only where data-route matches the URL, and useToday first renders data-built-on.
+  const routeAttribute = path ? ` data-route="${path}"` : "";
   return shell
-    .replace(EMPTY_ROOT, () => `<div id="root" data-route="${route.path}" data-built-on="${builtOn}">${html}</div>`)
-    .replace("</head>", () => `  ${headTags.filter(Boolean).join("\n    ")}\n  </head>`);
+    .replace(EMPTY_ROOT, () => `<div id="root"${routeAttribute} data-built-on="${builtOn}">${html}</div>`)
+    .replace("</head>", () => `  ${path ? head : head.replace(OWN_URL_TAGS, "")}\n  </head>`);
 }
 
 function write(relPath: string, html: string) {
@@ -101,16 +108,28 @@ function outPathFor(routePath: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Emit one page per indexable route in the route list.
+// Emit one page per route. Utility routes build too, in their empty-cart state, because the
+// catch-all that served them is gone and Stripe returns to /cart and /checkout-success.
 // ---------------------------------------------------------------------------
 
-const pages = ROUTES.filter((route) => !route.utility);
-for (const route of pages) {
+for (const route of ROUTES) {
   const page = await render(route.path);
   assertComplete(route, page);
-  write(outPathFor(route.path), pageHtml(route, page));
+  write(outPathFor(route.path), pageHtml(page, route.path));
 }
-console.log(`[prerender] wrote ${pages.length} pages to dist/`);
+const utilityPages = ROUTES.filter((route) => route.utility).length;
+console.log(`[prerender] wrote ${ROUTES.length - utilityPages} pages and ${utilityPages} utility pages to dist/`);
+
+// ---------------------------------------------------------------------------
+// One file answers every URL outside the route list, so it has no URL of its own to name, and
+// with no data-route main.tsx renders over it. React Router matches paths in any case, so /FAQ
+// lands here and still shows the FAQ page once the script runs.
+// ---------------------------------------------------------------------------
+
+const notFound = await render(MISSING_PATH);
+assertComplete({ path: MISSING_PATH }, notFound);
+write("404.html", pageHtml(notFound));
+console.log("[prerender] wrote 404.html to dist/");
 
 // ---------------------------------------------------------------------------
 // llms.txt is copied from public/ as it stands, so its visible link is swapped

@@ -25,6 +25,7 @@ import {
   MISSING_PAGE,
   NAP,
   NO_BIOHAZARD,
+  NO_H1_ROUTE,
   ORG,
   PARENT,
   PEARLY_IDS,
@@ -246,6 +247,12 @@ ${script(orgNode())}
 </head><body><div id="root"><main><h1>This page could not be found</h1><a href="/">Return Home</a></main></div></body></html>`;
 }
 
+/** A utility page as the build writes it: noindex, and /checkout with no H1. */
+function builtUtilityPage(route: string): string {
+  const page = pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
+  return route === NO_H1_ROUTE ? page.replace(/<h1[\s\S]*?<\/h1>/, "") : page;
+}
+
 function pageHtml(route: string, extraBlocks: unknown[] = []): string {
   const url = route === "/" ? `${SITE}/` : `${SITE}${route}`;
   const blocks = [orgNode(), ...(route === "/" ? [parentNode] : []), ...extraBlocks];
@@ -277,6 +284,7 @@ function goodDist(): Files {
     const path = route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
     files.set(path, pageHtml(route, route === "/seasoning/quiet-grace" ? [product] : []));
   }
+  for (const route of UTILITY_ROUTES) files.set(htmlFileOfRoute(route), builtUtilityPage(route));
   files.set("sitemap.xml", INDEXABLE_ROUTES.map(sitemapEntry).join("\n"));
   files.set("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
   files.set("llms.txt", `Call ${NAP.phones[0]} or ${NAP.email}. See ${SITE}/book\n`);
@@ -660,11 +668,12 @@ distCase("D-ROUTES", "reports an unexpected route", "fail", (files) => files.set
 distCase("D-ROUTES", "reports a canonical on another route", "fail", (files) => replaceIn(files, ABOUT_HTML, `<link rel="canonical" href="${SITE}/about"`, `<link rel="canonical" href="${SITE}/"`));
 distCase("D-ROUTES", "reports a shared title", "fail", (files) => replaceIn(files, ABOUT_HTML, "<title>Fixture /about", "<title>Fixture /book"));
 distCase("D-ROUTES", "reports a shared description", "fail", (files) => replaceIn(files, ABOUT_HTML, 'content="Description of /about"', 'content="Description of /book"'));
-const noindexPage = (route: string) => pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
-distCase("D-ROUTES", "allows the file R2-20 builds for a utility route", "pass", (files) => files.set("cart/index.html", noindexPage("/cart")));
+for (const route of UTILITY_ROUTES) distCase("D-ROUTES", `reports ${route} with no file, as a 404 once the catch-all goes`, fails(`no built HTML for ${route}`), (files) => files.delete(htmlFileOfRoute(route)));
 distCase("D-ROUTES", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
+distCase("D-ROUTES", "reports /checkout built with its form", fails("must build in its empty-cart state"), (files) => files.set(htmlFileOfRoute(NO_H1_ROUTE), pageHtml(NO_H1_ROUTE).replace("</head>", `<meta name="robots" content="noindex" ${rh} /></head>`)));
 distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", sitemapEntry("/privacy"), ""));
-distCase("D-SITEMAP", "reports a utility route", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
+for (const route of UTILITY_ROUTES) distCase("D-SITEMAP", `reports ${route}, which is noindex`, fails(`lists a noindex page: ${SITE}${route}`), (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}${route}</loc></url>`));
+distCase("D-SITEMAP", "reports an indexable route marked noindex by mistake", fails(`lists a noindex page: ${SITE}/about`), (files) => files.set(ABOUT_HTML, builtUtilityPage("/about")));
 const withLastmods = (files: Files, dateOf: (index: number) => string) => {
   let index = 0;
   files.set("sitemap.xml", (files.get("sitemap.xml") as string).replace(/<lastmod>[^<]*<\/lastmod>/g, () => `<lastmod>${dateOf(index++)}</lastmod>`));
@@ -873,7 +882,7 @@ distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files)
 distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
 distCase("D-MANIFEST", "reports a file for an unknown route", "fail", (files) => files.set("extra/index.html", pageHtml("/extra")));
-distCase("D-MANIFEST", "allows a utility route with no file until R2-20", "pass", () => undefined);
+distCase("D-MANIFEST", "reports a utility route with no file", fails("no built file for /cart"), (files) => files.delete("cart/index.html"));
 distCase("D-MANIFEST", "allows a utility route with a noindex file", "pass", (files) => files.set("cart/index.html", notFoundHtml()));
 distCase("D-MANIFEST", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
 distCase("D-MANIFEST", "reports an llms.txt link that is not a route", "fail", (files) => editFile(files, "llms.txt", `- [Extra](${SITE}/extra)\n`));
