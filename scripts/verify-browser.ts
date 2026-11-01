@@ -73,6 +73,11 @@ async function guardRequests(context: BrowserContext, session: Session) {
     const request = route.request();
     const url = new URL(request.url());
 
+    // The page's speed report goes out on any click. It is answered here so it never counts as a write.
+    if (url.pathname === "/api/report-vitals") {
+      await route.fulfill({ status: 204 });
+      return;
+    }
     if (!["GET", "HEAD"].includes(request.method())) {
       session.blockedWrites.push(`${request.method()} ${url.origin}${url.pathname}`);
       await route.fulfill({ status: 204 });

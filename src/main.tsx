@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import App from "./App.tsx";
 import "./index.css";
 import { CartProvider } from "./contexts/CartContext";
+import { reportVitals } from "./lib/reportVitals";
 
 /** Keeps Stripe's session ID on the order confirmation page out of analytics URLs. */
 const withoutSessionId = <T extends { url: string }>(event: T): T => {
@@ -24,3 +25,5 @@ createRoot(document.getElementById("root")!).render(
     </HelmetProvider>
   </>
 );
+
+if (import.meta.env.PROD) reportVitals();
