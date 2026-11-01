@@ -242,9 +242,9 @@ const Seasoning = () => {
                 </p>
               </div>
               <div>
-                <h3 className="font-serif text-xl mb-4">Start to Finish</h3>
+                <h3 className="font-serif text-xl mb-4">What We Handle</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  We arrive, arrange, and return to take it all down, so the season is yours to enjoy.
+                  We bring the season to your door, so it is yours to enjoy. Post-season removal is available as an add-on.
                 </p>
               </div>
             </div>

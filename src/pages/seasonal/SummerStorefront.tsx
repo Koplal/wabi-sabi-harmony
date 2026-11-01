@@ -86,7 +86,7 @@ const SummerStorefront = () => {
                   The Summer Storefront is for Victoria businesses that want their entrance to feel like the season. Driftwood, sea glass, and breezy planters read as summer the moment customers arrive, styled to your brand colours and the rhythm of your foot traffic.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  The materials are chosen to take coastal sun and wind without fading, and to ask nothing of your team. We schedule installation around your hours, return mid-season for a refresh, and take everything down when the season turns.
+                  The materials are chosen to take coastal sun and wind without fading, and to ask little of your team. We schedule installation around your hours and return mid-season for a refresh. Removal is available as an add-on.
                 </p>
               </div>
               <Card className="p-8">
@@ -123,8 +123,7 @@ const SummerStorefront = () => {
                   "Installation & consultation",
                   "Summer refresh recommendations",
                   "Flexible installation scheduling",
-                  "Mid-season maintenance visit",
-                  "Complete removal & cleanup"
+                  "Mid-season maintenance visit"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />

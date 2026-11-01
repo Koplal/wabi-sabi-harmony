@@ -30,8 +30,7 @@ const packages = [
       "12 Small Pie Pumpkins",
       "4 Specialty Pumpkins",
       "Natural jute or hemp rope accents",
-      "Dried botanical elements",
-      "Mindful arrangement and blessing"
+      "Dried botanical elements"
     ]
   },
   {
@@ -170,8 +169,9 @@ const FallPumpkins = () => {
         <section className="py-12 px-6 lg:px-12 bg-secondary/30">
           <div className="container mx-auto max-w-4xl text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Each collection is styled and installed by hand, so your entrance carries the warmth of the
-              harvest without the work of sourcing, arranging, or hauling. Choose a package below, or talk
+              Four of our five collections are styled and installed by hand, so your entrance carries the warmth of the
+              harvest without the work of sourcing, arranging, or hauling. The Quiet Grace is delivered to your door, with
+              arrangement as an add-on. Choose a package below, or talk
               with us about a display shaped to your home.
             </p>
           </div>
@@ -212,7 +212,7 @@ const FallPumpkins = () => {
                           <span className="text-sm text-muted-foreground">CAD</span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Complete package, styled and installed
+                          {pkg.slug === "quiet-grace" ? "Complete package, delivered to your door" : "Complete package, styled and installed"}
                         </p>
                       </div>
                       <div className="space-y-2 mb-6 flex-grow">
@@ -243,7 +243,7 @@ const FallPumpkins = () => {
               <div className="text-center">
                 <h3 className="font-serif text-xl mb-3">Styled by Hand</h3>
                 <p className="text-muted-foreground text-sm">
-                  Our team sets every piece on site, adjusting to your steps, light, and front door until it sits right.
+                  Our team sets every piece on site, adjusting to your steps, light, and front door until it sits right. On The Quiet Grace, this is the Professional Arrangement add-on.
                 </p>
               </div>
               <div className="text-center">
@@ -253,9 +253,9 @@ const FallPumpkins = () => {
                 </p>
               </div>
               <div className="text-center">
-                <h3 className="font-serif text-xl mb-3">Start to Finish</h3>
+                <h3 className="font-serif text-xl mb-3">What We Handle</h3>
                 <p className="text-muted-foreground text-sm">
-                  We deliver, arrange, and come back to clear everything away once the season has passed.
+                  We deliver every display. Post-season removal is available as an add-on.
                 </p>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 export interface CartItem {
@@ -20,14 +20,29 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
+/** Storage can be blocked by the browser or hold a damaged value. The cart then lasts for the visit. */
+const readSavedCart = (): CartItem[] => {
+  try {
     const saved = localStorage.getItem('cart');
     return saved ? JSON.parse(saved) : [];
-  });
+  } catch {
+    return [];
+  }
+};
+
+const writeSavedCart = (items: CartItem[]) => {
+  try {
+    localStorage.setItem('cart', JSON.stringify(items));
+  } catch {
+    // The cart stays in memory for this visit.
+  }
+};
+
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const [items, setItems] = useState<CartItem[]>(readSavedCart);
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
+    writeSavedCart(items);
   }, [items]);
 
   const addToCart = (item: CartItem) => {
@@ -47,10 +62,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success('Removed from cart');
   };
 
-  const clearCart = () => {
+  // Stable, because the order confirmation page runs this from an effect that depends on it.
+  const clearCart = useCallback(() => {
     setItems([]);
-    localStorage.removeItem('cart');
-  };
+  }, []);
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
   const itemCount = items.length;

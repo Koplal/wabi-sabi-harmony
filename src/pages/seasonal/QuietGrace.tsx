@@ -24,12 +24,12 @@ const QuietGrace = () => {
     <Layout>
       <SEO
         title="The Quiet Grace | Autumn Pumpkin Package"
-        description="A restrained autumn pumpkin display for townhome entries and intimate porches. Heritage varieties, arranged and installed across Greater Victoria."
+        description="A restrained autumn pumpkin display for townhome entries and intimate porches. Heritage varieties, delivered across Greater Victoria. Arrangement is an add-on."
         canonical="https://wabisabiservices.ca/seasoning/quiet-grace"
       />
       <ProductSchema
         name="The Quiet Grace"
-        description="A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties arranged on site."
+        description="A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties delivered to your door."
         offers={{
           price: "399",
           priceCurrency: "CAD",
@@ -83,16 +83,16 @@ const QuietGrace = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Embracing Subtle Beauty</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Quiet Grace is our smallest autumn display, and the one we are fondest of. A handful of heritage and heirloom pumpkins, chosen for character rather than uniformity, arranged so the marks and odd shapes become the point instead of a flaw to hide.
+                  The Quiet Grace is our smallest autumn display, and the one we are fondest of. A handful of heritage and heirloom pumpkins, chosen for character rather than uniformity, so the marks and odd shapes become the point instead of a flaw to hide.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  It suits a townhome entry or a single front step, where a larger display would simply crowd the space. We bring everything, set it by hand, and leave you with an entrance that feels considered without trying too hard.
+                  It suits a townhome entry or a single front step, where a larger display would simply crowd the space. We deliver everything to your door, and you can add Professional Arrangement to have our team set it by hand.
                 </p>
               </div>
               <Card className="p-8">
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$399</div>
-                  <p className="text-muted-foreground">Complete package with installation</p>
+                  <p className="text-muted-foreground">Complete package, delivered to your door</p>
                 </div>
                 <Button 
                   size="lg" 
@@ -120,8 +120,7 @@ const QuietGrace = () => {
                   "12 Small Pie Pumpkins",
                   "4 Specialty Pumpkins (rare varieties celebrating nature's diversity)",
                   "Natural jute or hemp rope accents",
-                  "Dried botanical elements (lavender, wheat, or sage)",
-                  "Mindful arrangement and blessing of your space"
+                  "Dried botanical elements (lavender, wheat, or sage)"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
@@ -154,9 +153,9 @@ const QuietGrace = () => {
                   </p>
                 </Card>
                 <Card className="p-6">
-                  <h4 className="font-serif text-xl mb-3">Set by hand</h4>
+                  <h4 className="font-serif text-xl mb-3">Delivered to your door</h4>
                   <p className="text-muted-foreground">
-                    We bring everything and arrange it on site, leaving an entrance that feels considered without trying too hard.
+                    We bring everything to you. Add Professional Arrangement and our team will place it for you.
                   </p>
                 </Card>
               </div>

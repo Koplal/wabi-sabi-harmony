@@ -326,6 +326,13 @@ sourceCase("BAN-23", "bans a Maps identifier", "fail", (files) => editFile(files
 sourceCase("BAN-23", "allows heatmaps in the Clarity paragraph", "pass", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Clarity produces heatmaps and session replays.</p>\n"));
 sourceCase("BAN-23", "allows heatmaps only once", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Clarity produces heatmaps.</p>\n<p>We also review heatmaps.</p>\n"));
 sourceCase("BAN-23", "applies only to its scope", "pass", (files) => editFile(files, HOME, "<p>We use Zapier.</p>\n"));
+const PACKAGE_PAGE = "src/pages/seasonal/GrandCelebration.tsx";
+sourceCase("BAN-24", "bans a roofline promise on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>Built for long rooflines.</p>\n"));
+sourceCase("BAN-24", "bans work at height on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>A crew handles the heights.</p>\n"));
+sourceCase("BAN-24", "bans wiring work on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>We handle the wiring.</p>\n"));
+sourceCase("BAN-24", "bans lights in mature trees on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>Lights for mature trees.</p>\n"));
+sourceCase("BAN-24", "allows the no roof or eave line", "pass", (files) => editFile(files, PACKAGE_PAGE, "<p>We do no roof or eave work.</p>\n"));
+sourceCase("BAN-24", "applies only to its scope", "pass", (files) => editFile(files, HOME, "<p>Built for long rooflines.</p>\n"));
 
 sourceCase("S-REQ", "reports a missing string", "fail", (files) => replaceIn(files, HOME, STAFF_LINE, "Fixture."));
 sourceCase("S-REQ", "reports a file that does not exist", "fail", (files) => files.delete("src/pages/Privacy.tsx"));

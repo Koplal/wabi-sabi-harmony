@@ -83,7 +83,7 @@ const GrandCelebration = () => {
               <div>
                 <h2 className="font-serif text-4xl mb-6">Lighting on an Estate Scale</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  The Grand Celebration is our largest holiday installation, built for properties with long rooflines, mature trees, and grounds that read from the road. Up to five hundred bulbs and fifty feet of garland are run by a professional crew, with a dedicated project manager seeing the whole thing through from the first site visit.
+                  The Grand Celebration is our largest holiday installation, built for properties with grounds that read from the road. Up to five hundred bulbs and fifty feet of garland are placed by a professional crew, with a dedicated project manager seeing the whole thing through from the first site visit.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   We plan it over two weeks, install across a full day, and return each week to swap tired greens and keep the lighting even. For homes that host through December, it removes every part of the holiday set-up except the welcome.
@@ -146,19 +146,19 @@ const GrandCelebration = () => {
                 <Card className="p-6">
                   <h4 className="font-serif text-xl mb-3">Lighting that reads from the road</h4>
                   <p className="text-muted-foreground">
-                    Up to five hundred bulbs and fifty feet of garland are run to suit long rooflines and mature trees.
+                    Up to five hundred bulbs and fifty feet of garland are placed to suit your entrance and grounds. Everything is installed from the ground, and we do no roof or eave work.
                   </p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-serif text-xl mb-3">Mapped to your property</h4>
                   <p className="text-muted-foreground">
-                    We plan the run over two weeks around your grounds, sightlines, and how the house sits from the street.
+                    We plan the layout over two weeks around your grounds, sightlines, and how the house sits from the street.
                   </p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-serif text-xl mb-3">Installed by a crew</h4>
                   <p className="text-muted-foreground">
-                    A professional team handles the heights and the wiring across a full day, with one manager seeing it through.
+                    A professional team handles the installation across a full day, with one manager seeing it through.
                   </p>
                 </Card>
                 <Card className="p-6">

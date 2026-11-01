@@ -389,7 +389,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
     intro:
       "Broadmead is a master-planned executive enclave of curvilinear cul-de-sacs, developed from the late 1970s and consistently among Victoria's highest-value neighbourhoods. Its large, finely finished homes and commuting owners make a natural match for a concierge model built on consistency and absence management.",
     localContext: [
-      "Conceived as a master-planned community, Broadmead arranges its executive homes along quiet, curvilinear cul-de-sacs — many of them in the three-thousand to five-thousand-square-foot range and beyond. Marble and granite, hardwood, stone foyers, cedar shakes, and smart-home systems from the likes of Lutron and Crestron are common, calling for a cleaner conversant with premium finishes.",
+      "Conceived as a master-planned community, Broadmead arranges its executive homes along quiet, curvilinear cul-de-sacs — many of them in the three-thousand to five-thousand-square-foot range and beyond. Marble and granite, hardwood, stone foyers, and smart-home systems from the likes of Lutron and Crestron are common, calling for a cleaner conversant with premium finishes.",
       "Green space is woven through the neighbourhood: the 50-hectare Rithet's Bog Conservation Area sits at its heart, with Elk and Beaver Lake close by and Broadmead Village providing day-to-day amenities. It is one of the region's most consistently sought-after executive addresses.",
       "Many Broadmead owners commute via the Swartz Bay ferries or the airport, which makes absence management a recurring need — homes kept guest-ready and watched over while owners travel. Our concierge programs provide exactly that, and they thrive in Broadmead's strong word-of-mouth referral culture.",
     ],
@@ -468,7 +468,7 @@ export const neighborhoods: Record<string, Neighborhood> = {
       "Dean Park Estates rises on the slopes beside John Dean Provincial Park, an enclave of elevated executive homes with sweeping views over Patricia Bay, the Saanich Inlet, the Gulf Islands, and the Olympic Mountains. Substantial and view-oriented, these residences ask for finish-aware, absentee-friendly care.",
     localContext: [
       "Set 100 to 200 metres above the Peninsula beside John Dean Provincial Park and its 244-metre summit, Dean Park Estates is built for the panorama. Homes along Dean Park, Tatlow, and Blue Heron roads frame views of Patricia Bay, the Saanich Inlet, the Gulf Islands, and the distant Olympics — vistas that make crystal-clear view-glass essential.",
-      "These are generously scaled residences, often four thousand to seven thousand square feet, finished with timber and cedar, granite and limestone, large-format glazing, oak floors, heated driveways, and smart-home systems. The material richness rewards a cleaner who understands how to care for each surface properly.",
+      "These are generously scaled residences, often four thousand to seven thousand square feet, finished with timber and cedar, granite and limestone, large-format glazing, oak floors, and smart-home systems. The material richness rewards a cleaner who understands how to care for each surface properly.",
       "Owners here are frequently executive commuters tied to the ferries and the airport, which makes absentee management a recurring need. Our concierge programs keep these elevated estates pristine and guest-ready between trips, with particular attention to the expansive view-glass these homes are designed around.",
     ],
     whyLuxuryHere: [

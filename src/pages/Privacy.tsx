@@ -5,7 +5,7 @@ import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 /** Written at sign-off. The "Last updated" line stays hidden while this is empty. */
-const LAST_UPDATED: string = "";
+const LAST_UPDATED: string = "October 31, 2026";
 
 const SECTION = "space-y-4";
 const H2 = "text-3xl font-serif mb-4";
@@ -70,7 +70,8 @@ const Privacy = () => (
             </li>
             <li>
               <strong>Seasonal checkout:</strong> your name, email, phone number, address, city, and postal code. At
-              seasonal checkout, card details are entered on Stripe's page, never on this site.
+              seasonal checkout, your billing address and card details are entered on Stripe's page, never on this
+              site.
             </li>
             <li>
               <strong>When you become a client:</strong> your signed agreement, access details such as door codes,
@@ -141,7 +142,8 @@ const Privacy = () => (
           </p>
           <ul className={UL}>
             <li>
-              <strong>Stripe</strong> processes payments at seasonal checkout.
+              <strong>Stripe</strong> processes payments at seasonal checkout and keeps your order details, including
+              your name, email, phone number and address.
             </li>
             <li>
               <strong>Google</strong> provides Analytics and web fonts.
@@ -172,7 +174,8 @@ const Privacy = () => (
           <p>
             We keep booking and billing records for six years from the end of the tax year they relate to, in line with
             Canada Revenue Agency record-keeping requirements. We keep other client details, including access details,
-            only as long as we need them to serve you.
+            only as long as we need them to serve you. We keep inquiries that don't lead to a booking, and job
+            applications, for one year.
           </p>
         </section>
 
@@ -206,13 +209,12 @@ const Privacy = () => (
                 hello@wabisabiservices.ca
               </a>
             </p>
-            <p className="mb-2">
+            <p>
               Phone:{" "}
               <a href="tel:+12508965971" className={LINK}>
                 (250) 896-5971
               </a>
             </p>
-            <p>Mail: Victoria, BC V8Z 2P7</p>
           </address>
         </section>
 

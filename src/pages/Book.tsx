@@ -36,11 +36,13 @@ const Book = () => {
       .map((time, index) => `Preferred time ${index + 1}: ${time}`);
 
     try {
-      const { error } = await supabase.functions.invoke('send-contact-email', {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
         body: { ...details, notes: ["Booking request", ...preferredTimes].join("\n") }
       });
 
       if (error) throw error;
+      // The function answers 200 even when Resend rejects the email, so check its result too.
+      if (data?.data?.error) throw new Error("Email was not sent");
 
       trackEvent("consultation_booking", { service_type: formData.serviceType });
       toast.success("Booking request received! We'll confirm your appointment shortly.");

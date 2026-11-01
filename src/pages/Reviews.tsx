@@ -2,7 +2,9 @@ import { Layout } from "@/components/Layout";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Button } from "@/components/ui/button";
 import { googleReviews } from "@/data/googleReviews";
+import { GOOGLE_REVIEWS_URL } from "@/data/organization";
 import reviewsHero from "@/assets/reviews-hero.jpg";
 
 const Reviews = () => {
@@ -70,6 +72,14 @@ const Reviews = () => {
                 <p className="text-sm text-muted-foreground">— {review.author}</p>
               </div>
             ))}
+          </div>
+
+          <div className="text-center mt-20">
+            <Button asChild variant="outline">
+              <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer">
+                Read our Google Reviews
+              </a>
+            </Button>
           </div>
         </div>
       </div>
