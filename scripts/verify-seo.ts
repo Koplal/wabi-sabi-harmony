@@ -177,6 +177,14 @@ function baselineDrift(baseline: RenderBaseline | undefined): string[] | undefin
   return changed.ok ? changed.output.split("\n").filter(Boolean) : undefined;
 }
 
+const commitDates = new Map<string, string | undefined>();
+
+/** %cs is the date as committed. Area routes share one file, so each file is asked about once. */
+function lastCommitDate(path: string): string | undefined {
+  if (!commitDates.has(path)) commitDates.set(path, git(["log", "-1", "--format=%cs", "--", path]).output.trim() || undefined);
+  return commitDates.get(path);
+}
+
 async function loadExport(file: string, name: string): Promise<unknown> {
   const module = (await import(pathToFileURL(resolve(ROOT, file)).href)) as Record<string, unknown>;
   return module[name];
@@ -228,6 +236,7 @@ async function buildDistCtx(args: Args): Promise<DistCtx> {
     manifest: await loadManifest(),
     privateBans: loadPrivateBans(),
     readSource: readRepoFile,
+    lastCommitDate,
     sourcePages() {
       const pages: string[] = [];
       walk(resolve(ROOT, "src/pages"), (path) => {

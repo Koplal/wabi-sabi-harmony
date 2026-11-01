@@ -1,5 +1,5 @@
 /** Browser rules as pure checks on page snapshots, so the self-test can run them on fixtures. */
-import type { LcpRoute } from "./dist-checks";
+import type { LcpRoute, RenderEntry } from "./dist-checks";
 import { BROWSER, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, PARENT, RANK_ROUTES, RAW_MIN_WORD_SHARE, SITE, UTILITY_ROUTES } from "./rules";
 import {
   canonicalJson,
@@ -12,6 +12,7 @@ import {
   rawProblems,
   type RenderedPage,
   routeUrl,
+  textDriftProblems,
   topNodes,
 } from "./lib";
 
@@ -74,6 +75,22 @@ export function checkRawPage(snapshot: PageSnapshot): Finding[] {
   const finding = (message: string): Finding => ({ rule: "BR-RAW", row: "R2-FR-01", file: snapshot.route, message });
   if (snapshot.html === undefined || !snapshot.rendered) return [finding("the raw HTML or the rendered text could not be read")];
   return rawProblems(snapshot.rendered, snapshot.html, RAW_MIN_WORD_SHARE).map(finding);
+}
+
+/**
+ * R2-FR-03 and R2-FR-04. D-RAW and BR-RAW only ask whether raw HTML covers the rendered words, so
+ * they pass a page that gains text, as FAQ answers left open would, or loses a section after load.
+ * This compares the rendered page with the saved Release 1 text, both ways. A page changed on
+ * purpose takes a new entry from verify:browser --write-render-baseline --route=<route>.
+ */
+export function checkRendered(snapshot: PageSnapshot, saved: RenderEntry | undefined): Finding[] {
+  if (![...INDEXABLE_ROUTES, ...UTILITY_ROUTES].includes(snapshot.route)) return [];
+  const finding = (message: string): Finding => ({ rule: "BR-RENDER", row: "R2-FR-03, R2-FR-04", file: label(snapshot), message });
+  if (!saved) return [finding("no saved text for this route")];
+  // The saved text is one state of the route, so an empty /checkout has nothing to compare with.
+  if (snapshot.scenario !== saved.scenario) return [];
+  if (!snapshot.rendered) return [finding("the rendered text could not be read")];
+  return textDriftProblems(snapshot.rendered.text, saved.text, RAW_MIN_WORD_SHARE).map(finding);
 }
 
 /** A URL outside the route list, in a browser. LV-404 proves the same page on a deployment. */
@@ -267,6 +284,7 @@ export function checkCart(steps: CartStep[]): Finding[] {
     if (step.finalPath !== step.route) add(`ended at ${step.finalPath}`);
     if (step.cleared) {
       if (step.storedIds.length > 0) add("the order is complete, but the stored cart still holds its item");
+      if (step.emptyWrites > BROWSER.maxEmptyWrites) add(`${step.emptyWrites} empty writes in one load, over the limit of ${BROWSER.maxEmptyWrites}, so the page is writing in a loop`);
       continue;
     }
     if (!step.storedIds.includes(item.id)) add("the stored cart lost its item");
@@ -306,4 +324,4 @@ export function checkLcpRuns(route: string, measured: LcpMeasure, comparison: Lc
 }
 
 /** BR-LCP needs a deployment and many slow loads, so it runs only when named. */
-export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-404", "BR-HYDRATE", "BR-CART", "BR-LCP"];
+export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER", "BR-404", "BR-HYDRATE", "BR-CART", "BR-LCP"];

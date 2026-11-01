@@ -101,7 +101,7 @@ export interface LcpLab {
   routes: Record<string, LcpRoute>;
 }
 
-/** A Speed Insights reading. It is optional, and means little without its sample count and dates. */
+/** The Speed Insights reading R2-02 names. It means little without its sample count and dates. */
 export interface LcpField {
   p75Ms: number;
   samples: number;
@@ -140,6 +140,8 @@ export interface DistCtx {
   manifest: RouteManifest;
   privateBans: PrivateBans;
   readSource(path: string): string | undefined;
+  /** The date of the last commit to a file, as YYYY-MM-DD. Undefined when git has none. */
+  lastCommitDate(path: string): string | undefined;
   sourcePages(): string[];
   expectClarity?: string;
   note?: (message: string) => void;
@@ -427,6 +429,51 @@ export function checkRoutes(ctx: DistCtx): Finding[] {
 
 const sitemapLocs = (sitemap: string) => new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((match) => match[1]));
 
+/** Each URL's lastmod as a date. Undefined for an entry with none. */
+function sitemapLastmods(sitemap: string): Map<string, string | undefined> {
+  const lastmods = new Map<string, string | undefined>();
+  for (const [entry] of sitemap.matchAll(/<url>[\s\S]*?<\/url>/g)) {
+    const loc = /<loc>\s*([^<]+?)\s*<\/loc>/.exec(entry)?.[1];
+    if (loc) lastmods.set(loc, /<lastmod>\s*([^<]+?)\s*<\/lastmod>/.exec(entry)?.[1].slice(0, 10));
+  }
+  return lastmods;
+}
+
+/** The files a route's copy comes from, found the way D-COPY finds them. */
+function routeSourceFiles(ctx: DistCtx): Map<string, string[]> {
+  const sources = new Map<string, string[]>();
+  for (const [file, route] of pageRoutes(ctx)) {
+    const data = COPY_PAGES.aliases[file];
+    sources.set(route, data ? [file, data] : [file]);
+  }
+  for (const route of ctx.routes) if (route.startsWith(COPY_PAGES.areaPrefix)) sources.set(route, [COPY_PAGES.areaFile]);
+  return sources;
+}
+
+/**
+ * R2-FR-15. A page's date must be the last commit to its source. An earlier date hides a change, as
+ * a placeholder does, and a later one claims a change no commit shows, as a build date does. Dates
+ * shared between pages prove nothing either way, because R1 really did touch many pages on one day.
+ */
+function lastmodProblem(ctx: DistCtx, route: string, date: string | undefined, files: string[] | undefined): string | undefined {
+  if (!date) return `${route} has no lastmod`;
+  if (date > todayUtc()) return `${route}: lastmod ${date} is in the future`;
+  if (!files) return `${route}: no source file found, so its lastmod cannot be checked`;
+  let latest = "";
+  let latestFile = "";
+  for (const file of files) {
+    const changed = ctx.lastCommitDate(file);
+    if (!changed) return `${route}: git has no commit date for ${file}`;
+    if (changed > latest) {
+      latest = changed;
+      latestFile = file;
+    }
+  }
+  if (date < latest) return `${route}: lastmod ${date} is older than the last commit to ${latestFile}, ${latest}`;
+  if (date > latest) return `${route}: lastmod ${date} is later than the last commit to ${latestFile}, ${latest}, so no change backs it`;
+  return undefined;
+}
+
 export function checkSitemap(ctx: DistCtx): Finding[] {
   const sitemap = ctx.files.get("sitemap.xml");
   if (sitemap === undefined) return [{ rule: "D-SITEMAP", message: "dist/sitemap.xml is missing" }];
@@ -436,10 +483,14 @@ export function checkSitemap(ctx: DistCtx): Finding[] {
   for (const url of expected) if (!locs.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `missing ${url}` });
   for (const url of locs) if (!expected.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `not an indexable route: ${url}` });
 
-  const lastmods = [...sitemap.matchAll(/<lastmod>\s*([^<]+?)\s*<\/lastmod>/g)].map((match) => match[1].slice(0, 10));
-  const lastmod = (message: string) => findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
-  if (lastmods.length > 1 && new Set(lastmods).size === 1) lastmod(`every URL has the lastmod ${lastmods[0]}, which is a build date or a placeholder`);
-  for (const date of new Set(lastmods)) if (date > todayUtc()) lastmod(`lastmod ${date} is in the future`);
+  const lastmods = sitemapLastmods(sitemap);
+  const sources = routeSourceFiles(ctx);
+  for (const route of ctx.routes) {
+    const url = expectedCanonical(route);
+    if (!lastmods.has(url)) continue;
+    const message = lastmodProblem(ctx, route, lastmods.get(url), sources.get(route));
+    if (message) findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
+  }
   return findings;
 }
 
@@ -681,6 +732,8 @@ export function checkLcp(ctx: DistCtx): Finding[] {
   const lcp = ctx.renderBaseline?.mobileLcp;
   if (!lcp) return [finding("no mobile LCP in the render baseline")];
   if (!lcp.lab) return [finding(`the R1 lab LCP is not measured. While R1 is live, run npm run verify:browser -- --measure-lcp --base=${SITE}`)];
+  // Only Justin can read it or accept the lab figure in its place, so this warns and does not fail.
+  if (!lcp.field) ctx.note?.("D-LCP: warning: no Speed Insights reading is saved. R2-02 names one, and R1 stops being live at the R2 deploy, so save mobileLcp.field before then or record that the lab figure replaces it.");
   return [...lcpLabProblems(lcp.lab), ...(lcp.field ? lcpFieldProblems(lcp.field) : [])].map(finding);
 }
 

@@ -11,6 +11,7 @@ import {
   BROWSER,
   CLARITY_PROJECT_ID,
   CONSULTATION,
+  COPY_PAGES,
   FAQ_FILES,
   FAQ_SECTIONS,
   FREE_ESTIMATES,
@@ -36,7 +37,7 @@ import {
   UTILITY_ROUTES,
 } from "../rules";
 import { parsePrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "../source-checks";
-import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RouteManifest } from "../dist-checks";
+import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RenderEntry, type RouteManifest } from "../dist-checks";
 import {
   BROWSER_RULES,
   type CartStep,
@@ -53,6 +54,7 @@ import {
   checkNav,
   checkRank as checkBrowserRank,
   checkRawPage,
+  checkRendered,
   type HydrationSnapshot,
   type LcpMeasure,
   type PageSnapshot,
@@ -250,6 +252,18 @@ ${blocks.map(script).join("\n")}
 </head><body>${bodyHtml(route)}</body></html>`;
 }
 
+/** When each source file last changed. The dates differ between files, as real ones do. */
+const changedOn = (file: string) => `2026-0${(file.length % 9) + 1}-15`;
+
+/** The date a sitemap should give a route: the later of the files its copy comes from. */
+function sitemapDate(route: string): string {
+  if (route.startsWith(COPY_PAGES.areaPrefix)) return changedOn(COPY_PAGES.areaFile);
+  const page = `src/pages/${LISTED_PAGES[route]}.tsx`;
+  return [page, COPY_PAGES.aliases[page]].filter(Boolean).map(changedOn).sort().pop() as string;
+}
+
+const sitemapEntry = (route: string) => `<url><loc>${route === "/" ? `${SITE}/` : `${SITE}${route}`}</loc><lastmod>${sitemapDate(route)}</lastmod></url>`;
+
 function goodDist(): Files {
   const files: Files = new Map();
   const product = { "@type": "Product", name: "The Fixture Package", offers: { price: "399" } };
@@ -257,7 +271,7 @@ function goodDist(): Files {
     const path = route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
     files.set(path, pageHtml(route, route === "/seasoning/quiet-grace" ? [product] : []));
   }
-  files.set("sitemap.xml", INDEXABLE_ROUTES.map((route) => `<url><loc>${route === "/" ? `${SITE}/` : `${SITE}${route}`}</loc></url>`).join("\n"));
+  files.set("sitemap.xml", INDEXABLE_ROUTES.map(sitemapEntry).join("\n"));
   files.set("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
   files.set("llms.txt", `Call ${NAP.phones[0]} or ${NAP.email}. See ${SITE}/book\n`);
   files.set("assets/index.js", `const a="${NAP.phones[3]}";const b="mailto:${NAP.email}";const c="${PEARLY_IDS[0]}";`);
@@ -324,6 +338,8 @@ interface DistOptions {
   manifest?: RouteManifest;
   baselineDrift?: string[];
   privateBans?: string | null;
+  /** Commit dates to use in place of changedOn. undefined means git has none for that file. */
+  lastCommits?: Record<string, string | undefined>;
 }
 
 function distCtx(files: Files, options: DistOptions = {}): DistCtx {
@@ -347,6 +363,7 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     manifest: options.manifest ?? LIST_MANIFEST,
     privateBans: parsePrivateBans(options.privateBans === null ? undefined : options.privateBans ?? PLACEHOLDER_BANS, "SEO_PRIVATE_BANS is not set"),
     readSource: (path) => sources[path],
+    lastCommitDate: (path) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path)),
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
     expectClarity: options.expectClarity,
   };
@@ -623,16 +640,28 @@ distCase("D-ROUTES", "reports a shared description", "fail", (files) => replaceI
 const noindexPage = (route: string) => pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
 distCase("D-ROUTES", "allows the file R2-20 builds for a utility route", "pass", (files) => files.set("cart/index.html", noindexPage("/cart")));
 distCase("D-ROUTES", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
-distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/privacy</loc></url>`, ""));
+distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", sitemapEntry("/privacy"), ""));
 distCase("D-SITEMAP", "reports a utility route", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 const withLastmods = (files: Files, dateOf: (index: number) => string) => {
   let index = 0;
-  files.set("sitemap.xml", (files.get("sitemap.xml") as string).replace(/<\/loc>/g, () => `</loc><lastmod>${dateOf(index++)}</lastmod>`));
+  files.set("sitemap.xml", (files.get("sitemap.xml") as string).replace(/<lastmod>[^<]*<\/lastmod>/g, () => `<lastmod>${dateOf(index++)}</lastmod>`));
 };
-distCase("D-SITEMAP", "allows lastmod dates that differ", "pass", (files) => withLastmods(files, (index) => (index % 2 === 0 ? "2026-01-01" : "2026-02-01")));
+const ABOUT_LASTMOD = `<lastmod>${sitemapDate("/about")}</lastmod>`;
+const withAboutLastmod = (files: Files, text: string) => replaceIn(files, "sitemap.xml", `${SITE}/about</loc>${ABOUT_LASTMOD}`, `${SITE}/about</loc>${text}`);
+const OLD_DATE = "2025-11-22";
+distCase("D-SITEMAP", "reports one page dated before its last commit", "fail", (files) => withAboutLastmod(files, `<lastmod>${OLD_DATE}</lastmod>`));
+distCase("D-SITEMAP", "reports stale dates that differ, as in Release 1", "fail", (files) => withLastmods(files, (index) => (index % 2 === 0 ? OLD_DATE : "2025-12-01")));
 distCase("D-SITEMAP", "reports one lastmod on every URL", "fail", (files) => withLastmods(files, () => "2026-10-31"));
 distCase("D-SITEMAP", "reports one lastmod with a time on every URL", "fail", (files) => withLastmods(files, (index) => `2026-10-31T00:00:${String(index % 60).padStart(2, "0")}Z`));
-distCase("D-SITEMAP", "reports a lastmod in the future", "fail", (files) => withLastmods(files, (index) => (index === 0 ? "2999-01-01" : "2026-01-01")));
+distCase("D-SITEMAP", "reports one page stamped later than its last commit, as a build date reads", "fail", (files) => withAboutLastmod(files, "<lastmod>2026-10-31</lastmod>"));
+distCase("D-SITEMAP", "reports a lastmod in the future", "fail", (files) => withAboutLastmod(files, "<lastmod>2999-01-01</lastmod>"));
+distCase("D-SITEMAP", "reports a URL with no lastmod", "fail", (files) => withAboutLastmod(files, ""));
+distCase("D-SITEMAP", "reads a date written with a time", "pass", (files) => withAboutLastmod(files, `<lastmod>${sitemapDate("/about")}T08:00:00Z</lastmod>`));
+distCase("D-SITEMAP", "allows many pages on one date when each really changed then", "pass", (files) => withLastmods(files, () => "2026-10-31"), { lastCommits: Object.fromEntries(INDEXABLE_ROUTES.flatMap((route) => [`src/pages/${LISTED_PAGES[route]}.tsx`, COPY_PAGES.areaFile, FAQ_FILES.data].map((file) => [file, "2026-10-31"]))) });
+distCase("D-SITEMAP", "dates a page from its data file when that changed later", "fail", () => undefined, { lastCommits: { [FAQ_FILES.data]: "2026-10-01" } });
+distCase("D-SITEMAP", "dates every area page from their shared data", "fail", () => undefined, { lastCommits: { [COPY_PAGES.areaFile]: "2026-10-01" } });
+distCase("D-SITEMAP", "reports a source file git has no date for", "fail", () => undefined, { lastCommits: { "src/pages/About.tsx": undefined } });
+distCase("D-SITEMAP", "reports a route with no source file", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
 distCase("D-PARITY", "reports a title that differs", "fail", () => undefined, { page: pageSource.replace('title="Fixture', 'title="Other') });
 distCase("D-PARITY", "reports a description that differs", "fail", () => undefined, { page: pageSource.replace('description="Description', 'description="Other') });
 distCase("D-PARITY", "reports a package price that differs", "fail", () => undefined, { page: pageSource.replace("price: 399", "price: 499") });
@@ -696,10 +725,17 @@ distCase("D-FAQRAW", "reports an answer in a template literal", "fail", () => un
 distCase("D-FAQRAW", "reports an answer joined from pieces", "fail", () => undefined, withExtraAnswer('"Fixture answer one." + " And more."'));
 
 const editLcp = (edit: (lcp: RenderBaseline["mobileLcp"]) => void): DistOptions => ({ editRenderBaseline: (baseline) => edit(baseline.mobileLcp) });
+const lcpNotes = (options: DistOptions): Finding[] => {
+  const notes: string[] = [];
+  DIST_CHECKS["D-LCP"]({ ...distCtx(goodDist(), options), note: (message) => notes.push(message) });
+  return notes.map((message) => ({ rule: "D-LCP", message }));
+};
 const withLab = (fields: Partial<LcpLab>) => editLcp((lcp) => void (lcp.lab = { ...goodLab(), ...fields }));
 const withField = (fields: Partial<LcpField>) => editLcp((lcp) => void (lcp.field = { ...goodField, ...fields }));
 const withRouteLcp = (entry: LcpRoute) => withLab({ routes: { ...goodLab().routes, [BROWSER.lcp.routes[0]]: entry } });
-distCase("D-LCP", "needs no field figure", "pass", () => undefined, editLcp((lcp) => void (lcp.field = null)));
+distCase("D-LCP", "leaves the missing field figure to the owner", "pass", () => undefined, editLcp((lcp) => void (lcp.field = null)));
+cases.push({ rule: "D-LCP", name: "warns while no field figure is saved", expect: "fail", run: () => lcpNotes(editLcp((lcp) => void (lcp.field = null))) });
+cases.push({ rule: "D-LCP", name: "stays quiet once a field figure is saved", expect: "pass", run: () => lcpNotes(withField({})) });
 distCase("D-LCP", "allows a field figure with its samples and dates", "pass", () => undefined, withField({}));
 distCase("D-LCP", "reports R1 not measured", "fail", () => undefined, editLcp((lcp) => void (lcp.lab = null)));
 distCase("D-LCP", "reports no baseline file", "fail", () => undefined, { renderBaseline: null });
@@ -775,7 +811,7 @@ routerCase("reports one plain path beside a built router", "fail", `${listRouter
 routerCase("reports a list import nothing uses", "fail", `${LIST_IMPORT}\n<Route path={route} element={<Page />} />`, LIST_MANIFEST);
 routerCase("reports a list named only in a comment", "fail", `${LIST_IMPORT}\n// ROUTES drives this\n/* ROUTES */\n<Route path={route} element={<Page />} />`, LIST_MANIFEST);
 routerCase("reports another name imported from the list file", "fail", 'import { helper } from "./data/routes";\nhelper(ROUTES);', LIST_MANIFEST);
-distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/about</loc></url>`, ""));
+distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files) => replaceIn(files, "sitemap.xml", sitemapEntry("/about"), ""));
 distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
 distCase("D-MANIFEST", "reports a file for an unknown route", "fail", (files) => files.set("extra/index.html", pageHtml("/extra")));
@@ -912,6 +948,23 @@ browserCase("BR-RAW", "reports an H1 that differs from this build's", "fail", ()
 browserCase("BR-RAW", "reports a page it could not read", "fail", () => checkRawPage(rawSnapshot("/about", { html: undefined })));
 browserCase("BR-RAW", "leaves utility routes to the other rules", "pass", () => checkRawPage(snapshot({ route: "/cart" })));
 
+const SAVED_FAQ = "Frequently Asked Questions What makes this service different? How is pricing determined?";
+const OPEN_ANSWERS = "Every visit follows a plan written for your home. Pricing follows the size of the home and how often we visit.";
+const savedEntry = (text: string, fields: Partial<RenderEntry> = {}): RenderEntry => ({ finalPath: "/faq", h1: "FAQ", links: [], words: textWords(text).length, text, ...fields });
+const renderedAs = (text: string, fields: Partial<PageSnapshot> = {}) => snapshot({ route: "/faq", rendered: { h1: "FAQ", text, links: [] }, ...fields });
+const WORDS = filler(100);
+browserCase("BR-RENDER", "good fixture", "pass", () => checkRendered(renderedAs(SAVED_FAQ), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "reports FAQ answers left open", "fail", () => checkRendered(renderedAs(`${SAVED_FAQ} ${OPEN_ANSWERS}`), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "reports a section lost after load", "fail", () => checkRendered(renderedAs(SAVED_FAQ.slice(0, 26)), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "reports a blank page", "fail", () => checkRendered(renderedAs(""), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "allows five extra words in a hundred", "pass", () => checkRendered(renderedAs(`${WORDS} one two three four five`), savedEntry(WORDS)));
+browserCase("BR-RENDER", "reports six extra words in a hundred", "fail", () => checkRendered(renderedAs(`${WORDS} one two three four five six`), savedEntry(WORDS)));
+browserCase("BR-RENDER", "reports a route with no saved text", "fail", () => checkRendered(renderedAs(SAVED_FAQ), undefined));
+browserCase("BR-RENDER", "reports text it could not read", "fail", () => checkRendered(snapshot({ route: "/faq" }), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "compares the state that was saved", "fail", () => checkRendered(renderedAs("Your cart is empty", { route: "/checkout", scenario: "seeded cart" }), savedEntry(SAVED_FAQ, { scenario: "seeded cart" })));
+browserCase("BR-RENDER", "leaves a state that was not saved", "pass", () => checkRendered(renderedAs("Your cart is empty", { route: "/checkout", scenario: "empty cart" }), savedEntry(SAVED_FAQ, { scenario: "seeded cart" })));
+browserCase("BR-RENDER", "leaves a URL outside the route list", "pass", () => checkRendered(renderedAs("Not found", { route: LIVE.missingPath }), undefined));
+
 const missingUrl = (fields: Partial<PageSnapshot> = {}) => snapshot({ route: LIVE.missingPath, status: 404, html: notFoundHtml(), ...fields });
 browserCase("BR-404", "good fixture", "pass", () => checkMissingUrl(missingUrl(), ORIGIN));
 browserCase("BR-404", "allows the browser's log of the page's own 404", "pass", () => checkMissingUrl(missingUrl({ consoleErrors: [OWN_404] }), ORIGIN));
@@ -978,6 +1031,9 @@ const PAID_ITEM = [BROWSER.seededCart[0].id];
 browserCase("BR-CART", "reports a paid item left in the stored cart", "fail", () => checkCart(atStep("order complete", { storedIds: PAID_ITEM })));
 browserCase("BR-CART", "reports a paid item back after a reload", "fail", () => checkCart(atStep("reload after the order", { storedIds: PAID_ITEM })));
 browserCase("BR-CART", "reports the order page sending the visitor away", "fail", () => checkCart(atStep("order complete", { finalPath: "/cart" })));
+browserCase("BR-CART", "allows the order page a few empty writes", "pass", () => checkCart(atStep("order complete", { emptyWrites: BROWSER.maxEmptyWrites })));
+browserCase("BR-CART", "reports the order page writing in a loop", "fail", () => checkCart(atStep("order complete", { emptyWrites: BROWSER.maxEmptyWrites + 1 })));
+browserCase("BR-CART", "reports the loop after a reload too", "fail", () => checkCart(atStep("reload after the order", { emptyWrites: 40 })));
 
 const lcpOf = (runsMs: number[], shifts: number[] = runsMs.map(() => 0)): LcpMeasure => ({ runsMs, medianMs: median(runsMs), shifts });
 browserCase("BR-LCP", "good fixture", "pass", () => checkLcpRuns("/", lcpOf([2000, 2100, 2200, 2300, 2400]), R1_LCP));

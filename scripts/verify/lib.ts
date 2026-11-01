@@ -355,6 +355,18 @@ export function rawProblems(rendered: RenderedPage, html: string, minShare: numb
   return problems;
 }
 
+/** BR-RENDER: this text against saved text, both ways, so a page can neither gain nor lose copy. */
+export function textDriftProblems(text: string, saved: string, minShare: number): string[] {
+  const words = textWords(text);
+  const savedWords = textWords(saved);
+  const shared = sharedWordCount(words, savedWords);
+  const problems: string[] = [];
+  const percent = (whole: number) => Math.floor((shared / whole) * 100);
+  if (shared / savedWords.length < minShare) problems.push(`lost text: ${shared} of ${savedWords.length} saved words are on the page (${percent(savedWords.length)}%)`);
+  if (shared / words.length < minShare) problems.push(`gained text: ${shared} of ${words.length} words on the page are saved (${percent(words.length)}%)`);
+  return problems;
+}
+
 /** R2-FR-08, shared by D-404, BR-404 and LV-404, so a platform's default 404 page cannot pass. */
 export function missingPageProblems(html: string, site: string, brand: string): string[] {
   const problems: string[] = [];

@@ -674,6 +674,7 @@ export const RENDER_BASELINE_FILE = "scripts/verify/render-baseline.json";
 
 /** Where the copy rules find a built page's text, for rules that name a source file. */
 export const COPY_PAGES = {
+  /** A page whose copy lives in another file. D-SITEMAP dates the page from the later of the two. */
   aliases: { [FAQ_PAGE]: FAQ_DATA } as Record<string, string>,
   areaPrefix: "/areas/",
   areaFile: "src/data/neighborhoods.ts",
@@ -715,9 +716,9 @@ export const BROWSER = {
   /**
    * BR-CART, in order. Each step is a full page load. /cart is also Stripe's cancel URL, and the
    * last two steps are its success URL, where a paid cart must empty and stay empty.
-   * This is the one new rule that passes on Release 1, which reads the cart before its first
-   * render. It guards the move to a cart that starts empty and loads after hydration: the save
-   * effect can then overwrite the stored cart, and a late load can restore an item already paid for.
+   * It passes on Release 1, which reads the cart before its first render. It guards the move to a
+   * cart that starts empty and loads after hydration: the save effect can then overwrite the stored
+   * cart, and a late load can restore an item already paid for.
    */
   cartSteps: [
     { name: "first load", route: "/cart", reload: false },
@@ -728,6 +729,12 @@ export const BROWSER = {
     { name: "order complete", route: "/checkout-success", url: STRIPE_RETURN, reload: false, cleared: true },
     { name: "reload after the order", route: "/checkout-success", reload: true, cleared: true },
   ] as CartStepPlan[],
+  /**
+   * Empty writes one load of the order page may make. Clearing the cart takes one, but a clearCart
+   * that is not stable writes for as long as the page is open (B-10). Production React logs nothing
+   * for that loop, and the cart stays empty, so only the count shows it.
+   */
+  maxEmptyWrites: 5,
   /**
    * BR-HYDRATE. Production React reports text and structure mismatches by number and attribute
    * mismatches not at all, so a shifted useId passes on dist/ with a clean console. The wording

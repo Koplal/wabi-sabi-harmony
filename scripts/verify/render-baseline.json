@@ -64,7 +64,7 @@
       }
     },
     "field": null,
-    "note": "lab is the R2-FR-12 record: BROWSER.lcp on R1 production, with measuredOn in UTC. BR-LCP compares a deployment with production in one sitting while R1 is live, and with this figure after that. field is an optional Speed Insights reading with its sample count and dates. Never estimate either."
+    "note": "lab is the R2-FR-12 record: BROWSER.lcp on R1 production, with measuredOn in UTC. BR-LCP compares a deployment with production in one sitting while R1 is live, and with this figure after that. field is the Speed Insights reading R2-02 names, with its sample count and dates. It stays null until Justin saves one or records that lab replaces it, and D-LCP warns until then. Never estimate either."
   },
   "routes": {
     "/": {

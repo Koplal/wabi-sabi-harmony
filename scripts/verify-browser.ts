@@ -18,6 +18,9 @@
  *     with --route=/a,/b                          only these routes, keeping the rest
  *     with --from-prerendered                     allows a prerendered build, which replaces R1 text
  *
+ * BR-RENDER reads dist/ only, because a deployment renders its reviews and the saved text has none.
+ * A page changed on purpose takes a new entry with --write-render-baseline --route=<route>.
+ *
  * Until R2-20 builds them, the utility routes serve the home page, so an earlier row passes
  * --skip=/cart,/checkout,/checkout-success. A full pass must never skip them.
  *
@@ -47,6 +50,7 @@ import {
   checkNav,
   checkRank,
   checkRawPage,
+  checkRendered,
   type HydrationSnapshot,
   type LcpMeasure,
   type NavStep,
@@ -76,7 +80,7 @@ const KNOWN_FLAGS = ["write-rank-h1", "write-render-baseline", "from-prerendered
 const KNOWN_VALUES = ["route", "skip", "rules", "base", "expect-clarity"];
 
 /** Rules read from one visit to each route. BR-NAV, BR-404, BR-HYDRATE and BR-CART make their own visits. */
-const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW"];
+const PAGE_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER"];
 
 class PreviewProtected extends Error {}
 
@@ -483,7 +487,7 @@ const readRendered = (page: Page) =>
     };
   });
 
-const LCP_NOTE = "lab is the R2-FR-12 record: BROWSER.lcp on R1 production, with measuredOn in UTC. BR-LCP compares a deployment with production in one sitting while R1 is live, and with this figure after that. field is an optional Speed Insights reading with its sample count and dates. Never estimate either.";
+const LCP_NOTE = "lab is the R2-FR-12 record: BROWSER.lcp on R1 production, with measuredOn in UTC. BR-LCP compares a deployment with production in one sitting while R1 is live, and with this figure after that. field is the Speed Insights reading R2-02 names, with its sample count and dates. It stays null until Justin saves one or records that lab replaces it, and D-LCP warns until then. Never estimate either.";
 const LCP_NOT_MEASURED: RenderBaseline["mobileLcp"] = { lab: null, field: null, note: LCP_NOTE };
 
 const watchLcp = () => {
@@ -654,7 +658,7 @@ function routesToVisit(selected: string[], requested: string[] | undefined, skip
   if (requested) return requested.filter((route) => !skipped.includes(route));
 
   const all = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
-  const needsAll = selected.some((rule) => ["BR-CONSOLE", "BR-H1", "BR-HEAD", "BR-GA", "BR-RAW"].includes(rule)) || (selected.includes("BR-CLARITY") && !expectClarity);
+  const needsAll = selected.some((rule) => ["BR-CONSOLE", "BR-H1", "BR-HEAD", "BR-GA", "BR-RAW", "BR-RENDER"].includes(rule)) || (selected.includes("BR-CLARITY") && !expectClarity);
   const needed = new Set<string>(needsAll ? all : []);
   if (selected.includes("BR-AREAS")) needed.add("/areas");
   if (selected.includes("BR-RANK")) RANK_ROUTES.forEach((route) => needed.add(route));
@@ -692,13 +696,15 @@ function requireDevReact() {
 /** VITE_GOOGLE_REVIEWS is JSON in a string in the bundle, so this reads what was actually built. */
 const BUILT_REVIEWS = /\\?"quote\\?"\s*:/;
 
+const holdsReviews = () => distScripts().some((text) => BUILT_REVIEWS.test(text));
+
 /**
  * The baseline is a tracked file in a public repo, and the review text must never enter the repo
  * (googleReviews.ts). A deployment and a build with that variable both render it.
  */
 function refuseReviewText(base: string | undefined) {
   if (base) throw new UsageError("--write-render-baseline reads dist/ only, because a deployment renders its reviews, which must stay out of this repo");
-  if (distScripts().some((text) => BUILT_REVIEWS.test(text))) throw new UsageError("This build holds VITE_GOOGLE_REVIEWS, which must stay out of this repo. Unset it and run npm run build first.");
+  if (holdsReviews()) throw new UsageError("This build holds VITE_GOOGLE_REVIEWS, which must stay out of this repo. Unset it and run npm run build first.");
 }
 
 async function writeRankH1(browser: Browser, session: Session) {
@@ -721,12 +727,14 @@ async function run(): Promise<number> {
   const devReact = args.flags.has("dev-react");
   const measuring = args.flags.has("measure-lcp");
   const named = listValue(args, "rules") ?? [];
-  const selected = listValue(args, "rules") ?? (devReact ? ["BR-HYDRATE"] : BROWSER_RULES.filter((rule) => rule !== "BR-LCP"));
+  const base = args.values.get("base")?.replace(/\/+$/, "");
+  const notOnDeployment = (rule: string) => Boolean(base) && rule === "BR-RENDER";
+  const selected = listValue(args, "rules") ?? (devReact ? ["BR-HYDRATE"] : BROWSER_RULES.filter((rule) => rule !== "BR-LCP" && !notOnDeployment(rule)));
   const unknown = selected.filter((rule) => !BROWSER_RULES.includes(rule));
   if (unknown.length > 0) throw new UsageError(`Unknown rule: ${unknown.join(", ")}`);
 
-  const base = args.values.get("base")?.replace(/\/+$/, "");
   if (devReact && base) throw new UsageError("--dev-react reads dist/, so it does not run with --base");
+  if (selected.some(notOnDeployment)) throw new UsageError("BR-RENDER reads dist/ only, because a deployment renders its reviews and the saved text has none");
   if ((measuring || selected.includes("BR-LCP")) && !base) throw new UsageError("Lab LCP is only comparable on a deployment, so it needs --base");
   if (args.flags.has("write-render-baseline")) refuseReviewText(base);
   const expectClarity = args.values.get("expect-clarity");
@@ -742,6 +750,7 @@ async function run(): Promise<number> {
   if (!base) {
     if (!existsSync(resolve(ROOT, "dist/index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
     if (devReact) requireDevReact();
+    if (selected.includes("BR-RENDER") && holdsReviews()) throw new UsageError("BR-RENDER needs a build with no VITE_GOOGLE_REVIEWS, because the saved text has none. Unset it and run npm run build first.");
     server = await startStaticServer(ROOT);
   }
   const realFonts = measuring || selected.includes("BR-LCP");
@@ -767,6 +776,7 @@ async function run(): Promise<number> {
     const findings: Finding[] = [];
     const clarity = selected.includes("BR-CLARITY");
     const has = (rule: string) => selected.includes(rule);
+    const savedRoutes: RenderBaseline["routes"] = has("BR-RENDER") ? loadRenderBaseline().routes : {};
 
     await inPool(targets, async (target) => {
       let snapshot: PageSnapshot;
@@ -786,6 +796,7 @@ async function run(): Promise<number> {
       if (has("BR-CLARITY")) findings.push(...checkClarity(snapshot, expectClarity));
       if (has("BR-GA")) findings.push(...checkGa(snapshot));
       if (has("BR-RAW")) findings.push(...checkRawPage(snapshot));
+      if (has("BR-RENDER")) findings.push(...checkRendered(snapshot, savedRoutes[snapshot.route]));
     });
 
     if (has("BR-NAV") && (!requested || named.includes("BR-NAV"))) findings.push(...(await navFindings(browser, session)));
@@ -797,6 +808,7 @@ async function run(): Promise<number> {
     if (has("BR-LCP")) findings.push(...(await lcpFindings(browser, session, requested ?? BROWSER.lcp.routes)));
 
     console.log(`Checked ${routes.length} route${routes.length === 1 ? "" : "s"} (${targets.length} page loads) against ${base ?? "dist/"}.`);
+    if (base && named.length === 0) console.log("BR-RENDER: not run, because it reads dist/ only.");
     if (hydrationRoutes.length > 0) {
       const later = hydrationRoutes.filter((route) => BROWSER.clockRoutes.includes(route));
       console.log(`BR-HYDRATE: ${plural(hydrationRoutes.length, "route")}${devReact ? " with development React" : ""}, each with an empty and a seeded cart${later.length > 0 ? `, and ${later.join(", ")} on a later date` : ""}.`);
