@@ -4,8 +4,10 @@
  *   npm run verify:live                     the Release 1 rules, against production
  *   npm run verify:live -- --rules=<ids>    only these rules
  *   npm run verify:live -- --base=<url>     a preview instead of production
+ *   npm run verify:live -- --local          every rule but LV-HOST, on dist/ through the local
+ *     server, which applies vercel.json. Real 404s and redirects are proved on a deployment
  *
- * LV-HOST checks the production hosts, so it does not run with --base.
+ * LV-HOST checks the production hosts, so it does not run with --base or --local.
  * LV-SITEMAP compares each deployed date with src/data/lastmod.json in this checkout, and reads
  * this checkout's git, so it needs a full clone.
  * Exit codes: 0 pass, 1 findings, 2 usage or network error.
@@ -18,11 +20,13 @@ import { BROWSER, COPY_PAGES, LASTMOD_FILE, LIVE, PARITY_EXEMPT, RENDER_BASELINE
 import { type Finding, listValue, parseArgs, report, UsageError } from "./verify/lib";
 import type { RenderBaseline } from "./verify/dist-checks";
 import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, describeChain } from "./verify/live-rules";
+import { type RunningServer, startStaticServer } from "./verify/static-server";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 const LASTMODS = resolve(ROOT, LASTMOD_FILE);
 const MAX_HOPS = 6;
+const KNOWN_FLAGS = ["local"];
 const KNOWN_VALUES = ["base", "rules"];
 
 class PreviewProtected extends Error {}
@@ -81,18 +85,32 @@ function pageHistories(): string[] {
   return histories as string[];
 }
 
+const withoutHost = (rules: string[]) => rules.filter((rule) => rule !== "LV-HOST");
+
 async function run(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
-  for (const flag of args.flags) throw new UsageError(`Unknown flag: --${flag}`);
+  for (const flag of args.flags) if (!KNOWN_FLAGS.includes(flag)) throw new UsageError(`Unknown flag: --${flag}`);
   for (const key of args.values.keys()) if (!KNOWN_VALUES.includes(key)) throw new UsageError(`Unknown option: --${key}`);
 
-  const base = args.values.get("base")?.replace(/\/+$/, "") ?? LIVE.apex;
-  const preview = args.values.has("base");
-  const selected = listValue(args, "rules") ?? (preview ? LIVE.releaseOne.filter((rule) => rule !== "LV-HOST") : LIVE.releaseOne);
+  const local = args.flags.has("local");
+  if (local && args.values.has("base")) throw new UsageError("--local and --base name two different targets");
+  const preview = args.values.has("base") || local;
+  const selected = listValue(args, "rules") ?? (local ? withoutHost(LIVE.all) : preview ? withoutHost(LIVE.releaseOne) : LIVE.releaseOne);
   const unknown = selected.filter((rule) => !LIVE.all.includes(rule));
   if (unknown.length > 0) throw new UsageError(`Unknown rule: ${unknown.join(", ")}`);
-  if (preview && selected.includes("LV-HOST")) throw new UsageError("LV-HOST checks the production hosts, so it does not run with --base");
+  if (preview && selected.includes("LV-HOST")) throw new UsageError("LV-HOST checks the production hosts, so it does not run with --base or --local");
+  if (!local) return check(args.values.get("base")?.replace(/\/+$/, "") ?? LIVE.apex, selected);
 
+  if (!existsSync(resolve(ROOT, "dist/index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
+  const server: RunningServer = await startStaticServer(ROOT);
+  try {
+    return await check(server.origin, selected);
+  } finally {
+    await server.close();
+  }
+}
+
+async function check(base: string, selected: string[]): Promise<number> {
   const findings: Finding[] = [];
   const say = (rule: string, chain: Chain) => console.log(`${rule}: ${describeChain(chain)}`);
 
