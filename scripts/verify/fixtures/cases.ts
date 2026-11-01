@@ -747,16 +747,19 @@ distCase("D-SITEMAP", "reports a route with no tracked date", fails(`${SITE}/abo
 distCase("D-SITEMAP", "reports a tracked date with no URL", fails(`${LAST_LOC}x has a tracked date but is not in the sitemap`), () => undefined, { lastmods: trackedDates((dates) => (dates[`${LAST_ROUTE}x`] = "2026-01-15")) });
 distCase("D-SITEMAP", "reports a tracked file it cannot read", fails("src/data/lastmod.json could not be read"), () => undefined, { lastmods: null });
 const dateProblem = (route: string, actual: string, expectedDate: string): Finding[] => (actual === expectedDate ? [] : [{ rule: "D-SITEMAP", message: `${route} dated ${actual}, expected ${expectedDate}` }]);
+/** Every area has an entry, as the real data does, so --write-lastmod can read each one. */
+const ALL_AREAS = `export const neighborhoods = {\n${AREA_ROUTES.map((route) => `  "${route.slice(COPY_PAGES.areaPrefix.length)}": {\n    intro: "Area copy.",\n  },`).join("\n")}\n};\n`;
+const datedCtx = (options: DistOptions = {}) => distCtx(goodDist(), { ...options, sources: { [COPY_PAGES.areaFile]: ALL_AREAS, ...options.sources } });
 /** The route dates for an /about page with four commits, whose copy took its current form on changedFrom. */
 const savedDates = (changedFrom: string) => {
-  const ctx = distCtx(goodDist(), { commitDates: (path) => (path === ABOUT_PAGE ? ["2026-10-31", "2026-08-15", "2026-03-15", "2026-01-15"] : ["2026-01-15"]) });
+  const ctx = datedCtx({ commitDates: (path) => (path === ABOUT_PAGE ? ["2026-10-31", "2026-08-15", "2026-03-15", "2026-01-15"] : ["2026-01-15"]) });
   const current = ctx.sourceOn;
   ctx.sourceOn = (path, date) => (path === ABOUT_PAGE && date < changedFrom ? "<p>Older copy.</p>" : current(path, date));
   return lastCopyDates(ctx);
 };
 cases.push({ rule: "D-SITEMAP", name: "--write-lastmod finds the last copy change, not the last commit", expect: "pass", run: () => dateProblem("/about", savedDates("2026-03-15")["/about"], "2026-03-15") });
 cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes a page's first commit when its copy never changed", expect: "pass", run: () => dateProblem("/about", savedDates("2000-01-01")["/about"], "2026-01-15") });
-cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes the latest of a page's sources", expect: "pass", run: () => dateProblem("/faq", lastCopyDates(distCtx(goodDist(), { commitDates: (path) => [path === FAQ_FILES.data ? "2026-05-15" : "2026-02-15"] }))["/faq"], "2026-05-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes the latest of a page's sources", expect: "pass", run: () => dateProblem("/faq", lastCopyDates(datedCtx({ commitDates: (path) => [path === FAQ_FILES.data ? "2026-05-15" : "2026-02-15"] }))["/faq"], "2026-05-15") });
 const refused = (run: () => unknown): Finding[] => {
   try {
     run();
@@ -766,6 +769,7 @@ const refused = (run: () => unknown): Finding[] => {
   return [];
 };
 cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses copy that is not committed", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => savedDates("2999-01-01")) });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses a source it cannot read", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => lastCopyDates(datedCtx({ sources: { [ABOUT_PAGE]: undefined } }))) });
 distCase("D-SITEMAP", "reports a source file git has no date for", fails(`git has no commit date for ${ABOUT_PAGE}`), () => undefined, { lastCommits: { [ABOUT_PAGE]: undefined } });
 distCase("D-SITEMAP", "reports a route with no source file", fails("no source file found, so its lastmod cannot be checked"), () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
 distCase("D-SITEMAP", "fails in a shallow clone, whose git dates stop at its edge", fails("this clone is shallow"), () => undefined, { shallowClone: true });

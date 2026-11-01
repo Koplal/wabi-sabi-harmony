@@ -517,6 +517,7 @@ function routeLastmodProblem(ctx: DistCtx, route: string, date: string | undefin
 /** The day a source's copy took its current form: walks back through its commits to the last change. */
 function lastCopyChange(ctx: DistCtx, source: CopySource): string | undefined {
   const current = copyOf(source, ctx.readSource(source.file));
+  if (current === undefined) return undefined;
   let date: string | undefined;
   for (const day of ctx.commitDates(source.file)) {
     if (copyOf(source, ctx.sourceOn(source.file, day)) !== current) break;
