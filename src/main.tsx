@@ -41,8 +41,8 @@ const attach = () => {
   hydrateRoot(container, app);
 };
 
-// Only HTML built for this path can be attached to. Any other URL gets the home page's HTML from
-// the catch-all rewrite, and the dev server gets an empty #root.
+// Only HTML built for this path can be attached to. Any other URL gets 404.html, which has no
+// data-route, so React renders over it, and the dev server gets an empty #root.
 if (container.dataset.route === path) {
   preloadRoute(path).then(attach, recoverPageScript);
 } else {

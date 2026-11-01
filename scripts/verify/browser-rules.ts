@@ -228,7 +228,7 @@ export interface HydrationSnapshot {
   markup: "none" | "no main" | "attached" | "replaced" | "not attached";
   /** The server-rendered H1 is still on the page. Undefined when the HTML has none. */
   headingKept?: boolean;
-  /** False for a utility route with no built file, which the catch-all answers with the home page. */
+  /** False for a utility route with no built file, so it has no page of its own to attach to. */
   fileBuilt?: boolean;
 }
 
@@ -243,7 +243,7 @@ export function checkHydrate(snapshot: HydrationSnapshot): Finding[] {
   const path = pathOfHref(snapshot.route);
 
   if (snapshot.fileBuilt === false) {
-    return [finding(`no built file until R2-20, so this URL serves the home page and cannot match. Until then pass --skip=${UTILITY_ROUTES.join(",")}`)];
+    return [finding("no built file, so this URL has no page of its own to attach to. Run npm run build.")];
   }
 
   const findings = [...snapshot.pageErrors, ...snapshot.consoleErrors.map((entry) => entry.text)]
@@ -409,13 +409,15 @@ export interface EarlyReading {
   retry?: { loads: number; attached: boolean };
   /** The page's script failed every time. It must reload once, stop, and leave the page on screen. */
   giveUp?: { loads: number; heading: boolean };
+  /** /cart with a saved cart: the text of <main> before React attached, and after. */
+  cart?: EarlyStep & { before: string; after: string };
   /** Why a step did not finish, by step name. */
   errors: Record<string, string>;
 }
 
 /** R2-FR-03 before load: what a visitor did to the built page survives React attaching to it. */
 export function checkEarly(reading: EarlyReading): Finding[] {
-  const { scroll, forms, chunk } = BROWSER.early;
+  const { scroll, forms, chunk, cart } = BROWSER.early;
   const findings: Finding[] = [];
   const add = (file: string, message: string) => findings.push({ rule: "BR-EARLY", row: "R2-FR-03", file, message });
   const unfinished = (name: string, route: string) => add(`${route} [${name}]`, `the step did not finish: ${reading.errors[name] ?? "no reading"}`);
@@ -459,11 +461,33 @@ export function checkEarly(reading: EarlyReading): Finding[] {
     if (reading.giveUp.loads !== 2) add(chunk.route, `${reading.giveUp.loads} page loads with the script always failing, expected 2`);
     if (!reading.giveUp.heading) add(chunk.route, "the built page did not stay on screen after the script failed");
   }
+
+  if (!reading.cart) unfinished("saved cart", cart.route);
+  else {
+    inWindow(cart.route, reading.cart);
+    const { before, after } = reading.cart;
+    if (!before) add(cart.route, "the built page had no text, so this proves nothing");
+    if (before.toLowerCase().includes(cart.falseClaim)) add(cart.route, `a visitor with a saved cart reads "${cart.falseClaim}" before React attaches`);
+    if (!after.includes(BROWSER.seededCart[0].name)) add(cart.route, "the saved cart was not on the page after React attached");
+  }
   return findings;
 }
 
 /** BR-LCP needs a deployment and many slow loads, so it runs only when named. */
 export const BROWSER_RULES = ["BR-CONSOLE", "BR-H1", "BR-AREAS", "BR-HEAD", "BR-NAV", "BR-RANK", "BR-CLARITY", "BR-GA", "BR-RAW", "BR-RENDER", "BR-404", "BR-HYDRATE", "BR-CART", "BR-INTERACT", "BR-EARLY", "BR-LCP"];
+
+/**
+ * BR-HYDRATE's URLs. React attaches only to a route's own built page. It renders over the 404 page
+ * on purpose (main.tsx), so a URL outside the list is left out here, and is BR-404's to prove.
+ */
+export function hydrationUrls(requested: string[] | undefined, skipped: string[]): { routes: string[]; outside: string[] } {
+  const known = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
+  const wanted = (requested ?? known).filter((route) => !skipped.includes(route));
+  return { routes: wanted.filter((url) => known.includes(pathOfHref(url))), outside: wanted.filter((url) => !known.includes(pathOfHref(url))) };
+}
+
+/** A --route run skips rules that make their own visits unless they are named, but BR-404 is the point of a run on the missing path. */
+export const runsMissingUrl = (requested: string[] | undefined, named: string[]) => !requested || named.includes("BR-404") || requested.includes(LIVE.missingPath);
 
 /**
  * --from-prerendered replaces Release 1 text, so it must name the routes it replaces. Without that,

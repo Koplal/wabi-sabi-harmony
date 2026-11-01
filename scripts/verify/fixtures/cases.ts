@@ -3,7 +3,7 @@
  * The good fixtures are built from rules.ts in memory. The private ban terms here are
  * made-up placeholders, and never real ones.
  */
-import { formatFinding, type Finding, htmlFileOfRoute, median, rawHeadingsOf, rawLinksOf, rawTextOf, SourceText, textWords, undoMsysPath } from "../lib";
+import { formatFinding, type Finding, htmlFileOfRoute, median, rawHeadingsOf, rawLinksOf, rawTextOf, sitemapLastmods, SourceText, textWords, undoMsysPath, UsageError } from "../lib";
 import {
   ABSENT,
   BANS,
@@ -25,6 +25,7 @@ import {
   MISSING_PAGE,
   NAP,
   NO_BIOHAZARD,
+  NO_H1_ROUTE,
   ORG,
   PARENT,
   PEARLY_IDS,
@@ -38,7 +39,7 @@ import {
   UTILITY_ROUTES,
 } from "../rules";
 import { parsePrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "../source-checks";
-import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RenderEntry, type RouteManifest } from "../dist-checks";
+import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, lastCopyDates, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RenderEntry, type RouteManifest } from "../dist-checks";
 import {
   BROWSER_RULES,
   type CartStep,
@@ -60,10 +61,12 @@ import {
   checkRendered,
   fromPrerenderedProblem,
   type HydrationSnapshot,
+  hydrationUrls,
   type EarlyReading,
   type InteractReading,
   type LcpMeasure,
   type PageSnapshot,
+  runsMissingUrl,
 } from "../browser-rules";
 import { checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkSitemapDates, checkUtility, type Chain } from "../live-rules";
 
@@ -246,6 +249,12 @@ ${script(orgNode())}
 </head><body><div id="root"><main><h1>This page could not be found</h1><a href="/">Return Home</a></main></div></body></html>`;
 }
 
+/** A utility page as the build writes it: noindex, and /checkout with no H1. */
+function builtUtilityPage(route: string): string {
+  const page = pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
+  return route === NO_H1_ROUTE ? page.replace(/<h1[\s\S]*?<\/h1>/, "") : page;
+}
+
 function pageHtml(route: string, extraBlocks: unknown[] = []): string {
   const url = route === "/" ? `${SITE}/` : `${SITE}${route}`;
   const blocks = [orgNode(), ...(route === "/" ? [parentNode] : []), ...extraBlocks];
@@ -264,7 +273,7 @@ const changedOn = (file: string) => `2026-0${(file.length % 9) + 1}-15`;
 /** The date a sitemap should give a route: the later of the files its copy comes from. */
 function sitemapDate(route: string): string {
   const page = `src/pages/${LISTED_PAGES[route]}.tsx`;
-  const files = route.startsWith(COPY_PAGES.areaPrefix) ? [COPY_PAGES.areaFile, COPY_PAGES.areaTemplate] : [page, COPY_PAGES.aliases[page]];
+  const files = route.startsWith(COPY_PAGES.areaPrefix) ? [COPY_PAGES.areaFile, COPY_PAGES.areaTemplate] : [page, COPY_PAGES.aliases[page], ...(COPY_PAGES.pageData[page] ?? [])];
   return files.filter(Boolean).map(changedOn).sort().pop() as string;
 }
 
@@ -277,6 +286,7 @@ function goodDist(): Files {
     const path = route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
     files.set(path, pageHtml(route, route === "/seasoning/quiet-grace" ? [product] : []));
   }
+  for (const route of UTILITY_ROUTES) files.set(htmlFileOfRoute(route), builtUtilityPage(route));
   files.set("sitemap.xml", INDEXABLE_ROUTES.map(sitemapEntry).join("\n"));
   files.set("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
   files.set("llms.txt", `Call ${NAP.phones[0]} or ${NAP.email}. See ${SITE}/book\n`);
@@ -348,7 +358,17 @@ interface DistOptions {
   lastCommits?: Record<string, string | undefined>;
   /** A file's text on a past date. By default every file reads as it does now. */
   sourceOn?: DistCtx["sourceOn"];
+  /** A file's commit days. By default it has the one from lastCommits or changedOn. */
+  commitDates?: DistCtx["commitDates"];
   shallowClone?: boolean;
+  /** The tracked dates, by route. By default they match the sitemap. null means the file is unreadable. */
+  lastmods?: Record<string, string> | null;
+}
+
+/** The tracked file a sitemap was built from. */
+function lastmodsOf(files: Files): Record<string, string> {
+  const dates = [...sitemapLastmods(files.get("sitemap.xml") ?? "")];
+  return Object.fromEntries(dates.flatMap(([url, date]) => (date ? [[url.slice(SITE.length) || "/", date]] : [])));
 }
 
 const PAGE_TEXT = "<p>Fixture copy.</p>";
@@ -365,6 +385,7 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
   };
   const renderBaseline = options.renderBaseline === null ? undefined : options.renderBaseline ?? renderBaselineOf(good);
   if (renderBaseline) options.editRenderBaseline?.(renderBaseline);
+  const lastCommitDate = (path: string) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path));
   return {
     files,
     routes: INDEXABLE_ROUTES,
@@ -374,8 +395,10 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     manifest: options.manifest ?? LIST_MANIFEST,
     privateBans: parsePrivateBans(options.privateBans === null ? undefined : options.privateBans ?? PLACEHOLDER_BANS, "SEO_PRIVATE_BANS is not set"),
     readSource: (path) => (path in sources ? sources[path] : PAGE_TEXT),
-    lastCommitDate: (path) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path)),
+    lastCommitDate,
+    commitDates: options.commitDates ?? ((path) => [lastCommitDate(path) as string]),
     sourceOn: options.sourceOn ?? ((path) => (path in sources ? sources[path] : PAGE_TEXT)),
+    lastmods: options.lastmods === null ? undefined : options.lastmods ?? lastmodsOf(files),
     shallowClone: options.shallowClone,
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
     expectClarity: options.expectClarity,
@@ -660,11 +683,12 @@ distCase("D-ROUTES", "reports an unexpected route", "fail", (files) => files.set
 distCase("D-ROUTES", "reports a canonical on another route", "fail", (files) => replaceIn(files, ABOUT_HTML, `<link rel="canonical" href="${SITE}/about"`, `<link rel="canonical" href="${SITE}/"`));
 distCase("D-ROUTES", "reports a shared title", "fail", (files) => replaceIn(files, ABOUT_HTML, "<title>Fixture /about", "<title>Fixture /book"));
 distCase("D-ROUTES", "reports a shared description", "fail", (files) => replaceIn(files, ABOUT_HTML, 'content="Description of /about"', 'content="Description of /book"'));
-const noindexPage = (route: string) => pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
-distCase("D-ROUTES", "allows the file R2-20 builds for a utility route", "pass", (files) => files.set("cart/index.html", noindexPage("/cart")));
+for (const route of UTILITY_ROUTES) distCase("D-ROUTES", `reports ${route} with no file, as a 404 once the catch-all goes`, fails(`no built HTML for ${route}`), (files) => files.delete(htmlFileOfRoute(route)));
 distCase("D-ROUTES", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
+distCase("D-ROUTES", "reports /checkout built with its form", fails("must build in its empty-cart state"), (files) => files.set(htmlFileOfRoute(NO_H1_ROUTE), pageHtml(NO_H1_ROUTE).replace("</head>", `<meta name="robots" content="noindex" ${rh} /></head>`)));
 distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", sitemapEntry("/privacy"), ""));
-distCase("D-SITEMAP", "reports a utility route", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
+for (const route of UTILITY_ROUTES) distCase("D-SITEMAP", `reports ${route}, which is noindex`, fails(`lists a noindex page: ${SITE}${route}`), (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}${route}</loc></url>`));
+distCase("D-SITEMAP", "reports an indexable route marked noindex by mistake", fails(`lists a noindex page: ${SITE}/about`), (files) => files.set(ABOUT_HTML, builtUtilityPage("/about")));
 const withLastmods = (files: Files, dateOf: (index: number) => string) => {
   let index = 0;
   files.set("sitemap.xml", (files.get("sitemap.xml") as string).replace(/<lastmod>[^<]*<\/lastmod>/g, () => `<lastmod>${dateOf(index++)}</lastmod>`));
@@ -704,6 +728,50 @@ distCase("D-SITEMAP", "dates an area page from its own entry in the shared data"
 cases.push({ rule: "D-SITEMAP", name: "leaves other areas' dates alone when one area's copy changes", expect: "pass", run: () => DIST_CHECKS["D-SITEMAP"](distCtx(goodDist(), SIDNEY_REWORDED)).filter((finding) => finding.message.startsWith("/areas/oak-bay")) });
 distCase("D-SITEMAP", "reports an area with no entry on its date", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is before ${COPY_PAGES.areaFile} existed`), () => undefined, { ...SIDNEY_REWORDED, sourceOn: onlyFile(COPY_PAGES.areaFile, 'export const neighborhoods = {\n  "oak-bay": {\n    intro: "Oak Bay copy.",\n  },\n};\n') });
 distCase("D-SITEMAP", "dates every area page from the shared template", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is older than a copy change in ${COPY_PAGES.areaTemplate}`), () => undefined, reworded(COPY_PAGES.areaTemplate));
+const REVIEWS_DATA = "src/data/googleReviews.ts";
+distCase("D-SITEMAP", "dates a page from the data it shows", fails(`/: lastmod ${sitemapDate("/")} is older than a copy change in ${REVIEWS_DATA}`), () => undefined, {
+  lastCommits: { [REVIEWS_DATA]: "2026-10-01" },
+  sources: { [REVIEWS_DATA]: 'export const reviews = ["New review."];' },
+  sourceOn: onlyFile(REVIEWS_DATA, 'export const reviews = ["Old review."];'),
+});
+const trackedDates = (edit: (dates: Record<string, string>) => void = () => undefined) => {
+  const dates = lastmodsOf(goodDist());
+  edit(dates);
+  return dates;
+};
+const LAST_ROUTE = INDEXABLE_ROUTES[INDEXABLE_ROUTES.length - 1];
+const LAST_LOC = `${SITE}${LAST_ROUTE}`;
+const stampedExceptLast = (files: Files) => withLastmods(files, (index) => (index < INDEXABLE_ROUTES.length - 1 ? "2026-10-31" : sitemapDate(LAST_ROUTE)));
+distCase("D-SITEMAP", "reports a date that differs from the tracked file", fails(`${SITE}/about: lastmod 2026-10-31 differs from the tracked date ${sitemapDate("/about")}`), (files) => withAboutLastmod(files, "<lastmod>2026-10-31</lastmod>"), { lastmods: trackedDates() });
+distCase("D-SITEMAP", "reports a build date on most URLs, which the shared-date check allows", fails(`${SITE}/about: lastmod 2026-10-31 differs from the tracked date`), stampedExceptLast, { lastmods: trackedDates() });
+distCase("D-SITEMAP", "allows most URLs on one date when the tracked file holds it", "pass", stampedExceptLast);
+distCase("D-SITEMAP", "reports a route with no tracked date", fails(`${SITE}/about has no tracked date`), () => undefined, { lastmods: trackedDates((dates) => delete dates["/about"]) });
+distCase("D-SITEMAP", "reports a tracked date with no URL", fails(`${LAST_LOC}x has a tracked date but is not in the sitemap`), () => undefined, { lastmods: trackedDates((dates) => (dates[`${LAST_ROUTE}x`] = "2026-01-15")) });
+distCase("D-SITEMAP", "reports a tracked file it cannot read", fails("src/data/lastmod.json could not be read"), () => undefined, { lastmods: null });
+const dateProblem = (route: string, actual: string, expectedDate: string): Finding[] => (actual === expectedDate ? [] : [{ rule: "D-SITEMAP", message: `${route} dated ${actual}, expected ${expectedDate}` }]);
+/** Every area has an entry, as the real data does, so --write-lastmod can read each one. */
+const ALL_AREAS = `export const neighborhoods = {\n${AREA_ROUTES.map((route) => `  "${route.slice(COPY_PAGES.areaPrefix.length)}": {\n    intro: "Area copy.",\n  },`).join("\n")}\n};\n`;
+const datedCtx = (options: DistOptions = {}) => distCtx(goodDist(), { ...options, sources: { [COPY_PAGES.areaFile]: ALL_AREAS, ...options.sources } });
+/** The route dates for an /about page with four commits, whose copy took its current form on changedFrom. */
+const savedDates = (changedFrom: string) => {
+  const ctx = datedCtx({ commitDates: (path) => (path === ABOUT_PAGE ? ["2026-10-31", "2026-08-15", "2026-03-15", "2026-01-15"] : ["2026-01-15"]) });
+  const current = ctx.sourceOn;
+  ctx.sourceOn = (path, date) => (path === ABOUT_PAGE && date < changedFrom ? "<p>Older copy.</p>" : current(path, date));
+  return lastCopyDates(ctx);
+};
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod finds the last copy change, not the last commit", expect: "pass", run: () => dateProblem("/about", savedDates("2026-03-15")["/about"], "2026-03-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes a page's first commit when its copy never changed", expect: "pass", run: () => dateProblem("/about", savedDates("2000-01-01")["/about"], "2026-01-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes the latest of a page's sources", expect: "pass", run: () => dateProblem("/faq", lastCopyDates(datedCtx({ commitDates: (path) => [path === FAQ_FILES.data ? "2026-05-15" : "2026-02-15"] }))["/faq"], "2026-05-15") });
+const refused = (run: () => unknown): Finding[] => {
+  try {
+    run();
+  } catch (error) {
+    if (error instanceof UsageError) return [{ rule: "D-SITEMAP", message: error.message }];
+  }
+  return [];
+};
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses copy that is not committed", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => savedDates("2999-01-01")) });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses a source it cannot read", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => lastCopyDates(datedCtx({ sources: { [ABOUT_PAGE]: undefined } }))) });
 distCase("D-SITEMAP", "reports a source file git has no date for", fails(`git has no commit date for ${ABOUT_PAGE}`), () => undefined, { lastCommits: { [ABOUT_PAGE]: undefined } });
 distCase("D-SITEMAP", "reports a route with no source file", fails("no source file found, so its lastmod cannot be checked"), () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
 distCase("D-SITEMAP", "fails in a shallow clone, whose git dates stop at its edge", fails("this clone is shallow"), () => undefined, { shallowClone: true });
@@ -873,7 +941,7 @@ distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files)
 distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
 distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
 distCase("D-MANIFEST", "reports a file for an unknown route", "fail", (files) => files.set("extra/index.html", pageHtml("/extra")));
-distCase("D-MANIFEST", "allows a utility route with no file until R2-20", "pass", () => undefined);
+distCase("D-MANIFEST", "reports a utility route with no file", fails("no built file for /cart"), (files) => files.delete("cart/index.html"));
 distCase("D-MANIFEST", "allows a utility route with a noindex file", "pass", (files) => files.set("cart/index.html", notFoundHtml()));
 distCase("D-MANIFEST", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
 distCase("D-MANIFEST", "reports an llms.txt link that is not a route", "fail", (files) => editFile(files, "llms.txt", `- [Extra](${SITE}/extra)\n`));
@@ -1159,11 +1227,13 @@ const early = (fields: Partial<EarlyReading> = {}): EarlyReading => ({
   enterLeft: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, false])),
   retry: { loads: 2, attached: true },
   giveUp: { loads: 2, heading: true },
+  cart: { held: true, attached: true, before: "Your Selections", after: `Your Selections ${BROWSER.seededCart[0].name}` },
   errors: {},
   ...fields,
 });
 const earlyContact = (fields: Partial<EarlyReading["forms"][string]>) => early({ forms: { ...early().forms, [CONTACT_FORM.route]: { ...sentForm(CONTACT_FORM), ...fields } } });
 const earlyScroll = (fields: Partial<NonNullable<EarlyReading["scroll"]>>) => early({ scroll: { ...(early().scroll as NonNullable<EarlyReading["scroll"]>), ...fields } });
+const earlyCart = (fields: Partial<NonNullable<EarlyReading["cart"]>>) => early({ cart: { ...(early().cart as NonNullable<EarlyReading["cart"]>), ...fields } });
 browserCase("BR-EARLY", "good fixture", "pass", () => checkEarly(early()));
 browserCase("BR-EARLY", "reports a scroll position lost on attaching", fails(`scrolled to ${EARLY.scroll.to} before React attached, then moved to 0`), () => checkEarly(earlyScroll({ after: 0 })));
 browserCase("BR-EARLY", "reports a page that never scrolled, which proves nothing", fails("the page was not scrolled before React attached"), () => checkEarly(earlyScroll({ before: 0, after: 0 })));
@@ -1180,6 +1250,11 @@ browserCase("BR-EARLY", "reports a reload that does not attach", fails("React di
 browserCase("BR-EARLY", "reports a reload loop", fails("5 page loads with the script always failing, expected 2"), () => checkEarly(early({ giveUp: { loads: 5, heading: true } })));
 browserCase("BR-EARLY", "reports a page lost after the script failed", fails("the built page did not stay on screen"), () => checkEarly(early({ giveUp: { loads: 2, heading: false } })));
 browserCase("BR-EARLY", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkEarly(early({ retry: undefined })));
+browserCase("BR-EARLY", "reports a built /cart that calls a saved cart empty", fails(`reads "${EARLY.cart.falseClaim}" before React attaches`), () => checkEarly(earlyCart({ before: "Your Selections Are Empty" })));
+browserCase("BR-EARLY", "reports a saved cart that never appears", fails("the saved cart was not on the page"), () => checkEarly(earlyCart({ after: "Your Selections Are Empty" })));
+browserCase("BR-EARLY", "reports a built /cart with no text, which proves nothing", fails("the built page had no text"), () => checkEarly(earlyCart({ before: "" })));
+browserCase("BR-EARLY", "reports a /cart read after React attached, which proves nothing", fails("React had attached before the step acted"), () => checkEarly(earlyCart({ held: false })));
+browserCase("BR-EARLY", "reports a /cart step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ cart: undefined, errors: { "saved cart": "Timeout" } })));
 
 browserCase("BR-GA", "good fixture", "pass", () => checkGa(snapshot({ gaConfigs: 1 })));
 browserCase("BR-GA", "reports two page views from one load", "fail", () => checkGa(snapshot({ gaConfigs: 2 })));
@@ -1231,18 +1306,29 @@ liveCase("LV-UTILITY", "ignores noindex outside the head", "fail", () => checkUt
 liveCase("LV-UTILITY", "reports a status other than 200", "fail", () => checkUtility("/cart", 404, utilityHtml('<meta name="robots" content="noindex,follow" />')));
 
 const sitemapOf = (...dates: Array<string | undefined>) => dates.map((date, index) => `<url><loc>${APEX}/page-${index}</loc>${date ? `<lastmod>${date}</lastmod>` : ""}</url>`).join("\n");
+const trackedOf = (...dates: string[]) => Object.fromEntries(dates.map((date, index) => [`/page-${index}`, date]));
 const TWO_HISTORIES = ["2026-01-15", "2026-06-12"];
 const SAME_DATE = sitemapOf("2026-06-12", "2026-06-12", "2026-06-12");
-liveCase("LV-SITEMAP", "good fixture", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reads a date written with a time", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15T08:00:00Z", "2026-06-12"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a URL with no lastmod", fails(`${APEX}/page-1 has no lastmod`), () => checkSitemapDates(200, sitemapOf("2026-01-15", undefined), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports one date across pages with different histories", fails("all 3 URLs share the lastmod 2026-06-12, but 1 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a build date when the pages last changed together", fails("but 2 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, ["2026-01-15", "2026-01-15"]));
-liveCase("LV-SITEMAP", "allows one date when every page last changed then", "pass", () => checkSitemapDates(200, SAME_DATE, ["2026-06-12", "2026-06-12"]));
-liveCase("LV-SITEMAP", "reports a date later than today", fails(`${APEX}/page-1: lastmod 2999-01-01 is later than today`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2999-01-01"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a date it cannot read", fails(`${APEX}/page-0: lastmod soon is not a date`), () => checkSitemapDates(200, sitemapOf("soon", "2026-06-12"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a page that is not a sitemap", fails("no URLs in the sitemap"), () => checkSitemapDates(200, pageHtml("/"), TWO_HISTORIES));
-liveCase("LV-SITEMAP", "reports a status other than 200", fails("status 404"), () => checkSitemapDates(404, "", TWO_HISTORIES));
+const SAME_TRACKED = trackedOf("2026-06-12", "2026-06-12", "2026-06-12");
+const TRACKED = trackedOf("2026-01-15", "2026-06-12", "2026-06-12");
+liveCase("LV-SITEMAP", "good fixture", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES, TRACKED));
+liveCase("LV-SITEMAP", "reads a date written with a time", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15T08:00:00Z", "2026-06-12"), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a URL with no lastmod", fails(`${APEX}/page-1 has no lastmod`), () => checkSitemapDates(200, sitemapOf("2026-01-15", undefined), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports one date across pages with different histories", fails("all 3 URLs share the lastmod 2026-06-12, but 1 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, TWO_HISTORIES, SAME_TRACKED));
+liveCase("LV-SITEMAP", "reports a build date when the pages last changed together", fails("but 2 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, ["2026-01-15", "2026-01-15"], SAME_TRACKED));
+liveCase("LV-SITEMAP", "allows one date when every page last changed then", "pass", () => checkSitemapDates(200, SAME_DATE, ["2026-06-12", "2026-06-12"], SAME_TRACKED));
+liveCase("LV-SITEMAP", "reports a date later than today", fails(`${APEX}/page-1: lastmod 2999-01-01 is later than today`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2999-01-01"), TWO_HISTORIES, trackedOf("2026-01-15", "2999-01-01")));
+liveCase("LV-SITEMAP", "reports a date it cannot read", fails(`${APEX}/page-0: lastmod soon is not a date`), () => checkSitemapDates(200, sitemapOf("soon", "2026-06-12"), TWO_HISTORIES, trackedOf("soon", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a page that is not a sitemap", fails("no URLs in the sitemap"), () => checkSitemapDates(200, pageHtml("/"), TWO_HISTORIES, TRACKED));
+liveCase("LV-SITEMAP", "reports a status other than 200", fails("status 404"), () => checkSitemapDates(404, "", TWO_HISTORIES, TRACKED));
+// What R1 really left: most pages changed on one day, and a few did not. Every date but one is shared, so sharedDateProblem stays quiet.
+const MOST_TRACKED = trackedOf("2026-10-31", "2026-10-31", "2026-10-31", "2026-10-31", "2026-07-05", "2026-07-05");
+const STAMPED = "2026-11-15";
+liveCase("LV-SITEMAP", "allows most URLs on one date when the tracked file holds it", "pass", () => checkSitemapDates(200, sitemapOf(...Object.values(MOST_TRACKED)), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports a build date on most URLs, which the shared-date check allows", fails(`${APEX}/page-0: lastmod ${STAMPED} differs from the tracked date 2026-10-31`), () => checkSitemapDates(200, sitemapOf(STAMPED, STAMPED, STAMPED, STAMPED, STAMPED, "2026-07-05"), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports the one page a stale deploy has wrong", fails(`${APEX}/page-5: lastmod 2026-06-12 differs from the tracked date 2026-07-05`), () => checkSitemapDates(200, sitemapOf("2026-10-31", "2026-10-31", "2026-10-31", "2026-10-31", "2026-07-05", "2026-06-12"), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports a deployed URL with no tracked date", fails(`${APEX}/page-2 has no tracked date`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a tracked route the deployment lacks", fails(`${APEX}/page-2 has a tracked date but is not in the sitemap`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12"), TWO_HISTORIES, TRACKED));
 
 const LIVE_RULES = LIVE.all;
 
@@ -1264,6 +1350,24 @@ function argumentChecks(): string[] {
   expectGuard(true, false, ["/about"], true);
   expectGuard(true, true, ["/about"], false);
   expectGuard(false, true, undefined, false);
+  // R2-21's proof is a run on the missing path alone: BR-404 must read it, and BR-HYDRATE must not.
+  const expectHydration = (requested: string[] | undefined, skipped: string[], routes: string[], outside: string[]) => {
+    const actual = hydrationUrls(requested, skipped);
+    if (JSON.stringify(actual) !== JSON.stringify({ routes, outside })) problems.push(`BR-HYDRATE on ${requested} skipping ${skipped} chose ${JSON.stringify(actual)}`);
+  };
+  expectHydration([LIVE.missingPath], [], [], [LIVE.missingPath]);
+  expectHydration(["/about", LIVE.missingPath], [], ["/about"], [LIVE.missingPath]);
+  expectHydration([STRIPE_RETURN], [], [STRIPE_RETURN], []);
+  expectHydration(["/about", "/faq"], ["/faq"], ["/about"], []);
+  const everyRoute = hydrationUrls(undefined, UTILITY_ROUTES);
+  if (everyRoute.routes.join() !== INDEXABLE_ROUTES.join() || everyRoute.outside.length > 0) problems.push("a full BR-HYDRATE pass does not load the route list less what it skips");
+  const expectMissing = (requested: string[] | undefined, named: string[], runs: boolean) => {
+    if (runsMissingUrl(requested, named) !== runs) problems.push(`BR-404 with routes ${requested} and rules ${named} should ${runs ? "run" : "not run"}`);
+  };
+  expectMissing(undefined, [], true);
+  expectMissing([LIVE.missingPath], [], true);
+  expectMissing(["/about"], [], false);
+  expectMissing(["/about"], ["BR-404"], true);
   return problems;
 }
 

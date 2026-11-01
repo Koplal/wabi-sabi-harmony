@@ -8,9 +8,11 @@ import {
   FAQ_FILES,
   FAQ_ROUTE,
   HELMET_META_KEYS,
+  LASTMOD_FILE,
   MANIFEST,
   MISSING_PAGE,
   NAP,
+  NO_H1_ROUTE,
   ORG,
   PARENT,
   PARITY_EXEMPT,
@@ -43,6 +45,7 @@ import {
   metaContent,
   missingPageProblems,
   parseBlock,
+  rawHeadingsOf,
   rawProblems,
   rawTextOf,
   type RenderedPage,
@@ -54,7 +57,9 @@ import {
   titleOf,
   todayUtc,
   topNodes,
+  trackedDateProblems,
   typesOf,
+  UsageError,
 } from "./lib";
 import {
   checkAbsent,
@@ -150,8 +155,12 @@ export interface DistCtx {
   readSource(path: string): string | undefined;
   /** The date of the last commit to a file, as YYYY-MM-DD. Undefined when git has none. */
   lastCommitDate(path: string): string | undefined;
+  /** The dates of a file's commits, newest first, through renames. */
+  commitDates(path: string): string[];
   /** The file as it stood at the end of a date, through renames. Undefined when it did not exist yet. */
   sourceOn(path: string, date: string): string | undefined;
+  /** Each indexable route's date from LASTMOD_FILE. Undefined when the file cannot be read. */
+  lastmods?: Record<string, string>;
   /** True in a shallow clone, where every older file reads as last changed at the clone's edge. */
   shallowClone?: boolean;
   sourcePages(): string[];
@@ -403,20 +412,24 @@ export function checkTodo(ctx: DistCtx): Finding[] {
 
 const expectedCanonical = (route: string) => (route === "/" ? `${SITE}/` : `${SITE}${route}`);
 
+const isNoindex = (html: string) => (metaContent(html, "robots") ?? "").includes("noindex");
+
 export function checkRoutes(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   const add = (message: string, file?: string) => findings.push({ rule: "D-ROUTES", file, message });
   const pages = htmlFiles(ctx).filter(({ path }) => /(?:^|\/)index\.html$/.test(path));
   const built = new Set(pages.map(({ path }) => routeOfHtmlFile(path)));
 
-  for (const route of ctx.routes) if (!built.has(route)) add(`no built HTML for ${route}`);
+  // The utility routes need files too: with no catch-all, Stripe's return URLs would be 404s.
+  for (const route of [...ctx.routes, ...UTILITY_ROUTES]) if (!built.has(route)) add(`no built HTML for ${route}`);
   for (const route of built) {
     const file = htmlFileOfRoute(route);
-    // R2-20 gives the utility routes files. They are pages, but never indexable ones.
     if (UTILITY_ROUTES.includes(route)) {
-      if (!(metaContent(ctx.files.get(file) as string, "robots") ?? "").includes("noindex")) add(`${route} has no noindex`, file);
+      if (!isNoindex(ctx.files.get(file) as string)) add(`${route} has no noindex`, file);
     } else if (!ctx.routes.includes(route)) add(`unexpected built HTML for ${route}`);
   }
+  const noH1 = ctx.files.get(htmlFileOfRoute(NO_H1_ROUTE));
+  if (noH1 !== undefined && rawHeadingsOf(noH1).length > 0) add(`${NO_H1_ROUTE} must build in its empty-cart state, which has no H1`, htmlFileOfRoute(NO_H1_ROUTE));
 
   const titles = new Map<string, string>();
   const descriptions = new Map<string, string>();
@@ -448,8 +461,9 @@ interface CopySource {
 function routeSources(ctx: DistCtx): Map<string, CopySource[]> {
   const sources = new Map<string, CopySource[]>();
   for (const [file, route] of pageRoutes(ctx)) {
-    const data = COPY_PAGES.aliases[file];
-    sources.set(route, data ? [{ file }, { file: data }] : [{ file }]);
+    const alias = COPY_PAGES.aliases[file];
+    const files = [file, ...(alias ? [alias] : []), ...(COPY_PAGES.pageData[file] ?? [])];
+    sources.set(route, files.map((item) => ({ file: item })));
   }
   for (const route of ctx.routes) {
     if (!route.startsWith(COPY_PAGES.areaPrefix)) continue;
@@ -500,6 +514,30 @@ function routeLastmodProblem(ctx: DistCtx, route: string, date: string | undefin
   return undefined;
 }
 
+/** The day a source's copy took its current form: walks back through its commits to the last change. */
+function lastCopyChange(ctx: DistCtx, source: CopySource): string | undefined {
+  const current = copyOf(source, ctx.readSource(source.file));
+  if (current === undefined) return undefined;
+  let date: string | undefined;
+  for (const day of ctx.commitDates(source.file)) {
+    if (copyOf(source, ctx.sourceOn(source.file, day)) !== current) break;
+    date = day;
+  }
+  return date;
+}
+
+/** What --write-lastmod saves: each route's latest copy change across its sources, as D-SITEMAP reads them. */
+export function lastCopyDates(ctx: DistCtx): Record<string, string> {
+  const sources = routeSources(ctx);
+  const dates: Record<string, string> = {};
+  for (const route of ctx.routes) {
+    const changes = (sources.get(route) ?? []).map((source) => lastCopyChange(ctx, source));
+    if (changes.length === 0 || changes.includes(undefined)) throw new UsageError(`${route}: its copy matches no commit, so commit the change first`);
+    dates[route] = (changes as string[]).sort().pop() as string;
+  }
+  return dates;
+}
+
 /** The latest commit behind each route, for telling whether pages have different histories. */
 function routeHistories(ctx: DistCtx, sources: Map<string, CopySource[]>): string[] {
   return ctx.routes.flatMap((route) => {
@@ -516,9 +554,16 @@ export function checkSitemap(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   for (const url of expected) if (!locs.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `missing ${url}` });
   for (const url of locs) if (!expected.has(url)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `not an indexable route: ${url}` });
+  // This reads the page itself, so it also catches an indexable route marked noindex by mistake.
+  for (const url of locs) {
+    const html = ctx.files.get(htmlFileOfRoute(url.slice(SITE.length) || "/"));
+    if (html !== undefined && isNoindex(html)) findings.push({ rule: "D-SITEMAP", file: "sitemap.xml", message: `lists a noindex page: ${url}` });
+  }
 
   const add = (message: string) => findings.push({ rule: "D-SITEMAP", row: "R2-FR-15", file: "sitemap.xml", message });
   const lastmods = sitemapLastmods(sitemap);
+  if (!ctx.lastmods) add(`${LASTMOD_FILE} could not be read`);
+  else for (const message of trackedDateProblems(lastmods, ctx.lastmods, SITE)) add(message);
   const sources = routeSources(ctx);
   for (const route of ctx.routes) {
     const url = expectedCanonical(route);
@@ -879,13 +924,11 @@ export function checkManifest(ctx: DistCtx): Finding[] {
       .filter(({ path }) => /(?:^|\/)index\.html$/.test(path))
       .map(({ path }) => routeOfHtmlFile(path))
   );
-  for (const route of ctx.routes) if (!built.has(route)) add(`no built file for ${route}`);
+  for (const route of known) if (!built.has(route)) add(`no built file for ${route}`);
   for (const route of built) if (!known.has(route)) add(`built file for ${route}, which is not a known route`);
   for (const route of UTILITY_ROUTES) {
     const file = htmlFileOfRoute(route);
-    if (built.has(route) && !(metaContent(ctx.files.get(file) as string, "robots") ?? "").includes("noindex")) {
-      add(`the built file for ${route} has no noindex`, file);
-    }
+    if (built.has(route) && !isNoindex(ctx.files.get(file) as string)) add(`the built file for ${route} has no noindex`, file);
   }
 
   for (const path of llmsPaths(ctx.files.get("llms.txt") ?? "")) {

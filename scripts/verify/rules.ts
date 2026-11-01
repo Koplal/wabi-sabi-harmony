@@ -507,7 +507,10 @@ export const RANK_ROUTES = [
   "/seasoning/winter-holiday",
 ];
 
-/** Pages with no built HTML until R2, so they carry no parity check. */
+/** A utility route that builds with no H1, because its page only exists with a cart (R2-FR-09). */
+export const NO_H1_ROUTE = "/checkout";
+
+/** Pages outside the indexable list, so they carry no parity check. */
 export const PARITY_EXEMPT = ["Cart", "Checkout", "CheckoutSuccess", "NotFound"];
 
 /** Every head tag SEO.tsx emits that also exists in the static head. */
@@ -605,10 +608,23 @@ export const MANIFEST = {
 
 export const RENDER_BASELINE_FILE = "scripts/verify/render-baseline.json";
 
+/**
+ * The day each indexable route's copy last changed. The sitemap reads this, not git, because
+ * Vercel's clone has a depth of 10 and would give many pages one moving date. A copy change dates
+ * its page here: npm run verify -- --write-lastmod, after the commit.
+ */
+export const LASTMOD_FILE = "src/data/lastmod.json";
+
 /** Where the copy rules find a built page's text, for rules that name a source file. */
 export const COPY_PAGES = {
   /** A page whose copy lives in another file. */
   aliases: { [FAQ_PAGE]: FAQ_DATA } as Record<string, string>,
+  /** Data a page shows beside its own copy, so a change there dates the page too (R2-FR-15). */
+  pageData: {
+    "src/pages/Home.tsx": ["src/data/googleReviews.ts"],
+    "src/pages/Reviews.tsx": ["src/data/googleReviews.ts"],
+    "src/pages/areas/Index.tsx": ["src/data/neighborhoods.ts"],
+  } as Record<string, string[]>,
   areaPrefix: "/areas/",
   areaFile: "src/data/neighborhoods.ts",
   /** The copy every area page shares. */
@@ -758,6 +774,11 @@ export const BROWSER = {
       },
     ] as EarlyFormPlan[],
     chunk: { route: "/contact", script: "**/assets/Contact-*.js" },
+    /**
+     * A saved cart loads only after React attaches, which can take seconds on a phone, and Stripe's
+     * cancel URL lands here. Until then the built page must not call that cart this word.
+     */
+    cart: { route: "/cart", falseClaim: "empty" },
   },
   /** --dev-react. The marker is a string that only development React contains. */
   devReact: {

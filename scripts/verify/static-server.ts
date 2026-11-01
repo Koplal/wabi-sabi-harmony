@@ -2,8 +2,9 @@
  * Serves dist/ the way vercel.json does, for the browser pass.
  *
  * `vite preview` is not used because its fallback can serve the home page for extensionless
- * routes, which hides head problems. Files win over rewrites, as they do on Vercel, and
- * /_vercel/* returns 204. It listens on a free port, so several passes can run side by side.
+ * routes, which hides head problems. As on Vercel, trailingSlash and redirects come first, then
+ * files, then rewrites, and any other URL gets the 404 page with a 404. /_vercel/* returns 204.
+ * It listens on a free port, so several passes can run side by side.
  */
 import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
@@ -28,9 +29,20 @@ const CONTENT_TYPES: Record<string, string> = {
 interface VercelConfig {
   headers?: Array<{ source: string; headers: Array<{ key: string; value: string }> }>;
   rewrites?: Array<{ source: string; destination: string }>;
+  redirects?: Array<{ source: string; destination: string; permanent?: boolean }>;
+  trailingSlash?: boolean;
 }
 
 const matches = (source: string, pathname: string) => new RegExp(`^${source}$`).test(pathname);
+
+/** One hop. trailingSlash goes first, so /home/ takes two hops to reach /, as LIVE.redirects allows. */
+function redirectFor(config: VercelConfig, pathname: string): { status: number; location: string } | undefined {
+  if (config.trailingSlash === false && pathname.length > 1 && pathname.endsWith("/")) {
+    return { status: 308, location: pathname.replace(/\/+$/, "") || "/" };
+  }
+  const rule = config.redirects?.find((entry) => matches(entry.source, pathname));
+  return rule ? { status: rule.permanent === false ? 307 : 308, location: rule.destination } : undefined;
+}
 
 export interface RunningServer {
   origin: string;
@@ -67,6 +79,12 @@ export function startStaticServer(root: string): Promise<RunningServer> {
     }
     if (request.method !== "GET" && request.method !== "HEAD") {
       response.writeHead(405).end();
+      return;
+    }
+
+    const redirect = redirectFor(config, pathname);
+    if (redirect) {
+      response.writeHead(redirect.status, { Location: `${redirect.location}${url.search}` }).end();
       return;
     }
 
