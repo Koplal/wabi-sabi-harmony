@@ -499,7 +499,7 @@ export const OVERLAP = {
   siblingDirs: ["src", "public"],
   siblingFiles: ["index.html"],
   siblingSkip: ["__tests__", "node_modules"],
-  nonCopyAttributes: ["className", "to", "href", "src", "id", "key", "type", "name", "rel", "target", "htmlFor", "style", "canonical"],
+  nonCopyAttributes: ["className", "to", "href", "src", "id", "key", "type", "name", "rel", "target", "htmlFor", "style", "canonical", "loading", "decoding"],
 };
 
 // ---------------------------------------------------------------------------
