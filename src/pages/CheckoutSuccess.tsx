@@ -4,13 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 
 const CheckoutSuccess = () => {
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id');
+  // The page is built with no order, so the first render must match that. The ID follows straight after.
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const { clearCart } = useCart();
+
+  useEffect(() => {
+    setSessionId(searchParams.get('session_id'));
+  }, [searchParams]);
 
   useEffect(() => {
     // Clear cart on successful checkout

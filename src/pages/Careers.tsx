@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { useBuiltForm } from "@/hooks/use-built-form";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import careersHero from "@/assets/careers-hero.jpg";
@@ -23,6 +24,7 @@ const Careers = () => {
     availability: "",
     message: "",
   });
+  const { formRef, canSubmit } = useBuiltForm(setFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +115,7 @@ const Careers = () => {
             </div>
 
             <div data-clarity-mask="true">
-              <form onSubmit={handleSubmit} className="space-y-6 bg-muted/30 p-8 rounded-lg">
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 bg-muted/30 p-8 rounded-lg">
                 <h3 className="font-serif text-2xl mb-6">Apply Now</h3>
               
                 <div className="space-y-2">
@@ -191,7 +193,7 @@ const Careers = () => {
                   />
                 </div>
 
-                <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
+                <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit} className="w-full">
                   {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>
               </form>

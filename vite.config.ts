@@ -12,6 +12,7 @@ function clarityBuildLog(): Plugin {
     name: "clarity-build-log",
     apply: "build",
     configResolved(config) {
+      if (config.build.ssr) return;
       const present = (config.env.VITE_CLARITY_ID ?? "").trim() !== "";
       config.logger.info(`Clarity ID present: ${present ? "yes" : "no"}, VERCEL_ENV: ${vercelEnv || "unset"}`);
     },
@@ -28,6 +29,10 @@ export default defineConfig(({ mode }) => ({
     "import.meta.env.VERCEL_ENV": JSON.stringify(vercelEnv),
   },
   plugins: [react(), mode === "development" && componentTagger(), clarityBuildLog()].filter(Boolean),
+  // The prerender bundle carries its own dependencies, so Node never has to load a browser package.
+  ssr: {
+    noExternal: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

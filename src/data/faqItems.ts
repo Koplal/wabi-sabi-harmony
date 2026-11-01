@@ -5,7 +5,7 @@ export interface FaqItem {
 
 /**
  * FAQ content — single source of truth, imported by both FAQ.tsx (visible
- * accordion + FAQPageSchema) and scripts/prerender.ts (static FAQPage JSON-LD).
+ * accordion + FAQPageSchema).
  * Keep visible and schema text identical by sourcing both from here.
  */
 export const faqItems: FaqItem[] = [

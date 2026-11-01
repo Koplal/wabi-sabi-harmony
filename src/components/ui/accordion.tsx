@@ -36,15 +36,24 @@ AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    {...props}
-  >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
-  </AccordionPrimitive.Content>
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> & {
+    /**
+     * Radix mounts content only while it is open, so a closed answer would be missing from the page's
+     * HTML. This keeps a copy there, out of sight, and leaves opening and closing exactly as they were.
+     */
+    keepInHtml?: boolean;
+  }
+>(({ className, children, keepInHtml, ...props }, ref) => (
+  <>
+    <AccordionPrimitive.Content
+      ref={ref}
+      className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      {...props}
+    >
+      <div className={cn("pb-4 pt-0", className)}>{children}</div>
+    </AccordionPrimitive.Content>
+    {keepInHtml && <div className="hidden">{children}</div>}
+  </>
 ));
 
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;

@@ -18,6 +18,7 @@ import { ChevronDown, Menu, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { LocalBusinessSchema } from "./structured-data";
 import { GOOGLE_REVIEWS_URL } from "@/data/organization";
+import { useToday } from "@/hooks/use-today";
 
 const navigation = [
   { name: "The Ritual", href: "/ritual" },
@@ -51,6 +52,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const { itemCount } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const year = useToday().getFullYear();
 
   return (
     <div className="min-h-screen">
@@ -377,7 +379,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <div className="mt-12 pt-8 border-t border-border text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Wabi Sabi Services. All rights reserved.
+            © {year} Wabi Sabi Services. All rights reserved.
           </div>
         </div>
       </footer>

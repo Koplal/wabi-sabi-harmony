@@ -8,10 +8,13 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+/** The build renders pages with no browser, and Supabase then has no session to keep. */
+const inBrowser = typeof window !== "undefined";
+
 /** Reading localStorage throws when the browser blocks site data. Supabase then stays in memory. */
 const browserStorage = (() => {
   try {
-    return localStorage;
+    return inBrowser ? localStorage : undefined;
   } catch {
     return undefined;
   }
@@ -21,6 +24,6 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   auth: {
     storage: browserStorage,
     persistSession: true,
-    autoRefreshToken: true,
+    autoRefreshToken: inBrowser,
   }
 });

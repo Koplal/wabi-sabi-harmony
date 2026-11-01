@@ -855,6 +855,11 @@ export function checkManifest(ctx: DistCtx): Finding[] {
     for (const route of known) if (!listed.includes(route)) add(`${route} is not in the route list`, MANIFEST.routeFile);
     for (const route of listed) if (!known.has(route)) add(`${route} is in the route list but not in the harness`, MANIFEST.routeFile);
   }
+  // The harness takes its routes from the list, so a route dropped from it would agree with itself.
+  // The saved Release 1 record is the check that does not come from the list.
+  for (const route of Object.keys(ctx.renderBaseline?.routes ?? {})) {
+    if (!known.has(route)) add(`${route} is in the render baseline but not in the route list`, MANIFEST.routeFile);
+  }
   checkAreaRoutes(ctx, known, add);
   checkRouter(ctx, known, add);
 

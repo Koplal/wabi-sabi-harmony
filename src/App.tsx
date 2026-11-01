@@ -2,162 +2,110 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { type ComponentType, type ReactNode, useEffect, useRef, useState, lazy, Suspense } from "react";
 import ClarityLoader from "@/components/Clarity";
 import { Layout } from "@/components/Layout";
 import NotFound from "./pages/NotFound";
 import { neighborhoods } from "@/data/neighborhoods";
+import { ROUTES, type SiteRoute } from "@/data/routes";
 
-const Home = lazy(() => import("./pages/Home"));
-const About = lazy(() => import("./pages/About"));
-const Services = lazy(() => import("./pages/Services"));
-const Cleaning = lazy(() => import("./pages/services/Cleaning"));
-const Organizing = lazy(() => import("./pages/services/Organizing"));
-const Errands = lazy(() => import("./pages/services/Errands"));
-const Ritual = lazy(() => import("./pages/Ritual"));
-const Reviews = lazy(() => import("./pages/Reviews"));
-const Careers = lazy(() => import("./pages/Careers"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Book = lazy(() => import("./pages/Book"));
-const FAQ = lazy(() => import("./pages/FAQ"));
-const Blog = lazy(() => import("./pages/Blog"));
-const August2025 = lazy(() => import("./pages/blog/August2025"));
-const September2025 = lazy(() => import("./pages/blog/September2025"));
-const October2025 = lazy(() => import("./pages/blog/October2025"));
-const November2025 = lazy(() => import("./pages/blog/November2025"));
-const December2025 = lazy(() => import("./pages/blog/December2025"));
-const January2026 = lazy(() => import("./pages/blog/January2026"));
-const February2026 = lazy(() => import("./pages/blog/February2026"));
-const March2026 = lazy(() => import("./pages/blog/March2026"));
-const April2026 = lazy(() => import("./pages/blog/April2026"));
-const May2026 = lazy(() => import("./pages/blog/May2026"));
-const June2026 = lazy(() => import("./pages/blog/June2026"));
-const July2026 = lazy(() => import("./pages/blog/July2026"));
-const Seasoning = lazy(() => import("./pages/Seasoning"));
-const FallPumpkins = lazy(() => import("./pages/seasonal/FallPumpkins"));
-const QuietGrace = lazy(() => import("./pages/seasonal/QuietGrace"));
-const AbundantHarmony = lazy(() => import("./pages/seasonal/AbundantHarmony"));
-const GatheredAbundance = lazy(() => import("./pages/seasonal/GatheredAbundance"));
-const EstateCollection = lazy(() => import("./pages/seasonal/EstateCollection"));
-const MindfulMerchant = lazy(() => import("./pages/seasonal/MindfulMerchant"));
-const WinterHoliday = lazy(() => import("./pages/seasonal/WinterHoliday"));
-const CozyCabin = lazy(() => import("./pages/seasonal/CozyCabin"));
-const WinterWonderland = lazy(() => import("./pages/seasonal/WinterWonderland"));
-const FestiveEstate = lazy(() => import("./pages/seasonal/FestiveEstate"));
-const GrandCelebration = lazy(() => import("./pages/seasonal/GrandCelebration"));
-const BusinessWelcome = lazy(() => import("./pages/seasonal/BusinessWelcome"));
-const SpringRefresh = lazy(() => import("./pages/seasonal/SpringRefresh"));
-const FreshStart = lazy(() => import("./pages/seasonal/FreshStart"));
-const GardenGate = lazy(() => import("./pages/seasonal/GardenGate"));
-const BotanicalEstate = lazy(() => import("./pages/seasonal/BotanicalEstate"));
-const BloomingManor = lazy(() => import("./pages/seasonal/BloomingManor"));
-const ProfessionalWelcome = lazy(() => import("./pages/seasonal/ProfessionalWelcome"));
-const SummerSerenity = lazy(() => import("./pages/seasonal/SummerSerenity"));
-const CoastalCottage = lazy(() => import("./pages/seasonal/CoastalCottage"));
-const IslandRetreat = lazy(() => import("./pages/seasonal/IslandRetreat"));
-const BeachsideManor = lazy(() => import("./pages/seasonal/BeachsideManor"));
-const SeasideEstate = lazy(() => import("./pages/seasonal/SeasideEstate"));
-const SummerStorefront = lazy(() => import("./pages/seasonal/SummerStorefront"));
-const KeyTakeaways = lazy(() => import("./pages/KeyTakeaways"));
-const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-const ClientAgreement = lazy(() => import("./pages/ClientAgreement"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const Cart = lazy(() => import("./pages/Cart"));
-const Checkout = lazy(() => import("./pages/Checkout"));
-const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
-const AreasIndex = lazy(() => import("./pages/areas/Index"));
-const NeighborhoodPage = lazy(() =>
+/** Every page file, each in its own chunk. NotFound is imported above, so it stays in the main bundle. */
+const pageFiles = import.meta.glob<{ default: ComponentType }>(["./pages/**/*.tsx", "!./pages/NotFound.tsx"]);
+
+/**
+ * A lazy page that can also load ahead of its first render, and then renders with no Suspense
+ * boundary at all, which attaching to built HTML needs: see preloadRoute. The first render picks one
+ * path for the life of the mount, because changing the component type later would remount the page.
+ */
+const preloadable = <P extends object>(load: () => Promise<{ default: ComponentType<P> }>) => {
+  let loaded: ComponentType<P> | undefined;
+  const preload = async () => {
+    const module = await load();
+    loaded = module.default;
+    return module;
+  };
+  const Lazy = lazy(preload) as unknown as ComponentType<P>;
+  const Page = (props: P) => {
+    const [Preloaded] = useState(() => loaded);
+    if (Preloaded) return <Preloaded {...props} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
+        <Lazy {...props} />
+      </Suspense>
+    );
+  };
+  return Object.assign(Page, { preload });
+};
+
+const NeighborhoodPage = preloadable(() =>
   import("@/components/NeighborhoodPage").then((m) => ({ default: m.NeighborhoodPage }))
 );
 
+/** A route with no page file stops the build here, not on a visitor's screen. */
+const lazyPage = (page: string) => {
+  const load = pageFiles[`./pages/${page}.tsx`];
+  if (!load) throw new Error(`src/data/routes.ts names a page with no file: ${page}`);
+  return preloadable(load);
+};
+
+const routeFor = ({ path, page, area, addLayout }: SiteRoute) => {
+  if (!page) {
+    if (!area || !neighborhoods[area]) throw new Error(`src/data/routes.ts has a route with no page or area: ${path}`);
+    return { path, element: <NeighborhoodPage data={neighborhoods[area]} />, preload: NeighborhoodPage.preload };
+  }
+  const Page = lazyPage(page);
+  return { path, element: addLayout ? <Layout><Page /></Layout> : <Page />, preload: Page.preload };
+};
+
+const routeElements = ROUTES.map(routeFor);
+
+/**
+ * Loads a route's page before its first render, so the whole page attaches to the built HTML in one
+ * pass. React leaves a Suspense boundary for a later pass, and the cart loading before that pass
+ * makes React start a render of the page and abandon it. The head manager registers its tags during
+ * render, so an abandoned render leaves them in the head for good, on every later page.
+ */
+// eslint-disable-next-line react-refresh/only-export-components -- D-MANIFEST reads the route table in this file, and this needs that table.
+export const preloadRoute = async (path: string) => {
+  await routeElements.find((route) => route.path === path)?.preload();
+};
+
 const queryClient = new QueryClient();
 
+/**
+ * Only a move to another page resets the scroll. A built page can be read and scrolled before this
+ * mounts, and the browser may have restored a position, so the first load is left alone.
+ */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+  const shownPath = useRef(pathname);
 
   useEffect(() => {
+    if (pathname === shownPath.current) return;
+    shownPath.current = pathname;
     window.scrollTo(0, 0);
   }, [pathname]);
 
   return null;
 };
 
-const App = () => (
+/** BrowserRouter in the browser, StaticRouter in the build. */
+const App = ({ Router }: { Router: ComponentType<{ children?: ReactNode }> }) => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <ClarityLoader />
-      <BrowserRouter>
+      <Router>
         <ScrollToTop />
-        <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
         <Routes>
-          <Route path="/" element={<Layout><Home /></Layout>} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/services/cleaning" element={<Cleaning />} />
-          <Route path="/services/organizing" element={<Organizing />} />
-          <Route path="/services/errands" element={<Errands />} />
-          <Route path="/ritual" element={<Ritual />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/book" element={<Book />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/key-takeaways" element={<KeyTakeaways />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/client-agreement" element={<ClientAgreement />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/august-2025" element={<August2025 />} />
-          <Route path="/blog/september-2025" element={<September2025 />} />
-          <Route path="/blog/october-2025" element={<October2025 />} />
-          <Route path="/blog/november-2025" element={<November2025 />} />
-          <Route path="/blog/december-2025" element={<December2025 />} />
-          <Route path="/blog/january-2026" element={<January2026 />} />
-          <Route path="/blog/february-2026" element={<February2026 />} />
-          <Route path="/blog/march-2026" element={<March2026 />} />
-          <Route path="/blog/april-2026" element={<April2026 />} />
-          <Route path="/blog/may-2026" element={<May2026 />} />
-          <Route path="/blog/june-2026" element={<June2026 />} />
-          <Route path="/blog/july-2026" element={<July2026 />} />
-          <Route path="/seasoning" element={<Seasoning />} />
-          <Route path="/seasoning/fall-pumpkins" element={<FallPumpkins />} />
-          <Route path="/seasoning/quiet-grace" element={<QuietGrace />} />
-          <Route path="/seasoning/abundant-harmony" element={<AbundantHarmony />} />
-          <Route path="/seasoning/gathered-abundance" element={<GatheredAbundance />} />
-          <Route path="/seasoning/estate-collection" element={<EstateCollection />} />
-          <Route path="/seasoning/mindful-merchant" element={<MindfulMerchant />} />
-          <Route path="/seasoning/winter-holiday" element={<WinterHoliday />} />
-          <Route path="/seasoning/the-cozy-cabin" element={<CozyCabin />} />
-          <Route path="/seasoning/the-winter-wonderland" element={<WinterWonderland />} />
-          <Route path="/seasoning/the-festive-estate" element={<FestiveEstate />} />
-          <Route path="/seasoning/the-grand-celebration" element={<GrandCelebration />} />
-          <Route path="/seasoning/the-business-welcome" element={<BusinessWelcome />} />
-          <Route path="/seasoning/spring-refresh" element={<SpringRefresh />} />
-          <Route path="/seasoning/the-fresh-start" element={<FreshStart />} />
-          <Route path="/seasoning/the-garden-gate" element={<GardenGate />} />
-          <Route path="/seasoning/the-botanical-estate" element={<BotanicalEstate />} />
-          <Route path="/seasoning/the-blooming-manor" element={<BloomingManor />} />
-          <Route path="/seasoning/the-professional-welcome" element={<ProfessionalWelcome />} />
-          <Route path="/seasoning/summer-serenity" element={<SummerSerenity />} />
-          <Route path="/seasoning/the-coastal-cottage" element={<CoastalCottage />} />
-          <Route path="/seasoning/the-island-retreat" element={<IslandRetreat />} />
-          <Route path="/seasoning/the-beachside-manor" element={<BeachsideManor />} />
-          <Route path="/seasoning/the-seaside-estate" element={<SeasideEstate />} />
-          <Route path="/seasoning/the-summer-storefront" element={<SummerStorefront />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/checkout-success" element={<CheckoutSuccess />} />
-          <Route path="/areas" element={<AreasIndex />} />
-          {Object.values(neighborhoods).map((n) => (
-            <Route key={n.slug} path={`/areas/${n.slug}`} element={<NeighborhoodPage data={n} />} />
+          {routeElements.map(({ path, element }) => (
+            <Route key={path} path={path} element={element} />
           ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        </Suspense>
-      </BrowserRouter>
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );

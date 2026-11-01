@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const Checkout = () => {
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, isLoaded } = useCart();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
@@ -26,10 +26,10 @@ const Checkout = () => {
   const isCartEmpty = items.length === 0;
 
   useEffect(() => {
-    if (isCartEmpty) {
+    if (isLoaded && isCartEmpty) {
       navigate('/cart', { replace: true });
     }
-  }, [isCartEmpty, navigate]);
+  }, [isLoaded, isCartEmpty, navigate]);
 
   // Browser Back from Stripe can restore this page with its state intact, including the spinner.
   useEffect(() => {

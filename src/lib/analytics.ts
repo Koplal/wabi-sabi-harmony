@@ -1,5 +1,8 @@
-/** GA4 event names, exactly as they are marked as key events in GA4. */
-type AnalyticsEvent = "consultation_booking" | "contact_submit";
+/**
+ * GA4 event names. consultation_booking and contact_submit are written exactly as they are marked
+ * as key events in GA4. page_script_failed is a fault report, not a key event.
+ */
+type AnalyticsEvent = "consultation_booking" | "contact_submit" | "page_script_failed";
 
 /** The only parameter an event may carry. Never add personal data here. */
 interface EventParams {
