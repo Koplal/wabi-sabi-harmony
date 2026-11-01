@@ -14,7 +14,6 @@ import budapestImage from "@/assets/pumpkin-grand-budapest-1.jpg";
 import babylonImage from "@/assets/pumpkin-babylon-1.jpg";
 import gatsbyImage from "@/assets/pumpkin-full-gatsby-1.jpg";
 import businessImage from "@/assets/pumpkin-business-stand-1.jpg";
-import { useCart } from "@/contexts/CartContext";
 
 const packages = [
   {
@@ -135,7 +134,7 @@ const FallPumpkins = () => {
           offers={{
             price: String(pkg.price),
             priceCurrency: "CAD",
-            availability: "https://schema.org/PreOrder",
+            availability: "https://schema.org/OutOfStock",
             url: `https://wabisabiservices.ca/seasoning/${pkg.slug}`,
           }}
         />
@@ -160,7 +159,7 @@ const FallPumpkins = () => {
               Heritage pumpkin displays for the harvest season, styled and installed at your door
             </p>
             <Badge variant="secondary" className="text-sm px-4 py-2">
-              Deliveries: Last week of September - First week of October
+              2027 waitlist open
             </Badge>
           </div>
         </section>
@@ -171,8 +170,9 @@ const FallPumpkins = () => {
             <p className="text-lg text-muted-foreground leading-relaxed">
               Four of our five collections are styled and installed by hand, so your entrance carries the warmth of the
               harvest without the work of sourcing, arranging, or hauling. The Quiet Grace is delivered to your door, with
-              arrangement as an add-on. Choose a package below, or talk
-              with us about a display shaped to your home.
+              arrangement as an add-on.
+              Our 2026 autumn season is closed, and the 2027 waitlist is open.
+              Browse the packages below, then join the 2027 waitlist.
             </p>
           </div>
         </section>
@@ -267,13 +267,16 @@ const FallPumpkins = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="font-serif text-3xl mb-6">Planning for Next Season?</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Our autumn calendar fills early. Start with a $150 in-home consultation, credited in full toward your
-              first service, and we will plan a display for your home and hold your place on the 2027 waitlist.
-              Free estimates by phone or email.
+              Join the waitlist and we will contact you when 2027 dates are set.
             </p>
-            <Button asChild size="lg">
-              <Link to="/contact">Request a Private Consultation</Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg">
+                <Link to="/contact?interest=seasonal-2027-waitlist">Join 2027 waitlist</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/seasoning">View All Seasonal Services</Link>
+              </Button>
+            </div>
           </div>
         </section>
       </div>

@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { FormHelp } from "@/components/FormHelp";
 import { FORM_FAILED, formFailure, FormRefused, sendForm } from "@/lib/sendForm";
@@ -14,6 +15,10 @@ import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import contactHero from "@/assets/contact-hero.jpg";
+
+const WAITLIST_OPTION = "seasonal-2027-waitlist";
+const WAITLIST_REPLY = "We will contact you when 2027 dates are set.";
+const USUAL_REPLY = "We'll reply within one business day.";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +32,15 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { formRef, canSubmit } = useBuiltForm(setFormData);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("interest") === WAITLIST_OPTION) {
+      setFormData((current) => ({ ...current, serviceType: WAITLIST_OPTION }));
+    }
+  }, [searchParams]);
+
+  const reply = formData.serviceType === WAITLIST_OPTION ? WAITLIST_REPLY : USUAL_REPLY;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +51,7 @@ const Contact = () => {
       if (!response.ok) throw await formFailure(response);
 
       trackEvent("contact_submit", { service_type: formData.serviceType });
-      toast.success("Thank you! We'll reply within one business day.");
+      toast.success(`Thank you! ${reply}`);
       setFormData({
         name: "",
         email: "",
@@ -168,6 +182,7 @@ const Contact = () => {
                       <SelectItem value="commercial">Commercial</SelectItem>
                       <SelectItem value="post-construction">Post-Construction</SelectItem>
                       <SelectItem value="consultation">Consultation Only</SelectItem>
+                      <SelectItem value="seasonal-2027-waitlist">2027 Seasonal Waitlist</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -212,7 +227,7 @@ const Contact = () => {
                 <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit}>
                   {isSubmitting ? "Sending..." : "Send Inquiry"}
                 </Button>
-                <p className="text-xs text-muted-foreground mt-4">We'll reply within one business day.</p>
+                <p className="text-xs text-muted-foreground mt-4">{reply}</p>
                 <FormHelp />
               </div>
             </form>

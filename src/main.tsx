@@ -4,6 +4,7 @@ import { preloadRoute } from "./App";
 import Root from "./Root";
 import { trackEvent } from "./lib/analytics";
 import "./index.css";
+import { reportVitals } from "./lib/reportVitals";
 
 const container = document.getElementById("root")!;
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -80,3 +81,5 @@ if (container.dataset.route === path) {
 } else {
   createRoot(container).render(app);
 }
+
+if (import.meta.env.PROD) reportVitals();

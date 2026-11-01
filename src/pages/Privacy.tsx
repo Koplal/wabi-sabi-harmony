@@ -5,7 +5,7 @@ import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 /** Written at sign-off. The "Last updated" line stays hidden while this is empty. */
-const LAST_UPDATED: string = "October 31, 2026";
+const LAST_UPDATED: string = "November 1, 2026";
 
 const SECTION = "space-y-4";
 const H2 = "text-3xl font-serif mb-4";
@@ -111,6 +111,11 @@ const Privacy = () => (
               <strong>Vercel Analytics and Speed Insights</strong> measure site usage and performance.
             </li>
             <li>
+              <strong>Axiom</strong> stores page speed measurements in the United States. Each one holds how long the page
+              took to load, the page address without any search details, the time, and whether the screen is phone-sized.
+              They don't include your name, email, IP address or cookies.
+            </li>
+            <li>
               <strong>Microsoft Clarity</strong> records how visitors use our pages (clicks, scrolling and mouse
               movement) to produce heatmaps and session replays that help us improve the site. Text you type into forms
               is masked before it leaves your browser. Microsoft's privacy statement:{" "}
@@ -121,7 +126,7 @@ const Privacy = () => (
               Microsoft may also use this data as described in its privacy statement, including for advertising.
             </li>
           </ul>
-          <p>These tools use cookies and similar technologies. You can:</p>
+          <p>Apart from Axiom, these tools use cookies and similar technologies. You can:</p>
           <ul className={UL}>
             <li>
               Opt out of Google Analytics with the browser add-on at{" "}

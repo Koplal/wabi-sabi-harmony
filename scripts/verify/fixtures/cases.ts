@@ -215,6 +215,7 @@ function fileRoutes(): Map<string, string> {
     ["src/pages/services/Cleaning.tsx", "/services/cleaning"],
     ["src/pages/services/Errands.tsx", "/services/errands"],
     ["src/pages/blog/March2026.tsx", "/blog/march-2026"],
+    ["src/pages/Seasoning.tsx", "/seasoning"],
     ["src/pages/seasonal/QuietGrace.tsx", "/seasoning/quiet-grace"],
   ]);
   const spare = INDEXABLE_ROUTES.filter((route) => route.startsWith("/seasoning/") && route !== "/seasoning/quiet-grace");
@@ -234,7 +235,7 @@ const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/'/g, "
 const isOnRoute = (route: string) => (path: string) => (path === FAQ_FILES.data ? "/faq" : FILE_ROUTES.get(path)) === route;
 
 const requiredOn = (route: string) => [
-  ...REQUIRED.filter((entry) => entry.text !== CONSULTATION && entry.text !== FREE_ESTIMATES && entry.files.some(isOnRoute(route))).map((entry) => entry.text),
+  ...REQUIRED.filter((entry) => !entry.sourceOnly && entry.text !== CONSULTATION && entry.text !== FREE_ESTIMATES && entry.files.some(isOnRoute(route))).map((entry) => entry.text),
   ...REQUIRED_ORDER.filter((entry) => entry.files.some(isOnRoute(route))).flatMap((entry) => entry.texts),
 ];
 
@@ -536,6 +537,16 @@ sourceCase("BAN-23", "applies only to its scope", "pass", (files) => editFile(fi
 sourceCase("BAN-23", "bans the old forms provider", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Lovable Cloud runs our forms.</p>\n"));
 sourceCase("BAN-23", "bans the old database provider", "fail", (files) => editFile(files, "src/pages/Privacy.tsx", "<p>Supabase runs our forms.</p>\n"));
 const PACKAGE_PAGE = "src/pages/seasonal/GrandCelebration.tsx";
+sourceCase("BAN-25", "bans a cart button on a winter page", "fail", (files) => editFile(files, "src/pages/seasonal/CozyCabin.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
+sourceCase("BAN-25", "bans a 2026 consultation button on the winter hub", "fail", (files) => editFile(files, "src/pages/seasonal/WinterHoliday.tsx", "<a>Request a Private Consultation</a>\n"));
+sourceCase("BAN-25", "bans the old preorder availability on a winter page", "fail", (files) => editFile(files, "src/pages/seasonal/CozyCabin.tsx", '<p>{"https://schema.org/PreOrder"}</p>\n'));
+sourceCase("BAN-25", "bans a cart button on a fall page", "fail", (files) => editFile(files, "src/pages/seasonal/AbundantHarmony.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
+sourceCase("BAN-25", "bans a 2026 consultation button on the fall hub", "fail", (files) => editFile(files, "src/pages/seasonal/FallPumpkins.tsx", "<a>Request a Private Consultation</a>\n"));
+sourceCase("BAN-25", "bans the old preorder availability on a fall page", "fail", (files) => editFile(files, "src/pages/seasonal/MindfulMerchant.tsx", '<p>{"https://schema.org/PreOrder"}</p>\n'));
+sourceCase("BAN-25", "bans the 2026 delivery window on a fall page", fails("September 25"), (files) => editFile(files, "src/pages/seasonal/QuietGrace.tsx", "<p>September 25 - October 10</p>\n"));
+sourceCase("BAN-25", "bans the 2026 delivery badge on the fall hub", "fail", (files) => editFile(files, "src/pages/seasonal/FallPumpkins.tsx", "<p>Deliveries: Last week of September</p>\n"));
+sourceCase("BAN-25", "leaves a cart button on a spring page", "pass", (files) => editFile(files, "src/pages/seasonal/FreshStart.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
+sourceCase("BAN-25", "leaves a cart button on a summer page", "pass", (files) => editFile(files, "src/pages/seasonal/SummerStorefront.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
 sourceCase("BAN-24", "bans a roofline promise on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>Built for long rooflines.</p>\n"));
 sourceCase("BAN-24", "bans work at height on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>A crew handles the heights.</p>\n"));
 sourceCase("BAN-24", "bans wiring work on a package page", "fail", (files) => editFile(files, PACKAGE_PAGE, "<p>We handle the wiring.</p>\n"));
@@ -551,6 +562,10 @@ sourceCase("S-REQ", "reports headings out of order", "fail", (files) => {
   replaceIn(files, "src/pages/Ritual.tsx", "2. Consistency", "1. Consultation");
   replaceIn(files, "src/pages/Ritual.tsx", "SWAP", "2. Consistency");
 });
+sourceCase("S-REQ", "reports a fall card that passes only on the winter card's closed line", "fail", (files) => files.set("src/pages/Seasoning.tsx", "<h3>Autumn Warmth</h3>\n<h3>Winter Elegance</h3>\n<p>2026 season closed. 2027 waitlist open.</p>\n"));
+sourceCase("S-REQ", "reports the fall hub missing its closed line in llms.txt", "fail", (files) => replaceIn(files, "public/llms.txt", "seasoning/fall-pumpkins): ", "seasoning/fall-pumpkins "));
+sourceCase("S-REQ", "reports a closed package with no OutOfStock", fails('missing "https://schema.org/OutOfStock"'), (files) => replaceIn(files, "src/pages/seasonal/QuietGrace.tsx", "https://schema.org/OutOfStock", "https://schema.org/PreOrder"));
+sourceCase("S-REQ", "reports /contact with no waitlist option", fails('missing "value="seasonal-2027-waitlist""'), (files) => replaceIn(files, "src/pages/Contact.tsx", 'value="seasonal-2027-waitlist"', 'value="other"'));
 sourceCase("S-REQ", "normalises JSX whitespace", "pass", (files) => replaceIn(files, HOME, STAFF_LINE, "Every team member is background-checked\n      and vetted.{\" \"}\n      WorkSafeBC registered."));
 sourceCase("S-REQ", "reads through inline tags", "pass", (files) => replaceIn(files, HOME, STAFF_LINE, "<strong>Every team member</strong> is background-checked and vetted. WorkSafeBC registered."));
 sourceCase("S-REQ", "ignores files out of scope", "pass", (files) => replaceIn(files, HOME, STAFF_LINE, "Fixture."), { scope: ["src/pages/About.tsx"] });
@@ -595,6 +610,13 @@ sourceCase("S-MASK", "reports a form with no wrapper", "fail", (files) => files.
 sourceCase("S-MASK", "reports the attribute on the form itself", "fail", (files) => files.set(MASK_FILES[1], `<form ${MASK_ATTRIBUTE}></form>\n`));
 sourceCase("S-MASK", "reports a wrapper closed before the form", "fail", (files) => files.set(MASK_FILES[2], `<div ${MASK_ATTRIBUTE}></div><form></form>\n`));
 sourceCase("S-MASK", "reports a wrapper closed inside the form", "fail", (files) => files.set(MASK_FILES[3], `<div ${MASK_ATTRIBUTE}><form></div></form>\n`));
+sourceCase("S-PRICES", "reports a closed package still on sale", "fail", (files) => editFile(files, PRICE_FILES.catalogue, '  "cozy-cabin": { name: "The Cozy Cabin", price: 474 },\n'));
+sourceCase("S-PRICES", "reports a closed package's add-on still on sale", "fail", (files) => editFile(files, PRICE_FILES.catalogue, '  "cozy-cabin-candles": { name: "Candles", price: 75, addOnFor: "The Cozy Cabin" },\n'));
+sourceCase("S-PRICES", "accepts a closed package marked closed", "pass", (files) => editFile(files, PRICE_FILES.catalogue, '  "cozy-cabin": { name: "The Cozy Cabin", price: 474, closed: true },\n'));
+sourceCase("S-PRICES", "reports a fall package still on sale", "fail", (files) => editFile(files, PRICE_FILES.catalogue, '  "quiet-grace": { name: "The Quiet Grace", price: 399 },\n'));
+sourceCase("S-PRICES", "reports a fall add-on still on sale", "fail", (files) => editFile(files, PRICE_FILES.catalogue, '  "abundant-harmony-pumpkins": { name: "24 Mini Pumpkins", price: 75, addOnFor: "The Abundant Harmony" },\n'));
+sourceCase("S-PRICES", "accepts a fall package marked closed", "pass", (files) => editFile(files, PRICE_FILES.catalogue, '  "quiet-grace": { name: "The Quiet Grace", price: 399, closed: true },\n'));
+sourceCase("S-PRICES", "leaves a spring package on sale", "pass", (files) => editFile(files, PRICE_FILES.catalogue, '  "fresh-start": { name: "The Fresh Start", price: 474 },\n'));
 sourceCase("S-PRICES", "reports a price that differs", "fail", (files) => replaceIn(files, PRICE_FILES.catalogue, "price: 399", "price: 499"));
 sourceCase("S-PRICES", "reports a name that differs", "fail", (files) => replaceIn(files, PRICE_FILES.catalogue, "The Fixture Package", "The Other Package"));
 sourceCase("S-PRICES", "reports an item missing from the catalogue", "fail", (files) => replaceIn(files, PRICE_FILES.catalogue, '"fixture-package"', '"other-package"'));
@@ -799,6 +821,7 @@ distCase("D-SITEMAP", "reports a route with no source file", fails("no source fi
 distCase("D-SITEMAP", "fails in a shallow clone, whose git dates stop at its edge", fails("this clone is shallow"), () => undefined, { shallowClone: true });
 distCase("D-PARITY", "reports a title that differs", "fail", () => undefined, { page: pageSource.replace('title="Fixture', 'title="Other') });
 distCase("D-PARITY", "reports a description that differs", "fail", () => undefined, { page: pageSource.replace('description="Description', 'description="Other') });
+distCase("D-PARITY", "reports availability that differs from the built Product", "fail", () => undefined, { page: `${pageSource}\navailability: "https://schema.org/OutOfStock"` });
 distCase("D-PARITY", "reports a package price that differs", "fail", () => undefined, { page: pageSource.replace("price: 399", "price: 499") });
 distCase("D-RANK", "reports a changed title", "fail", (files) => replaceIn(files, HOME_HTML, "<title>Fixture", "<title>Changed"));
 distCase("D-RANK", "reports a changed description", "fail", (files) => replaceIn(files, "services/cleaning/index.html", 'content="Description of', 'content="Changed'));
@@ -1218,6 +1241,7 @@ const interacted = (fields: Partial<InteractReading> = {}): InteractReading => (
   menu: { before: [], after: ["/about", INTERACT.menu.expected] },
   dropdown: { before: [], after: [INTERACT.dropdown.expected] },
   field: { value: INTERACT.field.text, submits: 0 },
+  waitlist: { selected: INTERACT.waitlist.shown, replied: true },
   scroll: { before: 2000, after: 0, clientSide: true, finalPath: INTERACT.scroll.start },
   errors: {},
   writes: [],
@@ -1233,6 +1257,9 @@ browserCase("BR-INTERACT", "reports a dropdown that stays closed", fails(`the dr
 browserCase("BR-INTERACT", "reports a dropdown open before the click", fails("the dropdown was open before"), () => checkInteract(interacted({ dropdown: { before: ["/services"], after: [INTERACT.dropdown.expected] } })));
 browserCase("BR-INTERACT", "reports a field that drops what is typed", fails(`typed "${INTERACT.field.text}", but the field holds ""`), () => checkInteract(interacted({ field: { value: "", submits: 0 } })));
 browserCase("BR-INTERACT", "reports a form submitted by typing", fails("typing submitted the form 1 times"), () => checkInteract(interacted({ field: { value: INTERACT.field.text, submits: 1 } })));
+browserCase("BR-INTERACT", "reports a waitlist link that selects nothing", fails(`the service field shows "Select service", expected "${INTERACT.waitlist.shown}"`), () => checkInteract(interacted({ waitlist: { selected: "Select service", replied: true } })));
+browserCase("BR-INTERACT", "reports a waitlist link with the usual reply line", fails("the waitlist reply line is not on screen"), () => checkInteract(interacted({ waitlist: { selected: INTERACT.waitlist.shown, replied: false } })));
+browserCase("BR-INTERACT", "reports a waitlist link with no reading", fails("the step did not finish: no reading"), () => checkInteract(interacted({ waitlist: undefined })));
 browserCase("BR-INTERACT", "reports client navigation that keeps the scroll position", fails("client navigation left the page scrolled to 1500, expected 0"), () => checkInteract(scrolled({ after: 1500 })));
 browserCase("BR-INTERACT", "reports a full load, which proves no reset", fails("the navigation was a full page load"), () => checkInteract(scrolled({ clientSide: false })));
 browserCase("BR-INTERACT", "reports a page that never scrolled, which proves no reset", fails("the page was not scrolled before the click"), () => checkInteract(scrolled({ before: 0 })));

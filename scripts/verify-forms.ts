@@ -163,6 +163,7 @@ async function main() {
   for (const [value, shown] of [
     ["residential-deep", "Residential Deep Reset"],
     ["consultation", "Consultation Only"],
+    ["seasonal-2027-waitlist", "2027 Seasonal Waitlist"],
     ["unknown-value", "unknown-value"],
     ["constructor", "constructor"],
   ]) {

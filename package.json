@@ -12,8 +12,10 @@
     "preview": "vite preview",
     "verify": "tsx scripts/verify-seo.ts",
     "verify:browser": "tsx scripts/verify-browser.ts",
+    "verify:checkout": "tsx scripts/verify-checkout.ts",
     "verify:forms": "tsx scripts/verify-forms.ts",
-    "verify:live": "tsx scripts/verify-live.ts"
+    "verify:live": "tsx scripts/verify-live.ts",
+    "verify:vitals": "tsx scripts/verify-vitals.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -68,6 +70,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
+    "web-vitals": "6.2.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {

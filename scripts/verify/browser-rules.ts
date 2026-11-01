@@ -346,6 +346,8 @@ export interface InteractReading {
   dropdown?: { before: string[]; after: string[] };
   /** What the form field held after typing, and the submit events the page saw. */
   field?: { value: string; submits: number };
+  /** What the service field showed on the waitlist link, and whether the waitlist reply line was on screen. */
+  waitlist?: { selected: string; replied: boolean };
   /** Scroll position just before a client navigation and after it. */
   scroll?: { before: number; after: number; clientSide: boolean; finalPath: string };
   /** Why a step did not finish, by step name. */
@@ -356,7 +358,7 @@ export interface InteractReading {
 
 /** R2-FR-03's after-load behaviours. Today's site is the reference, so this passes on Release 1. */
 export function checkInteract(reading: InteractReading): Finding[] {
-  const { accordion, menu, dropdown, field, scroll } = BROWSER.interact;
+  const { accordion, menu, dropdown, field, waitlist, scroll } = BROWSER.interact;
   const findings: Finding[] = [];
   const add = (file: string, message: string) => findings.push({ rule: "BR-INTERACT", row: "R2-FR-03", file, message });
   const unfinished = (name: string, route: string) => add(`${route} [${name}]`, `the step did not finish: ${reading.errors[name] ?? "no reading"}`);
@@ -377,6 +379,12 @@ export function checkInteract(reading: InteractReading): Finding[] {
   else {
     if (reading.field.value !== field.text) add(field.route, `typed "${field.text}", but the field holds "${reading.field.value}"`);
     if (reading.field.submits > 0) add(field.route, `typing submitted the form ${reading.field.submits} times`);
+  }
+
+  if (!reading.waitlist) unfinished("waitlist link", waitlist.route);
+  else {
+    if (reading.waitlist.selected !== waitlist.shown) add(waitlist.route, `the service field shows "${reading.waitlist.selected}", expected "${waitlist.shown}"`);
+    if (!reading.waitlist.replied) add(waitlist.route, "the waitlist reply line is not on screen");
   }
 
   const journey = `${scroll.through} to ${scroll.start}`;

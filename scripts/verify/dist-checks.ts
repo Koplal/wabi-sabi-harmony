@@ -660,8 +660,13 @@ export function checkParity(ctx: DistCtx): Finding[] {
 
     if (path.startsWith("src/pages/seasonal/")) {
       const built = new Map<string, number>();
+      const listed = /availability:\s*"([^"]+)"/.exec(text)?.[1];
       for (const node of blockNodes(html)) {
-        if (typesOf(node).includes("Product") && isNode(node.offers)) built.set(String(node.name), Number(node.offers.price));
+        if (!typesOf(node).includes("Product") || !isNode(node.offers)) continue;
+        built.set(String(node.name), Number(node.offers.price));
+        if (listed && node.offers.availability !== listed) {
+          findings.push({ rule: "D-PARITY", row: "DJ-19 and DJ-21", file: path, message: `${String(node.name)} is ${listed} on the page and ${String(node.offers.availability)} in built HTML` });
+        }
       }
       for (const [name, price] of pricesOf(text)) {
         pricesCompared++;
@@ -971,7 +976,7 @@ const pageContent = (body: string) => /<main\b[\s\S]*<\/main>/i.exec(body)?.[0] 
 /** S-NAP is not here because D-NAP already reads each page's whole HTML. */
 const COPY_CHECKS: Array<(ctx: SourceCtx) => Finding[]> = [
   ...SITE_BANS.map((ban) => (ctx: SourceCtx) => checkBan(ban, ctx)),
-  checkRequired,
+  (ctx: SourceCtx) => checkRequired(ctx, true),
   checkConsult,
   checkAbsent,
   checkPearly,

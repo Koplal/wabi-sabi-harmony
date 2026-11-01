@@ -126,6 +126,11 @@ async function guardRequests(context: BrowserContext, session: Session) {
     const request = route.request();
     const url = new URL(request.url());
 
+    // The page's speed report goes out on any click. It is answered here so it never counts as a write.
+    if (url.pathname === "/api/report-vitals") {
+      await route.fulfill({ status: 204 });
+      return;
+    }
     if (!["GET", "HEAD"].includes(request.method())) {
       session.blockedWrites.push(`${request.method()} ${url.origin}${url.pathname}`);
       await route.fulfill({ status: 204 });
@@ -521,6 +526,15 @@ async function typeInField(page: Page): Promise<InteractReading["field"]> {
   return { value: await field.inputValue(), submits };
 }
 
+/** The seasonal pages' waitlist link names the option in its query, and the choice is made once the page attaches. */
+async function readWaitlist(page: Page): Promise<InteractReading["waitlist"]> {
+  const { trigger, reply } = BROWSER.interact.waitlist;
+  const line = page.getByText(reply, { exact: true });
+  await line.waitFor({ timeout: HEADING_TIMEOUT }).catch(() => undefined);
+  const selected = await page.locator(trigger).first().innerText({ timeout: RENDER_TIMEOUT });
+  return { selected: selected.trim(), replied: await line.isVisible() };
+}
+
 async function clickFooterLink(page: Page, path: string): Promise<number> {
   const link = page.locator(`footer a[href="${path}"]`).first();
   await link.scrollIntoViewIfNeeded({ timeout: RENDER_TIMEOUT });
@@ -548,7 +562,7 @@ async function followFooterLinks(page: Page): Promise<InteractReading["scroll"]>
 }
 
 async function interactFindings(browser: Browser, session: Session): Promise<Finding[]> {
-  const { accordion, menu, dropdown, field, scroll } = BROWSER.interact;
+  const { accordion, menu, dropdown, field, waitlist, scroll } = BROWSER.interact;
   const writesBefore = session.blockedWrites.length;
   const errors: InteractReading["errors"] = {};
 
@@ -565,7 +579,7 @@ async function interactFindings(browser: Browser, session: Session): Promise<Fin
       errors[name] = error instanceof Error ? error.message.split("\n")[0] : String(error);
       return undefined;
     } finally {
-      await context.close();
+      await closeWithinLimit(context, name);
     }
   }
 
@@ -574,6 +588,7 @@ async function interactFindings(browser: Browser, session: Session): Promise<Fin
     menu: await step("mobile menu", menu.route, openMenu, { viewport: menu.viewport, isMobile: true, hasTouch: true }),
     dropdown: await step("dropdown", dropdown.route, openDropdown),
     field: await step("form field", field.route, typeInField),
+    waitlist: await step("waitlist link", waitlist.route, readWaitlist),
     scroll: await step("scroll reset", scroll.start, followFooterLinks),
   };
   return checkInteract({ ...reading, errors, writes: session.blockedWrites.slice(writesBefore) });
@@ -821,6 +836,13 @@ async function withinLimit<T>(work: Promise<T>): Promise<T> {
   }
 }
 
+/** A close can stall as well. What the step read still stands, so this warns and the run moves on. */
+async function closeWithinLimit(context: BrowserContext, name: string) {
+  await withinLimit(context.close()).catch((error: unknown) => {
+    console.warn(`${name}: the browser context did not close: ${error instanceof Error ? error.message.split("\n")[0] : String(error)}`);
+  });
+}
+
 async function earlyFindings(browser: Browser, session: Session): Promise<Finding[]> {
   const errors: EarlyReading["errors"] = {};
 
@@ -833,7 +855,7 @@ async function earlyFindings(browser: Browser, session: Session): Promise<Findin
       errors[name] = error instanceof Error ? error.message.split("\n")[0] : String(error);
       return undefined;
     } finally {
-      await context.close();
+      await closeWithinLimit(context, name);
     }
   }
 
@@ -1245,7 +1267,7 @@ async function run(): Promise<number> {
       console.log(`BR-HYDRATE: ${plural(hydrationRoutes.length, "route")}${devReact ? " with development React" : ""}, each with an empty and a seeded cart${later.length > 0 ? `, and ${later.join(", ")} on a later date` : ""}.`);
     }
     if (outside.length > 0) console.log(`BR-HYDRATE: not loaded, because no page is built for it: ${outside.join(", ")}`);
-    if (interacting) console.log("BR-INTERACT: an FAQ answer, the mobile menu, the nav dropdown, a form field and a scroll reset, with nothing submitted.");
+    if (interacting) console.log("BR-INTERACT: an FAQ answer, the mobile menu, the nav dropdown, a form field, the waitlist link and a scroll reset, with nothing submitted.");
     if (early) console.log("BR-EARLY: scrolling and filling in forms before React attaches, a page script that fails once and every time, and /cart with a saved cart. Each send stopped in the browser.");
     if (session.blockedWrites.length > 0) {
       const unique = [...new Set(session.blockedWrites)];
