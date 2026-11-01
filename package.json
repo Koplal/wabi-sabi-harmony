@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "verify": "tsx scripts/verify-seo.ts",
     "verify:browser": "tsx scripts/verify-browser.ts",
+    "verify:checkout": "tsx scripts/verify-checkout.ts",
     "verify:forms": "tsx scripts/verify-forms.ts",
     "verify:live": "tsx scripts/verify-live.ts"
   },

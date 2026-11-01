@@ -20,6 +20,7 @@ import {
   NAP,
   OVERLAP,
   PEARLY_FILES,
+  CLOSED_PACKAGES,
   PRICE_FILES,
   REQUIRED,
   REQUIRED_ORDER,
@@ -468,6 +469,11 @@ export function checkPrices(ctx: SourceCtx): Finding[] {
   }
 
   const findings: Finding[] = [];
+  for (const match of catalogueText.matchAll(/^\s*"([a-z0-9-]+)":\s*\{[^\n]*$/gm)) {
+    const id = match[1];
+    const inClosedSeason = CLOSED_PACKAGES.some((pack) => id === pack || id.startsWith(`${pack}-`));
+    if (inClosedSeason && !match[0].includes("closed: true")) findings.push(finding(PRICE_FILES.catalogue, undefined, `${id} is still on sale, and its season is closed`));
+  }
   const item = /id:\s*(['"])([a-z0-9-]+)\1,\s*name:\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"),\s*price:\s*(\d+)/g;
   for (const file of seasonal) {
     for (const match of file.text.raw.matchAll(item)) {

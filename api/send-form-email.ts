@@ -35,6 +35,7 @@ const OPTION_LABELS: Record<string, string> = {
   commercial: "Commercial",
   "post-construction": "Post-Construction",
   consultation: "Consultation Only",
+  "seasonal-2027-waitlist": "2027 Seasonal Waitlist",
   weekly: "Weekly",
   biweekly: "Bi-Weekly",
   monthly: "Monthly",

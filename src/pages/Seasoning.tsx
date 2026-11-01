@@ -139,6 +139,7 @@ const Seasoning = () => {
                         <span>Ornamental displays in muted metallics</span>
                       </li>
                     </ul>
+                    <p className="text-sm font-medium mb-6">2026 season closed. 2027 waitlist open.</p>
                     <Button variant="outline">View Winter Packages</Button>
                   </div>
                 </Link>

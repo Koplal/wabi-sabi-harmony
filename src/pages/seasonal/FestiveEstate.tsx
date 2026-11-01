@@ -7,19 +7,8 @@ import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-festive-estate-hero.jpg";
-import { useCart } from "@/contexts/CartContext";
 
 const FestiveEstate = () => {
-  const { addToCart } = useCart();
-
-  const packageItem = {
-    id: 'festive-estate',
-    name: 'The Festive Estate',
-    price: 1424,
-    description: 'Grand Holiday Display for Larger Homes',
-    image: heroImage,
-  };
-
   return (
     <Layout>
       <SEO
@@ -33,7 +22,7 @@ const FestiveEstate = () => {
         offers={{
           price: "1424",
           priceCurrency: "CAD",
-          availability: "https://schema.org/PreOrder",
+          availability: "https://schema.org/OutOfStock",
           url: "https://wabisabiservices.ca/seasoning/the-festive-estate",
         }}
       />
@@ -93,18 +82,11 @@ const FestiveEstate = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$1,424</div>
                   <p className="text-muted-foreground">Includes professional installation & lighting</p>
-                  <p className="text-sm font-medium mt-3">Install window: November 20 - December 5</p>
+                  <p className="text-sm font-medium mt-3">2026 season closed. 2027 waitlist open.</p>
                 </div>
-                <Button 
-                  size="lg" 
-                  className="w-full mb-4"
-                  onClick={() => addToCart(packageItem)}
-                >
-                  Add to Cart
-                </Button>
-                <Link to="/contact">
-                  <Button variant="outline" size="lg" className="w-full">
-                    Request a Private Consultation
+                <Link to="/contact?interest=seasonal-2027-waitlist">
+                  <Button size="lg" className="w-full">
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -173,7 +155,7 @@ const FestiveEstate = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Installation Window</h4>
-                  <p className="text-muted-foreground">November 20 - December 5</p>
+                  <p className="text-muted-foreground">To be confirmed for 2027</p>
                 </Card>
                 <Card className="p-6">
                   <h4 className="font-semibold mb-2">Display Duration</h4>
@@ -195,63 +177,21 @@ const FestiveEstate = () => {
                     <h4 className="font-semibold">Post-Holiday Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => addToCart({
-                      id: 'festive-estate-removal',
-                      name: 'Post-Holiday Removal & Composting',
-                      price: 99,
-                      description: 'Complete cleanup and eco-friendly disposal',
-                      image: heroImage,
-                    })}
-                  >
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Garland (10 feet)</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Extend garland coverage for larger spaces</p>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => addToCart({
-                      id: 'festive-estate-garland',
-                      name: 'Additional Garland (10 feet)',
-                      price: 75,
-                      description: 'Extend garland coverage for larger spaces',
-                      image: heroImage,
-                    })}
-                  >
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Extend garland coverage for larger spaces</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => addToCart({
-                      id: 'festive-estate-aromatherapy',
-                      name: 'Seasonal Aromatherapy Spray',
-                      price: 35,
-                      description: 'Essential-oil aromatherapy spray. Natural winter scent to complement your display',
-                      image: heroImage,
-                    })}
-                  >
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
                 </Card>
               </div>
             </div>

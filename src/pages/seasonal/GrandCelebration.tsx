@@ -7,19 +7,8 @@ import { SEO } from "@/components/SEO";
 import { ProductSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import heroImage from "@/assets/package-grand-celebration-hero.jpg";
-import { useCart } from "@/contexts/CartContext";
 
 const GrandCelebration = () => {
-  const { addToCart } = useCart();
-
-  const packageItem = {
-    id: 'grand-celebration',
-    name: 'The Grand Celebration',
-    price: 1924,
-    description: 'Spectacular Holiday Display',
-    image: heroImage,
-  };
-
   return (
     <Layout>
       <SEO
@@ -33,7 +22,7 @@ const GrandCelebration = () => {
         offers={{
           price: "1924",
           priceCurrency: "CAD",
-          availability: "https://schema.org/PreOrder",
+          availability: "https://schema.org/OutOfStock",
           url: "https://wabisabiservices.ca/seasoning/the-grand-celebration",
         }}
       />
@@ -93,18 +82,11 @@ const GrandCelebration = () => {
                 <div className="mb-6">
                   <div className="text-4xl font-serif mb-2">$1,924</div>
                   <p className="text-muted-foreground">Complete concierge service with full documentation</p>
-                  <p className="text-sm font-medium mt-3">Available: November through December</p>
+                  <p className="text-sm font-medium mt-3">2026 season closed. 2027 waitlist open.</p>
                 </div>
-                <Button 
-                  size="lg" 
-                  className="w-full mb-4"
-                  onClick={() => addToCart(packageItem)}
-                >
-                  Add to Cart
-                </Button>
-                <Link to="/contact">
-                  <Button variant="outline" size="lg" className="w-full">
-                    Request a Private Consultation
+                <Link to="/contact?interest=seasonal-2027-waitlist">
+                  <Button size="lg" className="w-full">
+                    Join 2027 waitlist
                   </Button>
                 </Link>
               </Card>
@@ -202,33 +184,21 @@ const GrandCelebration = () => {
                     <h4 className="font-semibold">Post-Holiday Removal & Composting</h4>
                     <span className="text-2xl font-serif">$99</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Complete cleanup and eco-friendly disposal</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'grand-celebration-removal', name: 'Post-Holiday Removal & Composting', price: 99, description: 'Complete cleanup and eco-friendly disposal', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Complete cleanup and eco-friendly disposal</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Additional Premium Wreath</h4>
                     <span className="text-2xl font-serif">$75</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Extend styling to additional entrances</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'grand-celebration-wreath', name: 'Additional Premium Wreath', price: 75, description: 'Extend styling to additional entrances', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Extend styling to additional entrances</p>
                 </Card>
                 <Card className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">Seasonal Aromatherapy Spray</h4>
                     <span className="text-2xl font-serif">$35</span>
                   </div>
-                  <p className="text-muted-foreground mb-4">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
-                  <Button size="sm" variant="outline" className="w-full"
-                    onClick={() => addToCart({id: 'grand-celebration-aromatherapy', name: 'Seasonal Aromatherapy Spray', price: 35, description: 'Essential-oil aromatherapy spray. Natural winter scent to complement your display', image: heroImage})}>
-                    Add to Cart
-                  </Button>
+                  <p className="text-muted-foreground">Essential-oil aromatherapy spray. Natural winter scent to complement your display</p>
                 </Card>
               </div>
             </div>
