@@ -86,7 +86,7 @@ const ProfessionalWelcome = () => {
                   The Professional Welcome is for Victoria businesses where the entrance does real work. A spring display at the door tells clients and customers, before a word is spoken, that you pay attention to the details. We design to your brand colours and the way people actually arrive.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Everything is built to hold up outdoors and to ask little of your staff. We install on a schedule that fits your hours, return mid-season to keep the display fresh, and handle removal when spring gives way to summer.
+                  Everything is built to hold up outdoors and to ask little of your staff. We install on a schedule that fits your hours and return mid-season to keep the display fresh. Removal is available as an add-on.
                 </p>
               </div>
               <Card className="p-8">
@@ -123,8 +123,7 @@ const ProfessionalWelcome = () => {
                   "Installation & consultation",
                   "Seasonal refresh recommendations",
                   "Flexible installation scheduling",
-                  "Mid-season maintenance visit",
-                  "Complete removal & cleanup"
+                  "Mid-season maintenance visit"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />

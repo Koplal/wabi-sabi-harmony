@@ -687,11 +687,11 @@ const seasonalPackages: SeasonalEntry[] = [
     slug: "quiet-grace",
     title: "The Quiet Grace | Autumn Pumpkin Package",
     description:
-      "A restrained autumn pumpkin display for townhome entries and intimate porches. Heritage varieties, arranged and installed across Greater Victoria.",
+      "A restrained autumn pumpkin display for townhome entries and intimate porches. Heritage varieties, delivered across Greater Victoria. Arrangement is an add-on.",
     product: {
       name: "The Quiet Grace",
       description:
-        "A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties arranged on site.",
+        "A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties delivered to your door.",
       price: "399",
       availability: PRE,
     },

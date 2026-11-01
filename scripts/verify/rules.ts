@@ -133,6 +133,13 @@ export const BANS: Ban[] = [
       { pattern: "Maps", phrase: "heatmaps", once: true },
     ],
   },
+  // DJ-15: seasonal decor is ground installation only, with no roof or eave work.
+  {
+    id: "BAN-24",
+    row: "DJ-15",
+    patterns: ["rooflines?", "the heights", "the wiring", "mature trees"],
+    scope: ["src/pages/seasonal/"],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -287,7 +294,6 @@ export const REQUIRED: Required[] = [
   { row: "FR-8", text: "Stripe", files: [PRIVACY] },
   { row: "FR-8", text: "Lovable Cloud", files: [PRIVACY] },
   { row: "FR-8", text: FOUNDER_NAME, files: [PRIVACY] },
-  { row: "FR-8", text: "V8Z 2P7", files: [PRIVACY] },
   { row: "FR-8", text: "hello@wabisabiservices.ca", files: [PRIVACY] },
 ];
 

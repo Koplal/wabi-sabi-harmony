@@ -86,7 +86,7 @@ const BusinessWelcome = () => {
                   The Business Welcome is the restrained option for professional entrances: law and design offices, clinics, galleries, and showrooms where the holiday note should be present but never loud. We work to your brand's palette and keep the materials weatherproof and low-maintenance.
                 </p>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Installation is arranged around your hours, and we return mid-season to refresh the greens before taking everything down in the new year. The result tells clients you pay attention to detail, without the display ever doing the talking for you.
+                  Installation is arranged around your hours, and we return mid-season to refresh the greens. Removal is available as an add-on. The result tells clients you pay attention to detail, without the display ever doing the talking for you.
                 </p>
               </div>
               <Card className="p-8">
@@ -124,8 +124,7 @@ const BusinessWelcome = () => {
                   "Seasonal consultation",
                   "Brand-aligned design",
                   "Flexible installation scheduling",
-                  "Mid-season maintenance visit",
-                  "Complete removal & cleanup"
+                  "Mid-season maintenance visit"
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
