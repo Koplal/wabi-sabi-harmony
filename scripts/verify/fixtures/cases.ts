@@ -845,6 +845,7 @@ distCase("D-MANIFEST", "reports a route list that cannot be loaded", "fail", () 
 distCase("D-MANIFEST", "reports a route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/about")) });
 distCase("D-MANIFEST", "reports a utility route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/cart")) });
 distCase("D-MANIFEST", "reports a listed route the harness does not know", fails("/extra is in the route list but not in the harness"), () => undefined, { manifest: listedWith((routes) => [...routes, "/extra"]) });
+distCase("D-MANIFEST", "reports a route the list lost but the render baseline holds", fails("/lost is in the render baseline but not in the route list"), () => undefined, { editRenderBaseline: (baseline) => { baseline.routes["/lost"] = baseline.routes["/about"]; } });
 distCase("D-MANIFEST", "reports a route only the router has", "fail", () => undefined, { sources: { "src/App.tsx": `${listRouter}\n<Route path="/extra" element={<Extra />} />` } });
 distCase("D-MANIFEST", "reports a neighbourhood with no route", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, areas: [...AREA_ROUTES, "/areas/new-area"] } });
 distCase("D-MANIFEST", "reports an area route with no neighbourhood", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, areas: AREA_ROUTES.slice(1) } });

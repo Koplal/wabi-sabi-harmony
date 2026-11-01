@@ -2,6 +2,7 @@
  * Rule data for the verify harness: patterns, required strings and file lists only.
  * The rule logic lives in source-checks.ts, dist-checks.ts, browser-rules.ts and live-rules.ts.
  */
+import { ROUTES } from "../../src/data/routes";
 
 export const SITE = "https://wabisabiservices.ca";
 
@@ -490,84 +491,10 @@ export const OVERLAP = {
 // Dist rules
 // ---------------------------------------------------------------------------
 
-export const INDEXABLE_ROUTES: string[] = [
-  "/",
-  "/about",
-  "/areas",
-  "/areas/bear-mountain",
-  "/areas/broadmead",
-  "/areas/cadboro-bay",
-  "/areas/cordova-bay",
-  "/areas/dean-park",
-  "/areas/downtown-victoria",
-  "/areas/fairfield",
-  "/areas/gonzales",
-  "/areas/gordon-head",
-  "/areas/james-bay",
-  "/areas/metchosin",
-  "/areas/north-saanich",
-  "/areas/oak-bay",
-  "/areas/prospect-lake",
-  "/areas/rockland",
-  "/areas/sidney",
-  "/areas/ten-mile-point",
-  "/areas/uplands",
-  "/areas/willis-point",
-  "/blog",
-  "/blog/april-2026",
-  "/blog/august-2025",
-  "/blog/december-2025",
-  "/blog/february-2026",
-  "/blog/january-2026",
-  "/blog/july-2026",
-  "/blog/june-2026",
-  "/blog/march-2026",
-  "/blog/may-2026",
-  "/blog/november-2025",
-  "/blog/october-2025",
-  "/blog/september-2025",
-  "/book",
-  "/careers",
-  "/client-agreement",
-  "/contact",
-  "/faq",
-  "/key-takeaways",
-  "/privacy",
-  "/reviews",
-  "/ritual",
-  "/seasoning",
-  "/seasoning/abundant-harmony",
-  "/seasoning/estate-collection",
-  "/seasoning/fall-pumpkins",
-  "/seasoning/gathered-abundance",
-  "/seasoning/mindful-merchant",
-  "/seasoning/quiet-grace",
-  "/seasoning/spring-refresh",
-  "/seasoning/summer-serenity",
-  "/seasoning/the-beachside-manor",
-  "/seasoning/the-blooming-manor",
-  "/seasoning/the-botanical-estate",
-  "/seasoning/the-business-welcome",
-  "/seasoning/the-coastal-cottage",
-  "/seasoning/the-cozy-cabin",
-  "/seasoning/the-festive-estate",
-  "/seasoning/the-fresh-start",
-  "/seasoning/the-garden-gate",
-  "/seasoning/the-grand-celebration",
-  "/seasoning/the-island-retreat",
-  "/seasoning/the-professional-welcome",
-  "/seasoning/the-seaside-estate",
-  "/seasoning/the-summer-storefront",
-  "/seasoning/the-winter-wonderland",
-  "/seasoning/winter-holiday",
-  "/services",
-  "/services/cleaning",
-  "/services/errands",
-  "/services/organizing",
-  "/terms-of-service",
-];
+/** The router, the build and the harness read one list (R2-FR-11). D-MANIFEST checks it against the Release 1 record. */
+export const INDEXABLE_ROUTES: string[] = ROUTES.filter((route) => !route.utility).map((route) => route.path);
 
-export const UTILITY_ROUTES = ["/cart", "/checkout", "/checkout-success"];
+export const UTILITY_ROUTES: string[] = ROUTES.filter((route) => route.utility).map((route) => route.path);
 
 export const RANK_ROUTES = [
   "/",
