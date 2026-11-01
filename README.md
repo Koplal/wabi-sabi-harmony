@@ -72,6 +72,7 @@ curl https://kwtvfjrrrkvdtydarfni.supabase.co/functions/v1/generate-blog-seo
 
 - **api/create-checkout.ts**: Prices the cart from a server catalogue and opens Stripe Checkout. Needs `STRIPE_SECRET_KEY`
 - **api/send-form-email.ts**: Emails the contact, booking and careers forms through Resend. Needs `RESEND_API_KEY`
+- **api/report-vitals.ts**: Forwards real visitors' LCP to Axiom. Needs `AXIOM_TOKEN` and `AXIOM_DATASET`, and drops reports without them
 
 ## Development
 
