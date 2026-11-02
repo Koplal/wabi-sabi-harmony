@@ -11,6 +11,7 @@ const May2026 = () => {
     <Layout>
       <SEO
         title="May Mindfulness: Wellness Sanctuaries for Families"
+        noBrandSuffix
         description="May blooms in Victoria with rhododendrons and Mother's Day. How a clean, well-ordered home quietly supports sleep, nutrition, movement, and clearer minds."
         canonical="https://wabisabiservices.ca/blog/may-2026"
         ogType="article"
