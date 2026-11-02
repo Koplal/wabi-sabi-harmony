@@ -12,7 +12,8 @@ export const JsonLd = ({ data }: JsonLdProps) => {
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(data)}
+        {/* schema.org guidance: a "<" must not end the script early in the built page. */}
+        {JSON.stringify(data).replace(/</g, "\\u003c")}
       </script>
     </Helmet>
   );

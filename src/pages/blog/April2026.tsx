@@ -11,6 +11,7 @@ const April2026 = () => {
     <Layout>
       <SEO
         title="Earth Month: Cleaning with Climate Consciousness"
+        noBrandSuffix
         description="April brings Earth Day to Victoria. A four-week plan for lower-impact cleaning, ocean-safe choices, and a near zero-waste home routine."
         canonical="https://wabisabiservices.ca/blog/april-2026"
         ogType="article"

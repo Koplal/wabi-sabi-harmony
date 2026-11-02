@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Trash2, ShoppingBag } from "lucide-react";
 
 const Cart = () => {
-  const { items, removeFromCart, total, itemCount } = useCart();
+  const { items, removeFromCart, total, itemCount, isLoaded } = useCart();
   const navigate = useNavigate();
 
   if (itemCount === 0) {
@@ -17,7 +17,8 @@ const Cart = () => {
         <div className="min-h-screen pt-20 px-6 lg:px-12">
           <div className="container mx-auto max-w-4xl text-center py-20">
             <ShoppingBag className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
-            <h1 className="font-serif text-4xl mb-4">Your Selections Are Empty</h1>
+            {/* The built page cannot read a saved cart, so until the load it must not call the cart empty. */}
+            <h1 className="font-serif text-4xl mb-4">{isLoaded ? "Your Selections Are Empty" : "Your Selections"}</h1>
             <p className="text-lg text-muted-foreground mb-8">
               Explore our seasonal services and add the ones you would like.
             </p>

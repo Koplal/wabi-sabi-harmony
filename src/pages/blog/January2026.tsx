@@ -11,6 +11,7 @@ const January2026 = () => {
     <Layout>
       <SEO
         title="The Art of Minimalism: Less Stuff, Less Stress"
+        noBrandSuffix
         description="A January look at minimalism through wabi-sabi. How simpler spaces calm the mind, plus a gentle four-week path to a lighter, easier-to-keep home."
         canonical="https://wabisabiservices.ca/blog/january-2026"
         ogType="article"

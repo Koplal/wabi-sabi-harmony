@@ -11,6 +11,7 @@ const February2026 = () => {
     <Layout>
       <SEO
         title="Love Your Home: Spaces That Nurture Relationships"
+        noBrandSuffix
         description="February is for tending love in all its forms, beginning with home. How a calm, cared-for Victoria space supports romance, family bonds, and self-care."
         canonical="https://wabisabiservices.ca/blog/february-2026"
         ogType="article"

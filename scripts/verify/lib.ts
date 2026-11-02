@@ -1,4 +1,5 @@
 /** Shared helpers for the verify harness: arguments, findings, text views and JSON-LD checks. */
+import { AUDIT, INDEXABLE_ROUTES, PEARLY_IDS } from "./rules";
 
 export interface Finding {
   rule: string;
@@ -230,8 +231,10 @@ export const compileBan = (source: string, flags: string) => new RegExp(source.r
 
 export const decodeHtml = (value: string) =>
   value
+    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&nbsp;/g, " ")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -266,6 +269,280 @@ export const canonicalsOf = (html: string) =>
 
 export const jsonLdBlocksOf = (html: string) =>
   [...html.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)].map((match) => match[1]);
+
+// ---------------------------------------------------------------------------
+// Raw HTML body
+// ---------------------------------------------------------------------------
+
+const NOT_READ = /<(script|style|noscript|template|svg)\b[\s\S]*?<\/\1>/gi;
+const BLOCK_START = /<(?=(?:p|li|ul|ol|div|h[1-6]|section|article|header|footer|main|nav|aside|table|tr|dl|dt|dd|blockquote|form|button)\b)/gi;
+
+export const bodyOf = (html: string) => /<body[^>]*>([\s\S]*)<\/body>/i.exec(html)?.[1] ?? "";
+
+/** What a reader with no JavaScript gets: no comments, scripts or styling, one block per line. */
+export const bodyMarkup = (html: string) =>
+  bodyOf(html)
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(NOT_READ, " ")
+    .replace(/\s(?:class|style)="[^"]*"/gi, "")
+    .replace(BLOCK_START, "\n<");
+
+const collapse = (text: string) => text.replace(/\s+/g, " ").trim();
+
+export const rawTextOf = (html: string) => collapse(decodeHtml(bodyMarkup(html).replace(/<[^>]+>/g, " ")));
+
+/** H1 text as textContent reads it, so a span inside a heading adds no space. */
+export const rawHeadingsOf = (html: string) =>
+  [...bodyMarkup(html).matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)]
+    .map((match) => collapse(decodeHtml(match[1].replace(/<[^>]+>/g, ""))))
+    .filter(Boolean);
+
+export const pathOfHref = (href: string) => href.split(/[?#]/)[0];
+
+export const rawLinksOf = (html: string) =>
+  tagsNamed(bodyMarkup(html), "a")
+    .map((tag) => attributes(tag).href ?? "")
+    .filter((href) => href.startsWith("/"))
+    .map(pathOfHref);
+
+/** Words for comparing raw and rendered text: lower case, with no surrounding punctuation. */
+export const textWords = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/’/g, "'")
+    .split(/\s+/)
+    .map((word) => word.replace(/^[^\p{L}\p{N}$]+|[^\p{L}\p{N}%+]+$/gu, ""))
+    .filter((word) => /[\p{L}\p{N}]/u.test(word));
+
+/** How many of `words` also appear in `other`, counting repeats. */
+export function sharedWordCount(words: string[], other: string[]): number {
+  const left = new Map<string, number>();
+  for (const word of other) left.set(word, (left.get(word) ?? 0) + 1);
+  let shared = 0;
+  for (const word of words) {
+    const count = left.get(word) ?? 0;
+    if (count > 0) {
+      shared++;
+      left.set(word, count - 1);
+    }
+  }
+  return shared;
+}
+
+/** One page as a browser rendered it, with menus closed. */
+export interface RenderedPage {
+  h1: string;
+  text: string;
+  links: string[];
+}
+
+/**
+ * R2-FR-01, shared by D-RAW (the saved baseline) and BR-RAW (the same build). It runs both ways,
+ * because text only the raw HTML holds is read by crawlers and never seen by visitors.
+ * closedAnswers are the one allowance, R2-FR-04's FAQ answers, so pass them only for a route that
+ * has them. minShare also covers what the capture viewport hides, such as the header's second
+ * Book Now link.
+ */
+export function rawProblems(rendered: RenderedPage, html: string, minShare: number, closedAnswers: string[] = []): string[] {
+  const problems: string[] = [];
+  const headings = rawHeadingsOf(html);
+  if (headings.length === 0) problems.push("no H1 in raw HTML");
+  else if (headings[0] !== rendered.h1) problems.push(`raw H1 "${headings[0]}" differs from the rendered H1 "${rendered.h1}"`);
+
+  const words = textWords(rendered.text);
+  const rawText = rawTextOf(html);
+  const shared = sharedWordCount(words, textWords(rawText));
+  if (words.length > 0 && shared / words.length < minShare) {
+    const percent = Math.floor((shared / words.length) * 100);
+    problems.push(`${shared} of ${words.length} rendered words are in raw HTML (${percent}%), expected at least ${minShare * 100}%`);
+  }
+
+  const rawWords = textWords(closedAnswers.reduce((text, answer) => text.split(collapse(answer)).join(" "), rawText));
+  const shown = sharedWordCount(rawWords, words);
+  if (rawWords.length > 0 && shown / rawWords.length < minShare) {
+    const percent = Math.floor((shown / rawWords.length) * 100);
+    problems.push(`${shown} of ${rawWords.length} raw words are on the rendered page (${percent}%), expected at least ${minShare * 100}%`);
+  }
+
+  const links = new Set(rawLinksOf(html));
+  const missing = rendered.links.filter((link) => !links.has(link));
+  if (missing.length > 0) problems.push(`${missing.length} rendered internal links are not in raw HTML: ${missing.slice(0, 5).join(", ")}`);
+  return problems;
+}
+
+/** BR-RENDER: this text against saved text, both ways, so a page can neither gain nor lose copy. */
+export function textDriftProblems(text: string, saved: string, minShare: number): string[] {
+  const words = textWords(text);
+  const savedWords = textWords(saved);
+  const shared = sharedWordCount(words, savedWords);
+  const problems: string[] = [];
+  const percent = (whole: number) => Math.floor((shared / whole) * 100);
+  if (shared / savedWords.length < minShare) problems.push(`lost text: ${shared} of ${savedWords.length} saved words are on the page (${percent(savedWords.length)}%)`);
+  if (shared / words.length < minShare) problems.push(`gained text: ${shared} of ${words.length} words on the page are saved (${percent(words.length)}%)`);
+  return problems;
+}
+
+/** R2-FR-08, shared by D-404, BR-404 and LV-404, so a platform's default 404 page cannot pass. */
+export function missingPageProblems(html: string, site: string, brand: string): string[] {
+  const problems: string[] = [];
+  if (!(metaContent(html, "robots") ?? "").includes("noindex")) problems.push("no noindex");
+  if (canonicalsOf(html).includes(`${site}/`)) problems.push("the canonical is the home page");
+  if (!titleOf(html).includes(brand)) problems.push(`the title does not name ${brand}`);
+  if (rawHeadingsOf(html).length === 0) problems.push("no H1 without JavaScript");
+  if (!rawLinksOf(html).includes("/")) problems.push("no link home without JavaScript");
+  if (!rawLinksOf(html).includes("/services")) problems.push("no link to /services without JavaScript");
+  return problems;
+}
+
+/** Whole-body words in raw HTML, shared by LV-RAW, D-AUDIT and LV-AUDIT, so the floors count alike. */
+export const visibleWords = (html: string) =>
+  html
+    .replace(/<head[\s>][\s\S]*?<\/head>/i, " ")
+    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+const charCount = (text: string) => [...text].length;
+
+/** One page's lines, shared by D-AUDIT and LV-AUDIT. */
+export function auditPageProblems(route: string, html: string): string[] {
+  const problems: string[] = [];
+  const h1Tags = tagsNamed(bodyMarkup(html), "h1").length;
+  const headings = rawHeadingsOf(html).length;
+  if (h1Tags !== 1 || headings !== 1) problems.push(`${h1Tags} H1 tags, ${headings} with text, expected exactly one`);
+
+  const title = titleOf(html);
+  const description = metaContent(html, "description") ?? "";
+  if (!title) problems.push("no title");
+  if (!description) problems.push("no meta description");
+  for (const key of ["og:title", "twitter:title", "title"]) {
+    const value = metaContent(html, key);
+    if (value !== title) problems.push(`${key} is "${value ?? "missing"}", which differs from the title "${title}"`);
+  }
+
+  const { titleMax, descriptionMax, titleExempt, descriptionExempt, wordExempt, wordPending, minWords, minLinks } = AUDIT;
+  if (charCount(title) > titleMax && !(route in titleExempt)) problems.push(`title is ${charCount(title)} characters, over ${titleMax}`);
+  if (charCount(description) > descriptionMax && !(route in descriptionExempt)) problems.push(`description is ${charCount(description)} characters, over ${descriptionMax}`);
+
+  const words = visibleWords(html);
+  if (words < minWords && !wordExempt.includes(route) && !(route in wordPending)) problems.push(`${words} words of body text, expected at least ${minWords}`);
+
+  const links = new Set(rawLinksOf(html));
+  links.delete(route);
+  if (links.size < minLinks) problems.push(`${links.size} internal links to other pages, expected at least ${minLinks}`);
+  return problems;
+}
+
+export interface AuditProblem {
+  route: string;
+  message: string;
+}
+
+/**
+ * The lines that take every page at once. knownRoutes holds the utility routes too, because every
+ * page links to /cart. An inbound link counts only from a different sitemap page, so a page linked
+ * from itself or from /cart alone is still an orphan.
+ */
+export function auditSiteProblems(htmlByRoute: Map<string, string>, knownRoutes: string[]): AuditProblem[] {
+  const problems: AuditProblem[] = [];
+  const known = new Set(knownRoutes);
+  const linkedFrom = new Set<string>();
+  const titles = new Map<string, string>();
+  const descriptions = new Map<string, string>();
+  const defined = new Set<string>(PEARLY_IDS);
+  const references: AuditProblem[] = [];
+
+  for (const [route, html] of htmlByRoute) {
+    for (const link of new Set(rawLinksOf(html))) {
+      if (!known.has(link)) problems.push({ route, message: `links to ${link}, which is not a route` });
+      if (link !== route && INDEXABLE_ROUTES.includes(route)) linkedFrom.add(link);
+    }
+
+    const title = titleOf(html);
+    const description = metaContent(html, "description") ?? "";
+    if (titles.has(title)) problems.push({ route, message: `title also used by ${titles.get(title)}` });
+    if (descriptions.has(description)) problems.push({ route, message: `description also used by ${descriptions.get(description)}` });
+    titles.set(title, route);
+    descriptions.set(description, route);
+
+    jsonLdBlocksOf(html).forEach((block, index) => {
+      const data = parseBlock(block);
+      if (data === undefined) problems.push({ route, message: `JSON-LD block ${index + 1} does not parse` });
+      walkNodes(data, (node) => {
+        const id = node["@id"];
+        if (typeof id !== "string") return;
+        if (Object.keys(node).length > 1) defined.add(id);
+        else references.push({ route, message: id });
+      });
+    });
+  }
+
+  for (const route of INDEXABLE_ROUTES) {
+    if (htmlByRoute.has(route) && !linkedFrom.has(route)) problems.push({ route, message: "orphan: no link from another sitemap page" });
+  }
+  for (const { route, message: id } of references) {
+    if (!defined.has(id)) problems.push({ route, message: `@id ${id} resolves to no node on any page` });
+  }
+  return problems;
+}
+
+// ---------------------------------------------------------------------------
+// Sitemap dates
+// ---------------------------------------------------------------------------
+
+/** Dates here are written with toISOString, so they compare in UTC. */
+export const todayUtc = () => new Date().toISOString().slice(0, 10);
+
+export const isDate = (value: unknown) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
+
+/** Each URL's lastmod as a date. Undefined for an entry with none. */
+export function sitemapLastmods(sitemap: string): Map<string, string | undefined> {
+  const lastmods = new Map<string, string | undefined>();
+  for (const [entry] of sitemap.matchAll(/<url>[\s\S]*?<\/url>/g)) {
+    const loc = /<loc>\s*([^<]+?)\s*<\/loc>/.exec(entry)?.[1];
+    if (loc) lastmods.set(loc, /<lastmod>\s*([^<]+?)\s*<\/lastmod>/.exec(entry)?.[1].slice(0, 10));
+  }
+  return lastmods;
+}
+
+/** R2-FR-15, the parts one date can settle. Shared by D-SITEMAP and LV-SITEMAP. */
+export function lastmodProblem(page: string, date: string | undefined): string | undefined {
+  if (!date) return `${page} has no lastmod`;
+  if (!isDate(date)) return `${page}: lastmod ${date} is not a date`;
+  if (date > todayUtc()) return `${page}: lastmod ${date} is later than today`;
+  return undefined;
+}
+
+/**
+ * R2-FR-15 against the tracked dates, URL by URL, and shared by D-SITEMAP and LV-SITEMAP. R1 changed
+ * most pages on one day, so a shared date proves nothing either way, and only this tells that
+ * honest date from a build date stamped on most URLs. A URL with no lastmod is lastmodProblem's.
+ */
+export function trackedDateProblems(lastmods: Map<string, string | undefined>, tracked: Record<string, string>, site: string): string[] {
+  const problems: string[] = [];
+  const dated = new Map(Object.entries(tracked).map(([route, date]) => [`${site}${route}`, date]));
+  for (const [url, date] of dated) {
+    const shown = lastmods.get(url);
+    if (!lastmods.has(url)) problems.push(`${url} has a tracked date but is not in the sitemap`);
+    else if (shown && shown !== date) problems.push(`${url}: lastmod ${shown} differs from the tracked date ${date}`);
+  }
+  for (const url of lastmods.keys()) if (!dated.has(url)) problems.push(`${url} has no tracked date`);
+  return problems;
+}
+
+/**
+ * R2-FR-15's shape for a build date or a placeholder: every URL on one date that is not the day
+ * every page last changed. histories holds each page's latest commit. The check is against that
+ * date and not only for dates that differ, because a release can touch every page on one day, as
+ * R1 did, and a build date stamped on those pages afterwards must still fail.
+ */
+export function sharedDateProblem(dates: string[], histories: string[]): string | undefined {
+  if (dates.length < 2 || new Set(dates).size > 1) return undefined;
+  const others = histories.filter((date) => date !== dates[0]).length;
+  if (others === 0) return undefined;
+  return `all ${dates.length} URLs share the lastmod ${dates[0]}, but ${others} of ${histories.length} pages last changed on another date`;
+}
 
 // ---------------------------------------------------------------------------
 // JSON-LD
@@ -385,3 +662,11 @@ export const routeOfHtmlFile = (path: string) => {
   const route = path.replace(/(?:^|\/)index\.html$/, "");
   return route ? `/${route}` : "/";
 };
+
+export const htmlFileOfRoute = (route: string) => (route === "/" ? "index.html" : `${route.slice(1)}/index.html`);
+
+export function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}

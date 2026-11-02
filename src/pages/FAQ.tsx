@@ -106,7 +106,7 @@ const FAQ = () => {
                           <AccordionTrigger className="text-left">
                             {item.question}
                           </AccordionTrigger>
-                          <AccordionContent className="text-muted-foreground leading-relaxed">
+                          <AccordionContent keepInHtml className="text-muted-foreground leading-relaxed">
                             {item.answer}
                           </AccordionContent>
                         </AccordionItem>

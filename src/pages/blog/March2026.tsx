@@ -11,6 +11,7 @@ const March2026 = () => {
     <Layout>
       <SEO
         title="Sustainable Spring Cleaning for Eco-Conscious Victorians"
+        noBrandSuffix
         description="As cherry blossoms open across Victoria, refresh your home without harming the Island. A room-by-room guide, and ways to let things go."
         canonical="https://wabisabiservices.ca/blog/march-2026"
         ogType="article"
