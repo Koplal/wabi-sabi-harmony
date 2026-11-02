@@ -379,7 +379,6 @@ interface DistOptions {
   shallowClone?: boolean;
   /** The tracked dates, by route. By default they match the sitemap. null means the file is unreadable. */
   lastmods?: Record<string, string> | null;
-  auditStrict?: DistCtx["auditStrict"];
 }
 
 /** The tracked file a sitemap was built from. */
@@ -419,7 +418,6 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
     shallowClone: options.shallowClone,
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
     expectClarity: options.expectClarity,
-    auditStrict: options.auditStrict,
   };
 }
 
@@ -959,9 +957,7 @@ const LONG_TITLE = "T".repeat(AUDIT.titleMax + 1);
 const LONG_DESCRIPTION = "D".repeat(AUDIT.descriptionMax + 1);
 const TITLE_OVER = fails(`title is ${AUDIT.titleMax + 1} characters, over ${AUDIT.titleMax}`);
 const DESCRIPTION_OVER = fails(`description is ${AUDIT.descriptionMax + 1} characters, over ${AUDIT.descriptionMax}`);
-const PENDING_TITLE = AUDIT.limitPending.titles[0];
 const EXEMPT_TITLE = Object.keys(AUDIT.titleExempt)[0];
-const PENDING_DESCRIPTION = AUDIT.limitPending.descriptions[0];
 const REVIEWS_ROUTE = Object.keys(AUDIT.wordPending)[0];
 const fewWords = (files: Files, route: string) => replaceIn(files, htmlFileOfRoute(route), filler(FILLER_WORDS), "Few words.");
 /** Points every link to a route somewhere else, on every page but keep. */
@@ -1016,12 +1012,24 @@ distCase("D-AUDIT", "resolves an @id defined on another page", "pass", (files) =
   addBlock(files, ABOUT_HTML, { "@type": "Service", provider: { "@id": `${SITE}/#somebody` } });
 });
 distCase("D-AUDIT", "allows the two sister-company ids", "pass", (files) => addBlock(files, ABOUT_HTML, { "@type": "Service", provider: PEARLY_IDS.map((id) => ({ "@id": id })) }));
-distCase("D-AUDIT", "leaves a long pending title alone", "pass", (files) => retitle(files, PENDING_TITLE, LONG_TITLE));
 distCase("D-AUDIT", "leaves a long exempt title alone", "pass", (files) => retitle(files, EXEMPT_TITLE, LONG_TITLE));
-distCase("D-AUDIT", "leaves a long pending description alone", "pass", (files) => describeAs(files, PENDING_DESCRIPTION, LONG_DESCRIPTION));
-distCase("D-AUDIT", "holds a pending title to the limit when named", TITLE_OVER, (files) => retitle(files, PENDING_TITLE, LONG_TITLE), { auditStrict: { titles: [PENDING_TITLE] } });
-distCase("D-AUDIT", "holds an exempt title to the limit when named", TITLE_OVER, (files) => retitle(files, EXEMPT_TITLE, LONG_TITLE), { auditStrict: { titles: [EXEMPT_TITLE] } });
-distCase("D-AUDIT", "holds a pending description to the limit when named", DESCRIPTION_OVER, (files) => describeAs(files, PENDING_DESCRIPTION, LONG_DESCRIPTION), { auditStrict: { descriptions: [PENDING_DESCRIPTION] } });
+distCase("D-AUDIT", "holds a blog post to the title limit", TITLE_OVER, (files) => retitle(files, "/blog/march-2026", LONG_TITLE));
+distCase("D-AUDIT", "holds the Estate Collection page to the description limit", DESCRIPTION_OVER, (files) => describeAs(files, "/seasoning/estate-collection", LONG_DESCRIPTION));
+cases.push({
+  rule: "D-AUDIT",
+  name: "leaves a long exempt description alone",
+  ...expected("pass"),
+  run: () => {
+    const files = goodDist();
+    describeAs(files, "/about", LONG_DESCRIPTION);
+    AUDIT.descriptionExempt["/about"] = AUDIT_REASONS.kept;
+    try {
+      return DIST_CHECKS["D-AUDIT"](distCtx(files));
+    } finally {
+      delete AUDIT.descriptionExempt["/about"];
+    }
+  },
+});
 distCase("D-AUDIT", "reports a page that is not built", fails("no built HTML for /about"), (files) => {
   files.delete(ABOUT_HTML);
 });
@@ -1030,7 +1038,7 @@ const auditNotes = (): string[] => {
   DIST_CHECKS["D-AUDIT"]({ ...distCtx(goodDist()), note: (message) => notes.push(message) });
   return notes;
 };
-const LISTED_EXCEPTIONS = [...Object.keys(AUDIT.titleExempt), ...Object.keys(AUDIT.descriptionExempt), ...AUDIT.wordExempt, ...Object.keys(AUDIT.wordPending), ...AUDIT.limitPending.titles, ...AUDIT.limitPending.descriptions];
+const LISTED_EXCEPTIONS = [...Object.keys(AUDIT.titleExempt), ...Object.keys(AUDIT.descriptionExempt), ...AUDIT.wordExempt, ...Object.keys(AUDIT.wordPending)];
 const unnoted = (notes: string[]): Finding[] => {
   const words = new Set(notes.join(" ").split(/[\s,]+/));
   return LISTED_EXCEPTIONS.filter((route) => !words.has(route)).map((route) => ({ rule: "D-AUDIT", message: `${route} is listed but not in the notes` }));
@@ -1537,7 +1545,7 @@ liveCase("LV-AUDIT", "reports a status other than 200", fails("expected 200 with
 liveCase("LV-AUDIT", "reports a stray Location on a 200", fails("a Location header goes to /elsewhere"), () => checkAudit("/about", auditHop("/about", 200, "/elsewhere"), pageHtml("/about")));
 liveCase("LV-AUDIT", "reports another page's canonical", fails("canonical is"), () => checkAudit("/about", auditHop("/about"), pageHtml("/faq")));
 liveCase("LV-AUDIT", "reports a long title", TITLE_OVER, () => checkAudit("/about", auditHop("/about"), longPage("/about")));
-liveCase("LV-AUDIT", "applies the listed exceptions", "pass", () => checkAudit(PENDING_TITLE, auditHop(PENDING_TITLE), longPage(PENDING_TITLE)));
+liveCase("LV-AUDIT", "applies the listed exceptions", "pass", () => checkAudit(EXEMPT_TITLE, auditHop(EXEMPT_TITLE), longPage(EXEMPT_TITLE)));
 liveCase("LV-AUDIT", "takes the sitemap's paths", "pass", () => {
   const paths = sitemapPaths(goodDist().get("sitemap.xml") as string);
   return paths.join() === INDEXABLE_ROUTES.join() ? [] : [{ rule: "LV-AUDIT", message: "the sitemap's paths differ from the route list" }];

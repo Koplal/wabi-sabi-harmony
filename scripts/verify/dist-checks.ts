@@ -27,7 +27,6 @@ import {
   UTILITY_ROUTES,
 } from "./rules";
 import {
-  type AuditStrict,
   attributes,
   auditPageProblems,
   auditSiteProblems,
@@ -170,8 +169,6 @@ export interface DistCtx {
   shallowClone?: boolean;
   sourcePages(): string[];
   expectClarity?: string;
-  /** Routes D-AUDIT holds to a limit even if a list excuses them. */
-  auditStrict?: AuditStrict;
   note?: (message: string) => void;
 }
 
@@ -827,13 +824,11 @@ function lcpFieldProblems(field: LcpField): string[] {
 const exceptionList = (reasons: Record<string, string>) => Object.entries(reasons).map(([route, reason]) => `${route} (${reason})`);
 
 function noteAuditExceptions(ctx: DistCtx) {
-  const { titleExempt, descriptionExempt, wordExempt, wordPending, limitPending } = AUDIT;
+  const { titleExempt, descriptionExempt, wordExempt, wordPending } = AUDIT;
   const lists: Array<[string, string[]]> = [
     ["title exceptions", exceptionList(titleExempt)],
     ["description exceptions", exceptionList(descriptionExempt)],
     ["word floor exceptions", [...wordExempt, ...exceptionList(wordPending)]],
-    ["titles pending", limitPending.titles],
-    ["descriptions pending", limitPending.descriptions],
   ];
   for (const [name, items] of lists) ctx.note?.(`D-AUDIT: ${items.length} ${name}: ${items.join(", ") || "none"}`);
 }
@@ -849,7 +844,7 @@ export function checkAudit(ctx: DistCtx): Finding[] {
       continue;
     }
     pages.set(route, html);
-    for (const message of auditPageProblems(route, html, ctx.auditStrict)) findings.push({ rule: "D-AUDIT", file, message });
+    for (const message of auditPageProblems(route, html)) findings.push({ rule: "D-AUDIT", file, message });
   }
   for (const { route, message } of auditSiteProblems(pages, [...ctx.routes, ...UTILITY_ROUTES])) {
     findings.push({ rule: "D-AUDIT", file: htmlFileOfRoute(route), message });
