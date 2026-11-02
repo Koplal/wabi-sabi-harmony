@@ -186,6 +186,11 @@ const Services = () => {
               Serving Victoria's finest neighbourhoods →
             </Link>
           </p>
+          <p className="text-center text-muted-foreground mt-4">
+            <Link to="/seasoning" className="underline underline-offset-4 hover:text-foreground transition-colors">
+              Seasonal decorating across Greater Victoria →
+            </Link>
+          </p>
         </div>
       </div>
     </Layout>

@@ -100,6 +100,8 @@ const Home = () => {
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
                     src={residentialService}
+                    loading="lazy"
+                    decoding="async"
                     alt="Residential cleaning service"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -118,6 +120,8 @@ const Home = () => {
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
                     src={commercialService}
+                    loading="lazy"
+                    decoding="async"
                     alt="Commercial cleaning service"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -134,6 +138,8 @@ const Home = () => {
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
                     src={postConstructionService}
+                    loading="lazy"
+                    decoding="async"
                     alt="Post-construction cleaning"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

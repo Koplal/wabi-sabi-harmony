@@ -11,6 +11,7 @@ const June2026 = () => {
     <Layout>
       <SEO
         title="Pet-Friendly Cleaning: A Fresh, Safe Home"
+        noBrandSuffix
         description="Victoria is a pet-loving city. Which cleaning products put pets at risk, the gentler alternatives, and how to manage odours, hair, and messes safely."
         canonical="https://wabisabiservices.ca/blog/june-2026"
         ogType="article"

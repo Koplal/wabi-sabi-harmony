@@ -232,6 +232,24 @@ const Errands = () => {
                 <li>Anyone recovering from illness or injury</li>
                 <li>People who value their time and want to reclaim their weekends</li>
               </ul>
+              <p className="text-muted-foreground mt-6">
+                Household support for owners who travel, in{" "}
+                <Link to="/areas/sidney" className="underline underline-offset-4 hover:text-foreground transition-colors">Sidney</Link>
+                ,{" "}
+                <Link to="/areas/broadmead" className="underline underline-offset-4 hover:text-foreground transition-colors">Broadmead</Link>
+                ,{" "}
+                <Link to="/areas/dean-park" className="underline underline-offset-4 hover:text-foreground transition-colors">Dean Park</Link>{" "}
+                and{" "}
+                <Link to="/areas/bear-mountain" className="underline underline-offset-4 hover:text-foreground transition-colors">Bear Mountain</Link>
+                .
+              </p>
+              <p className="text-muted-foreground mt-4">
+                For celebrations and gatherings, see our{" "}
+                <Link to="/seasoning" className="underline underline-offset-4 hover:text-foreground transition-colors">seasonal decorating</Link>{" "}
+                and{" "}
+                <Link to="/seasoning/winter-holiday" className="underline underline-offset-4 hover:text-foreground transition-colors">Winter Holiday Packages</Link>
+                .
+              </p>
             </section>
 
             <section className="bg-secondary/30 rounded-lg p-10 text-center">

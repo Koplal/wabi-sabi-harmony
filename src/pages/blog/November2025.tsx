@@ -11,6 +11,7 @@ const November2025 = () => {
     <Layout>
       <SEO
         title="The Gratitude Home: Thankful Spaces for Connection"
+        noBrandSuffix
         description="November in Victoria invites us to gather. A calm plan for readying your home before Thanksgiving, room by room, with gratitude rather than rush."
         canonical="https://wabisabiservices.ca/blog/november-2025"
         ogType="article"

@@ -3,13 +3,18 @@
  * The good fixtures are built from rules.ts in memory. The private ban terms here are
  * made-up placeholders, and never real ones.
  */
-import { formatFinding, type Finding, SourceText, undoMsysPath } from "../lib";
+import { auditSiteProblems, formatFinding, type Finding, htmlFileOfRoute, median, rawHeadingsOf, rawLinksOf, rawTextOf, sitemapLastmods, SourceText, textWords, undoMsysPath, UsageError } from "../lib";
 import {
   ABSENT,
+  AUDIT,
+  AUDIT_REASONS,
   BANS,
   BONDING_LINE,
+  BROWSER,
   CLARITY_PROJECT_ID,
   CONSULTATION,
+  COPY_PAGES,
+  type EarlyFormPlan,
   FAQ_FILES,
   FAQ_SECTIONS,
   FORM_FILES,
@@ -17,10 +22,13 @@ import {
   GA_EVENTS,
   INDEXABLE_ROUTES,
   LIVE,
+  MANIFEST,
   MASK_ATTRIBUTE,
   MASK_FILES,
+  MISSING_PAGE,
   NAP,
   NO_BIOHAZARD,
+  NO_H1_ROUTE,
   ORG,
   PARENT,
   PEARLY_IDS,
@@ -30,21 +38,40 @@ import {
   REQUIRED_ORDER,
   SITE,
   STAFF_LINE,
+  STRIPE_RETURN,
+  UTILITY_ROUTES,
 } from "../rules";
 import { parsePrivateBans, SOURCE_CHECKS, type ScanFile, type SourceCtx } from "../source-checks";
-import { DIST_CHECKS, type DistCtx, rankEntryFromHtml, type RankBaseline } from "../dist-checks";
+import { DIST_CHECKS, type DistCtx, type LcpField, type LcpLab, type LcpRoute, lastCopyDates, rankEntryFromHtml, type RankBaseline, type RenderBaseline, type RenderEntry, type RouteManifest } from "../dist-checks";
 import {
   BROWSER_RULES,
+  type CartStep,
   checkAreas,
+  checkCart,
   checkClarity,
   checkConsole,
+  checkGa,
   checkH1,
   checkHead as checkBrowserHead,
+  checkHydrate,
+  checkEarly,
+  checkInteract,
+  checkLcpRuns,
+  checkMissingUrl,
   checkNav,
   checkRank as checkBrowserRank,
+  checkRawPage,
+  checkRendered,
+  fromPrerenderedProblem,
+  type HydrationSnapshot,
+  hydrationUrls,
+  type EarlyReading,
+  type InteractReading,
+  type LcpMeasure,
   type PageSnapshot,
+  runsMissingUrl,
 } from "../browser-rules";
-import { checkFile, checkHost, checkMissing, checkRaw, checkRedirect, checkUtility, type Chain } from "../live-rules";
+import { checkAudit, checkAuditRoutes, checkAuditSite, checkFile, checkHops, checkHost, checkMissing, checkNotRedirected, checkRaw, checkRedirect, checkSitemapDates, checkUtility, headersFor, hopRows, sitemapPaths, type Chain, type WwwSlash } from "../live-rules";
 
 type Files = Map<string, string>;
 
@@ -106,7 +133,7 @@ function goodSource(): Files {
   add(PRICE_FILES.catalogue, `const CATALOGUE = {\n  "fixture-package": { name: "The Fixture Package", price: 399 },\n};\n`);
 
   for (const { form, file } of FORM_FILES.pages) {
-    add(file, `const [formData, setFormData] = useState({ name: "", email: "", phone: "" });\nawait sendForm("${form}", formData);\n<SelectItem value="fixture-option">Fixture Option</SelectItem>\n`);
+    add(file, `const [formData, setFormData] = useState({ name: "", email: "", phone: "" });\nconst response = await sendForm("${form}", formData);\nif (!(await formSent(response))) throw error;\n<fieldset disabled={isSubmitting}>\n<SelectItem value="fixture-option">Fixture Option</SelectItem>\n`);
   }
   const formEntries = FORM_FILES.pages.map(({ form }) => `  ${form}: {\n    fields: [\n      ["phone", "Phone"],\n    ],\n  },\n`);
   add(FORM_FILES.handler, `const OPTION_LABELS: Record<string, string> = {\n  "fixture-option": "Fixture Option",\n};\n\nconst FORMS = {\n${formEntries.join("")}};\n`);
@@ -174,17 +201,99 @@ const parentNode = {
   subOrganization: PARENT.subOrganization.map((id) => ({ "@id": id })),
 };
 
+/** Real routes for the source files the required strings name. */
+function fileRoutes(): Map<string, string> {
+  const routes = new Map([
+    ["src/pages/Home.tsx", "/"],
+    ["src/pages/About.tsx", "/about"],
+    ["src/pages/Services.tsx", "/services"],
+    ["src/pages/Ritual.tsx", "/ritual"],
+    ["src/pages/KeyTakeaways.tsx", "/key-takeaways"],
+    ["src/pages/TermsOfService.tsx", "/terms-of-service"],
+    ["src/pages/ClientAgreement.tsx", "/client-agreement"],
+    ["src/pages/Contact.tsx", "/contact"],
+    ["src/pages/Privacy.tsx", "/privacy"],
+    ["src/pages/FAQ.tsx", "/faq"],
+    ["src/pages/services/Cleaning.tsx", "/services/cleaning"],
+    ["src/pages/services/Errands.tsx", "/services/errands"],
+    ["src/pages/blog/March2026.tsx", "/blog/march-2026"],
+    ["src/pages/Seasoning.tsx", "/seasoning"],
+    ["src/pages/seasonal/QuietGrace.tsx", "/seasoning/quiet-grace"],
+  ]);
+  const spare = INDEXABLE_ROUTES.filter((route) => route.startsWith("/seasoning/") && route !== "/seasoning/quiet-grace");
+  for (const { files } of [...REQUIRED, ...REQUIRED_ORDER]) {
+    for (const file of files) {
+      if (file.startsWith(PRICE_FILES.seasonalDir) && !routes.has(file)) routes.set(file, spare.shift() as string);
+    }
+  }
+  return routes;
+}
+
+const FILE_ROUTES = fileRoutes();
+
+/** Escapes text the way React does in server-rendered HTML. */
+const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/'/g, "&#x27;").replace(/"/g, "&quot;");
+
+const isOnRoute = (route: string) => (path: string) => (path === FAQ_FILES.data ? "/faq" : FILE_ROUTES.get(path)) === route;
+
+const requiredOn = (route: string) => [
+  ...REQUIRED.filter((entry) => !entry.sourceOnly && entry.text !== CONSULTATION && entry.text !== FREE_ESTIMATES && entry.files.some(isOnRoute(route))).map((entry) => entry.text),
+  ...REQUIRED_ORDER.filter((entry) => entry.files.some(isOnRoute(route))).flatMap((entry) => entry.texts),
+];
+
+const FAQ_ANSWERS = ["Fixture answer one.", "Fixture answer with a person's apostrophe & an ampersand."];
+const FILLER_WORDS = 100;
+const filler = (count: number) => Array.from({ length: count }, (_, index) => `fixtureword${index}`).join(" ");
+const faqAnswer = (answer: string) => `<div class="pb-4 pt-0">${escapeHtml(answer)}</div>`;
+/** Every page links to every other, as the shared footer and hubs do, so none is an orphan. */
+const SITE_LINKS = INDEXABLE_ROUTES.map((route) => `<a href="${route}">Page</a>`).join("");
+
+function bodyHtml(route: string): string {
+  const lines = requiredOn(route).map((text) => `<p class="text-lg">${escapeHtml(text)}</p>`);
+  if (route === "/faq") lines.push(`<p>Start with a ${CONSULTATION}. ${FREE_ESTIMATES}</p>`, ...FAQ_ANSWERS.map(faqAnswer));
+  return `<div id="root"><nav><a href="/about">About</a><a href="/contact?ref=nav#top">Contact</a>${SITE_LINKS}</nav><main><h1 class="font-serif">Heading <span>for</span> ${route}</h1><p>${filler(FILLER_WORDS)}</p>${lines.join("")}</main></div>`;
+}
+
+function notFoundHtml(): string {
+  return `<!doctype html><html><head><title>Page Not Found | ${MISSING_PAGE.brand}</title>
+<meta name="robots" content="noindex,follow" ${rh} />
+${script(orgNode())}
+</head><body><div id="root"><main><h1>This page could not be found</h1><a href="/">Return Home</a></main><footer><a href="/services">Services</a></footer></div></body></html>`;
+}
+
+/** A utility page as the build writes it: noindex, and /checkout with no H1. */
+function builtUtilityPage(route: string): string {
+  const page = pageHtml(route).replace("</head>", `<meta name="robots" content="noindex,follow" ${rh} /></head>`);
+  return route === NO_H1_ROUTE ? page.replace(/<h1[\s\S]*?<\/h1>/, "") : page;
+}
+
 function pageHtml(route: string, extraBlocks: unknown[] = []): string {
   const url = route === "/" ? `${SITE}/` : `${SITE}${route}`;
   const blocks = [orgNode(), ...(route === "/" ? [parentNode] : []), ...extraBlocks];
-  return `<!doctype html><html><head><title>Fixture ${route} | Wabi Sabi Services</title>
+  const title = `${route} | Wabi Sabi Services`;
+  return `<!doctype html><html><head><title>${title}</title>
+<meta name="title" content="${title}" ${rh} />
+<meta property="og:title" content="${title}" ${rh} />
+<meta name="twitter:title" content="${title}" ${rh} />
 <meta name="description" content="Description of ${route}" ${rh} />
 <meta property="og:url" content="${url}" ${rh} />
 <meta name="twitter:url" content="${url}" ${rh} />
 <link rel="canonical" href="${url}" ${rh} />
 ${blocks.map(script).join("\n")}
-</head><body><div id="root"></div></body></html>`;
+</head><body>${bodyHtml(route)}</body></html>`;
 }
+
+/** When each source file last changed. The dates differ between files, as real ones do. */
+const changedOn = (file: string) => `2026-0${(file.length % 9) + 1}-15`;
+
+/** The date a sitemap should give a route: the later of the files its copy comes from. */
+function sitemapDate(route: string): string {
+  const page = `src/pages/${LISTED_PAGES[route]}.tsx`;
+  const files = route.startsWith(COPY_PAGES.areaPrefix) ? [COPY_PAGES.areaFile, COPY_PAGES.areaTemplate] : [page, COPY_PAGES.aliases[page], ...(COPY_PAGES.pageData[page] ?? [])];
+  return files.filter(Boolean).map(changedOn).sort().pop() as string;
+}
+
+const sitemapEntry = (route: string) => `<url><loc>${route === "/" ? `${SITE}/` : `${SITE}${route}`}</loc><lastmod>${sitemapDate(route)}</lastmod></url>`;
 
 function goodDist(): Files {
   const files: Files = new Map();
@@ -193,31 +302,120 @@ function goodDist(): Files {
     const path = route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
     files.set(path, pageHtml(route, route === "/seasoning/quiet-grace" ? [product] : []));
   }
-  files.set("sitemap.xml", INDEXABLE_ROUTES.map((route) => `<url><loc>${route === "/" ? `${SITE}/` : `${SITE}${route}`}</loc></url>`).join("\n"));
+  for (const route of UTILITY_ROUTES) files.set(htmlFileOfRoute(route), builtUtilityPage(route));
+  files.set("sitemap.xml", INDEXABLE_ROUTES.map(sitemapEntry).join("\n"));
   files.set("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
   files.set("llms.txt", `Call ${NAP.phones[0]} or ${NAP.email}. See ${SITE}/book\n`);
   files.set("assets/index.js", `const a="${NAP.phones[3]}";const b="mailto:${NAP.email}";const c="${PEARLY_IDS[0]}";`);
+  files.set(MISSING_PAGE.file, notFoundHtml());
   return files;
 }
 
-const appSource = `const QuietGrace = lazy(() => import("./pages/seasonal/QuietGrace"));
-<Route path="/seasoning/quiet-grace" element={<QuietGrace />} />`;
-const pageSource = `<SEO title="Fixture /seasoning/quiet-grace" description="Description of /seasoning/quiet-grace" />
+const ALL_ROUTES = [...INDEXABLE_ROUTES, ...UTILITY_ROUTES];
+const AREA_ROUTES = INDEXABLE_ROUTES.filter((route) => route.startsWith("/areas/"));
+const moduleOf = (file: string) => file.replace(/^src\/pages\//, "").replace(/\.tsx$/, "");
+
+/** Release 1's router: one plain line per page. The harness reads this shape until R2-10. */
+const plainPageRouter = [...FILE_ROUTES]
+  .map(([file, route], index) => `const Page${index} = lazy(() => import("./pages/${moduleOf(file)}"));\n<Route path="${route}" element={<Page${index} />} />`)
+  .join("\n");
+
+/** The router R2-10 must leave. It writes no path and no page, so only the list can place a page. */
+const listRouter = `import { ROUTES } from "./data/routes";
+const pages = import.meta.glob("./pages/**/*.tsx");
+{ROUTES.map(({ path, page }) => (<Route key={path} path={path} element={<LazyPage load={pages[page]} />} />))}`;
+
+const pageOfRoute = new Map([...FILE_ROUTES].map(([file, route]) => [route, moduleOf(file)]));
+const LISTED_PAGES = Object.fromEntries(
+  ALL_ROUTES.filter((route) => !AREA_ROUTES.includes(route)).map((route, index) => [route, pageOfRoute.get(route) ?? `Fixture${index}`])
+);
+const LIST_MANIFEST: RouteManifest = { listed: ALL_ROUTES, areas: AREA_ROUTES, pages: LISTED_PAGES };
+
+const faqSource = `export const faqItems = [${FAQ_ANSWERS.map((answer) => `{ question: "Fixture?", answer: ${JSON.stringify(answer)} }`).join(", ")}];`;
+const pageSource = `<SEO title="/seasoning/quiet-grace" description="Description of /seasoning/quiet-grace" />
 const packageItem = { id: 'fixture-package', name: 'The Fixture Package', price: 399 };`;
 
-function distCtx(files: Files, options: { expectClarity?: string; page?: string; baseline?: RankBaseline } = {}): DistCtx {
+const LCP_RUNS = [3000, 3100, 3200, 3300, 3400];
+const R1_LCP: LcpRoute = { runsMs: LCP_RUNS, medianMs: 3200 };
+const goodLab = (): LcpLab => ({
+  measuredOn: BROWSER.lcp.liveFrom,
+  target: SITE,
+  browser: "fixture",
+  settings: BROWSER.lcp.settings,
+  routes: Object.fromEntries(BROWSER.lcp.routes.map((route) => [route, R1_LCP])),
+});
+const goodField: LcpField = { p75Ms: 3000, samples: 40, from: BROWSER.lcp.liveFrom, to: "2026-11-20", readOn: "2026-11-21" };
+
+/** The good fixture as a browser would have rendered it. */
+function renderBaselineOf(files: Files): RenderBaseline {
+  const routes: RenderBaseline["routes"] = {};
+  for (const route of INDEXABLE_ROUTES) {
+    const html = files.get(htmlFileOfRoute(route)) as string;
+    const text = rawTextOf(html);
+    routes[route] = { finalPath: route, h1: rawHeadingsOf(html)[0], words: textWords(text).length, links: [...new Set(rawLinksOf(html))], text };
+  }
+  for (const route of UTILITY_ROUTES) routes[route] = { finalPath: route, h1: "Utility", words: 1, links: [], text: "Utility" };
+  return { capturedFrom: "fixture", viewport: { width: 1280, height: 900 }, routes, mobileLcp: { lab: goodLab(), field: null, note: "fixture" } };
+}
+
+interface DistOptions {
+  expectClarity?: string;
+  page?: string;
+  baseline?: RankBaseline;
+  /** null means there is no baseline file. */
+  renderBaseline?: RenderBaseline | null;
+  editRenderBaseline?: (baseline: RenderBaseline) => void;
+  /** Source files to replace. undefined means the file does not exist. */
+  sources?: Record<string, string | undefined>;
+  manifest?: RouteManifest;
+  baselineDrift?: string[];
+  privateBans?: string | null;
+  /** Commit dates to use in place of changedOn. undefined means git has none for that file. */
+  lastCommits?: Record<string, string | undefined>;
+  /** A file's text on a past date. By default every file reads as it does now. */
+  sourceOn?: DistCtx["sourceOn"];
+  /** A file's commit days. By default it has the one from lastCommits or changedOn. */
+  commitDates?: DistCtx["commitDates"];
+  shallowClone?: boolean;
+  /** The tracked dates, by route. By default they match the sitemap. null means the file is unreadable. */
+  lastmods?: Record<string, string> | null;
+}
+
+/** The tracked file a sitemap was built from. */
+function lastmodsOf(files: Files): Record<string, string> {
+  const dates = [...sitemapLastmods(files.get("sitemap.xml") ?? "")];
+  return Object.fromEntries(dates.flatMap(([url, date]) => (date ? [[url.slice(SITE.length) || "/", date]] : [])));
+}
+
+const PAGE_TEXT = "<p>Fixture copy.</p>";
+
+function distCtx(files: Files, options: DistOptions = {}): DistCtx {
   const pages: RankBaseline["pages"] = {};
   const good = goodDist();
-  for (const route of RANK_ROUTES) pages[route] = rankEntryFromHtml(good.get(route === "/" ? "index.html" : `${route.slice(1)}/index.html`) as string);
-  const sources: Record<string, string> = {
-    "src/App.tsx": appSource,
+  for (const route of RANK_ROUTES) pages[route] = rankEntryFromHtml(good.get(htmlFileOfRoute(route)) as string);
+  const sources: Record<string, string | undefined> = {
+    "src/App.tsx": listRouter,
     "src/pages/seasonal/QuietGrace.tsx": options.page ?? pageSource,
+    [FAQ_FILES.data]: faqSource,
+    ...options.sources,
   };
+  const renderBaseline = options.renderBaseline === null ? undefined : options.renderBaseline ?? renderBaselineOf(good);
+  if (renderBaseline) options.editRenderBaseline?.(renderBaseline);
+  const lastCommitDate = (path: string) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path));
   return {
     files,
     routes: INDEXABLE_ROUTES,
     baseline: options.baseline ?? { capturedFrom: "fixture", pages },
-    readSource: (path) => sources[path],
+    renderBaseline,
+    baselineDrift: options.baselineDrift,
+    manifest: options.manifest ?? LIST_MANIFEST,
+    privateBans: parsePrivateBans(options.privateBans === null ? undefined : options.privateBans ?? PLACEHOLDER_BANS, "SEO_PRIVATE_BANS is not set"),
+    readSource: (path) => (path in sources ? sources[path] : PAGE_TEXT),
+    lastCommitDate,
+    commitDates: options.commitDates ?? ((path) => [lastCommitDate(path) as string]),
+    sourceOn: options.sourceOn ?? ((path) => (path in sources ? sources[path] : PAGE_TEXT)),
+    lastmods: options.lastmods === null ? undefined : options.lastmods ?? lastmodsOf(files),
+    shallowClone: options.shallowClone,
     sourcePages: () => ["src/pages/seasonal/QuietGrace.tsx"],
     expectClarity: options.expectClarity,
   };
@@ -227,24 +425,34 @@ function distCtx(files: Files, options: { expectClarity?: string; page?: string;
 // Case tables
 // ---------------------------------------------------------------------------
 
+/** A substring of a finding's message, or a regex for it. */
+type Reason = string | RegExp;
+
 interface Case {
   rule: string;
   name: string;
   run: () => Finding[];
   expect: "pass" | "fail";
+  /** A finding must say this, so a failing case cannot pass because of some other problem. */
+  reason?: Reason;
   /** Text that must never appear in the output for this case. */
   hidden?: string;
 }
+
+/** Use in place of "fail" to say why the case must fail. */
+const fails = (reason: Reason) => ({ reason });
+type Expect = Case["expect"] | ReturnType<typeof fails>;
+const expected = (expect: Expect): Pick<Case, "expect" | "reason"> => (typeof expect === "string" ? { expect } : { expect: "fail", reason: expect.reason });
 
 const cases: Case[] = [];
 
 const editFile = (files: Files, path: string, text: string) => files.set(path, (files.get(path) ?? "") + text);
 
-function sourceCase(rule: string, name: string, expect: Case["expect"], edit: (files: Files) => void, options: SourceOptions = {}, hidden?: string) {
+function sourceCase(rule: string, name: string, expect: Expect, edit: (files: Files) => void, options: SourceOptions = {}, hidden?: string) {
   cases.push({
     rule,
     name,
-    expect,
+    ...expected(expect),
     hidden,
     run: () => {
       const files = goodSource();
@@ -254,11 +462,12 @@ function sourceCase(rule: string, name: string, expect: Case["expect"], edit: (f
   });
 }
 
-function distCase(rule: string, name: string, expect: Case["expect"], edit: (files: Files) => void, options: Parameters<typeof distCtx>[1] = {}) {
+function distCase(rule: string, name: string, expect: Expect, edit: (files: Files) => void, options: DistOptions = {}, hidden?: string) {
   cases.push({
     rule,
     name,
-    expect,
+    ...expected(expect),
+    hidden,
     run: () => {
       const files = goodDist();
       edit(files);
@@ -300,7 +509,7 @@ const banExamples: Record<string, string[]> = {
   "BAN-21": ["magazine-perfect", "perfection isn't sustainable", "hidden keys", "studio/1BR"],
 };
 for (const [rule, examples] of Object.entries(banExamples)) {
-  examples.forEach((example) => sourceCase(rule, `bans "${example.replace(/\s+/g, " ")}"`, "fail", (files) => editFile(files, HOME, `<p>${example}</p>\n`)));
+  examples.forEach((example) => sourceCase(rule, `bans "${example.replace(/\s+/g, " ")}"`, fails("banned text"), (files) => editFile(files, HOME, `<p>${example}</p>\n`)));
 }
 
 sourceCase("BAN-01", "bans the word on another page", "fail", (files) => editFile(files, HOME, "<p>biohazard</p>\n"));
@@ -342,7 +551,7 @@ sourceCase("BAN-25", "bans the old preorder availability on a winter page", "fai
 sourceCase("BAN-25", "bans a cart button on a fall page", "fail", (files) => editFile(files, "src/pages/seasonal/AbundantHarmony.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
 sourceCase("BAN-25", "bans a 2026 consultation button on the fall hub", "fail", (files) => editFile(files, "src/pages/seasonal/FallPumpkins.tsx", "<a>Request a Private Consultation</a>\n"));
 sourceCase("BAN-25", "bans the old preorder availability on a fall page", "fail", (files) => editFile(files, "src/pages/seasonal/MindfulMerchant.tsx", '<p>{"https://schema.org/PreOrder"}</p>\n'));
-sourceCase("BAN-25", "bans the 2026 delivery window on a fall page", "fail", (files) => editFile(files, "src/pages/seasonal/QuietGrace.tsx", "<p>September 25 - October 10</p>\n"));
+sourceCase("BAN-25", "bans the 2026 delivery window on a fall page", fails("September 25"), (files) => editFile(files, "src/pages/seasonal/QuietGrace.tsx", "<p>September 25 - October 10</p>\n"));
 sourceCase("BAN-25", "bans the 2026 delivery badge on the fall hub", "fail", (files) => editFile(files, "src/pages/seasonal/FallPumpkins.tsx", "<p>Deliveries: Last week of September</p>\n"));
 sourceCase("BAN-25", "leaves a cart button on a spring page", "pass", (files) => editFile(files, "src/pages/seasonal/FreshStart.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
 sourceCase("BAN-25", "leaves a cart button on a summer page", "pass", (files) => editFile(files, "src/pages/seasonal/SummerStorefront.tsx", "<button onClick={() => addToCart(item)}>Add</button>\n"));
@@ -363,6 +572,8 @@ sourceCase("S-REQ", "reports headings out of order", "fail", (files) => {
 });
 sourceCase("S-REQ", "reports a fall card that passes only on the winter card's closed line", "fail", (files) => files.set("src/pages/Seasoning.tsx", "<h3>Autumn Warmth</h3>\n<h3>Winter Elegance</h3>\n<p>2026 season closed. 2027 waitlist open.</p>\n"));
 sourceCase("S-REQ", "reports the fall hub missing its closed line in llms.txt", "fail", (files) => replaceIn(files, "public/llms.txt", "seasoning/fall-pumpkins): ", "seasoning/fall-pumpkins "));
+sourceCase("S-REQ", "reports a closed package with no OutOfStock", fails('missing "https://schema.org/OutOfStock"'), (files) => replaceIn(files, "src/pages/seasonal/QuietGrace.tsx", "https://schema.org/OutOfStock", "https://schema.org/PreOrder"));
+sourceCase("S-REQ", "reports /contact with no waitlist option", fails('missing "value="seasonal-2027-waitlist""'), (files) => replaceIn(files, "src/pages/Contact.tsx", 'value="seasonal-2027-waitlist"', 'value="other"'));
 sourceCase("S-REQ", "normalises JSX whitespace", "pass", (files) => replaceIn(files, HOME, STAFF_LINE, "Every team member is background-checked\n      and vetted.{\" \"}\n      WorkSafeBC registered."));
 sourceCase("S-REQ", "reads through inline tags", "pass", (files) => replaceIn(files, HOME, STAFF_LINE, "<strong>Every team member</strong> is background-checked and vetted. WorkSafeBC registered."));
 sourceCase("S-REQ", "ignores files out of scope", "pass", (files) => replaceIn(files, HOME, STAFF_LINE, "Fixture."), { scope: ["src/pages/About.tsx"] });
@@ -376,11 +587,11 @@ sourceCase("S-CONSULT", "reads across JSX lines and inline tags", "pass", (files
 });
 
 sourceCase("S-FAQ", "reports counts that do not sum to the items", "fail", (files) => editFile(files, FAQ_FILES.data, '{ question: "One more?" },\n'));
-sourceCase("S-FAQ", "reports a section count", "fail", (files) => {
+sourceCase("S-FAQ", "reports a section count", fails("\"Pricing & Scheduling\" has count 4, expected 5"), (files) => {
   replaceIn(files, FAQ_FILES.page, '"Pricing & Scheduling", count: 5', '"Pricing & Scheduling", count: 4');
   replaceIn(files, FAQ_FILES.page, '"Products & Safety", count: 5', '"Products & Safety", count: 6');
 });
-sourceCase("S-FAQ", "reports a section that starts in the wrong place", "fail", (files) => replaceIn(files, FAQ_FILES.data, FAQ_SECTIONS[3].first, "Fixture first?"));
+sourceCase("S-FAQ", "reports a section that starts in the wrong place", fails("starts with \"Fixture first?\""), (files) => replaceIn(files, FAQ_FILES.data, FAQ_SECTIONS[3].first, "Fixture first?"));
 sourceCase("S-FAQ", "reports a new item out of place", "fail", (files) => replaceIn(files, FAQ_FILES.data, "What are your hours?", "Fixture hours?"));
 
 sourceCase("S-NAP", "reports the retired number", "fail", (files) => editFile(files, HOME, "<p>778-404-7357</p>\n"));
@@ -420,15 +631,17 @@ sourceCase("S-PRICES", "reports an item missing from the catalogue", "fail", (fi
 const FORM_PAGE = FORM_FILES.pages[1].file;
 const OTHER_FORM_PAGE = FORM_FILES.pages[2].file;
 sourceCase("S-FORMS", "reports a page field the function drops", "fail", (files) => replaceIn(files, FORM_PAGE, 'phone: ""', 'phone: "", budget: ""'));
-sourceCase("S-FORMS", "reports a function field no page sends", "fail", (files) => replaceIn(files, FORM_FILES.handler, '["phone", "Phone"],', '["phone", "Phone"],\n      ["budget", "Budget"],'));
+sourceCase("S-FORMS", "reports a function field no page sends", fails("field list has budget, which the page does not send"), (files) => replaceIn(files, FORM_FILES.handler, '["phone", "Phone"],', '["phone", "Phone"],\n      ["budget", "Budget"],'));
 sourceCase("S-FORMS", "reports a form missing from the function", "fail", (files) => replaceIn(files, FORM_FILES.handler, "careers: {", "jobs: {"));
-sourceCase("S-FORMS", "reports a field list it cannot read", "fail", (files) => replaceIn(files, FORM_FILES.handler, "fields: [", "items: ["));
+sourceCase("S-FORMS", "reports a field list it cannot read", fails("has no field list"), (files) => replaceIn(files, FORM_FILES.handler, "fields: [", "items: ["));
 sourceCase("S-FORMS", "reports a page posting another form", "fail", (files) => replaceIn(files, FORM_PAGE, 'sendForm("booking"', 'sendForm("contact"'));
 sourceCase("S-FORMS", "reports a page with no form state", "fail", (files) => replaceIn(files, FORM_PAGE, "useState({", "useReducer({"));
 sourceCase("S-FORMS", "reports an option with no label", "fail", (files) => replaceIn(files, FORM_PAGE, 'value="fixture-option"', 'value="other-option"'));
 sourceCase("S-FORMS", "reports a label that differs from the page", "fail", (files) => replaceIn(files, FORM_FILES.handler, '"Fixture Option"', '"Other Option"'));
 sourceCase("S-FORMS", "reports a missing function", "fail", (files) => files.delete(FORM_FILES.handler));
 sourceCase("S-FORMS", "reports a missing page", "fail", (files) => files.delete(FORM_PAGE));
+sourceCase("S-FORMS", "reports a page that trusts any 2xx", "fail", (files) => replaceIn(files, FORM_PAGE, "!(await formSent(response))", "!response.ok"));
+sourceCase("S-FORMS", "reports a page that leaves fields open while sending", "fail", (files) => replaceIn(files, FORM_PAGE, "<fieldset disabled={isSubmitting}>", "<fieldset>"));
 sourceCase("S-FORMS", "checks only the pages in scope", "pass", (files) => replaceIn(files, OTHER_FORM_PAGE, 'phone: ""', 'phone: "", budget: ""'), { scope: [FORM_PAGE] });
 
 const HIDDEN_TERM = "zzplaceholder-term";
@@ -470,7 +683,7 @@ distCase("D-DUP", "reports two breadcrumbs", "fail", (files) => {
   addBlock(files, ABOUT_HTML, { "@type": "BreadcrumbList", itemListElement: [1] });
   addBlock(files, ABOUT_HTML, { "@type": "BreadcrumbList", itemListElement: [2] });
 });
-distCase("D-DUP", "reports two nodes for one @id", "fail", (files) => addBlock(files, ABOUT_HTML, { "@type": "Organization", "@id": ORG.id, name: "x" }));
+distCase("D-DUP", "reports two nodes for one @id", fails("2 Organization or LocalBusiness nodes for"), (files) => addBlock(files, ABOUT_HTML, { "@type": "Organization", "@id": ORG.id, name: "x" }));
 distCase("D-DUP", "reports two Services with one name", "fail", (files) => {
   addBlock(files, ABOUT_HTML, { "@type": "Service", name: "One", url: "a" });
   addBlock(files, ABOUT_HTML, { "@type": "Service", name: "One", url: "b" });
@@ -486,10 +699,10 @@ distCase("D-DUP", "allows many Products with different names", "pass", (files) =
 distCase("D-HEAD", "reports a tag with no marker", "fail", (files) => replaceIn(files, ABOUT_HTML, `<link rel="canonical" href="${SITE}/about" ${rh} />`, `<link rel="canonical" href="${SITE}/about" />`));
 distCase("D-HEAD", "reads a marker after a > in a quoted value", "pass", (files) => replaceIn(files, ABOUT_HTML, 'content="Description of /about"', 'content="Before > after"'));
 distCase("D-HEAD", "reports a JSON-LD block with no marker", "fail", (files) => replaceIn(files, ABOUT_HTML, `<script type="application/ld+json" ${rh}>`, '<script type="application/ld+json">'));
-distCase("D-ORG", "reports a sameAs short link", "fail", (files) => editAllOrgs(files, (node) => (node.sameAs = [ORG.instagram, "https://share.google/abc"])));
+distCase("D-ORG", "reports a sameAs short link", fails("share.google appears in JSON-LD"), (files) => editAllOrgs(files, (node) => (node.sameAs = [ORG.instagram, "https://share.google/abc"])));
 distCase("D-ORG", "reports a sibling site in sameAs", "fail", (files) => editAllOrgs(files, (node) => (node.sameAs = [ORG.instagram, "https://www.pearlys.ca/"])));
 distCase("D-ORG", "reports a missing key", "fail", (files) => editAllOrgs(files, (node) => delete node.openingHours));
-distCase("D-ORG", "reports the area list", "fail", (files) => editAllOrgs(files, (node) => (node.areaServed = [{ name: "Greater Victoria, BC" }])));
+distCase("D-ORG", "reports the area list", fails("areaServed has 1 entries"), (files) => editAllOrgs(files, (node) => (node.areaServed = [{ name: "Greater Victoria, BC" }])));
 distCase("D-ORG", "reports a node that differs between pages", "fail", (files) => editOrg(files, ABOUT_HTML, (node) => (node.name = "Other")));
 distCase("D-ORG", "reports a node missing from a page", "fail", (files) => files.set(ABOUT_HTML, "<html><head></head></html>"));
 distCase("D-ORG", "reports hasMap that is not Maps", "fail", (files) => editAllOrgs(files, (node) => (node.hasMap = "https://example.com/")));
@@ -504,16 +717,16 @@ distCase("D-PARENT", "reports a missing subOrganization", "fail", (files) => rep
 distCase("D-NAP", "reports the retired number in HTML", "fail", (files) => replaceIn(files, ABOUT_HTML, "</head>", "<!-- 778-404-7357 --></head>"));
 distCase("D-NAP", "reports another email in llms.txt", "fail", (files) => editFile(files, "llms.txt", "info@wabisabiservices.ca\n"));
 distCase("D-NAP", "reports the retired number in JS", "fail", (files) => editFile(files, "assets/index.js", 'const d="(778) 404-7357";'));
-distCase("D-NAP", "reports a tel: value in JS", "fail", (files) => editFile(files, "assets/index.js", 'const d="tel:+17784047357";'));
+distCase("D-NAP", "reports a tel: value in JS", fails("tel: value not allowed"), (files) => editFile(files, "assets/index.js", 'const d="tel:+17784047357";'));
 distCase("D-NAP", "ignores a bare tel: scheme in library code", "pass", (files) => editFile(files, "assets/index.js", 'const d=/^(?:tel:|mailto:)/;const e="tel:";'));
 distCase("D-PEARLY", "reports the domain in an href", "fail", (files) => replaceIn(files, ABOUT_HTML, "</head>", '<a href="https://www.pearlys.ca/">x</a></head>'));
 distCase("D-PEARLY", "reports the domain in sameAs", "fail", (files) => editOrg(files, ABOUT_HTML, (node) => (node.sameAs = ["https://www.pearlys.ca/"])));
 distCase("D-PEARLY", "reports another @id", "fail", (files) => addBlock(files, ABOUT_HTML, { "@type": "Thing", "@id": "https://www.pearlys.ca/#other" }));
 distCase("D-PEARLY", "reports a link in JS", "fail", (files) => editFile(files, "assets/index.js", 'const d={href:"https://www.pearlys.ca/#jalene"};'));
 distCase("D-PEARLY", "reports the domain in llms.txt", "fail", (files) => editFile(files, "llms.txt", "https://www.pearlys.ca\n"));
-distCase("D-HOST", "reports www", "fail", (files) => replaceIn(files, ABOUT_HTML, `property="og:url" content="${SITE}/about"`, 'property="og:url" content="https://www.wabisabiservices.ca/about"'));
+distCase("D-HOST", "reports www", fails("uses https://www.wabisabiservices.ca"), (files) => replaceIn(files, ABOUT_HTML, `property="og:url" content="${SITE}/about"`, 'property="og:url" content="https://www.wabisabiservices.ca/about"'));
 distCase("D-HOST", "reports http", "fail", (files) => replaceIn(files, "sitemap.xml", `${SITE}/about`, "http://wabisabiservices.ca/about"));
-distCase("D-HOST", "reports the robots Sitemap line", "fail", (files) => replaceIn(files, "robots.txt", SITE, "https://www.wabisabiservices.ca"));
+distCase("D-HOST", "reports the robots Sitemap line", fails("Sitemap line is"), (files) => replaceIn(files, "robots.txt", SITE, "https://www.wabisabiservices.ca"));
 distCase("D-HOST", "ignores third-party hosts", "pass", (files) => editFile(files, "llms.txt", "http://example.com https://www.instagram.com/x\n"));
 distCase("D-TODO", "reports TODO in HTML", "fail", (files) => replaceIn(files, ABOUT_HTML, "</head>", "<!-- TODO --></head>"));
 distCase("D-TODO", "reports TODO in llms.txt", "fail", (files) => editFile(files, "llms.txt", "TODO\n"));
@@ -522,21 +735,418 @@ distCase("D-TODO", "allows a library TODO in JS", "pass", (files) => editFile(fi
 distCase("D-ROUTES", "reports a missing route", "fail", (files) => files.delete("privacy/index.html"));
 distCase("D-ROUTES", "reports an unexpected route", "fail", (files) => files.set("extra/index.html", pageHtml("/extra")));
 distCase("D-ROUTES", "reports a canonical on another route", "fail", (files) => replaceIn(files, ABOUT_HTML, `<link rel="canonical" href="${SITE}/about"`, `<link rel="canonical" href="${SITE}/"`));
-distCase("D-ROUTES", "reports a shared title", "fail", (files) => replaceIn(files, ABOUT_HTML, "<title>Fixture /about", "<title>Fixture /book"));
+distCase("D-ROUTES", "reports a shared title", "fail", (files) => replaceIn(files, ABOUT_HTML, "<title>/about", "<title>/book"));
 distCase("D-ROUTES", "reports a shared description", "fail", (files) => replaceIn(files, ABOUT_HTML, 'content="Description of /about"', 'content="Description of /book"'));
-distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", `<url><loc>${SITE}/privacy</loc></url>`, ""));
-distCase("D-SITEMAP", "reports a utility route", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
-distCase("D-PARITY", "reports a title that differs", "fail", () => undefined, { page: pageSource.replace('title="Fixture', 'title="Other') });
+for (const route of UTILITY_ROUTES) distCase("D-ROUTES", `reports ${route} with no file, as a 404 once the catch-all goes`, fails(`no built HTML for ${route}`), (files) => files.delete(htmlFileOfRoute(route)));
+distCase("D-ROUTES", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
+distCase("D-ROUTES", "reports /checkout built with its form", fails("must build in its empty-cart state"), (files) => files.set(htmlFileOfRoute(NO_H1_ROUTE), pageHtml(NO_H1_ROUTE).replace("</head>", `<meta name="robots" content="noindex" ${rh} /></head>`)));
+distCase("D-SITEMAP", "reports a missing URL", "fail", (files) => replaceIn(files, "sitemap.xml", sitemapEntry("/privacy"), ""));
+for (const route of UTILITY_ROUTES) distCase("D-SITEMAP", `reports ${route}, which is noindex`, fails(`lists a noindex page: ${SITE}${route}`), (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}${route}</loc></url>`));
+distCase("D-SITEMAP", "reports an indexable route marked noindex by mistake", fails(`lists a noindex page: ${SITE}/about`), (files) => files.set(ABOUT_HTML, builtUtilityPage("/about")));
+const withLastmods = (files: Files, dateOf: (index: number) => string) => {
+  let index = 0;
+  files.set("sitemap.xml", (files.get("sitemap.xml") as string).replace(/<lastmod>[^<]*<\/lastmod>/g, () => `<lastmod>${dateOf(index++)}</lastmod>`));
+};
+const ABOUT_LASTMOD = `<lastmod>${sitemapDate("/about")}</lastmod>`;
+const withAboutLastmod = (files: Files, text: string) => replaceIn(files, "sitemap.xml", `${SITE}/about</loc>${ABOUT_LASTMOD}`, `${SITE}/about</loc>${text}`);
+const OLD_DATE = "2025-11-22";
+const OLD_LASTMOD = `<lastmod>${OLD_DATE}</lastmod>`;
+const ABOUT_PAGE = "src/pages/About.tsx";
+const COPY_CHANGE = fails("is older than a copy change in");
+const REWORDED: DistOptions = { sourceOn: () => "<p>Older copy.</p>" };
+const onlyFile = (file: string, text: string | undefined): DistOptions["sourceOn"] => (path) => (path === file ? text : PAGE_TEXT);
+const reworded = (file: string): DistOptions => ({ lastCommits: { [file]: "2026-10-01" }, sourceOn: onlyFile(file, "<p>Older copy.</p>") });
+distCase("D-SITEMAP", "reports one page dated before a copy change", fails(`/about: lastmod ${OLD_DATE} is older than a copy change in ${ABOUT_PAGE}`), (files) => withAboutLastmod(files, OLD_LASTMOD), REWORDED);
+distCase("D-SITEMAP", "reports stale dates that differ, as in Release 1", COPY_CHANGE, (files) => withLastmods(files, (index) => (index % 2 === 0 ? OLD_DATE : "2025-12-01")), REWORDED);
+distCase("D-SITEMAP", "reports a date before its source existed", fails(`/about: lastmod ${OLD_DATE} is before ${ABOUT_PAGE} existed`), (files) => withAboutLastmod(files, OLD_LASTMOD), { sourceOn: () => undefined });
+distCase("D-SITEMAP", "allows an older date when later commits changed no copy", "pass", (files) => withAboutLastmod(files, OLD_LASTMOD));
+distCase("D-SITEMAP", "allows an older date when later commits changed only a class name", "pass", (files) => withAboutLastmod(files, OLD_LASTMOD), {
+  sources: { [ABOUT_PAGE]: '<p className="one">Fixture.</p>' },
+  sourceOn: () => '<p className="two">Fixture.</p>',
+});
+distCase("D-SITEMAP", "counts a price as copy", COPY_CHANGE, (files) => withAboutLastmod(files, OLD_LASTMOD), { sources: { [ABOUT_PAGE]: "const item = { price: 399 };" }, sourceOn: () => "const item = { price: 499 };" });
+distCase("D-SITEMAP", "reports one lastmod on every URL", fails(/^all \d+ URLs share the lastmod 2026-10-31/), (files) => withLastmods(files, () => "2026-10-31"));
+distCase("D-SITEMAP", "reports one lastmod with a time on every URL", fails(/^all \d+ URLs share the lastmod 2026-10-31/), (files) => withLastmods(files, (index) => `2026-10-31T00:00:${String(index % 60).padStart(2, "0")}Z`));
+const ONE_LAST_COMMIT = (date: string) => Object.fromEntries(INDEXABLE_ROUTES.flatMap((route) => [`src/pages/${LISTED_PAGES[route]}.tsx`, COPY_PAGES.areaFile, COPY_PAGES.areaTemplate, FAQ_FILES.data].map((file) => [file, date])));
+distCase("D-SITEMAP", "reports a build date on every URL when the pages last changed together", fails(/^all \d+ URLs share the lastmod 2026-10-31/), (files) => withLastmods(files, () => "2026-10-31"), { lastCommits: ONE_LAST_COMMIT("2026-10-01") });
+distCase("D-SITEMAP", "allows a page dated after its source files, because data can change a page", "pass", (files) => withAboutLastmod(files, "<lastmod>2026-10-31</lastmod>"));
+distCase("D-SITEMAP", "reports a lastmod later than today", fails("/about: lastmod 2999-01-01 is later than today"), (files) => withAboutLastmod(files, "<lastmod>2999-01-01</lastmod>"));
+distCase("D-SITEMAP", "reports a lastmod that is not a date", fails("/about: lastmod soon is not a date"), (files) => withAboutLastmod(files, "<lastmod>soon</lastmod>"));
+distCase("D-SITEMAP", "reports a URL with no lastmod", fails("/about has no lastmod"), (files) => withAboutLastmod(files, ""));
+distCase("D-SITEMAP", "reads a date written with a time", "pass", (files) => withAboutLastmod(files, `<lastmod>${sitemapDate("/about")}T08:00:00Z</lastmod>`));
+distCase("D-SITEMAP", "allows every URL on one date when each page really changed then", "pass", (files) => withLastmods(files, () => "2026-10-31"), { lastCommits: ONE_LAST_COMMIT("2026-10-31") });
+distCase("D-SITEMAP", "dates a page from its data file when that changed later", fails(`/faq: lastmod ${sitemapDate("/faq")} is older than a copy change in ${FAQ_FILES.data}`), () => undefined, reworded(FAQ_FILES.data));
+const areaData = (sidney: string, oakBay: string) => `export const neighborhoods = {\n  sidney: {\n    intro: "${sidney}",\n  },\n\n  "oak-bay": {\n    intro: "${oakBay}",\n  },\n};\n`;
+const SIDNEY_REWORDED: DistOptions = { lastCommits: { [COPY_PAGES.areaFile]: "2026-10-01" }, sources: { [COPY_PAGES.areaFile]: areaData("New Sidney copy.", "Oak Bay copy.") }, sourceOn: onlyFile(COPY_PAGES.areaFile, areaData("Old Sidney copy.", "Oak Bay copy.")) };
+distCase("D-SITEMAP", "dates an area page from its own entry in the shared data", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is older than a copy change in ${COPY_PAGES.areaFile}`), () => undefined, SIDNEY_REWORDED);
+cases.push({ rule: "D-SITEMAP", name: "leaves other areas' dates alone when one area's copy changes", expect: "pass", run: () => DIST_CHECKS["D-SITEMAP"](distCtx(goodDist(), SIDNEY_REWORDED)).filter((finding) => finding.message.startsWith("/areas/oak-bay")) });
+distCase("D-SITEMAP", "reports an area with no entry on its date", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is before ${COPY_PAGES.areaFile} existed`), () => undefined, { ...SIDNEY_REWORDED, sourceOn: onlyFile(COPY_PAGES.areaFile, 'export const neighborhoods = {\n  "oak-bay": {\n    intro: "Oak Bay copy.",\n  },\n};\n') });
+distCase("D-SITEMAP", "dates every area page from the shared template", fails(`/areas/sidney: lastmod ${sitemapDate("/areas/sidney")} is older than a copy change in ${COPY_PAGES.areaTemplate}`), () => undefined, reworded(COPY_PAGES.areaTemplate));
+const REVIEWS_DATA = "src/data/googleReviews.ts";
+distCase("D-SITEMAP", "dates a page from the data it shows", fails(`/: lastmod ${sitemapDate("/")} is older than a copy change in ${REVIEWS_DATA}`), () => undefined, {
+  lastCommits: { [REVIEWS_DATA]: "2026-10-01" },
+  sources: { [REVIEWS_DATA]: 'export const reviews = ["New review."];' },
+  sourceOn: onlyFile(REVIEWS_DATA, 'export const reviews = ["Old review."];'),
+});
+const trackedDates = (edit: (dates: Record<string, string>) => void = () => undefined) => {
+  const dates = lastmodsOf(goodDist());
+  edit(dates);
+  return dates;
+};
+const LAST_ROUTE = INDEXABLE_ROUTES[INDEXABLE_ROUTES.length - 1];
+const LAST_LOC = `${SITE}${LAST_ROUTE}`;
+const stampedExceptLast = (files: Files) => withLastmods(files, (index) => (index < INDEXABLE_ROUTES.length - 1 ? "2026-10-31" : sitemapDate(LAST_ROUTE)));
+distCase("D-SITEMAP", "reports a date that differs from the tracked file", fails(`${SITE}/about: lastmod 2026-10-31 differs from the tracked date ${sitemapDate("/about")}`), (files) => withAboutLastmod(files, "<lastmod>2026-10-31</lastmod>"), { lastmods: trackedDates() });
+distCase("D-SITEMAP", "reports a build date on most URLs, which the shared-date check allows", fails(`${SITE}/about: lastmod 2026-10-31 differs from the tracked date`), stampedExceptLast, { lastmods: trackedDates() });
+distCase("D-SITEMAP", "allows most URLs on one date when the tracked file holds it", "pass", stampedExceptLast);
+distCase("D-SITEMAP", "reports a route with no tracked date", fails(`${SITE}/about has no tracked date`), () => undefined, { lastmods: trackedDates((dates) => delete dates["/about"]) });
+distCase("D-SITEMAP", "reports a tracked date with no URL", fails(`${LAST_LOC}x has a tracked date but is not in the sitemap`), () => undefined, { lastmods: trackedDates((dates) => (dates[`${LAST_ROUTE}x`] = "2026-01-15")) });
+distCase("D-SITEMAP", "reports a tracked file it cannot read", fails("src/data/lastmod.json could not be read"), () => undefined, { lastmods: null });
+const dateProblem = (route: string, actual: string, expectedDate: string): Finding[] => (actual === expectedDate ? [] : [{ rule: "D-SITEMAP", message: `${route} dated ${actual}, expected ${expectedDate}` }]);
+/** Every area has an entry, as the real data does, so --write-lastmod can read each one. */
+const ALL_AREAS = `export const neighborhoods = {\n${AREA_ROUTES.map((route) => `  "${route.slice(COPY_PAGES.areaPrefix.length)}": {\n    intro: "Area copy.",\n  },`).join("\n")}\n};\n`;
+const datedCtx = (options: DistOptions = {}) => distCtx(goodDist(), { ...options, sources: { [COPY_PAGES.areaFile]: ALL_AREAS, ...options.sources } });
+/** The route dates for an /about page with four commits, whose copy took its current form on changedFrom. */
+const savedDates = (changedFrom: string) => {
+  const ctx = datedCtx({ commitDates: (path) => (path === ABOUT_PAGE ? ["2026-10-31", "2026-08-15", "2026-03-15", "2026-01-15"] : ["2026-01-15"]) });
+  const current = ctx.sourceOn;
+  ctx.sourceOn = (path, date) => (path === ABOUT_PAGE && date < changedFrom ? "<p>Older copy.</p>" : current(path, date));
+  return lastCopyDates(ctx);
+};
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod finds the last copy change, not the last commit", expect: "pass", run: () => dateProblem("/about", savedDates("2026-03-15")["/about"], "2026-03-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes a page's first commit when its copy never changed", expect: "pass", run: () => dateProblem("/about", savedDates("2000-01-01")["/about"], "2026-01-15") });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod takes the latest of a page's sources", expect: "pass", run: () => dateProblem("/faq", lastCopyDates(datedCtx({ commitDates: (path) => [path === FAQ_FILES.data ? "2026-05-15" : "2026-02-15"] }))["/faq"], "2026-05-15") });
+const refused = (run: () => unknown): Finding[] => {
+  try {
+    run();
+  } catch (error) {
+    if (error instanceof UsageError) return [{ rule: "D-SITEMAP", message: error.message }];
+  }
+  return [];
+};
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses copy that is not committed", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => savedDates("2999-01-01")) });
+cases.push({ rule: "D-SITEMAP", name: "--write-lastmod refuses a source it cannot read", expect: "fail", reason: "/about: its copy matches no commit", run: () => refused(() => lastCopyDates(datedCtx({ sources: { [ABOUT_PAGE]: undefined } }))) });
+distCase("D-SITEMAP", "reports a source file git has no date for", fails(`git has no commit date for ${ABOUT_PAGE}`), () => undefined, { lastCommits: { [ABOUT_PAGE]: undefined } });
+distCase("D-SITEMAP", "reports a route with no source file", fails("no source file found, so its lastmod cannot be checked"), () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
+distCase("D-SITEMAP", "fails in a shallow clone, whose git dates stop at its edge", fails("this clone is shallow"), () => undefined, { shallowClone: true });
+distCase("D-PARITY", "reports a title that differs", "fail", () => undefined, { page: pageSource.replace('title="/', 'title="Other/') });
 distCase("D-PARITY", "reports a description that differs", "fail", () => undefined, { page: pageSource.replace('description="Description', 'description="Other') });
 distCase("D-PARITY", "reports availability that differs from the built Product", "fail", () => undefined, { page: `${pageSource}\navailability: "https://schema.org/OutOfStock"` });
 distCase("D-PARITY", "reports a package price that differs", "fail", () => undefined, { page: pageSource.replace("price: 399", "price: 499") });
-distCase("D-RANK", "reports a changed title", "fail", (files) => replaceIn(files, HOME_HTML, "<title>Fixture", "<title>Changed"));
+distCase("D-RANK", "reports a changed title", "fail", (files) => replaceIn(files, HOME_HTML, "<title>/", "<title>Changed/"));
 distCase("D-RANK", "reports a changed description", "fail", (files) => replaceIn(files, "services/cleaning/index.html", 'content="Description of', 'content="Changed'));
 distCase("D-RANK", "reports a changed canonical", "fail", (files) => replaceIn(files, "areas/oak-bay/index.html", `<link rel="canonical" href="${SITE}/areas/oak-bay"`, `<link rel="canonical" href="${SITE}/areas"`));
-distCase("D-RANK", "ignores other pages", "pass", (files) => replaceIn(files, ABOUT_HTML, "<title>Fixture", "<title>Changed"));
+distCase("D-RANK", "ignores other pages", "pass", (files) => replaceIn(files, ABOUT_HTML, "<title>/", "<title>Changed/"));
 distCase("D-CLARITY", "reports the real ID in an unset build", "fail", (files) => editFile(files, "assets/index.js", `const id="${CLARITY_PROJECT_ID}";`));
 distCase("D-CLARITY", "reports a missing expected ID", "fail", () => undefined, { expectClarity: "fixtureclarityid" });
 distCase("D-CLARITY", "finds an expected ID", "pass", (files) => editFile(files, "assets/index.js", 'const id="fixtureclarityid";'), { expectClarity: "fixtureclarityid" });
+
+const AREA_HTML = "areas/sidney/index.html";
+const FAQ_HTML = "faq/index.html";
+const TERMS_HTML = "terms-of-service/index.html";
+const BLOG_HTML = "blog/march-2026/index.html";
+const addToBody = (files: Files, path: string, html: string) => replaceIn(files, path, "</main>", `${html}</main>`);
+const setBody = (files: Files, path: string, body: string) => {
+  files.set(path, (files.get(path) as string).replace(/<body>[\s\S]*<\/body>/, () => `<body>${body}</body>`));
+};
+/** What every route looked like in Release 1. */
+const headOnly = (files: Files) => {
+  for (const path of files.keys()) if (path.endsWith("index.html")) setBody(files, path, '<div id="root"></div>');
+};
+const dropFiller = (files: Files, path: string, count: number) => replaceIn(files, path, `<p>${filler(count)} `, "<p>");
+
+distCase("D-RAW", "reports head-only pages, as in Release 1", fails("no H1 in raw HTML"), headOnly);
+distCase("D-RAW", "reports a page with no H1", "fail", (files) => replaceIn(files, AREA_HTML, '<h1 class="font-serif">', '<h2 class="font-serif">'));
+distCase("D-RAW", "reports an H1 that differs from the rendered one", "fail", (files) => replaceIn(files, AREA_HTML, "Heading <span>", "Other <span>"));
+distCase("D-RAW", "allows 95 percent of the rendered words", "pass", (files) => dropFiller(files, AREA_HTML, 8));
+distCase("D-RAW", "reports fewer than 95 percent of the rendered words", "fail", (files) => dropFiller(files, AREA_HTML, 9));
+distCase("D-RAW", "reports other words in place of the page's", fails("rendered words are in raw HTML"), (files) => replaceIn(files, AREA_HTML, filler(20), "padding ".repeat(20).trim()));
+/** The H1 and links of a page, with none of its words, so only the word count can fail. */
+const SIDNEY_NO_WORDS = '<div id="root"><nav><a href="/about">About</a><a href="/contact?ref=nav#top">Contact</a></nav><main><h1 class="font-serif">Heading <span>for</span> /areas/sidney</h1></main></div>';
+const RENDERED_WORDS_MISSING = fails("rendered words are in raw HTML");
+const RAW_WORDS_UNSEEN = fails("raw words are on the rendered page");
+distCase("D-RAW", "counts no words from a script in the body", RENDERED_WORDS_MISSING, (files) => setBody(files, AREA_HTML, `${SIDNEY_NO_WORDS}<script>${filler(FILLER_WORDS)}</script>`));
+distCase("D-RAW", "counts no words from the head", RENDERED_WORDS_MISSING, (files) => {
+  setBody(files, AREA_HTML, SIDNEY_NO_WORDS);
+  replaceIn(files, AREA_HTML, "</head>", `<title>${filler(FILLER_WORDS)}</title></head>`);
+});
+const extraWords = (count: number) => `<div>${"extra ".repeat(count)}</div>`;
+const CLOSED_ANSWER = Array.from({ length: 60 }, (_, index) => `closedword${index}`).join(" ");
+const WITH_CLOSED_ANSWER: DistOptions = { sources: { [FAQ_FILES.data]: faqSource.replace("];", `, { question: "Closed?", answer: "${CLOSED_ANSWER}" }];`) } };
+distCase("D-RAW", "reports raw text the rendered page does not show", RAW_WORDS_UNSEEN, (files) => addToBody(files, AREA_HTML, extraWords(500)));
+distCase("D-RAW", "allows raw text hidden at the capture width, up to 5 percent", "pass", (files) => addToBody(files, AREA_HTML, extraWords(9)));
+distCase("D-RAW", "reports raw text hidden past 5 percent", RAW_WORDS_UNSEEN, (files) => addToBody(files, AREA_HTML, extraWords(10)));
+distCase("D-RAW", "allows a closed FAQ answer on /faq", "pass", (files) => addToBody(files, FAQ_HTML, faqAnswer(CLOSED_ANSWER)), WITH_CLOSED_ANSWER);
+distCase("D-RAW", "reports an FAQ answer on a route with no FAQ", RAW_WORDS_UNSEEN, (files) => addToBody(files, AREA_HTML, faqAnswer(CLOSED_ANSWER)), WITH_CLOSED_ANSWER);
+distCase("D-RAW", "reports other hidden text on /faq", RAW_WORDS_UNSEEN, (files) => addToBody(files, FAQ_HTML, faqAnswer(CLOSED_ANSWER)));
+distCase("D-RAW", "reports a rendered link missing from raw HTML", "fail", (files) => {
+  replaceIn(files, AREA_HTML, '<a href="/about">About</a>', "<span>About</span>");
+  replaceIn(files, AREA_HTML, '<a href="/about">Page</a>', "<span>Page</span>");
+});
+distCase("D-RAW", "reports no baseline file", "fail", () => undefined, { renderBaseline: null });
+distCase("D-RAW", "reports an indexable route missing from the baseline", "fail", () => undefined, { editRenderBaseline: (baseline) => delete baseline.routes["/about"] });
+distCase("D-RAW", "reports a utility route missing from the baseline", "fail", () => undefined, { editRenderBaseline: (baseline) => delete baseline.routes["/cart"] });
+distCase("D-RAW", "reports a route with no built HTML", "fail", (files) => files.delete(AREA_HTML));
+const baselineNotes = (baselineDrift: string[]): Finding[] => {
+  const notes: string[] = [];
+  DIST_CHECKS["D-RAW"]({ ...distCtx(goodDist(), { baselineDrift }), note: (message) => notes.push(message) });
+  return notes.map((message) => ({ rule: "D-RAW", message }));
+};
+cases.push({ rule: "D-RAW", name: "warns when pages changed after the baseline", expect: "fail", run: () => baselineNotes(["src/pages/About.tsx"]) });
+cases.push({ rule: "D-RAW", name: "stays quiet when no page changed", expect: "pass", run: () => baselineNotes([]) });
+
+distCase("D-FAQRAW", "reports head-only pages, as in Release 1", fails("answer not in raw HTML"), headOnly);
+distCase("D-FAQRAW", "reports a missing answer", "fail", (files) => replaceIn(files, FAQ_HTML, faqAnswer(FAQ_ANSWERS[0]), ""));
+distCase("D-FAQRAW", "reports an answer found only in JSON-LD", "fail", (files) => {
+  replaceIn(files, FAQ_HTML, faqAnswer(FAQ_ANSWERS[0]), "");
+  addBlock(files, FAQ_HTML, { "@type": "FAQPage", text: FAQ_ANSWERS[0] });
+});
+distCase("D-FAQRAW", "reports no answers in the data", "fail", () => undefined, { sources: { [FAQ_FILES.data]: "export const faqItems = [];" } });
+distCase("D-FAQRAW", "reports a page that is not built", "fail", (files) => files.delete(FAQ_HTML));
+const withExtraAnswer = (answer: string) => ({ sources: { [FAQ_FILES.data]: faqSource.replace("];", `, { question: "Extra?", answer: ${answer} }];`) } });
+distCase("D-FAQRAW", "reports an answer in a template literal", "fail", () => undefined, withExtraAnswer("`Fixture answer one.`"));
+distCase("D-FAQRAW", "reports an answer joined from pieces", "fail", () => undefined, withExtraAnswer('"Fixture answer one." + " And more."'));
+
+const editLcp = (edit: (lcp: RenderBaseline["mobileLcp"]) => void): DistOptions => ({ editRenderBaseline: (baseline) => edit(baseline.mobileLcp) });
+const lcpNotes = (options: DistOptions): Finding[] => {
+  const notes: string[] = [];
+  DIST_CHECKS["D-LCP"]({ ...distCtx(goodDist(), options), note: (message) => notes.push(message) });
+  return notes.map((message) => ({ rule: "D-LCP", message }));
+};
+const withLab = (fields: Partial<LcpLab>) => editLcp((lcp) => void (lcp.lab = { ...goodLab(), ...fields }));
+const withField = (fields: Partial<LcpField>) => editLcp((lcp) => void (lcp.field = { ...goodField, ...fields }));
+const withRouteLcp = (entry: LcpRoute) => withLab({ routes: { ...goodLab().routes, [BROWSER.lcp.routes[0]]: entry } });
+distCase("D-LCP", "leaves the missing field figure to the owner", "pass", () => undefined, editLcp((lcp) => void (lcp.field = null)));
+cases.push({ rule: "D-LCP", name: "warns while no field figure is saved", expect: "fail", run: () => lcpNotes(editLcp((lcp) => void (lcp.field = null))) });
+cases.push({ rule: "D-LCP", name: "stays quiet once a field figure is saved", expect: "pass", run: () => lcpNotes(withField({})) });
+distCase("D-LCP", "allows a field figure with its samples and dates", "pass", () => undefined, withField({}));
+distCase("D-LCP", "reports R1 not measured", "fail", () => undefined, editLcp((lcp) => void (lcp.lab = null)));
+distCase("D-LCP", "reports no baseline file", "fail", () => undefined, { renderBaseline: null });
+distCase("D-LCP", "reports a figure from before R1 went live", "fail", () => undefined, withLab({ measuredOn: "2026-10-01" }));
+distCase("D-LCP", "reports a date it cannot read", "fail", () => undefined, withLab({ measuredOn: "soon" }));
+distCase("D-LCP", "reports a figure dated later than today", "fail", () => undefined, withLab({ measuredOn: "2999-01-01" }));
+distCase("D-LCP", "reports a figure measured on a preview", "fail", () => undefined, withLab({ target: "https://preview.vercel.app" }));
+distCase("D-LCP", "reports a figure with no target", "fail", () => undefined, withLab({ target: "" }));
+distCase("D-LCP", "reports settings a deployment could not repeat", "fail", () => undefined, withLab({ settings: { ...BROWSER.lcp.settings, cpuSlowdown: 1 } }));
+distCase("D-LCP", "reports a route with no figure", fails("no figure for /"), () => undefined, withLab({ routes: {} }));
+distCase("D-LCP", "reports too few runs", "fail", () => undefined, withRouteLcp({ runsMs: [3000], medianMs: 3000 }));
+distCase("D-LCP", "reports a run of zero", "fail", () => undefined, withRouteLcp({ runsMs: [0, ...LCP_RUNS.slice(1)], medianMs: 3200 }));
+distCase("D-LCP", "reports a median that is not its runs' median", "fail", () => undefined, withRouteLcp({ runsMs: LCP_RUNS, medianMs: 1000 }));
+distCase("D-LCP", "reports a field figure with no sample count", "fail", () => undefined, withField({ samples: 0 }));
+distCase("D-LCP", "reports a field figure with no value", "fail", () => undefined, withField({ p75Ms: 0 }));
+distCase("D-LCP", "reports a field period from before R1", "fail", () => undefined, withField({ from: "2026-10-01" }));
+distCase("D-LCP", "reports a field reading dated before its period ends", "fail", () => undefined, withField({ readOn: "2026-11-01" }));
+distCase("D-LCP", "reports a field date it cannot read", "fail", () => undefined, withField({ to: "soon" }));
+
+distCase("D-NOFALLBACK", "reports head-only pages, as in Release 1", fails("#root is empty"), headOnly);
+distCase("D-NOFALLBACK", "reports the loading fallback", "fail", (files) => setBody(files, ABOUT_HTML, '<div id="root"><div class="min-h-screen" aria-busy="true"></div></div>'));
+distCase("D-NOFALLBACK", "reports a pending Suspense boundary", "fail", (files) => addToBody(files, ABOUT_HTML, '<!--$?--><template id="B:0"></template><!--/$-->'));
+distCase("D-NOFALLBACK", "reports a boundary that failed on the server", "fail", (files) => addToBody(files, ABOUT_HTML, "<!--$!--><div></div><!--/$-->"));
+distCase("D-NOFALLBACK", "allows a finished Suspense boundary", "pass", (files) => addToBody(files, ABOUT_HTML, "<!--$--><div>Done</div><!--/$-->"));
+distCase("D-NOFALLBACK", "checks the 404 page too", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"></div>'));
+
+distCase("D-404", "reports no 404 page, as in Release 1", fails("the 404 page is not in dist"), (files) => files.delete(MISSING_PAGE.file));
+distCase("D-404", "reports no noindex", "fail", (files) => replaceIn(files, MISSING_PAGE.file, `<meta name="robots" content="noindex,follow" ${rh} />`, ""));
+distCase("D-404", "reports a home canonical", "fail", (files) => replaceIn(files, MISSING_PAGE.file, "</head>", `<link rel="canonical" href="${SITE}/" ${rh} /></head>`));
+distCase("D-404", "reports no brand", "fail", (files) => replaceIn(files, MISSING_PAGE.file, `| ${MISSING_PAGE.brand}`, ""));
+distCase("D-404", "reports no H1 without JavaScript", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"><a href="/">Home</a><a href="/services">Services</a></div>'));
+distCase("D-404", "reports no way home without JavaScript", "fail", (files) => setBody(files, MISSING_PAGE.file, '<div id="root"><h1>Not found</h1><a href="/services">Services</a></div>'));
+distCase("D-404", "reports no services link", fails("no link to /services"), (files) => replaceIn(files, MISSING_PAGE.file, '<a href="/services">Services</a>', ""));
+
+const retitle = (files: Files, route: string, title: string) => replaceIn(files, htmlFileOfRoute(route), `${route} | Wabi Sabi Services`, title);
+const describeAs = (files: Files, route: string, text: string) => replaceIn(files, htmlFileOfRoute(route), `Description of ${route}`, text);
+const LONG_TITLE = "T".repeat(AUDIT.titleMax + 1);
+const LONG_DESCRIPTION = "D".repeat(AUDIT.descriptionMax + 1);
+const TITLE_OVER = fails(`title is ${AUDIT.titleMax + 1} characters, over ${AUDIT.titleMax}`);
+const DESCRIPTION_OVER = fails(`description is ${AUDIT.descriptionMax + 1} characters, over ${AUDIT.descriptionMax}`);
+const EXEMPT_TITLE = Object.keys(AUDIT.titleExempt)[0];
+const REVIEWS_ROUTE = Object.keys(AUDIT.wordPending)[0];
+const fewWords = (files: Files, route: string) => replaceIn(files, htmlFileOfRoute(route), filler(FILLER_WORDS), "Few words.");
+/** Points every link to a route somewhere else, on every page but keep. */
+const dropLinks = (files: Files, target: string, keep?: string) => {
+  for (const route of INDEXABLE_ROUTES) {
+    const path = htmlFileOfRoute(route);
+    if (route !== keep) files.set(path, (files.get(path) as string).split(`<a href="${target}">`).join('<a href="/faq">'));
+  }
+};
+distCase("D-AUDIT", "reports two H1s", fails("2 H1 tags"), (files) => addToBody(files, ABOUT_HTML, "<h1>Second</h1>"));
+distCase("D-AUDIT", "reports no H1", fails("0 H1 tags"), (files) => replaceIn(files, ABOUT_HTML, /<h1[\s\S]*?<\/h1>/.exec(files.get(ABOUT_HTML) as string)?.[0] as string, ""));
+distCase("D-AUDIT", "reports an empty second H1", fails("2 H1 tags, 1 with text"), (files) => addToBody(files, ABOUT_HTML, "<h1></h1>"));
+distCase("D-AUDIT", "reports a long title", TITLE_OVER, (files) => retitle(files, "/about", LONG_TITLE));
+distCase("D-AUDIT", "allows a title at the limit", "pass", (files) => retitle(files, "/about", "T".repeat(AUDIT.titleMax)));
+distCase("D-AUDIT", "counts a title after decoding entities", "pass", (files) => retitle(files, "/about", `${"T".repeat(AUDIT.titleMax - 1)}&amp;`));
+distCase("D-AUDIT", "counts a title in code points", "pass", (files) => retitle(files, "/about", "\u{1F33F}".repeat(AUDIT.titleMax)));
+distCase("D-AUDIT", "reports a long description", DESCRIPTION_OVER, (files) => describeAs(files, "/about", LONG_DESCRIPTION));
+distCase("D-AUDIT", "allows a description at the limit", "pass", (files) => describeAs(files, "/about", "D".repeat(AUDIT.descriptionMax)));
+distCase("D-AUDIT", "reports no description", fails("no meta description"), (files) => replaceIn(files, ABOUT_HTML, `<meta name="description" content="Description of /about" ${rh} />`, ""));
+distCase("D-AUDIT", "reports a twitter:title that differs", fails("twitter:title is"), (files) => replaceIn(files, ABOUT_HTML, '<meta name="twitter:title" content="/about |', '<meta name="twitter:title" content="Other |'));
+distCase("D-AUDIT", "reports an og:title that differs", fails("og:title is"), (files) => replaceIn(files, ABOUT_HTML, '<meta property="og:title" content="/about |', '<meta property="og:title" content="Other |'));
+distCase("D-AUDIT", "reports a meta title that differs", fails(/^title is "Other/), (files) => replaceIn(files, ABOUT_HTML, '<meta name="title" content="/about |', '<meta name="title" content="Other |'));
+distCase("D-AUDIT", "reports a missing og:title", fails('og:title is "missing"'), (files) => replaceIn(files, ABOUT_HTML, `<meta property="og:title" content="/about | Wabi Sabi Services" ${rh} />`, ""));
+distCase("D-AUDIT", "reports too few words", fails("words of body text"), (files) => fewWords(files, "/about"));
+distCase("D-AUDIT", "allows few words on an exempt page", "pass", (files) => fewWords(files, AUDIT.wordExempt[0]));
+distCase("D-AUDIT", "allows few words on a pending page", "pass", (files) => fewWords(files, REVIEWS_ROUTE));
+const THIN_LINKS = `<div id="root"><main><h1>Thin</h1><p>${filler(FILLER_WORDS * 2)}</p><a href="/about">Self</a><a href="/">Home</a><a href="/faq">FAQ</a></main></div>`;
+distCase("D-AUDIT", "reports too few links, not counting a self-link", fails("2 internal links to other pages"), (files) => setBody(files, ABOUT_HTML, THIN_LINKS));
+distCase("D-AUDIT", "reports a link to a missing route", fails("links to /gone, which is not a route"), (files) => addToBody(files, ABOUT_HTML, '<a href="/gone">Gone</a>'));
+distCase("D-AUDIT", "reports a link with a trailing slash", fails("links to /faq/, which is not a route"), (files) => addToBody(files, ABOUT_HTML, '<a href="/faq/">FAQ</a>'));
+distCase("D-AUDIT", "allows links to utility routes", "pass", (files) => addToBody(files, ABOUT_HTML, '<a href="/cart">Cart</a>'));
+distCase("D-AUDIT", "reports a page with no inbound link", fails("orphan"), (files) => dropLinks(files, "/about"));
+distCase("D-AUDIT", "reports a page whose only inbound link is a self-link", fails("orphan"), (files) => dropLinks(files, "/about", "/about"));
+cases.push({
+  rule: "D-AUDIT",
+  name: "reports a page whose only inbound link is from a utility page",
+  ...expected(fails("orphan")),
+  run: () => {
+    const files = goodDist();
+    dropLinks(files, "/about");
+    const pages = new Map(INDEXABLE_ROUTES.map((route) => [route, files.get(htmlFileOfRoute(route)) as string]));
+    pages.set("/cart", files.get(htmlFileOfRoute("/cart")) as string);
+    return auditSiteProblems(pages, ALL_ROUTES).map(({ route, message }) => ({ rule: "D-AUDIT", file: route, message }));
+  },
+});
+distCase("D-AUDIT", "reports a shared title", fails("title also used by /about"), (files) => retitle(files, "/book", "/about | Wabi Sabi Services"));
+distCase("D-AUDIT", "reports a shared description", fails("description also used by /about"), (files) => describeAs(files, "/book", "Description of /about"));
+distCase("D-AUDIT", "reports JSON-LD that does not parse", fails("does not parse"), (files) => replaceIn(files, ABOUT_HTML, "</head>", `<script type="application/ld+json" ${rh}>{oops</script></head>`));
+distCase("D-AUDIT", "reports a dangling @id", fails("resolves to no node"), (files) => addBlock(files, ABOUT_HTML, { "@type": "Service", provider: { "@id": `${SITE}/#nobody` } }));
+distCase("D-AUDIT", "resolves an @id defined on another page", "pass", (files) => {
+  addBlock(files, FAQ_HTML, { "@id": `${SITE}/#somebody`, "@type": "Organization", name: "Somebody" });
+  addBlock(files, ABOUT_HTML, { "@type": "Service", provider: { "@id": `${SITE}/#somebody` } });
+});
+distCase("D-AUDIT", "allows the two sister-company ids", "pass", (files) => addBlock(files, ABOUT_HTML, { "@type": "Service", provider: PEARLY_IDS.map((id) => ({ "@id": id })) }));
+distCase("D-AUDIT", "leaves a long exempt title alone", "pass", (files) => retitle(files, EXEMPT_TITLE, LONG_TITLE));
+distCase("D-AUDIT", "holds a blog post to the title limit", TITLE_OVER, (files) => retitle(files, "/blog/march-2026", LONG_TITLE));
+distCase("D-AUDIT", "holds the Estate Collection page to the description limit", DESCRIPTION_OVER, (files) => describeAs(files, "/seasoning/estate-collection", LONG_DESCRIPTION));
+cases.push({
+  rule: "D-AUDIT",
+  name: "leaves a long exempt description alone",
+  ...expected("pass"),
+  run: () => {
+    const files = goodDist();
+    describeAs(files, "/about", LONG_DESCRIPTION);
+    AUDIT.descriptionExempt["/about"] = AUDIT_REASONS.kept;
+    try {
+      return DIST_CHECKS["D-AUDIT"](distCtx(files));
+    } finally {
+      delete AUDIT.descriptionExempt["/about"];
+    }
+  },
+});
+distCase("D-AUDIT", "reports a page that is not built", fails("no built HTML for /about"), (files) => {
+  files.delete(ABOUT_HTML);
+});
+const auditNotes = (): string[] => {
+  const notes: string[] = [];
+  DIST_CHECKS["D-AUDIT"]({ ...distCtx(goodDist()), note: (message) => notes.push(message) });
+  return notes;
+};
+const LISTED_EXCEPTIONS = [...Object.keys(AUDIT.titleExempt), ...Object.keys(AUDIT.descriptionExempt), ...AUDIT.wordExempt, ...Object.keys(AUDIT.wordPending)];
+const unnoted = (notes: string[]): Finding[] => {
+  const words = new Set(notes.join(" ").split(/[\s,]+/));
+  return LISTED_EXCEPTIONS.filter((route) => !words.has(route)).map((route) => ({ rule: "D-AUDIT", message: `${route} is listed but not in the notes` }));
+};
+cases.push({ rule: "D-AUDIT", name: "notes every listed exception", expect: "pass", run: () => unnoted(auditNotes()) });
+cases.push({ rule: "D-AUDIT", name: "reports an exception left out of the notes", ...expected(fails("is listed but not in the notes")), run: () => unnoted(auditNotes().slice(1)) });
+
+const serviceWith = (servicePhone: unknown) => ({ "@type": "Service", name: "Fixture", availableChannel: { "@type": "ServiceChannel", servicePhone } });
+distCase("D-SCHEMA", "allows a ContactPoint", "pass", (files) => addBlock(files, ABOUT_HTML, serviceWith({ "@type": "ContactPoint", telephone: NAP.phones[2] })));
+distCase("D-SCHEMA", "reports a phone given as a string", fails("servicePhone is not a ContactPoint"), (files) => addBlock(files, ABOUT_HTML, serviceWith(NAP.phones[2])));
+distCase("D-SCHEMA", "reports a ContactPoint with no number", fails("servicePhone is not a ContactPoint"), (files) => addBlock(files, ABOUT_HTML, serviceWith({ "@type": "ContactPoint" })));
+distCase("D-SCHEMA", "reports a node of another type", fails("servicePhone is not a ContactPoint"), (files) => addBlock(files, ABOUT_HTML, serviceWith({ "@type": "Thing", telephone: NAP.phones[2] })));
+
+const seoPage = (attributes: string) => pageSource.replace('<SEO title="/seasoning/quiet-grace"', `<SEO ${attributes}`);
+distCase("D-PARITY", "compares a page with noBrandSuffix without the suffix", "pass", (files) => retitle(files, "/seasoning/quiet-grace", "Short Title"), { page: seoPage('title="Short Title" noBrandSuffix') });
+distCase("D-PARITY", "reports a noBrandSuffix page built with the suffix", fails("title differs from built HTML"), () => undefined, { page: seoPage('title="/seasoning/quiet-grace" noBrandSuffix') });
+distCase("D-PARITY", "keeps the suffix when noBrandSuffix is false", "pass", () => undefined, { page: seoPage('title="/seasoning/quiet-grace" noBrandSuffix={false}') });
+
+const listedWith = (edit: (routes: string[]) => string[]): RouteManifest => ({ ...LIST_MANIFEST, listed: edit(ALL_ROUTES) });
+const NO_LIST: RouteManifest = { listError: "the file does not exist", areas: AREA_ROUTES };
+/** The router as in Release 1: plain paths, and one generated path per neighbourhood. */
+const plainRouter = ALL_ROUTES.filter((route) => !AREA_ROUTES.includes(route))
+  .map((route) => `<Route path="${route}" element={<Page />} />`)
+  .join("\n");
+const areaRouter = "{Object.values(neighborhoods).map((n) => (<Route key={n.slug} path={`/areas/${n.slug}`} element={<Area data={n} />} />))}";
+const releaseOneRouter = `${plainRouter}\n${areaRouter}`;
+/** Runs with the given router and keeps only what the rule says about it. */
+const routerCase = (name: string, expect: Expect, app: string, manifest: RouteManifest = NO_LIST) =>
+  cases.push({
+    rule: "D-MANIFEST",
+    name,
+    ...expected(expect),
+    run: () => DIST_CHECKS["D-MANIFEST"](distCtx(goodDist(), { manifest, sources: { "src/App.tsx": app } })).filter((finding) => finding.file === MANIFEST.appFile),
+  });
+
+distCase("D-MANIFEST", "reports no route list, as in Release 1", fails("no single route list"), () => undefined, { manifest: NO_LIST, sources: { "src/App.tsx": releaseOneRouter } });
+distCase("D-MANIFEST", "reports a route list that cannot be loaded", "fail", () => undefined, { manifest: { listError: "it could not be loaded", areas: AREA_ROUTES } });
+distCase("D-MANIFEST", "reports a route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/about")) });
+distCase("D-MANIFEST", "reports a utility route missing from the list", "fail", () => undefined, { manifest: listedWith((routes) => routes.filter((route) => route !== "/cart")) });
+distCase("D-MANIFEST", "reports a listed route the harness does not know", fails("/extra is in the route list but not in the harness"), () => undefined, { manifest: listedWith((routes) => [...routes, "/extra"]) });
+distCase("D-MANIFEST", "reports a route the list lost but the render baseline holds", fails("/lost is in the render baseline but not in the route list"), () => undefined, { editRenderBaseline: (baseline) => { baseline.routes["/lost"] = baseline.routes["/about"]; } });
+distCase("D-MANIFEST", "reports a route only the router has", "fail", () => undefined, { sources: { "src/App.tsx": `${listRouter}\n<Route path="/extra" element={<Extra />} />` } });
+distCase("D-MANIFEST", "reports a neighbourhood with no route", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, areas: [...AREA_ROUTES, "/areas/new-area"] } });
+distCase("D-MANIFEST", "reports an area route with no neighbourhood", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, areas: AREA_ROUTES.slice(1) } });
+distCase("D-MANIFEST", "reports neighbourhood data that cannot be loaded", "fail", () => undefined, { manifest: { listed: ALL_ROUTES, pages: LISTED_PAGES } });
+distCase("D-MANIFEST", "reports list entries that name no page file", fails("names no page file"), () => undefined, { manifest: { listed: ALL_ROUTES, areas: AREA_ROUTES } });
+routerCase("reads the generated area routes, as in Release 1", "pass", releaseOneRouter);
+routerCase("reports a route missing from a router with plain paths", "fail", releaseOneRouter.replace('<Route path="/about" element={<Page />} />', ""));
+routerCase("reports a generated path it cannot read", "fail", `${releaseOneRouter}\n<Route path={extraPath} element={<Page />} />`);
+routerCase("reports a router with no routes it can read", fails("no routes could be read from the router"), "");
+routerCase("reports a list the router does not read", "fail", releaseOneRouter, LIST_MANIFEST);
+routerCase("allows a router built from the list", "pass", listRouter, LIST_MANIFEST);
+routerCase("allows the catch-all beside the list", "pass", `${listRouter}\n<Route path="*" element={<NotFound />} />`, LIST_MANIFEST);
+routerCase("reads the list under another name", "pass", listRouter.replace("{ ROUTES }", "{ ROUTES as SITE_ROUTES }").replace("{ROUTES.map", "{SITE_ROUTES.map"), LIST_MANIFEST);
+const LIST_IMPORT = 'import { ROUTES } from "./data/routes";';
+routerCase("reports the list imported beside every plain path", fails("the router imports the route list but does not build its routes from it"), `${LIST_IMPORT}\n${releaseOneRouter}`, LIST_MANIFEST);
+routerCase("reports the list used beside every plain path", fails("is written by hand beside the route list"), `${LIST_IMPORT}\nconsole.log(ROUTES);\n${releaseOneRouter}`, LIST_MANIFEST);
+routerCase("reports one plain path beside a built router", "fail", `${listRouter}\n<Route path="/about" element={<Page />} />`, LIST_MANIFEST);
+routerCase("reports a list import nothing uses", "fail", `${LIST_IMPORT}\n<Route path={route} element={<Page />} />`, LIST_MANIFEST);
+routerCase("reports a list named only in a comment", "fail", `${LIST_IMPORT}\n// ROUTES drives this\n/* ROUTES */\n<Route path={route} element={<Page />} />`, LIST_MANIFEST);
+routerCase("reports another name imported from the list file", "fail", 'import { helper } from "./data/routes";\nhelper(ROUTES);', LIST_MANIFEST);
+distCase("D-MANIFEST", "reports a URL missing from the sitemap", "fail", (files) => replaceIn(files, "sitemap.xml", sitemapEntry("/about"), ""));
+distCase("D-MANIFEST", "reports a sitemap URL that is not indexable", "fail", (files) => editFile(files, "sitemap.xml", `<url><loc>${SITE}/cart</loc></url>`));
+distCase("D-MANIFEST", "reports a listed route with no file", "fail", (files) => files.delete(ABOUT_HTML));
+distCase("D-MANIFEST", "reports a file for an unknown route", "fail", (files) => files.set("extra/index.html", pageHtml("/extra")));
+distCase("D-MANIFEST", "reports a utility route with no file", fails("no built file for /cart"), (files) => files.delete("cart/index.html"));
+distCase("D-MANIFEST", "allows a utility route with a noindex file", "pass", (files) => files.set("cart/index.html", notFoundHtml()));
+distCase("D-MANIFEST", "reports a utility file with no noindex", "fail", (files) => files.set("cart/index.html", pageHtml("/cart")));
+distCase("D-MANIFEST", "reports an llms.txt link that is not a route", "fail", (files) => editFile(files, "llms.txt", `- [Extra](${SITE}/extra)\n`));
+distCase("D-MANIFEST", "allows llms.txt links to a route and a static file", "pass", (files) => editFile(files, "llms.txt", `- [FAQ](${SITE}/faq), ${SITE}/robots.txt and ${SITE}.\n`));
+
+distCase("D-COPY", "reports head-only pages, as in Release 1", fails(/^S-REQ: missing/), headOnly);
+distCase("D-COPY", "reports a banned phrase on a page", "fail", (files) => addToBody(files, HOME_HTML, "<p>Service after-hours.</p>"));
+distCase("D-COPY", "reads a banned phrase split by an inline tag", "fail", (files) => addToBody(files, HOME_HTML, "<p>Service <strong>after</strong>-hours.</p>"));
+distCase("D-COPY", "reports a banned phrase spread across escaped text", "fail", (files) => addToBody(files, HOME_HTML, "<p>you&#x27;ll work with the same professional</p>"));
+distCase("D-COPY", "reports a ban that runs across a React text marker", "fail", (files) => addToBody(files, HOME_HTML, "<p>after-<!-- -->hours</p>"));
+distCase("D-COPY", "does not read class names as copy", "pass", (files) => addToBody(files, HOME_HTML, '<p class="after-hours">Fixture.</p>'));
+distCase("D-COPY", "allows the FAQ sentence on /faq", "pass", () => undefined);
+distCase("D-COPY", "reports the FAQ sentence on another page", "fail", (files) => addToBody(files, HOME_HTML, `<p>${escapeHtml(NO_BIOHAZARD)}</p>`));
+distCase("D-COPY", "reports a second copy of the FAQ sentence on /faq", "fail", (files) => addToBody(files, FAQ_HTML, `<p>${escapeHtml(NO_BIOHAZARD)}</p>`));
+distCase("D-COPY", "allows the Terms wording on /terms-of-service", "pass", (files) => addToBody(files, TERMS_HTML, "<p>We cannot clean biohazards.</p>"));
+distCase("D-COPY", "keeps a scoped ban to its pages", "pass", (files) => addToBody(files, HOME_HTML, "<li>White vinegar</li>"));
+distCase("D-COPY", "applies a scoped ban on its pages", "fail", (files) => addToBody(files, BLOG_HTML, "<li>White vinegar</li>"));
+const PRIVACY_HTML = "privacy/index.html";
+distCase("D-COPY", "a page's ban reads the page", "fail", (files) => addToBody(files, PRIVACY_HTML, "<p>Find us on Instagram.</p>"));
+distCase("D-COPY", "a page's ban leaves the shared footer alone", "pass", (files) => replaceIn(files, PRIVACY_HTML, "</main>", '</main><footer><a href="https://www.instagram.com/x">Instagram</a></footer>'));
+distCase("D-COPY", "a page's ban reads the whole body when there is no main", fails("BAN-23:"), (files) => {
+  replaceIn(files, PRIVACY_HTML, "<main>", "<div>");
+  replaceIn(files, PRIVACY_HTML, "</main>", "</div><footer>Instagram</footer>");
+});
+distCase("D-COPY", "a site-wide ban still reads the shared footer", "fail", (files) => replaceIn(files, HOME_HTML, "</main>", "</main><footer>Open after-hours</footer>"));
+distCase("D-COPY", "reports a required string missing from its page", "fail", (files) => replaceIn(files, HOME_HTML, `<p class="text-lg">${STAFF_LINE}</p>`, ""));
+distCase("D-COPY", "reports a consultation line with no follow-up", "fail", (files) => addToBody(files, HOME_HTML, `<p>A ${CONSULTATION}.</p>`));
+distCase("D-COPY", "reports text that must be gone", "fail", (files) => addToBody(files, HOME_HTML, `<p>${ABSENT[0].texts[0]}</p>`));
+distCase("D-COPY", "reports the sister brand outside its pages", "fail", (files) => addToBody(files, HOME_HTML, "<p>Pearly&#x27;s</p>"));
+distCase("D-COPY", "reports an exterior glass claim on an area page", "fail", (files) => addToBody(files, AREA_HTML, "<li>Salt-spray removal from window glass.</li>"));
+distCase("D-COPY", "reports a roof claim on an area page", "fail", (files) => addToBody(files, AREA_HTML, "<li>Moss removed from the roof.</li>"));
+distCase("D-COPY", "matches a private term, and hides the text", "fail", (files) => addToBody(files, HOME_HTML, `<p>${PLACEHOLDER_HIT}</p>`), {}, PLACEHOLDER_HIT);
+distCase("D-COPY", "matches a private term in the head, and hides the text", "fail", (files) => replaceIn(files, HOME_HTML, "</head>", `<meta name="keywords" content="${HIDDEN_TERM}"></head>`), {}, HIDDEN_TERM);
+distCase("D-COPY", "fails with no ban file", "fail", () => undefined, { privateBans: null });
+distCase("D-COPY", "reports a required page that is not built", "fail", (files) => files.delete(ABOUT_HTML));
+distCase("D-COPY", "reports a router it can no longer read", fails("no built page for this source file"), () => undefined, { manifest: NO_LIST, sources: { "src/App.tsx": "" } });
+const plainRouted: DistOptions = { manifest: NO_LIST, sources: { "src/App.tsx": plainPageRouter } };
+distCase("D-COPY", "places pages through a Release 1 router", "pass", () => undefined, plainRouted);
+distCase("D-PARITY", "places pages through a Release 1 router", "pass", () => undefined, plainRouted);
+distCase("D-PARITY", "reports a page the route list does not name", "fail", () => undefined, { manifest: { ...LIST_MANIFEST, pages: { "/about": "About" } } });
 
 const snapshot = (fields: Partial<PageSnapshot> = {}): PageSnapshot => {
   const route = fields.route ?? "/about";
@@ -557,12 +1167,17 @@ const snapshot = (fields: Partial<PageSnapshot> = {}): PageSnapshot => {
 };
 
 const ORIGIN = "http://127.0.0.1:4173";
-const browserCase = (rule: string, name: string, expect: Case["expect"], run: () => Finding[]) => cases.push({ rule, name, expect, run });
+const browserCase = (rule: string, name: string, expect: Expect, run: () => Finding[]) => cases.push({ rule, name, ...expected(expect), run });
 
 browserCase("BR-CONSOLE", "good fixture", "pass", () => checkConsole(snapshot(), ORIGIN));
 browserCase("BR-CONSOLE", "reports a pageerror", "fail", () => checkConsole(snapshot({ pageErrors: ["ChevronRight is not defined"] }), ORIGIN));
 browserCase("BR-CONSOLE", "reports console.error", "fail", () => checkConsole(snapshot({ consoleErrors: [{ text: "boom", url: "" }] }), ORIGIN));
 browserCase("BR-CONSOLE", "reports a same-origin failed load", "fail", () => checkConsole(snapshot({ consoleErrors: [{ text: "Failed to load resource: 404", url: `${ORIGIN}/assets/x.js` }] }), ORIGIN));
+const MISSING_URL = `${ORIGIN}${LIVE.missingPath}`;
+const OWN_404 = { text: "Failed to load resource: the server responded with a status of 404 (Not Found)", url: MISSING_URL };
+browserCase("BR-CONSOLE", "allows a missing page's own 404", "pass", () => checkConsole(snapshot({ route: LIVE.missingPath, consoleErrors: [OWN_404] }), ORIGIN));
+browserCase("BR-CONSOLE", "reports a real route that returns 404", "fail", () => checkConsole(snapshot({ route: "/about", consoleErrors: [{ ...OWN_404, url: `${ORIGIN}/about` }] }), ORIGIN));
+browserCase("BR-CONSOLE", "reports another failed load on the missing page", "fail", () => checkConsole(snapshot({ route: LIVE.missingPath, consoleErrors: [{ ...OWN_404, url: `${ORIGIN}/assets/x.js` }] }), ORIGIN));
 browserCase("BR-CONSOLE", "ignores third-party and /_vercel failures", "pass", () => checkConsole(snapshot({
   consoleErrors: [
     { text: "Failed to load resource: net::ERR_FAILED", url: "https://fonts.googleapis.com/css2" },
@@ -572,9 +1187,9 @@ browserCase("BR-CONSOLE", "ignores third-party and /_vercel failures", "pass", (
 browserCase("BR-H1", "good fixture", "pass", () => checkH1(snapshot()));
 browserCase("BR-H1", "reports no H1", "fail", () => checkH1(snapshot({ h1s: [] })));
 browserCase("BR-H1", "seeded cart stays on the form", "pass", () => checkH1(snapshot({ route: "/checkout", scenario: "seeded cart", hasNameField: true })));
-browserCase("BR-H1", "reports a seeded cart that leaves the form", "fail", () => checkH1(snapshot({ route: "/checkout", scenario: "seeded cart", finalPath: "/cart", hasNameField: false })));
+browserCase("BR-H1", "reports a seeded cart that leaves the form", fails("left the form, ended at /cart"), () => checkH1(snapshot({ route: "/checkout", scenario: "seeded cart", finalPath: "/cart", hasNameField: false })));
 browserCase("BR-H1", "empty cart ends at /cart", "pass", () => checkH1(snapshot({ route: "/checkout", scenario: "empty cart", finalPath: "/cart" })));
-browserCase("BR-H1", "reports an empty cart that stays blank", "fail", () => checkH1(snapshot({ route: "/checkout", scenario: "empty cart", h1s: [] })));
+browserCase("BR-H1", "reports an empty cart that stays blank", fails("an empty cart should end at /cart"), () => checkH1(snapshot({ route: "/checkout", scenario: "empty cart", h1s: [] })));
 browserCase("BR-AREAS", "good fixture", "pass", () => checkAreas(snapshot({ route: "/areas", areaLinks: 19 })));
 browserCase("BR-AREAS", "reports too few links", "fail", () => checkAreas(snapshot({ route: "/areas", areaLinks: 3 })));
 browserCase("BR-AREAS", "reports no H1", "fail", () => checkAreas(snapshot({ route: "/areas", areaLinks: 19, h1s: [] })));
@@ -584,8 +1199,12 @@ browserCase("BR-HEAD", "a trailing-slash route canonicalises without it", "pass"
 browserCase("BR-HEAD", "reports a trailing-slash canonical", "fail", () => checkBrowserHead(snapshot({ route: "/services/errands/", canonicals: [`${SITE}/services/errands/`] })));
 browserCase("BR-HEAD", "reports two canonicals", "fail", () => checkBrowserHead(snapshot({ canonicals: [`${SITE}/about`, `${SITE}/`] })));
 browserCase("BR-HEAD", "reports two descriptions", "fail", () => checkBrowserHead(snapshot({ descriptions: ["One", "Two"] })));
-browserCase("BR-HEAD", "reports duplicate rendered JSON-LD", "fail", () => checkBrowserHead(snapshot({ jsonLd: [JSON.stringify(orgNode()), JSON.stringify({ ...orgNode(), name: "Other" })] })));
+browserCase("BR-HEAD", "reports duplicate rendered JSON-LD", fails("2 Organization or LocalBusiness nodes for"), () => checkBrowserHead(snapshot({ jsonLd: [JSON.stringify(orgNode()), JSON.stringify({ ...orgNode(), name: "Other" })] })));
 browserCase("BR-HEAD", "an empty cart canonicalises to /cart", "pass", () => checkBrowserHead(snapshot({ route: "/checkout", scenario: "empty cart", finalPath: "/cart", canonicals: [`${SITE}/cart`] })));
+browserCase("BR-HEAD", "allows a hydrated title that matches the raw title", "pass", () => checkBrowserHead(snapshot({ html: pageHtml("/about"), title: "/about | Wabi Sabi Services" })));
+browserCase("BR-HEAD", "reports a hydrated title that differs", fails("differs from the raw title"), () => checkBrowserHead(snapshot({ html: pageHtml("/about"), title: "Other | Wabi Sabi Services" })));
+browserCase("BR-HEAD", "decodes the raw title before comparing", "pass", () => checkBrowserHead(snapshot({ html: pageHtml("/about").replace("<title>/about", "<title>It&#x27;s"), title: "It's | Wabi Sabi Services" })));
+browserCase("BR-HEAD", "an empty cart keeps the title of the page it reached", "pass", () => checkBrowserHead(snapshot({ route: "/checkout", scenario: "empty cart", finalPath: "/cart", canonicals: [`${SITE}/cart`], html: pageHtml("/checkout"), title: "Cart | Wabi Sabi Services" })));
 
 const homeBlocks = [JSON.stringify(orgNode()), JSON.stringify(parentNode)];
 const servicesBlocks = [JSON.stringify(orgNode()), JSON.stringify({ "@type": "BreadcrumbList", name: "services" })];
@@ -596,7 +1215,7 @@ const navStep = (fields: Partial<PageSnapshot> = {}, clientSide = true) => ({
   clientSide,
 });
 browserCase("BR-NAV", "good fixture", "pass", () => checkNav(navStep()));
-browserCase("BR-NAV", "reports a block left from the previous page", "fail", () => checkNav(navStep({ jsonLd: [...servicesBlocks, JSON.stringify(parentNode)] })));
+browserCase("BR-NAV", "reports a block left from the previous page", fails("1 JSON-LD block left from the previous page"), () => checkNav(navStep({ jsonLd: [...servicesBlocks, JSON.stringify(parentNode)] })));
 browserCase("BR-NAV", "reports a canonical left from the previous page", "fail", () => checkNav(navStep({ canonicals: [`${SITE}/services`, `${SITE}/`] })));
 browserCase("BR-NAV", "reports a full page load", "fail", () => checkNav(navStep({}, false)));
 browserCase("BR-RANK", "good fixture", "pass", () => checkBrowserRank(snapshot({ route: "/services", h1s: ["Our Services"] }), "Our Services"));
@@ -608,25 +1227,395 @@ browserCase("BR-CLARITY", "finds the expected ID on home", "pass", () => checkCl
 browserCase("BR-CLARITY", "reports the script missing from home", "fail", () => checkClarity(snapshot({ route: "/" }), "abc"));
 browserCase("BR-CLARITY", "reports the script on the success page", "fail", () => checkClarity(snapshot({ route: "/checkout-success", clarityScript: true }), "abc"));
 
-const liveCase = (rule: string, name: string, expect: Case["expect"], run: () => Finding[]) => cases.push({ rule, name, expect, run });
+const rawSnapshot = (route: string, fields: Partial<PageSnapshot> = {}): PageSnapshot => {
+  const html = pageHtml(route);
+  return snapshot({ route, html, rendered: { h1: rawHeadingsOf(html)[0], text: rawTextOf(html), links: [...new Set(rawLinksOf(html))] }, ...fields });
+};
+const renderedPage = (fields: Partial<NonNullable<PageSnapshot["rendered"]>>) => {
+  const rendered = rawSnapshot("/about").rendered as NonNullable<PageSnapshot["rendered"]>;
+  return { ...rendered, ...fields };
+};
+const headOnlyHtml = (html: string) => html.replace(/<body>[\s\S]*<\/body>/, '<body><div id="root"></div></body>');
+browserCase("BR-RAW", "good fixture", "pass", () => checkRawPage(rawSnapshot("/about")));
+browserCase("BR-RAW", "reports a head-only page, as in Release 1", fails("no H1 in raw HTML"), () => checkRawPage(rawSnapshot("/about", { html: headOnlyHtml(pageHtml("/about")) })));
+browserCase("BR-RAW", "reports copy added since the baseline was captured", "fail", () => {
+  const text = `${renderedPage({}).text} ${"added ".repeat(FILLER_WORDS)}`;
+  return checkRawPage(rawSnapshot("/about", { rendered: renderedPage({ text }) }));
+});
+const withRawAdded = (route: string, html: string) => ({ html: pageHtml(route).replace("</main>", `${html}</main>`) });
+browserCase("BR-RAW", "reports raw text the rendered page does not show", RAW_WORDS_UNSEEN, () => checkRawPage(rawSnapshot("/about", withRawAdded("/about", extraWords(500)))));
+browserCase("BR-RAW", "allows raw text hidden at the capture width, up to 5 percent", "pass", () => checkRawPage(rawSnapshot("/about", withRawAdded("/about", extraWords(5)))));
+browserCase("BR-RAW", "allows a closed FAQ answer on /faq", "pass", () => checkRawPage(rawSnapshot("/faq", withRawAdded("/faq", faqAnswer(CLOSED_ANSWER))), [CLOSED_ANSWER]));
+browserCase("BR-RAW", "reports an FAQ answer on a route with no FAQ", RAW_WORDS_UNSEEN, () => checkRawPage(rawSnapshot("/about", withRawAdded("/about", faqAnswer(CLOSED_ANSWER))), [CLOSED_ANSWER]));
+browserCase("BR-RAW", "reports other hidden text on /faq", RAW_WORDS_UNSEEN, () => checkRawPage(rawSnapshot("/faq", withRawAdded("/faq", faqAnswer(CLOSED_ANSWER)))));
+browserCase("BR-RAW", "reports an H1 that differs from this build's", "fail", () => checkRawPage(rawSnapshot("/about", { rendered: renderedPage({ h1: "Other" }) })));
+browserCase("BR-RAW", "reports a page it could not read", "fail", () => checkRawPage(rawSnapshot("/about", { html: undefined })));
+browserCase("BR-RAW", "leaves utility routes to the other rules", "pass", () => checkRawPage(snapshot({ route: "/cart" })));
+
+const SAVED_FAQ = "Frequently Asked Questions What makes this service different? How is pricing determined?";
+const OPEN_ANSWERS = "Every visit follows a plan written for your home. Pricing follows the size of the home and how often we visit.";
+const savedEntry = (text: string, fields: Partial<RenderEntry> = {}): RenderEntry => ({ finalPath: "/faq", h1: "FAQ", links: [], words: textWords(text).length, text, ...fields });
+const renderedAs = (text: string, fields: Partial<PageSnapshot> = {}) => snapshot({ route: "/faq", rendered: { h1: "FAQ", text, links: [] }, ...fields });
+const WORDS = filler(100);
+browserCase("BR-RENDER", "good fixture", "pass", () => checkRendered(renderedAs(SAVED_FAQ), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "reports FAQ answers left open", "fail", () => checkRendered(renderedAs(`${SAVED_FAQ} ${OPEN_ANSWERS}`), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "reports a section lost after load", "fail", () => checkRendered(renderedAs(SAVED_FAQ.slice(0, 26)), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "reports a blank page", "fail", () => checkRendered(renderedAs(""), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "allows five extra words in a hundred", "pass", () => checkRendered(renderedAs(`${WORDS} one two three four five`), savedEntry(WORDS)));
+browserCase("BR-RENDER", "reports six extra words in a hundred", "fail", () => checkRendered(renderedAs(`${WORDS} one two three four five six`), savedEntry(WORDS)));
+browserCase("BR-RENDER", "reports a route with no saved text", "fail", () => checkRendered(renderedAs(SAVED_FAQ), undefined));
+browserCase("BR-RENDER", "reports text it could not read", "fail", () => checkRendered(snapshot({ route: "/faq" }), savedEntry(SAVED_FAQ)));
+browserCase("BR-RENDER", "compares the state that was saved", fails("lost text"), () => checkRendered(renderedAs("Your cart is empty", { route: "/checkout", scenario: "seeded cart" }), savedEntry(SAVED_FAQ, { scenario: "seeded cart" })));
+browserCase("BR-RENDER", "leaves a state that was not saved", "pass", () => checkRendered(renderedAs("Your cart is empty", { route: "/checkout", scenario: "empty cart" }), savedEntry(SAVED_FAQ, { scenario: "seeded cart" })));
+browserCase("BR-RENDER", "leaves a URL outside the route list", "pass", () => checkRendered(renderedAs("Not found", { route: LIVE.missingPath }), undefined));
+
+const missingUrl = (fields: Partial<PageSnapshot> = {}) => snapshot({ route: LIVE.missingPath, status: 404, html: notFoundHtml(), ...fields });
+browserCase("BR-404", "good fixture", "pass", () => checkMissingUrl(missingUrl(), ORIGIN));
+browserCase("BR-404", "allows the browser's log of the page's own 404", "pass", () => checkMissingUrl(missingUrl({ consoleErrors: [OWN_404] }), ORIGIN));
+browserCase("BR-404", "reports the home page served with a 200, as in Release 1", fails("status 200, expected 404"), () => checkMissingUrl(missingUrl({ status: 200, html: pageHtml("/") }), ORIGIN));
+browserCase("BR-404", "reports the console.error in NotFound, as in Release 1", fails("console.error: 404 Error"), () => checkMissingUrl(missingUrl({ consoleErrors: [{ text: "404 Error: User attempted to access non-existent route", url: "" }] }), ORIGIN));
+browserCase("BR-404", "reports a 404 page with no noindex", "fail", () => checkMissingUrl(missingUrl({ html: notFoundHtml().replace('content="noindex,follow"', 'content="index"') }), ORIGIN));
+
+const hydrated = (fields: Partial<HydrationSnapshot> = {}): HydrationSnapshot => ({
+  route: "/about",
+  scenario: "empty cart",
+  finalPath: fields.route ?? "/about",
+  pageErrors: [],
+  consoleErrors: [],
+  markup: "attached",
+  headingKept: true,
+  ...fields,
+});
+browserCase("BR-HYDRATE", "good fixture", "pass", () => checkHydrate(hydrated()));
+browserCase("BR-HYDRATE", "a seeded cart with no warnings", "pass", () => checkHydrate(hydrated({ scenario: "seeded cart" })));
+browserCase("BR-HYDRATE", "reports a page with no markup, as in Release 1", fails("#root has no server-rendered page markup"), () => checkHydrate(hydrated({ markup: "none", headingKept: undefined })));
+browserCase("BR-HYDRATE", "reports markup discarded with no warning", "fail", () => checkHydrate(hydrated({ markup: "replaced" })));
+browserCase("BR-HYDRATE", "reports a page React never reached", "fail", () => checkHydrate(hydrated({ markup: "not attached" })));
+browserCase("BR-HYDRATE", "reports a mismatch that needs a later date", "fail", () => checkHydrate(hydrated({ route: "/", finalPath: "/", scenario: "next year", pageErrors: ["Minified React error #425"] })));
+browserCase("BR-HYDRATE", "allows an empty checkout that leaves for /cart", "pass", () => checkHydrate(hydrated({ route: "/checkout", finalPath: "/cart", markup: "replaced" })));
+browserCase("BR-HYDRATE", "reports a utility page that stays and loses its markup", "fail", () => checkHydrate(hydrated({ route: "/cart", markup: "replaced" })));
+browserCase("BR-HYDRATE", "reports a production hydration error", "fail", () => checkHydrate(hydrated({ pageErrors: ["Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418"] })));
+browserCase("BR-HYDRATE", "reports a production text mismatch", "fail", () => checkHydrate(hydrated({ scenario: "seeded cart", pageErrors: ["Minified React error #425"] })));
+browserCase("BR-HYDRATE", "reports a development warning", "fail", () => checkHydrate(hydrated({ consoleErrors: [{ text: "Warning: Text content did not match. Server: \"0\" Client: \"1\"", url: "" }] })));
+browserCase("BR-HYDRATE", "does not report another error", "pass", () => checkHydrate(hydrated({ pageErrors: ["Minified React error #300"], consoleErrors: [{ text: "boom", url: "" }] })));
+browserCase("BR-HYDRATE", "reports an H1 replaced after load", "fail", () => checkHydrate(hydrated({ headingKept: false })));
+browserCase("BR-HYDRATE", "allows a cart page to swap its H1", "pass", () => checkHydrate(hydrated({ route: "/cart", scenario: "seeded cart", headingKept: false })));
+browserCase("BR-HYDRATE", "allows a page with no H1 in its HTML", "pass", () => checkHydrate(hydrated({ route: "/checkout", headingKept: undefined })));
+browserCase("BR-HYDRATE", "reports a page with no <main>", "fail", () => checkHydrate(hydrated({ markup: "no main" })));
+const stripeReturn = (fields: Partial<HydrationSnapshot> = {}) => hydrated({ route: STRIPE_RETURN, finalPath: "/checkout-success", ...fields });
+browserCase("BR-HYDRATE", "Stripe's return URL stays on its page", "pass", () => checkHydrate(stripeReturn()));
+browserCase("BR-HYDRATE", "reports a mismatch on Stripe's return URL", "fail", () => checkHydrate(stripeReturn({ pageErrors: ["Minified React error #418"] })));
+browserCase("BR-HYDRATE", "reports Stripe's return URL losing its markup", "fail", () => checkHydrate(stripeReturn({ markup: "replaced" })));
+browserCase("BR-HYDRATE", "names the row when a utility route has no file", "fail", () => checkHydrate(hydrated({ route: "/cart", finalPath: "/cart", fileBuilt: false })));
+for (const text of [
+  "Warning: Prop `id` did not match. Server: \":R1:\" Client: \":R2:\"",
+  "Warning: Extra attributes from the server: class",
+  "Warning: Expected server HTML to contain a matching <div> in <div>.",
+  "Warning: Did not expect server HTML to contain a <div> in <div>.",
+]) {
+  browserCase("BR-HYDRATE", `reports what development React prints: ${text.slice(9, 30)}`, "fail", () => checkHydrate(hydrated({ consoleErrors: [{ text, url: "" }] })));
+}
+
+const cartSteps = (edit: (step: CartStep) => Partial<CartStep> = () => ({})): CartStep[] =>
+  BROWSER.cartSteps.map(({ name, route, cleared }) => {
+    const storedIds = cleared ? [] : [BROWSER.seededCart[0].id];
+    const step: CartStep = { name, route, cleared, finalPath: route, storedIds, itemShown: route === "/cart", hasNameField: route === "/checkout", emptyWrites: cleared ? 1 : 0 };
+    return { ...step, ...edit(step) };
+  });
+const atStep = (name: string, fields: Partial<CartStep>) => cartSteps((step) => (step.name === name ? fields : {}));
+browserCase("BR-CART", "good fixture", "pass", () => checkCart(cartSteps()));
+browserCase("BR-CART", "reports a cart lost on reload", "fail", () => checkCart(atStep("reload", { storedIds: [] })));
+browserCase("BR-CART", "reports a cart lost on return to /cart", "fail", () => checkCart(atStep("return to the cart", { storedIds: [] })));
+browserCase("BR-CART", "reports an empty list written over the cart", "fail", () => checkCart(atStep("first load", { emptyWrites: 1 })));
+browserCase("BR-CART", "reports a stored item that is not on the page", "fail", () => checkCart(atStep("reload", { itemShown: false })));
+browserCase("BR-CART", "reports checkout leaving the form", fails("ended at /cart"), () => checkCart(atStep("full load of checkout", { finalPath: "/cart", hasNameField: false })));
+browserCase("BR-CART", "reports checkout with no form", "fail", () => checkCart(atStep("full load of checkout", { hasNameField: false })));
+browserCase("BR-CART", "reports a step that did not run", "fail", () => checkCart(cartSteps().slice(0, 2)));
+const PAID_ITEM = [BROWSER.seededCart[0].id];
+browserCase("BR-CART", "reports a paid item left in the stored cart", "fail", () => checkCart(atStep("order complete", { storedIds: PAID_ITEM })));
+browserCase("BR-CART", "reports a paid item back after a reload", "fail", () => checkCart(atStep("reload after the order", { storedIds: PAID_ITEM })));
+browserCase("BR-CART", "reports the order page sending the visitor away", "fail", () => checkCart(atStep("order complete", { finalPath: "/cart" })));
+browserCase("BR-CART", "allows the order page a few empty writes", "pass", () => checkCart(atStep("order complete", { emptyWrites: BROWSER.maxEmptyWrites })));
+browserCase("BR-CART", "reports the order page writing in a loop", "fail", () => checkCart(atStep("order complete", { emptyWrites: BROWSER.maxEmptyWrites + 1 })));
+browserCase("BR-CART", "reports the loop after a reload too", "fail", () => checkCart(atStep("reload after the order", { emptyWrites: 40 })));
+
+const lcpOf = (runsMs: number[], shifts: number[] = runsMs.map(() => 0)): LcpMeasure => ({ runsMs, medianMs: median(runsMs), shifts });
+browserCase("BR-LCP", "good fixture", "pass", () => checkLcpRuns("/", lcpOf([2000, 2100, 2200, 2300, 2400]), R1_LCP));
+browserCase("BR-LCP", "allows a fastest run within the tolerance", "pass", () => checkLcpRuns("/", lcpOf([3140, 3300, 3400, 3500, 3600]), R1_LCP));
+browserCase("BR-LCP", "reports a fastest run past the tolerance", "fail", () => checkLcpRuns("/", lcpOf([3160, 3170, 3180, 3190, 3200]), R1_LCP));
+browserCase("BR-LCP", "gives a slow median no say, as on unchanged R1", "pass", () => checkLcpRuns("/", lcpOf([3000, 3050, 3900, 3950, 4000]), R1_LCP));
+browserCase("BR-LCP", "reports too few runs", "fail", () => checkLcpRuns("/", lcpOf([2000]), R1_LCP));
+browserCase("BR-LCP", "reports no R1 figure", "fail", () => checkLcpRuns("/", lcpOf(LCP_RUNS), undefined));
+browserCase("BR-LCP", "reports too few R1 runs in the sitting", "fail", () => checkLcpRuns("/", lcpOf(LCP_RUNS), { runsMs: [3200], medianMs: 3200 }));
+const SHIFTED = [0.01, 0.02, 0, 0.03, 0];
+const SHIFTS = fails(/^layout shift of [\d.]+, worse than production's/);
+const shiftedBy = (worst: number) => lcpOf(LCP_RUNS, [0, 0, worst, 0, 0]);
+browserCase("BR-LCP", "allows the layout shift production has in the same sitting", "pass", () => checkLcpRuns("/", lcpOf(LCP_RUNS, SHIFTED), lcpOf(LCP_RUNS, SHIFTED)));
+browserCase("BR-LCP", "allows less layout shift than production", "pass", () => checkLcpRuns("/", shiftedBy(0.01), lcpOf(LCP_RUNS, SHIFTED)));
+browserCase("BR-LCP", "allows one run past production within the allowance", "pass", () => checkLcpRuns("/", shiftedBy(0.0355), lcpOf(LCP_RUNS, SHIFTED)));
+browserCase("BR-LCP", "allows the merged frame measured on /areas/oak-bay", "pass", () => checkLcpRuns("/areas/oak-bay", lcpOf(LCP_RUNS, [0.0074, 0.0125, 0.0074, 0.0074, 0.0125]), lcpOf(LCP_RUNS, [0.0074, 0.0074, 0.0074, 0.0074, 0.0074])));
+browserCase("BR-LCP", "reports a shift that every run has", fails(/^layout shift of at least [\d.]+ on every run/), () => checkLcpRuns("/", lcpOf(LCP_RUNS, [0.0094, 0.0094, 0.0094, 0.0094, 0.0094]), lcpOf(LCP_RUNS, [0.0074, 0.0074, 0.0074, 0.0074, 0.0074])));
+browserCase("BR-LCP", "reports one run past the allowance", SHIFTS, () => checkLcpRuns("/", shiftedBy(0.037), lcpOf(LCP_RUNS, SHIFTED)));
+browserCase("BR-LCP", "reports one run's layout shift when production has none", SHIFTS, () => checkLcpRuns("/", lcpOf(LCP_RUNS, [0, 0, 0.02, 0, 0]), lcpOf(LCP_RUNS)));
+browserCase("BR-LCP", "compares layout shift only in a sitting, because the saved figure has none", "pass", () => checkLcpRuns("/", lcpOf(LCP_RUNS, SHIFTED), R1_LCP));
+
+const INTERACT = BROWSER.interact;
+const interacted = (fields: Partial<InteractReading> = {}): InteractReading => ({
+  answer: { before: "", after: "An answer." },
+  menu: { before: [], after: ["/about", INTERACT.menu.expected] },
+  dropdown: { before: [], after: [INTERACT.dropdown.expected] },
+  field: { value: INTERACT.field.text, submits: 0 },
+  waitlist: { selected: INTERACT.waitlist.shown, replied: true },
+  scroll: { before: 2000, after: 0, clientSide: true, finalPath: INTERACT.scroll.start },
+  errors: {},
+  writes: [],
+  ...fields,
+});
+const scrolled = (fields: Partial<NonNullable<InteractReading["scroll"]>>) => interacted({ scroll: { ...(interacted().scroll as NonNullable<InteractReading["scroll"]>), ...fields } });
+browserCase("BR-INTERACT", "good fixture", "pass", () => checkInteract(interacted()));
+browserCase("BR-INTERACT", "reports a question that opens nothing", fails("clicking a question did not open its answer"), () => checkInteract(interacted({ answer: { before: "", after: "" } })));
+browserCase("BR-INTERACT", "reports an answer on screen before the click", fails("an answer was on screen before the click"), () => checkInteract(interacted({ answer: { before: "An answer.", after: "An answer." } })));
+browserCase("BR-INTERACT", "reports a mobile menu that stays closed", fails(`the mobile menu did not open: no link to ${INTERACT.menu.expected}`), () => checkInteract(interacted({ menu: { before: [], after: [] } })));
+browserCase("BR-INTERACT", "reports a mobile menu open before the tap", fails("the mobile menu was open before"), () => checkInteract(interacted({ menu: { before: ["/about"], after: ["/about", INTERACT.menu.expected] } })));
+browserCase("BR-INTERACT", "reports a dropdown that stays closed", fails(`the dropdown did not open: no link to ${INTERACT.dropdown.expected}`), () => checkInteract(interacted({ dropdown: { before: [], after: [] } })));
+browserCase("BR-INTERACT", "reports a dropdown open before the click", fails("the dropdown was open before"), () => checkInteract(interacted({ dropdown: { before: ["/services"], after: [INTERACT.dropdown.expected] } })));
+browserCase("BR-INTERACT", "reports a field that drops what is typed", fails(`typed "${INTERACT.field.text}", but the field holds ""`), () => checkInteract(interacted({ field: { value: "", submits: 0 } })));
+browserCase("BR-INTERACT", "reports a form submitted by typing", fails("typing submitted the form 1 times"), () => checkInteract(interacted({ field: { value: INTERACT.field.text, submits: 1 } })));
+browserCase("BR-INTERACT", "reports a waitlist link that selects nothing", fails(`the service field shows "Select service", expected "${INTERACT.waitlist.shown}"`), () => checkInteract(interacted({ waitlist: { selected: "Select service", replied: true } })));
+browserCase("BR-INTERACT", "reports a waitlist link with the usual reply line", fails("the waitlist reply line is not on screen"), () => checkInteract(interacted({ waitlist: { selected: INTERACT.waitlist.shown, replied: false } })));
+browserCase("BR-INTERACT", "reports a waitlist link with no reading", fails("the step did not finish: no reading"), () => checkInteract(interacted({ waitlist: undefined })));
+browserCase("BR-INTERACT", "reports client navigation that keeps the scroll position", fails("client navigation left the page scrolled to 1500, expected 0"), () => checkInteract(scrolled({ after: 1500 })));
+browserCase("BR-INTERACT", "reports a full load, which proves no reset", fails("the navigation was a full page load"), () => checkInteract(scrolled({ clientSide: false })));
+browserCase("BR-INTERACT", "reports a page that never scrolled, which proves no reset", fails("the page was not scrolled before the click"), () => checkInteract(scrolled({ before: 0 })));
+browserCase("BR-INTERACT", "reports the wrong page after the click", fails(`ended at ${INTERACT.scroll.through}`), () => checkInteract(scrolled({ finalPath: INTERACT.scroll.through })));
+browserCase("BR-INTERACT", "reports a POST", fails("a write request left the page"), () => checkInteract(interacted({ writes: ["POST https://example.com/api"] })));
+browserCase("BR-INTERACT", "reports a step that did not finish", fails("the step did not finish: no such button"), () => checkInteract(interacted({ dropdown: undefined, errors: { dropdown: "no such button" } })));
+browserCase("BR-INTERACT", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkInteract(interacted({ answer: undefined })));
+
+const EARLY = BROWSER.early;
+const CONTACT_FORM = EARLY.forms[0];
+const formTexts = (plan: EarlyFormPlan) => [...Object.values(plan.early), ...Object.values(plan.late)];
+const sentForm = (plan: EarlyFormPlan) => ({ held: true, attached: true, stopped: true, body: JSON.stringify(formTexts(plan)), help: EARLY.help.join(" ") });
+const staysUp = { loads: 1, heading: true, settled: true };
+const staysFilled = { loads: 1, kept: true };
+const early = (fields: Partial<EarlyReading> = {}): EarlyReading => ({
+  scroll: { held: true, attached: true, before: EARLY.scroll.to, after: EARLY.scroll.to },
+  forms: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, sentForm(plan)])),
+  enterLeft: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, false])),
+  retry: { loads: 2, attached: true },
+  giveUp: { loads: 2, heading: true },
+  siteDown: { aborted: staysUp, refused: staysUp, stalled: staysUp },
+  typed: { before: staysFilled, during: staysFilled },
+  reloading: { reached: true, editable: false },
+  sendFailed: Object.fromEntries(EARLY.forms.map((plan) => [plan.route, { told: true, kept: true }])),
+  cart: { held: true, attached: true, before: "Your Selections", after: `Your Selections ${BROWSER.seededCart[0].name}` },
+  errors: {},
+  ...fields,
+});
+const earlyContact = (fields: Partial<EarlyReading["forms"][string]>) => early({ forms: { ...early().forms, [CONTACT_FORM.route]: { ...sentForm(CONTACT_FORM), ...fields } } });
+const earlyScroll = (fields: Partial<NonNullable<EarlyReading["scroll"]>>) => early({ scroll: { ...(early().scroll as NonNullable<EarlyReading["scroll"]>), ...fields } });
+const earlyCart = (fields: Partial<NonNullable<EarlyReading["cart"]>>) => early({ cart: { ...(early().cart as NonNullable<EarlyReading["cart"]>), ...fields } });
+browserCase("BR-EARLY", "good fixture", "pass", () => checkEarly(early()));
+browserCase("BR-EARLY", "reports a scroll position lost on attaching", fails(`scrolled to ${EARLY.scroll.to} before React attached, then moved to 0`), () => checkEarly(earlyScroll({ after: 0 })));
+browserCase("BR-EARLY", "reports a page that never scrolled, which proves nothing", fails("the page was not scrolled before React attached"), () => checkEarly(earlyScroll({ before: 0, after: 0 })));
+browserCase("BR-EARLY", "reports text sent blank, as the forms did before this rule", fails(`"${formTexts(CONTACT_FORM)[0]}" was entered, but the request did not carry it`), () => checkEarly(earlyContact({ body: "{}" })));
+browserCase("BR-EARLY", "reports a later field lost from the request", fails(`"${Object.values(CONTACT_FORM.late)[0]}" was entered`), () => checkEarly(earlyContact({ body: JSON.stringify(Object.values(CONTACT_FORM.early)) })));
+browserCase("BR-EARLY", "reports a send that was not stopped in the browser", fails("the form's send was not stopped in the browser"), () => checkEarly(earlyContact({ stopped: false })));
+browserCase("BR-EARLY", "reports Enter leaving the page", fails("pressing Enter before React attached"), () => checkEarly(early({ enterLeft: { ...early().enterLeft, [CONTACT_FORM.route]: true } })));
+browserCase("BR-EARLY", "reports an Enter step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ enterLeft: {}, errors: { [`Enter ${CONTACT_FORM.route}`]: "Timeout" } })));
+browserCase("BR-EARLY", "reports a step that ran after React attached, which proves nothing", fails("React had attached before the step acted"), () => checkEarly(earlyContact({ held: false })));
+browserCase("BR-EARLY", "reports a page React never reached", fails("React did not attach after the scripts were released"), () => checkEarly(earlyScroll({ attached: false })));
+browserCase("BR-EARLY", "reports a form that sent nothing", fails("the step did not finish: Timeout"), () => checkEarly(early({ forms: {}, errors: { [`form ${CONTACT_FORM.route}`]: "Timeout" } })));
+browserCase("BR-EARLY", "reports a failed script with no reload", fails("1 page loads after the script failed once, expected 2"), () => checkEarly(early({ retry: { loads: 1, attached: false } })));
+browserCase("BR-EARLY", "reports a reload that does not attach", fails("React did not attach after the reload"), () => checkEarly(early({ retry: { loads: 2, attached: false } })));
+browserCase("BR-EARLY", "reports a reload loop", fails("5 page loads with the script always failing, expected 2"), () => checkEarly(early({ giveUp: { loads: 5, heading: true } })));
+browserCase("BR-EARLY", "reports a page lost after the script failed", fails("the built page did not stay on screen"), () => checkEarly(early({ giveUp: { loads: 2, heading: false } })));
+browserCase("BR-EARLY", "reports a form with no phone number in its built text", fails(`the built form does not give ${EARLY.help[0]}`), () => checkEarly(earlyContact({ help: EARLY.help[1] })));
+browserCase("BR-EARLY", "reports a form with no email in its built text", fails(`the built form does not give ${EARLY.help[1]}`), () => checkEarly(earlyContact({ help: EARLY.help[0] })));
+browserCase("BR-EARLY", "reports a reload with the site check aborted", fails("2 page loads with the site check aborted, expected 1"), () => checkEarly(early({ siteDown: { ...early().siteDown, aborted: { ...staysUp, loads: 2 } } })));
+browserCase("BR-EARLY", "reports a reload with the site check refused", fails("2 page loads with the site check refused, expected 1"), () => checkEarly(early({ siteDown: { ...early().siteDown, refused: { ...staysUp, loads: 2 } } })));
+browserCase("BR-EARLY", "reports a page lost with the site check aborted", fails("the built page did not stay on screen with the site check aborted"), () => checkEarly(early({ siteDown: { ...early().siteDown, aborted: { ...staysUp, heading: false } } })));
+browserCase("BR-EARLY", "reports a site check that never gives up", fails("the site check was still waiting with the site check stalled"), () => checkEarly(early({ siteDown: { ...early().siteDown, stalled: { ...staysUp, settled: false } } })));
+browserCase("BR-EARLY", "reports a site check step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ siteDown: { aborted: staysUp, refused: staysUp }, errors: { "site check stalled": "Timeout" } })));
+browserCase("BR-EARLY", "reports a reload over text typed before the failure", fails("2 page loads with text in the form before the site check, expected 1"), () => checkEarly(early({ typed: { ...early().typed, before: { ...staysFilled, loads: 2 } } })));
+browserCase("BR-EARLY", "reports a reload over text typed during the site check", fails("2 page loads with text in the form during the site check, expected 1"), () => checkEarly(early({ typed: { ...early().typed, during: { ...staysFilled, loads: 2 } } })));
+browserCase("BR-EARLY", "reports text lost during the site check", fails("text in the form during the site check was lost"), () => checkEarly(early({ typed: { ...early().typed, during: { ...staysFilled, kept: false } } })));
+browserCase("BR-EARLY", "reports a form that takes text during the reload", fails("the form still took text while the reload was on its way"), () => checkEarly(early({ reloading: { reached: true, editable: true } })));
+browserCase("BR-EARLY", "reports a reload that never started, which proves nothing", fails("the reload never started"), () => checkEarly(early({ reloading: { reached: false, editable: false } })));
+browserCase("BR-EARLY", "reports a failed send that says nothing", fails("a failed send told the visitor nothing"), () => checkEarly(early({ sendFailed: { ...early().sendFailed, [CONTACT_FORM.route]: { told: false, kept: true } } })));
+browserCase("BR-EARLY", "reports a failed send that loses the text", fails("a failed send lost what was typed"), () => checkEarly(early({ sendFailed: { ...early().sendFailed, [CONTACT_FORM.route]: { told: true, kept: false } } })));
+browserCase("BR-EARLY", "reports a failed send step that did not finish", fails("the step did not finish: Timeout"), () => { const { [CONTACT_FORM.route]: _, ...rest } = early().sendFailed; return checkEarly(early({ sendFailed: rest, errors: { [`failed send ${CONTACT_FORM.route}`]: "Timeout" } })); });
+browserCase("BR-EARLY", "reports a text step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ typed: { before: staysFilled }, errors: { "text during the site check": "Timeout" } })));
+browserCase("BR-EARLY", "reports a step with no reading", fails("the step did not finish: no reading"), () => checkEarly(early({ retry: undefined })));
+browserCase("BR-EARLY", "reports a built /cart that calls a saved cart empty", fails(`reads "${EARLY.cart.falseClaim}" before React attaches`), () => checkEarly(earlyCart({ before: "Your Selections Are Empty" })));
+browserCase("BR-EARLY", "reports a saved cart that never appears", fails("the saved cart was not on the page"), () => checkEarly(earlyCart({ after: "Your Selections Are Empty" })));
+browserCase("BR-EARLY", "reports a built /cart with no text, which proves nothing", fails("the built page had no text"), () => checkEarly(earlyCart({ before: "" })));
+browserCase("BR-EARLY", "reports a /cart read after React attached, which proves nothing", fails("React had attached before the step acted"), () => checkEarly(earlyCart({ held: false })));
+browserCase("BR-EARLY", "reports a /cart step that did not finish", fails("the step did not finish: Timeout"), () => checkEarly(early({ cart: undefined, errors: { "saved cart": "Timeout" } })));
+
+browserCase("BR-GA", "good fixture", "pass", () => checkGa(snapshot({ gaConfigs: 1 })));
+browserCase("BR-GA", "reports two page views from one load", "fail", () => checkGa(snapshot({ gaConfigs: 2 })));
+browserCase("BR-GA", "reports a page with no tag", "fail", () => checkGa(snapshot({ gaConfigs: 0 })));
+browserCase("BR-GA", "reports a load with no reading", "fail", () => checkGa(snapshot()));
+browserCase("BR-GA", "leaves the 404 page alone", "pass", () => checkGa(snapshot({ route: LIVE.missingPath, gaConfigs: 0 })));
+
+const liveCase = (rule: string, name: string, expect: Expect, run: () => Finding[]) => cases.push({ rule, name, ...expected(expect), run });
 const APEX = LIVE.apex;
 const chain = (...hops: Array<[string, number]>): Chain => hops.map(([url, status]) => ({ url, status }));
 
 liveCase("LV-HOST", "good fixture", "pass", () => checkHost("https://www.wabisabiservices.ca", chain(["https://www.wabisabiservices.ca/", 308], [`${APEX}/`, 200])));
 liveCase("LV-HOST", "the apex needs no redirect", "pass", () => checkHost(APEX, chain([`${APEX}/`, 200])));
-liveCase("LV-HOST", "reports a 307", "fail", () => checkHost(APEX, chain([`${APEX}/`, 307], ["https://www.wabisabiservices.ca/", 200])));
+liveCase("LV-HOST", "reports a redirect away from the apex", fails("does not end at the apex"), () => checkHost(APEX, chain([`${APEX}/`, 307], ["https://www.wabisabiservices.ca/", 200])));
 liveCase("LV-HOST", "reports a temporary hop to the apex", "fail", () => checkHost("http://wabisabiservices.ca", chain(["http://wabisabiservices.ca/", 307], [`${APEX}/`, 200])));
 liveCase("LV-HOST", "reports two hops", "fail", () => checkHost("http://wabisabiservices.ca", chain(["http://wabisabiservices.ca/", 308], ["https://www.wabisabiservices.ca/", 308], [`${APEX}/`, 200])));
 liveCase("LV-FILES", "good fixture", "pass", () => checkFile("/llms.txt", chain([`${APEX}/llms.txt`, 200])));
 liveCase("LV-FILES", "reports a redirect", "fail", () => checkFile("/llms.txt", chain([`${APEX}/llms.txt`, 307], ["https://www.wabisabiservices.ca/llms.txt", 200])));
-liveCase("LV-404", "good fixture", "pass", () => checkMissing(chain([`${APEX}/does-not-exist`, 404])));
-liveCase("LV-404", "reports a soft 404", "fail", () => checkMissing(chain([`${APEX}/does-not-exist`, 200])));
-liveCase("LV-RAW", "good fixture", "pass", () => checkRaw("/areas/oak-bay", 200, `<html><head></head><body><h1>Title</h1><p>${"word ".repeat(200)}</p></body></html>`));
-liveCase("LV-RAW", "reports a head-only page", "fail", () => checkRaw("/areas/oak-bay", 200, '<html><head><title>x</title></head><body><div id="root"></div></body></html>'));
+liveCase("LV-404", "good fixture", "pass", () => checkMissing(LIVE.missingPath, chain([`${APEX}/does-not-exist`, 404]), notFoundHtml()));
+liveCase("LV-404", "reports a soft 404", "fail", () => checkMissing(LIVE.missingPath, chain([`${APEX}/does-not-exist`, 200]), notFoundHtml()));
+liveCase("LV-404", "reports the platform's own 404 page", fails("the title does not name"), () => checkMissing(LIVE.missingPath, chain([`${APEX}/does-not-exist`, 404]), "<html><head><title>404: NOT_FOUND</title></head><body><h1>404</h1></body></html>"));
+liveCase("LV-404", "reports a 404 page with a home canonical", "fail", () => checkMissing(LIVE.missingPath, chain([`${APEX}/does-not-exist`, 404]), notFoundHtml().replace("</head>", `<link rel="canonical" href="${APEX}/" /></head>`)));
+for (const path of LIVE.missingPaths) {
+  liveCase("LV-404", `a missing ${path} is a real 404`, "pass", () => checkMissing(path, chain([`${APEX}${path}`, 404]), notFoundHtml()));
+  liveCase("LV-404", `names ${path} when it is a soft 404`, "fail", () => {
+    const findings = checkMissing(path, chain([`${APEX}${path}`, 200]), notFoundHtml());
+    return findings.filter((finding) => finding.file === path);
+  });
+}
+const OAK_BAY = "/areas/oak-bay";
+const liveHtml = (canonical: string, h1: string, words = 200) => `<html><head><link rel="canonical" href="${canonical}" /></head><body><h1>${h1}</h1><p>${"word ".repeat(words)}</p></body></html>`;
+liveCase("LV-RAW", "good fixture", "pass", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title"), "Title"));
+liveCase("LV-RAW", "reports a head-only page", fails("no H1 in raw HTML"), () => checkRaw(OAK_BAY, 200, '<html><head><title>x</title></head><body><div id="root"></div></body></html>', "Title"));
+liveCase("LV-RAW", "reports the home page served for this route", fails("canonical is https://wabisabiservices.ca/, expected"), () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}/`, "Home"), "Title"));
+liveCase("LV-RAW", "reports the right canonical with the wrong H1", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Other"), "Title"));
+liveCase("LV-RAW", "reports the right H1 with the wrong canonical", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}/`, "Title"), "Title"));
+liveCase("LV-RAW", "reports no baseline H1", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title"), undefined));
+liveCase("LV-RAW", "reports too little body text", "fail", () => checkRaw(OAK_BAY, 200, liveHtml(`${APEX}${OAK_BAY}`, "Title", 10), "Title"));
 liveCase("LV-REDIRECT", "good fixture", "pass", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 200])));
+liveCase("LV-REDIRECT", "a path left alone may answer anything but a redirect", "pass", () => checkNotRedirected("/api/send-form-email", chain([`${APEX}/api/send-form-email`, 405])));
+liveCase("LV-REDIRECT", "reports a redirect on a path it must leave alone", fails("expected no redirect"), () => checkNotRedirected("/api/send-form-email", chain([`${APEX}/api/send-form-email`, 308], [`${APEX}/`, 200])));
 liveCase("LV-REDIRECT", "reports a temporary redirect", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 307], [`${APEX}/ritual`, 200])));
-liveCase("LV-UTILITY", "good fixture", "pass", () => checkUtility("/cart", 200, '<meta name="robots" content="noindex,follow" data-rh="true" />'));
+liveCase("LV-REDIRECT", "/home goes to the home page", "pass", () => checkRedirect("/home", "/", APEX, chain([`${APEX}/home`, 308], [`${APEX}/`, 200])));
+const SLASH_HOPS = LIVE.redirects.find((item) => item.from === "/home/")?.maxHops;
+liveCase("LV-REDIRECT", "/home/ goes straight to the home page", "pass", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "/home/ may go through /home, as trailingSlash does", "pass", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 308], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "reports a temporary hop on a slash form", "fail", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 307], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "reports three hops on a slash form", "fail", () => checkRedirect("/home/", "/", APEX, chain([`${APEX}/home/`, 308], [`${APEX}/home`, 308], [`${APEX}/index.html`, 308], [`${APEX}/`, 200]), SLASH_HOPS));
+liveCase("LV-REDIRECT", "reports a 200 with no redirect, as in Release 1", fails(/ending at 200: \S+\/the-ritual 200$/), () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 200])));
+liveCase("LV-REDIRECT", "reports two hops", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/the-ritual/`, 308], [`${APEX}/ritual`, 200])));
+liveCase("LV-REDIRECT", "reports the wrong destination", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/`, 200])));
+liveCase("LV-REDIRECT", "reports a redirect that ends in a 404", "fail", () => checkRedirect("/the-ritual", "/ritual", APEX, chain([`${APEX}/the-ritual`, 308], [`${APEX}/ritual`, 404])));
+const utilityHtml = (meta: string) => `<html><head>${meta}</head><body></body></html>`;
+liveCase("LV-UTILITY", "good fixture", "pass", () => checkUtility("/cart", 200, utilityHtml('<meta name="robots" content="noindex,follow" data-rh="true" />')));
+liveCase("LV-UTILITY", "reads content written before name", "pass", () => checkUtility("/cart", 200, utilityHtml('<meta content="noindex" name="robots" />')));
 liveCase("LV-UTILITY", "reports no noindex", "fail", () => checkUtility("/cart", 200, "<html></html>"));
+liveCase("LV-UTILITY", "ignores noindex outside the head", "fail", () => checkUtility("/cart", 200, '<html><head></head><body><meta name="robots" content="noindex" /></body></html>'));
+liveCase("LV-UTILITY", "reports a status other than 200", "fail", () => checkUtility("/cart", 404, utilityHtml('<meta name="robots" content="noindex,follow" />')));
+
+const sitemapOf = (...dates: Array<string | undefined>) => dates.map((date, index) => `<url><loc>${APEX}/page-${index}</loc>${date ? `<lastmod>${date}</lastmod>` : ""}</url>`).join("\n");
+const trackedOf = (...dates: string[]) => Object.fromEntries(dates.map((date, index) => [`/page-${index}`, date]));
+const TWO_HISTORIES = ["2026-01-15", "2026-06-12"];
+const SAME_DATE = sitemapOf("2026-06-12", "2026-06-12", "2026-06-12");
+const SAME_TRACKED = trackedOf("2026-06-12", "2026-06-12", "2026-06-12");
+const TRACKED = trackedOf("2026-01-15", "2026-06-12", "2026-06-12");
+liveCase("LV-SITEMAP", "good fixture", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES, TRACKED));
+liveCase("LV-SITEMAP", "reads a date written with a time", "pass", () => checkSitemapDates(200, sitemapOf("2026-01-15T08:00:00Z", "2026-06-12"), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a URL with no lastmod", fails(`${APEX}/page-1 has no lastmod`), () => checkSitemapDates(200, sitemapOf("2026-01-15", undefined), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports one date across pages with different histories", fails("all 3 URLs share the lastmod 2026-06-12, but 1 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, TWO_HISTORIES, SAME_TRACKED));
+liveCase("LV-SITEMAP", "reports a build date when the pages last changed together", fails("but 2 of 2 pages last changed on another date"), () => checkSitemapDates(200, SAME_DATE, ["2026-01-15", "2026-01-15"], SAME_TRACKED));
+liveCase("LV-SITEMAP", "allows one date when every page last changed then", "pass", () => checkSitemapDates(200, SAME_DATE, ["2026-06-12", "2026-06-12"], SAME_TRACKED));
+liveCase("LV-SITEMAP", "reports a date later than today", fails(`${APEX}/page-1: lastmod 2999-01-01 is later than today`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2999-01-01"), TWO_HISTORIES, trackedOf("2026-01-15", "2999-01-01")));
+liveCase("LV-SITEMAP", "reports a date it cannot read", fails(`${APEX}/page-0: lastmod soon is not a date`), () => checkSitemapDates(200, sitemapOf("soon", "2026-06-12"), TWO_HISTORIES, trackedOf("soon", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a page that is not a sitemap", fails("no URLs in the sitemap"), () => checkSitemapDates(200, pageHtml("/"), TWO_HISTORIES, TRACKED));
+liveCase("LV-SITEMAP", "reports a status other than 200", fails("status 404"), () => checkSitemapDates(404, "", TWO_HISTORIES, TRACKED));
+// What R1 really left: most pages changed on one day, and a few did not. Every date but one is shared, so sharedDateProblem stays quiet.
+const MOST_TRACKED = trackedOf("2026-10-31", "2026-10-31", "2026-10-31", "2026-10-31", "2026-07-05", "2026-07-05");
+const STAMPED = "2026-11-15";
+liveCase("LV-SITEMAP", "allows most URLs on one date when the tracked file holds it", "pass", () => checkSitemapDates(200, sitemapOf(...Object.values(MOST_TRACKED)), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports a build date on most URLs, which the shared-date check allows", fails(`${APEX}/page-0: lastmod ${STAMPED} differs from the tracked date 2026-10-31`), () => checkSitemapDates(200, sitemapOf(STAMPED, STAMPED, STAMPED, STAMPED, STAMPED, "2026-07-05"), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports the one page a stale deploy has wrong", fails(`${APEX}/page-5: lastmod 2026-06-12 differs from the tracked date 2026-07-05`), () => checkSitemapDates(200, sitemapOf("2026-10-31", "2026-10-31", "2026-10-31", "2026-10-31", "2026-07-05", "2026-06-12"), TWO_HISTORIES, MOST_TRACKED));
+liveCase("LV-SITEMAP", "reports a deployed URL with no tracked date", fails(`${APEX}/page-2 has no tracked date`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12", "2026-06-12"), TWO_HISTORIES, trackedOf("2026-01-15", "2026-06-12")));
+liveCase("LV-SITEMAP", "reports a tracked route the deployment lacks", fails(`${APEX}/page-2 has a tracked date but is not in the sitemap`), () => checkSitemapDates(200, sitemapOf("2026-01-15", "2026-06-12"), TWO_HISTORIES, TRACKED));
+
+const auditHop = (route: string, status = 200, location?: string): Chain => [{ url: `${APEX}${route}`, status, location }];
+const auditPages = () => {
+  const files = goodDist();
+  return new Map(INDEXABLE_ROUTES.map((route) => [route, files.get(htmlFileOfRoute(route)) as string]));
+};
+const longPage = (route: string) => pageHtml(route).split(`${route} | Wabi Sabi Services`).join(LONG_TITLE);
+liveCase("LV-AUDIT", "good fixture", "pass", () => checkAudit("/about", auditHop("/about"), pageHtml("/about")));
+liveCase("LV-AUDIT", "reports a status other than 200", fails("expected 200 with no redirect"), () => checkAudit("/about", auditHop("/about", 404), pageHtml("/about")));
+liveCase("LV-AUDIT", "reports a stray Location on a 200", fails("a Location header goes to /elsewhere"), () => checkAudit("/about", auditHop("/about", 200, "/elsewhere"), pageHtml("/about")));
+liveCase("LV-AUDIT", "reports another page's canonical", fails("canonical is"), () => checkAudit("/about", auditHop("/about"), pageHtml("/faq")));
+liveCase("LV-AUDIT", "reports a long title", TITLE_OVER, () => checkAudit("/about", auditHop("/about"), longPage("/about")));
+liveCase("LV-AUDIT", "applies the listed exceptions", "pass", () => checkAudit(EXEMPT_TITLE, auditHop(EXEMPT_TITLE), longPage(EXEMPT_TITLE)));
+liveCase("LV-AUDIT", "takes the sitemap's paths", "pass", () => {
+  const paths = sitemapPaths(goodDist().get("sitemap.xml") as string);
+  return paths.join() === INDEXABLE_ROUTES.join() ? [] : [{ rule: "LV-AUDIT", message: "the sitemap's paths differ from the route list" }];
+});
+liveCase("LV-AUDIT", "allows a sitemap with every route", "pass", () => checkAuditRoutes(200, INDEXABLE_ROUTES));
+liveCase("LV-AUDIT", "reports a sitemap that does not load", fails("status 404"), () => checkAuditRoutes(404, []));
+liveCase("LV-AUDIT", "reports an empty sitemap", fails("no URLs in the sitemap"), () => checkAuditRoutes(200, []));
+liveCase("LV-AUDIT", "reports a route the sitemap leaves out", fails("/about is not in the sitemap"), () => checkAuditRoutes(200, INDEXABLE_ROUTES.filter((route) => route !== "/about")));
+liveCase("LV-AUDIT", "reports a sitemap URL that is not a route", fails("/gone is in the sitemap"), () => checkAuditRoutes(200, [...INDEXABLE_ROUTES, "/gone"]));
+liveCase("LV-AUDIT", "runs the site lines over the fetched pages", "pass", () => checkAuditSite(auditPages()));
+liveCase("LV-AUDIT", "reports JSON-LD that does not parse on the deployment", fails("does not parse"), () => {
+  const pages = auditPages();
+  pages.set("/about", (pages.get("/about") as string).replace("</head>", '<script type="application/ld+json">{oops</script></head>'));
+  return checkAuditSite(pages);
+});
+liveCase("LV-AUDIT", "reports a dangling @id on the deployment", fails("resolves to no node"), () => {
+  const pages = auditPages();
+  pages.set("/about", (pages.get("/about") as string).replace("</head>", `${script({ "@type": "Service", provider: { "@id": `${SITE}/#nobody` } })}</head>`));
+  return checkAuditSite(pages);
+});
+
+const headerFindings = (headers: Record<string, string>, wanted: boolean): Finding[] =>
+  (BROWSER.bypassHeader in headers) === wanted ? [] : [{ rule: "LV-AUDIT", message: `the bypass header was ${wanted ? "not sent" : "sent"}` }];
+const PREVIEW_ORIGIN = "https://preview-fixture.vercel.app";
+liveCase("LV-AUDIT", "sends no bypass header to production", "pass", () => headerFindings(headersFor(`${APEX}/about`, APEX, "token"), false));
+liveCase("LV-AUDIT", "sends no bypass header to the www host", "pass", () => headerFindings(headersFor("https://www.wabisabiservices.ca/about", "https://www.wabisabiservices.ca", "token"), false));
+liveCase("LV-AUDIT", "sends the bypass header to a preview's own origin", "pass", () => headerFindings(headersFor(`${PREVIEW_ORIGIN}/about`, PREVIEW_ORIGIN, "token"), true));
+liveCase("LV-AUDIT", "sends no bypass header from a preview to another origin", "pass", () => headerFindings(headersFor(`${APEX}/about`, PREVIEW_ORIGIN, "token"), false));
+liveCase("LV-AUDIT", "sends no bypass header with no token", "pass", () => headerFindings(headersFor(`${PREVIEW_ORIGIN}/about`, PREVIEW_ORIGIN, undefined), false));
+
+/**
+ * The redirects as the platform makes them, apart from LIVE.hops: https first, then the www rule,
+ * then the trailing slash. So a wrong cell in that table fails here, and not on production.
+ */
+function walkHops(start: string, wwwSlash: WwwSlash): Chain {
+  const hops: Chain = [];
+  const url = new URL(start);
+  const dropSlash = () => {
+    url.pathname = url.pathname.replace(/\/$/, "");
+  };
+  for (;;) {
+    const www = url.hostname.startsWith("www.");
+    const slash = url.pathname.endsWith("/");
+    if (url.protocol !== "http:" && !www && !slash) return [...hops, { url: url.href, status: 200 }];
+    hops.push({ url: url.href, status: 308 });
+    if (url.protocol === "http:") url.protocol = "https:";
+    else if (www) {
+      url.hostname = url.hostname.slice(4);
+      if (wwwSlash === "after") dropSlash();
+    } else dropSlash();
+  }
+}
+
+for (const wwwSlash of ["before", "after"] as WwwSlash[]) {
+  for (const row of hopRows(wwwSlash)) liveCase("LV-HOPS", `${row.start} with the ${wwwSlash} rule`, "pass", () => checkHops(walkHops(row.start, wwwSlash), row));
+}
+for (const row of hopRows(undefined, PREVIEW_ORIGIN)) liveCase("LV-HOPS", `a preview takes ${row.start}`, "pass", () => checkHops(walkHops(row.start, "before"), row));
+const WWW_SLASH = "https://www.wabisabiservices.ca/services/cleaning/";
+const QUERY = LIVE.hops.query;
+const hopRow = (wwwSlash: WwwSlash, start: string) => hopRows(wwwSlash).find((row) => row.start === start) as ReturnType<typeof hopRows>[number];
+const FINAL = `${APEX}${LIVE.hops.path}`;
+liveCase("LV-HOPS", "a preview has no www rows", "pass", () => (hopRows(undefined, PREVIEW_ORIGIN).some((row) => row.start.includes("www.")) ? [{ rule: "LV-HOPS", message: "a www row runs on a preview" }] : []));
+liveCase("LV-HOPS", "reports one hop too many", fails("2 hops, expected 1"), () => checkHops(walkHops(WWW_SLASH, "before"), hopRow("after", WWW_SLASH)));
+liveCase("LV-HOPS", "reports one hop too few", fails("1 hops, expected 2"), () => checkHops(walkHops(WWW_SLASH, "after"), hopRow("before", WWW_SLASH)));
+liveCase("LV-HOPS", "reports a 307 hop", fails("hop is 307, expected 308"), () => checkHops(chain([WWW_SLASH, 307], [FINAL, 200]), hopRow("after", WWW_SLASH)));
+liveCase("LV-HOPS", "reports a dropped query", fails("the query did not survive"), () => checkHops(chain([`${WWW_SLASH}${QUERY}`, 308], [FINAL, 200]), hopRow("after", `${WWW_SLASH}${QUERY}`)));
+liveCase("LV-HOPS", "reports a redirect that ends elsewhere", fails("does not end at"), () => checkHops(chain([WWW_SLASH, 308], [`${APEX}/`, 200]), hopRow("after", WWW_SLASH)));
+liveCase("LV-HOPS", "reports a redirect that ends in a 404", fails("does not end at"), () => checkHops(chain([WWW_SLASH, 308], [FINAL, 404]), hopRow("after", WWW_SLASH)));
 
 const LIVE_RULES = LIVE.all;
 
@@ -640,6 +1629,32 @@ function argumentChecks(): string[] {
   expectRoute("C:/Program Files/Git/", "/");
   expectRoute("C:/Program Files/Git/,/reviews", "/,/reviews");
   expectRoute("/services/errands/", "/services/errands/");
+  const expectGuard = (fromPrerendered: boolean, writing: boolean, routes: string[] | undefined, refused: boolean) => {
+    if (Boolean(fromPrerenderedProblem(fromPrerendered, writing, routes)) !== refused) problems.push(`--from-prerendered with routes ${routes} and writing ${writing} should ${refused ? "be refused" : "run"}`);
+  };
+  expectGuard(true, true, undefined, true);
+  expectGuard(true, true, [], true);
+  expectGuard(true, false, ["/about"], true);
+  expectGuard(true, true, ["/about"], false);
+  expectGuard(false, true, undefined, false);
+  // R2-21's proof is a run on the missing path alone: BR-404 must read it, and BR-HYDRATE must not.
+  const expectHydration = (requested: string[] | undefined, skipped: string[], routes: string[], outside: string[]) => {
+    const actual = hydrationUrls(requested, skipped);
+    if (JSON.stringify(actual) !== JSON.stringify({ routes, outside })) problems.push(`BR-HYDRATE on ${requested} skipping ${skipped} chose ${JSON.stringify(actual)}`);
+  };
+  expectHydration([LIVE.missingPath], [], [], [LIVE.missingPath]);
+  expectHydration(["/about", LIVE.missingPath], [], ["/about"], [LIVE.missingPath]);
+  expectHydration([STRIPE_RETURN], [], [STRIPE_RETURN], []);
+  expectHydration(["/about", "/faq"], ["/faq"], ["/about"], []);
+  const everyRoute = hydrationUrls(undefined, UTILITY_ROUTES);
+  if (everyRoute.routes.join() !== INDEXABLE_ROUTES.join() || everyRoute.outside.length > 0) problems.push("a full BR-HYDRATE pass does not load the route list less what it skips");
+  const expectMissing = (requested: string[] | undefined, named: string[], runs: boolean) => {
+    if (runsMissingUrl(requested, named) !== runs) problems.push(`BR-404 with routes ${requested} and rules ${named} should ${runs ? "run" : "not run"}`);
+  };
+  expectMissing(undefined, [], true);
+  expectMissing([LIVE.missingPath], [], true);
+  expectMissing(["/about"], [], false);
+  expectMissing(["/about"], ["BR-404"], true);
   return problems;
 }
 
@@ -651,8 +1666,22 @@ function coverageProblems(): string[] {
     if (!cases.some((item) => item.rule === rule && item.expect === "fail")) problems.push(`${rule} has no bad fixture`);
   }
   for (const ban of BANS) if (!(ban.id in SOURCE_CHECKS)) problems.push(`${ban.id} has no check`);
+  // The forms Google reported, with and without the slash.
+  for (const [from, to] of [["/home", "/"], ["/home/", "/"], ["/the-ritual", "/ritual"], ["/the-ritual/", "/ritual"]]) {
+    if (!LIVE.redirects.some((item) => item.from === from && item.to === to)) problems.push(`LV-REDIRECT does not cover ${from}`);
+  }
+  if (!BROWSER.hydrationUrls.includes(STRIPE_RETURN)) problems.push("BR-HYDRATE does not load Stripe's return URL");
+  if (!LIVE.utilityRoutes.includes(STRIPE_RETURN)) problems.push("LV-UTILITY does not load Stripe's return URL");
+  if (!LIVE.missingPaths.includes(LIVE.missingPath)) problems.push("LV-404 does not read the path BR-404 reads");
+  const reasons = Object.values(AUDIT_REASONS);
+  for (const [route, reason] of Object.entries({ ...AUDIT.titleExempt, ...AUDIT.descriptionExempt, ...AUDIT.wordPending })) {
+    if (!reasons.includes(reason)) problems.push(`${route} gives a reason outside AUDIT_REASONS`);
+  }
+  for (const route of LISTED_EXCEPTIONS) if (!INDEXABLE_ROUTES.includes(route)) problems.push(`${route} is a listed exception but not a route`);
   return problems;
 }
+
+const saysReason = (message: string, reason: Reason) => (typeof reason === "string" ? message.includes(reason) : reason.test(message));
 
 export function runSelfTest(): number {
   let failures = 0;
@@ -674,7 +1703,16 @@ export function runSelfTest(): number {
       fail(`${title}: expected no findings, got ${findings.length}`);
       findings.slice(0, 3).forEach((finding) => console.log(`  ${formatFinding(finding)}`));
     }
-    if (item.expect === "fail" && !findings.some((finding) => finding.rule === item.rule)) fail(`${title}: expected a finding, got none`);
+    if (item.expect === "fail") {
+      const own = findings.filter((finding) => finding.rule === item.rule);
+      const kinds = new Set(own.map((finding) => finding.message)).size;
+      const { reason } = item;
+      if (own.length === 0) fail(`${title}: expected a finding, got none`);
+      else if (reason && !own.some((finding) => saysReason(finding.message, reason))) {
+        fail(`${title}: expected a finding that says ${reason}, got ${own.length}`);
+        own.slice(0, 3).forEach((finding) => console.log(`  ${formatFinding(finding)}`));
+      } else if (!reason && kinds > 1) fail(`${title}: ${kinds} different findings, so the case must state its reason`);
+    }
     if (item.hidden && findings.some((finding) => formatFinding(finding).toLowerCase().includes((item.hidden as string).toLowerCase()))) {
       fail(`${title}: the output contains the matched text`);
     }

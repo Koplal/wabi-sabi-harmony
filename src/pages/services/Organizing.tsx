@@ -109,6 +109,24 @@ const Organizing = () => {
                   </ul>
                 </div>
               </div>
+              <p className="text-muted-foreground mt-8">
+                Organizing support in{" "}
+                <Link to="/areas/uplands" className="underline underline-offset-4 hover:text-foreground transition-colors">Uplands</Link>
+                ,{" "}
+                <Link to="/areas/oak-bay" className="underline underline-offset-4 hover:text-foreground transition-colors">Oak Bay</Link>
+                ,{" "}
+                <Link to="/areas/rockland" className="underline underline-offset-4 hover:text-foreground transition-colors">Rockland</Link>{" "}
+                and{" "}
+                <Link to="/areas/north-saanich" className="underline underline-offset-4 hover:text-foreground transition-colors">North Saanich</Link>
+                .
+              </p>
+              <p className="text-muted-foreground mt-4">
+                For a new start at the door, see{" "}
+                <Link to="/seasoning/the-fresh-start" className="underline underline-offset-4 hover:text-foreground transition-colors">The Fresh Start</Link>{" "}
+                and our other{" "}
+                <Link to="/seasoning" className="underline underline-offset-4 hover:text-foreground transition-colors">seasonal decorating</Link>
+                .
+              </p>
             </section>
 
             <section className="bg-secondary/30 rounded-lg p-10">

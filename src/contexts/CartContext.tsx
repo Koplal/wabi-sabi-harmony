@@ -16,6 +16,8 @@ interface CartContextType {
   clearCart: () => void;
   total: number;
   itemCount: number;
+  /** False until the saved cart has been read, so an empty cart here may not be empty yet. */
+  isLoaded: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -39,11 +41,19 @@ const writeSavedCart = (items: CartItem[]) => {
 };
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>(readSavedCart);
+  // Pages are built with an empty cart, so the first render in the browser must be empty too.
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    writeSavedCart(items);
-  }, [items]);
+    setItems(readSavedCart());
+    setIsLoaded(true);
+  }, []);
+
+  // Never before that load, or the empty first render would replace the saved cart.
+  useEffect(() => {
+    if (isLoaded) writeSavedCart(items);
+  }, [items, isLoaded]);
 
   const addToCart = (item: CartItem) => {
     setItems((prev) => {
@@ -62,8 +72,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success('Removed from cart');
   };
 
-  // Stable, because the order confirmation page runs this from an effect that depends on it.
+  // Stable, because the order confirmation page runs this from an effect that depends on it. That
+  // effect runs before the load above, so storage is cleared here or the paid cart would come back.
   const clearCart = useCallback(() => {
+    writeSavedCart([]);
     setItems([]);
   }, []);
 
@@ -71,7 +83,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const itemCount = items.length;
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart, total, itemCount }}>
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart, total, itemCount, isLoaded }}>
       {children}
     </CartContext.Provider>
   );

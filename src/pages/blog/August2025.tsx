@@ -11,6 +11,7 @@ const August2025 = () => {
     <Layout>
       <SEO
         title="August Awakening: From Summer's Ease to Fall's Focus"
+        noBrandSuffix
         description="As August settles over Victoria, renew your home with intention. Move outdoor living, beach gear, and kitchen routines from summer ease into autumn order."
         canonical="https://wabisabiservices.ca/blog/august-2025"
         ogType="article"

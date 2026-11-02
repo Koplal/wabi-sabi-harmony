@@ -143,6 +143,13 @@ const Cleaning = () => {
                   </ul>
                 </div>
               </div>
+              <p className="text-muted-foreground mt-8">
+                Seasonal styling for shops and lobbies:{" "}
+                <Link to="/seasoning/the-professional-welcome" className="underline underline-offset-4 hover:text-foreground transition-colors">The Professional Welcome</Link>{" "}
+                and{" "}
+                <Link to="/seasoning/the-summer-storefront" className="underline underline-offset-4 hover:text-foreground transition-colors">The Summer Storefront</Link>
+                .
+              </p>
             </section>
 
             {/* Heritage & Fine-Materials Care */}
@@ -158,6 +165,17 @@ const Cleaning = () => {
                 <li>Heritage windows, leaded glass, and original millwork handled with conservation-minded care</li>
                 <li>Period finishes, hardwood, and fine fixtures tended to gallery standards</li>
               </ul>
+              <p className="text-muted-foreground mt-6">
+                Heritage and fine-materials care in{" "}
+                <Link to="/areas/rockland" className="underline underline-offset-4 hover:text-foreground transition-colors">Rockland</Link>
+                ,{" "}
+                <Link to="/areas/fairfield" className="underline underline-offset-4 hover:text-foreground transition-colors">Fairfield</Link>
+                ,{" "}
+                <Link to="/areas/oak-bay" className="underline underline-offset-4 hover:text-foreground transition-colors">Oak Bay</Link>{" "}
+                and{" "}
+                <Link to="/areas/uplands" className="underline underline-offset-4 hover:text-foreground transition-colors">Uplands</Link>
+                .
+              </p>
             </section>
 
             {/* Eco-Luxury Package */}

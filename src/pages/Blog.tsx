@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { useToday } from "@/hooks/use-today";
 import blogHero from "@/assets/blog-hero.jpg";
 
 // readTime is the word count of the rendered article at 200 words a minute, rounded up.
@@ -109,7 +110,7 @@ const allBlogArticles = [
 
 const Blog = () => {
   // Filter articles to only show published ones, then sort newest first
-  const today = new Date();
+  const today = useToday();
   const blogArticles = allBlogArticles
     .filter(article => article.publishDate <= today)
     .sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime());
