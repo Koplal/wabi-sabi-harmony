@@ -10,18 +10,20 @@ interface SEOProps {
   publishedTime?: string;
   keywords?: string;
   noindex?: boolean;
+  noBrandSuffix?: boolean;
 }
 
 /**
  * SEO component for managing meta tags dynamically across pages.
  * 
- * @param title - Page title (will be appended with site name)
+ * @param title - Page title (the site name is appended unless noBrandSuffix is set)
  * @param description - Page meta description
  * @param canonical - Canonical URL for the page
  * @param ogType - Open Graph type (website or article)
  * @param ogImage - Open Graph image URL
  * @param publishedTime - Article published time (ISO format)
  * @param noindex - When true, emit a robots "noindex,follow" meta tag (e.g. cart, checkout, 404)
+ * @param noBrandSuffix - When true, use the title as written, with no site name after it
  */
 export const SEO = ({
   title,
@@ -32,9 +34,10 @@ export const SEO = ({
   publishedTime,
   keywords,
   noindex = false,
+  noBrandSuffix = false,
 }: SEOProps) => {
   const siteUrl = "https://wabisabiservices.ca";
-  const fullTitle = `${title} | Wabi Sabi Services`;
+  const fullTitle = noBrandSuffix ? title : `${title} | Wabi Sabi Services`;
   // The router's path, because the build renders pages with no window.
   const { pathname } = useLocation();
   const canonicalPath = pathname.replace(/\/+$/, "") || "/";

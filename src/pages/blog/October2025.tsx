@@ -11,6 +11,7 @@ const October2025 = () => {
     <Layout>
       <SEO
         title="A Mindful Fall Cleaning Guide for Victoria Homes"
+        noBrandSuffix
         description="As maple leaves turn along Victoria's streets, autumn invites a gentler kind of cleaning. A room-by-room guide to a calm, warm home for the season ahead."
         canonical="https://wabisabiservices.ca/blog/october-2025"
         ogType="article"

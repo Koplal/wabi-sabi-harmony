@@ -11,6 +11,7 @@ const December2025 = () => {
     <Layout>
       <SEO
         title="Holiday Harmony: Mindful Cleaning for December"
+        noBrandSuffix
         description="December in Victoria sparkles with lights and gatherings. A week-by-week plan for hosting with grace, plus natural scents and sustainable table settings."
         canonical="https://wabisabiservices.ca/blog/december-2025"
         ogType="article"
