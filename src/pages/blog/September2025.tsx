@@ -11,6 +11,7 @@ const September2025 = () => {
     <Layout>
       <SEO
         title="Back-to-School Serenity: Calm in September's Chaos"
+        noBrandSuffix
         description="September brings routines, homework stations, and packed lunches. How a calm, well-ordered Victoria home supports learning, focus, and easier mornings."
         canonical="https://wabisabiservices.ca/blog/september-2025"
         ogType="article"

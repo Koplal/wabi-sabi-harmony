@@ -11,6 +11,7 @@ const July2026 = () => {
     <Layout>
       <SEO
         title="Summer Sanctuary: Indoor-Outdoor Living in Victoria"
+        noBrandSuffix
         description="July in Victoria means long days and outdoor living. How to open your home to the garden, manage sand and sun, and keep cool without losing the calm."
         canonical="https://wabisabiservices.ca/blog/july-2026"
         ogType="article"
