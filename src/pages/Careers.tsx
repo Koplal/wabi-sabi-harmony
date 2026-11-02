@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useBuiltForm } from "@/hooks/use-built-form";
 import { FormHelp } from "@/components/FormHelp";
-import { FORM_FAILED, formFailure, FormRefused, sendForm } from "@/lib/sendForm";
+import { FORM_FAILED, formFailure, FormRefused, formSent, sendForm } from "@/lib/sendForm";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import careersHero from "@/assets/careers-hero.jpg";
@@ -33,7 +33,7 @@ const Careers = () => {
 
     try {
       const response = await sendForm("careers", formData);
-      if (!response.ok) throw await formFailure(response);
+      if (!(await formSent(response))) throw await formFailure(response);
 
       toast({
         title: "Application Submitted!",
@@ -111,92 +111,94 @@ const Careers = () => {
             </div>
 
             <div data-clarity-mask="true">
-              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 bg-muted/30 p-8 rounded-lg">
-                <h3 className="font-serif text-2xl mb-6">Apply Now</h3>
-              
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name *</Label>
-                  <Input
-                    id="name"
-                    maxLength={200}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
+              <form ref={formRef} onSubmit={handleSubmit} className="bg-muted/30 p-8 rounded-lg">
+                <fieldset disabled={isSubmitting} className="space-y-6 min-w-0">
+                  <h3 className="font-serif text-2xl mb-6">Apply Now</h3>
+                
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="name">Full Name *</Label>
                     <Input
-                      id="email"
-                      type="email"
+                      id="name"
                       maxLength={200}
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                     />
                   </div>
 
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        maxLength={200}
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="position">Position of Interest</Label>
                     <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      id="position"
+                      value={formData.position}
+                      onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                      placeholder="e.g., Cleaning Professional, Team Lead"
                     />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="position">Position of Interest</Label>
-                  <Input
-                    id="position"
-                    value={formData.position}
-                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                    placeholder="e.g., Cleaning Professional, Team Lead"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="experience">Relevant Experience</Label>
+                    <Textarea
+                      id="experience"
+                      maxLength={5000}
+                      value={formData.experience}
+                      onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                      placeholder="Tell us about your experience..."
+                      rows={4}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="experience">Relevant Experience</Label>
-                  <Textarea
-                    id="experience"
-                    maxLength={5000}
-                    value={formData.experience}
-                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    placeholder="Tell us about your experience..."
-                    rows={4}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="availability">Availability</Label>
+                    <Input
+                      id="availability"
+                      value={formData.availability}
+                      onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
+                      placeholder="e.g., Full-time, Part-time, Weekends"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="availability">Availability</Label>
-                  <Input
-                    id="availability"
-                    value={formData.availability}
-                    onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                    placeholder="e.g., Full-time, Part-time, Weekends"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Additional Information</Label>
+                    <Textarea
+                      id="message"
+                      maxLength={5000}
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Anything else you'd like us to know..."
+                      rows={4}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="message">Additional Information</Label>
-                  <Textarea
-                    id="message"
-                    maxLength={5000}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Anything else you'd like us to know..."
-                    rows={4}
-                  />
-                </div>
-
-                <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit} className="w-full">
-                  {isSubmitting ? "Submitting..." : "Submit Application"}
-                </Button>
-                <FormHelp />
+                  <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit} className="w-full">
+                    {isSubmitting ? "Submitting..." : "Submit Application"}
+                  </Button>
+                  <FormHelp />
+                </fieldset>
               </form>
             </div>
           </div>

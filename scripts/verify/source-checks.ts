@@ -527,6 +527,8 @@ export function checkForms(ctx: SourceCtx): Finding[] {
       continue;
     }
     if (!text.includes(`sendForm("${form}"`)) findings.push(finding(file, `does not post the ${form} form`));
+    if (!text.includes("formSent(response)")) findings.push(finding(file, "does not read the function's answer, so any 2xx page would count as sent"));
+    if (!text.includes("<fieldset disabled={isSubmitting}")) findings.push(finding(file, "leaves its fields open while sending, so later typing is cleared unsent"));
 
     const state = /useState\(\{([^}]*)\}\)/.exec(text)?.[1];
     const fields = functionFields(source, form);

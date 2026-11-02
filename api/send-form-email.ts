@@ -1,7 +1,8 @@
 /**
  * Emails the contact, booking and careers forms to the business inbox through Resend.
  * Kept in one file with no local imports, so it deploys as a single Vercel Function.
- * Personal details are never logged.
+ * Personal details are never logged. A failed send is reported to Sentry with the form type and
+ * reason only, and with SENTRY_DSN unset the forms work the same with no report.
  *
  * FORMS and OPTION_LABELS mirror the form pages, and S-FORMS in the verify harness fails
  * if they drift apart. `vite dev` doesn't serve /api: use `vercel dev` to test the forms
@@ -11,11 +12,16 @@
 
 const RESEND_URL = "https://api.resend.com/emails";
 const RESEND_TIMEOUT_MS = 8000;
+/** Short, because it follows the wait on Resend and the visitor is still waiting for an answer. */
+const SENTRY_TIMEOUT_MS = 1500;
 const INBOX = "hello@wabisabiservices.ca";
 const SENDER_ADDRESS = "onboarding@wabisabiservices.ca";
 const MAX_NAME_LENGTH = 200;
 const MAX_FIELD_LENGTH = 5000;
 const MAX_LOGGED_REASON = 300;
+
+/** Resend's error name, such as daily_quota_exceeded, in a refusal's JSON. */
+const RESEND_ERROR_NAME = /"name"\s*:\s*"([a-z_]{1,60})"/;
 
 /** One address with a dotted domain. A comma or semicolon would turn reply_to into a list. */
 const EMAIL = /^[^\s@,;<>"]+@[^\s@,;<>".]+(\.[^\s@,;<>".]+)+$/;
@@ -116,13 +122,47 @@ function readField(body: Record<string, unknown>, key: string, maxLength: number
   return value.trim();
 }
 
-export async function POST(request: Request): Promise<Response> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("RESEND_API_KEY is not set");
-    return json({ error: "Forms are unavailable" }, 500);
+/**
+ * Sends one failure to Sentry with fetch, so no SDK can capture a request body. The event is built
+ * here from the form type and reason alone, and neither holds anything a visitor typed. It never
+ * throws, and the caller waits for it because Vercel may stop a function once it has answered.
+ */
+async function reportToSentry(form: string, reason: string): Promise<void> {
+  const dsn = process.env.SENTRY_DSN;
+  if (!dsn) {
+    console.error("SENTRY_DSN is not set");
+    return;
   }
+  try {
+    const { username, protocol, host, pathname } = new URL(dsn);
+    const eventId = crypto.randomUUID().replace(/-/g, "");
+    const event = {
+      event_id: eventId,
+      timestamp: Date.now() / 1000,
+      platform: "node",
+      level: "error",
+      environment: process.env.VERCEL_ENV ?? "unknown",
+      message: `Form email failed: ${form}, ${reason}`,
+      fingerprint: ["form-email-failed", form, reason],
+      tags: { form, reason },
+    };
+    const envelope = [{ event_id: eventId, sent_at: new Date().toISOString() }, { type: "event" }, event];
+    const response = await fetch(`${protocol}//${host}/api${pathname}/envelope/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-sentry-envelope",
+        "X-Sentry-Auth": `Sentry sentry_version=7, sentry_client=wabisabiservices-forms/1.0, sentry_key=${username}`,
+      },
+      body: `${envelope.map((line) => JSON.stringify(line)).join("\n")}\n`,
+      signal: AbortSignal.timeout(SENTRY_TIMEOUT_MS),
+    });
+    if (!response.ok) console.error(`Sentry refused a report: ${response.status}`);
+  } catch (error) {
+    console.error(`Sentry could not be reached: ${error instanceof Error ? error.name : "unknown error"}`);
+  }
+}
 
+export async function POST(request: Request): Promise<Response> {
   // Exact, because a browser reads "text/plain; application/json" as text/plain and skips the preflight.
   // JSON needs one, which this function never approves. That only stops other sites: a script can still post.
   if (mediaType(request.headers.get("content-type")) !== "application/json") {
@@ -159,6 +199,14 @@ export async function POST(request: Request): Promise<Response> {
     else if (form.required?.includes(key)) return json({ error: `${label} is required` }, 400);
   }
 
+  // Checked after the form is read, so the report can name it and a junk request can't raise one.
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error("RESEND_API_KEY is not set");
+    await reportToSentry(formName, "resend_key_missing");
+    return json({ error: "Forms are unavailable" }, 500);
+  }
+
   const subjectName = name.replace(/\s+/g, " ");
   const html = [`<h2>${form.subject}</h2>`, row("Name", name), row("Email", email), ...rows].join("\n");
 
@@ -183,10 +231,14 @@ export async function POST(request: Request): Promise<Response> {
     if (!response.ok) {
       const reason = ACCOUNT_STATUSES.has(response.status) ? (await response.text()).slice(0, MAX_LOGGED_REASON) : "";
       console.error("Resend rejected the email, status", response.status, reason);
+      const errorName = RESEND_ERROR_NAME.exec(reason)?.[1];
+      await reportToSentry(formName, ["resend_refused", response.status, errorName].filter(Boolean).join("_"));
       return json({ error: "The email could not be sent" }, 502);
     }
   } catch (error) {
-    console.error("Could not reach Resend:", error instanceof Error ? error.name : "unknown error");
+    const errorName = error instanceof Error ? error.name : "unknown error";
+    console.error("Could not reach Resend:", errorName);
+    await reportToSentry(formName, errorName === "TimeoutError" ? "resend_timeout" : "resend_unreachable");
     return json({ error: "The email could not be sent" }, 502);
   }
 

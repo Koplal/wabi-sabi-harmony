@@ -1,7 +1,7 @@
 export type FormName = "contact" | "booking" | "careers";
 
 /** Longer than the function's own limit on Resend, so its answer arrives first. */
-const TIMEOUT_MS = 15000;
+export const TIMEOUT_MS = 15000;
 
 /** Shown after a send fails for a reason the customer can't fix. State is kept, so nothing typed is lost. */
 export const FORM_FAILED = "We couldn't send this, but your details are still here. Please call 250-896-5971 or email hello@wabisabiservices.ca.";
@@ -24,6 +24,13 @@ export async function sendForm(form: FormName, fields: Record<string, string>): 
   } finally {
     clearTimeout(timer);
   }
+}
+
+/** True only for the function's own answer, because a proxy or login page can also return a 200. */
+export async function formSent(response: Response): Promise<boolean> {
+  if (!response.ok) return false;
+  const body = await response.json().catch(() => null);
+  return body?.ok === true;
 }
 
 /** The error for a failed response. Only a 400 carries a message the customer can act on. */
