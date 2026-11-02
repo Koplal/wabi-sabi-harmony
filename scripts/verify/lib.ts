@@ -403,16 +403,10 @@ export const visibleWords = (html: string) =>
     .split(/\s+/)
     .filter(Boolean).length;
 
-/** Routes held to a limit even though a list excuses them, so a change can prove it has landed. */
-export interface AuditStrict {
-  titles?: string[];
-  descriptions?: string[];
-}
-
 const charCount = (text: string) => [...text].length;
 
-/** One page's lines, shared by D-AUDIT and LV-AUDIT. Only D-AUDIT passes strict. */
-export function auditPageProblems(route: string, html: string, strict: AuditStrict = {}): string[] {
+/** One page's lines, shared by D-AUDIT and LV-AUDIT. */
+export function auditPageProblems(route: string, html: string): string[] {
   const problems: string[] = [];
   const h1Tags = tagsNamed(bodyMarkup(html), "h1").length;
   const headings = rawHeadingsOf(html).length;
@@ -427,11 +421,9 @@ export function auditPageProblems(route: string, html: string, strict: AuditStri
     if (value !== title) problems.push(`${key} is "${value ?? "missing"}", which differs from the title "${title}"`);
   }
 
-  const { titleMax, descriptionMax, titleExempt, descriptionExempt, limitPending, wordExempt, wordPending, minWords, minLinks } = AUDIT;
-  const titleListed = route in titleExempt || limitPending.titles.includes(route);
-  if (charCount(title) > titleMax && (!titleListed || strict.titles?.includes(route))) problems.push(`title is ${charCount(title)} characters, over ${titleMax}`);
-  const descriptionListed = route in descriptionExempt || limitPending.descriptions.includes(route);
-  if (charCount(description) > descriptionMax && (!descriptionListed || strict.descriptions?.includes(route))) problems.push(`description is ${charCount(description)} characters, over ${descriptionMax}`);
+  const { titleMax, descriptionMax, titleExempt, descriptionExempt, wordExempt, wordPending, minWords, minLinks } = AUDIT;
+  if (charCount(title) > titleMax && !(route in titleExempt)) problems.push(`title is ${charCount(title)} characters, over ${titleMax}`);
+  if (charCount(description) > descriptionMax && !(route in descriptionExempt)) problems.push(`description is ${charCount(description)} characters, over ${descriptionMax}`);
 
   const words = visibleWords(html);
   if (words < minWords && !wordExempt.includes(route) && !(route in wordPending)) problems.push(`${words} words of body text, expected at least ${minWords}`);

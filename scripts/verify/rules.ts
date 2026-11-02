@@ -577,24 +577,6 @@ export const AUDIT = {
     "/seasoning/quiet-grace"
   ) as Record<string, string>,
   descriptionExempt: {} as Record<string, string>,
-  /** Temporary: over a limit until the head work lands, then settled into the lists above. */
-  limitPending: {
-    titles: [
-      "/blog/march-2026",
-      "/blog/august-2025",
-      "/blog/july-2026",
-      "/blog/september-2025",
-      "/blog/november-2025",
-      "/blog/may-2026",
-      "/blog/february-2026",
-      "/blog/october-2025",
-      "/blog/april-2026",
-      "/blog/december-2025",
-      "/blog/january-2026",
-      "/blog/june-2026",
-    ],
-    descriptions: ["/seasoning/estate-collection"],
-  },
 };
 
 export const RANK_ROUTES = [
