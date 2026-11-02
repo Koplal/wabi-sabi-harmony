@@ -13,6 +13,7 @@ import {
   type RenderedPage,
   routeUrl,
   textDriftProblems,
+  titleOf,
   topNodes,
 } from "./lib";
 
@@ -28,6 +29,8 @@ export interface PageSnapshot {
   h1s: string[];
   canonicals: string[];
   descriptions: string[];
+  /** document.title after hydration. */
+  title?: string;
   jsonLd: string[];
   areaLinks: number;
   hasNameField: boolean;
@@ -150,6 +153,10 @@ export function checkHead(snapshot: PageSnapshot): Finding[] {
   if (snapshot.canonicals.length !== 1) add(`${snapshot.canonicals.length} canonical tags`);
   else if (snapshot.canonicals[0] !== expectedCanonical) add(`canonical is ${snapshot.canonicals[0]}, expected ${expectedCanonical}`);
   if (snapshot.descriptions.length !== 1) add(`${snapshot.descriptions.length} meta descriptions`);
+  // A page that moved to another route, as an empty /checkout does, has that route's title.
+  if (snapshot.finalPath === snapshot.route && snapshot.html !== undefined && snapshot.title !== titleOf(snapshot.html)) {
+    add(`the hydrated title "${snapshot.title}" differs from the raw title "${titleOf(snapshot.html)}"`);
+  }
   for (const problem of duplicateProblems(snapshot.jsonLd)) add(problem);
   return findings;
 }

@@ -1,6 +1,6 @@
 /** Live rules as pure checks on fetched responses, so the self-test can run them on fixtures. */
-import { LIVE, MISSING_PAGE, SITE } from "./rules";
-import { canonicalsOf, type Finding, lastmodProblem, metaContent, missingPageProblems, rawHeadingsOf, routeUrl, sharedDateProblem, sitemapLastmods, trackedDateProblems } from "./lib";
+import { BROWSER, INDEXABLE_ROUTES, LIVE, MISSING_PAGE, SITE, UTILITY_ROUTES } from "./rules";
+import { auditPageProblems, auditSiteProblems, canonicalsOf, type Finding, lastmodProblem, metaContent, missingPageProblems, rawHeadingsOf, routeUrl, sharedDateProblem, sitemapLastmods, trackedDateProblems, visibleWords } from "./lib";
 
 export interface Hop {
   url: string;
@@ -19,6 +19,15 @@ const finalUrl = (chain: Chain) => chain[chain.length - 1]?.url ?? "";
 const finalStatus = (chain: Chain) => chain[chain.length - 1]?.status ?? 0;
 const redirects = (chain: Chain) => chain.filter((hop) => isRedirect(hop.status));
 
+const PRODUCTION_ORIGINS = LIVE.hostStarts.map((start) => new URL(start).origin);
+
+/** The bypass token goes to a preview's own origin and to nothing else, least of all production. */
+export function headersFor(url: string, base: string, token: string | undefined): Record<string, string> {
+  const origin = new URL(base).origin;
+  if (!token || PRODUCTION_ORIGINS.includes(origin) || new URL(url).origin !== origin) return {};
+  return { [BROWSER.bypassHeader]: token };
+}
+
 export function checkHost(start: string, chain: Chain): Finding[] {
   const finding = (message: string): Finding[] => [{ rule: "LV-HOST", file: start, message: `${message}: ${describeChain(chain)}` }];
   const hops = redirects(chain);
@@ -34,19 +43,11 @@ export function checkFile(path: string, chain: Chain): Finding[] {
   return [{ rule: "LV-FILES", file: path, message: `expected 200 with no redirect: ${describeChain(chain)}` }];
 }
 
-export function checkMissing(chain: Chain, html: string): Finding[] {
-  const finding = (message: string): Finding => ({ rule: "LV-404", row: "R2-FR-08", file: LIVE.missingPath, message });
+export function checkMissing(path: string, chain: Chain, html: string): Finding[] {
+  const finding = (message: string): Finding => ({ rule: "LV-404", row: "R2-FR-08", file: path, message });
   if (finalStatus(chain) !== 404) return [finding(`expected 404: ${describeChain(chain)}`)];
   return missingPageProblems(html, SITE, MISSING_PAGE.brand).map(finding);
 }
-
-const visibleWords = (html: string) =>
-  html
-    .replace(/<head[\s>][\s\S]*?<\/head>/i, " ")
-    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .split(/\s+/)
-    .filter(Boolean).length;
 
 /** After R2 every page has an H1 and body text, so the canonical and H1 prove it is the right page. */
 export function checkRaw(route: string, status: number, html: string, expectedH1: string | undefined): Finding[] {
@@ -94,6 +95,72 @@ export function checkSitemapDates(status: number, sitemap: string, histories: st
   const dates = [...lastmods.values()].filter((date): date is string => Boolean(date));
   const shared = sharedDateProblem(dates, histories);
   return [...problems, ...trackedDateProblems(lastmods, tracked, SITE), ...(shared ? [shared] : [])].map(finding);
+}
+
+/** Each sitemap URL is on the apex, so its path is what a preview run asks its own host for. */
+export const sitemapPaths = (sitemap: string) => [...sitemapLastmods(sitemap).keys()].map((loc) => new URL(loc).pathname);
+
+/** LV-AUDIT reads what the sitemap lists, so a short or empty sitemap would otherwise pass. */
+export function checkAuditRoutes(status: number, paths: string[]): Finding[] {
+  const finding = (message: string): Finding => ({ rule: "LV-AUDIT", file: "/sitemap.xml", message });
+  if (status !== 200) return [finding(`status ${status}`)];
+  if (paths.length === 0) return [finding("no URLs in the sitemap")];
+  return [
+    ...INDEXABLE_ROUTES.filter((route) => !paths.includes(route)).map((route) => finding(`${route} is not in the sitemap`)),
+    ...paths.filter((path) => !INDEXABLE_ROUTES.includes(path)).map((path) => finding(`${path} is in the sitemap but is not a route`)),
+  ];
+}
+
+/** One response with redirects off. The exception lists apply inside auditPageProblems. */
+export function checkAudit(route: string, chain: Chain, html: string): Finding[] {
+  const findings: Finding[] = [];
+  const add = (message: string) => findings.push({ rule: "LV-AUDIT", file: route, message });
+  if (chain.length !== 1 || finalStatus(chain) !== 200) add(`expected 200 with no redirect: ${describeChain(chain)}`);
+  for (const hop of chain) if (hop.location) add(`a Location header goes to ${hop.location}`);
+  const canonicals = canonicalsOf(html);
+  const canonical = routeUrl(SITE, route);
+  if (canonicals.length !== 1 || canonicals[0] !== canonical) add(`canonical is ${canonicals.join(", ") || "missing"}, expected ${canonical}`);
+  auditPageProblems(route, html).forEach(add);
+  return findings;
+}
+
+export function checkAuditSite(pages: Map<string, string>): Finding[] {
+  return auditSiteProblems(pages, [...INDEXABLE_ROUTES, ...UTILITY_ROUTES]).map(({ route, message }) => ({ rule: "LV-AUDIT", file: route, message }));
+}
+
+export type WwwSlash = "before" | "after";
+
+export interface HopRow {
+  start: string;
+  final: string;
+  hops: number;
+}
+
+/**
+ * LV-HOPS's starts. Production takes every row of LIVE.hops. A preview takes the https apex's row on
+ * its own host: it has no www host, and the bypass header reaches only its https origin.
+ */
+export function hopRows(wwwSlash: WwwSlash | undefined, base: string = LIVE.apex): HopRow[] {
+  const { path, query, table } = LIVE.hops;
+  const rows = base === LIVE.apex ? table : [{ ...table[0], origin: base }];
+  return rows.flatMap(({ origin, bare, slash }) =>
+    ["", query].flatMap((search) => [
+      { start: `${origin}${path}${search}`, final: `${base}${path}${search}`, hops: bare },
+      { start: `${origin}${path}/${search}`, final: `${base}${path}${search}`, hops: slash[wwwSlash ?? "before"] },
+    ])
+  );
+}
+
+export function checkHops(chain: Chain, row: HopRow): Finding[] {
+  const finding = (message: string): Finding[] => [{ rule: "LV-HOPS", file: row.start, message: `${message}: ${describeChain(chain)}` }];
+  const hops = redirects(chain);
+  if (hops.length !== row.hops) return finding(`${hops.length} hops, expected ${row.hops}`);
+  const wrong = hops.find((hop) => hop.status !== 308);
+  if (wrong) return finding(`hop is ${wrong.status}, expected 308`);
+  const search = new URL(row.start).search;
+  if (chain.some((hop) => new URL(hop.url).search !== search)) return finding("the query did not survive");
+  if (finalUrl(chain) !== row.final || finalStatus(chain) !== 200) return finding(`does not end at ${row.final} with a 200`);
+  return [];
 }
 
 export function checkUtility(route: string, status: number, html: string): Finding[] {

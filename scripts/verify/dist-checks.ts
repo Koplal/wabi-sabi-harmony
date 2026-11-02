@@ -1,5 +1,6 @@
 /** Dist rules. Each check takes a DistCtx, so the self-test can run it on fixtures. */
 import {
+  AUDIT,
   BANS,
   BROWSER,
   CLARITY_PROJECT_ID,
@@ -26,7 +27,10 @@ import {
   UTILITY_ROUTES,
 } from "./rules";
 import {
+  type AuditStrict,
   attributes,
+  auditPageProblems,
+  auditSiteProblems,
   bodyMarkup,
   bodyOf,
   canonicalJson,
@@ -60,6 +64,7 @@ import {
   trackedDateProblems,
   typesOf,
   UsageError,
+  walkNodes,
 } from "./lib";
 import {
   checkAbsent,
@@ -165,6 +170,8 @@ export interface DistCtx {
   shallowClone?: boolean;
   sourcePages(): string[];
   expectClarity?: string;
+  /** Routes D-AUDIT holds to a limit even if a list excuses them. */
+  auditStrict?: AuditStrict;
   note?: (message: string) => void;
 }
 
@@ -650,7 +657,8 @@ export function checkParity(ctx: DistCtx): Finding[] {
     for (const block of seoBlocks(text)) {
       const title = jsxAttribute(block, "title");
       const description = jsxAttribute(block, "description");
-      if (title !== undefined && titleOf(html) !== `${title} | Wabi Sabi Services`) {
+      const fullTitle = /\bnoBrandSuffix\b(?!=\{false\})/.test(block) ? title : `${title} | Wabi Sabi Services`;
+      if (title !== undefined && titleOf(html) !== fullTitle) {
         findings.push({ rule: "D-PARITY", file: path, message: `title differs from built HTML: "${titleOf(html)}"` });
       }
       if (description !== undefined && metaContent(html, "description") !== description) {
@@ -814,6 +822,57 @@ function lcpFieldProblems(field: LcpField): string[] {
     problems.push(`the field dates must start on or after ${liveFrom}, run in order and end by readOn`);
   }
   return problems;
+}
+
+const exceptionList = (reasons: Record<string, string>) => Object.entries(reasons).map(([route, reason]) => `${route} (${reason})`);
+
+function noteAuditExceptions(ctx: DistCtx) {
+  const { titleExempt, descriptionExempt, wordExempt, wordPending, limitPending } = AUDIT;
+  const lists: Array<[string, string[]]> = [
+    ["title exceptions", exceptionList(titleExempt)],
+    ["description exceptions", exceptionList(descriptionExempt)],
+    ["word floor exceptions", [...wordExempt, ...exceptionList(wordPending)]],
+    ["titles pending", limitPending.titles],
+    ["descriptions pending", limitPending.descriptions],
+  ];
+  for (const [name, items] of lists) ctx.note?.(`D-AUDIT: ${items.length} ${name}: ${items.join(", ") || "none"}`);
+}
+
+export function checkAudit(ctx: DistCtx): Finding[] {
+  const findings: Finding[] = [];
+  const pages = new Map<string, string>();
+  for (const route of ctx.routes) {
+    const file = htmlFileOfRoute(route);
+    const html = ctx.files.get(file);
+    if (html === undefined) {
+      findings.push({ rule: "D-AUDIT", file, message: `no built HTML for ${route}` });
+      continue;
+    }
+    pages.set(route, html);
+    for (const message of auditPageProblems(route, html, ctx.auditStrict)) findings.push({ rule: "D-AUDIT", file, message });
+  }
+  for (const { route, message } of auditSiteProblems(pages, [...ctx.routes, ...UTILITY_ROUTES])) {
+    findings.push({ rule: "D-AUDIT", file: htmlFileOfRoute(route), message });
+  }
+  noteAuditExceptions(ctx);
+  return findings;
+}
+
+/** schema.org gives servicePhone the type ContactPoint, so a bare string is a validation error. */
+export function checkSchema(ctx: DistCtx): Finding[] {
+  const findings: Finding[] = [];
+  for (const { path, html } of htmlFiles(ctx)) {
+    for (const block of jsonLdBlocksOf(html)) {
+      walkNodes(parseBlock(block), (node) => {
+        const phone = node.servicePhone;
+        if (phone === undefined) return;
+        if (!isNode(phone) || !typesOf(phone).includes("ContactPoint") || !phone.telephone) {
+          findings.push({ rule: "D-SCHEMA", file: path, message: "servicePhone is not a ContactPoint with a telephone" });
+        }
+      });
+    }
+  }
+  return findings;
 }
 
 /** R2-FR-12 compares against the R1 figure, and R1 stops being live at the R2 deploy. */
@@ -1042,6 +1101,8 @@ export const DIST_CHECKS: Record<string, (ctx: DistCtx) => Finding[]> = {
   "D-SITEMAP": checkSitemap,
   "D-PARITY": checkParity,
   "D-RANK": checkRank,
+  "D-AUDIT": checkAudit,
+  "D-SCHEMA": checkSchema,
   "D-CLARITY": checkClarity,
   "D-RAW": checkRaw,
   "D-FAQRAW": checkFaqRaw,

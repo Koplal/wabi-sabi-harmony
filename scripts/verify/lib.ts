@@ -1,4 +1,5 @@
 /** Shared helpers for the verify harness: arguments, findings, text views and JSON-LD checks. */
+import { AUDIT, INDEXABLE_ROUTES, PEARLY_IDS } from "./rules";
 
 export interface Finding {
   rule: string;
@@ -389,6 +390,108 @@ export function missingPageProblems(html: string, site: string, brand: string): 
   if (!titleOf(html).includes(brand)) problems.push(`the title does not name ${brand}`);
   if (rawHeadingsOf(html).length === 0) problems.push("no H1 without JavaScript");
   if (!rawLinksOf(html).includes("/")) problems.push("no link home without JavaScript");
+  if (!rawLinksOf(html).includes("/services")) problems.push("no link to /services without JavaScript");
+  return problems;
+}
+
+/** Whole-body words in raw HTML, shared by LV-RAW, D-AUDIT and LV-AUDIT, so the floors count alike. */
+export const visibleWords = (html: string) =>
+  html
+    .replace(/<head[\s>][\s\S]*?<\/head>/i, " ")
+    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+/** Routes held to a limit even though a list excuses them, so a change can prove it has landed. */
+export interface AuditStrict {
+  titles?: string[];
+  descriptions?: string[];
+}
+
+const charCount = (text: string) => [...text].length;
+
+/** One page's lines, shared by D-AUDIT and LV-AUDIT. Only D-AUDIT passes strict. */
+export function auditPageProblems(route: string, html: string, strict: AuditStrict = {}): string[] {
+  const problems: string[] = [];
+  const h1Tags = tagsNamed(bodyMarkup(html), "h1").length;
+  const headings = rawHeadingsOf(html).length;
+  if (h1Tags !== 1 || headings !== 1) problems.push(`${h1Tags} H1 tags, ${headings} with text, expected exactly one`);
+
+  const title = titleOf(html);
+  const description = metaContent(html, "description") ?? "";
+  if (!title) problems.push("no title");
+  if (!description) problems.push("no meta description");
+  for (const key of ["og:title", "twitter:title", "title"]) {
+    const value = metaContent(html, key);
+    if (value !== title) problems.push(`${key} is "${value ?? "missing"}", which differs from the title "${title}"`);
+  }
+
+  const { titleMax, descriptionMax, titleExempt, descriptionExempt, limitPending, wordExempt, wordPending, minWords, minLinks } = AUDIT;
+  const titleListed = route in titleExempt || limitPending.titles.includes(route);
+  if (charCount(title) > titleMax && (!titleListed || strict.titles?.includes(route))) problems.push(`title is ${charCount(title)} characters, over ${titleMax}`);
+  const descriptionListed = route in descriptionExempt || limitPending.descriptions.includes(route);
+  if (charCount(description) > descriptionMax && (!descriptionListed || strict.descriptions?.includes(route))) problems.push(`description is ${charCount(description)} characters, over ${descriptionMax}`);
+
+  const words = visibleWords(html);
+  if (words < minWords && !wordExempt.includes(route) && !(route in wordPending)) problems.push(`${words} words of body text, expected at least ${minWords}`);
+
+  const links = new Set(rawLinksOf(html));
+  links.delete(route);
+  if (links.size < minLinks) problems.push(`${links.size} internal links to other pages, expected at least ${minLinks}`);
+  return problems;
+}
+
+export interface AuditProblem {
+  route: string;
+  message: string;
+}
+
+/**
+ * The lines that take every page at once. knownRoutes holds the utility routes too, because every
+ * page links to /cart. An inbound link counts only from a different sitemap page, so a page linked
+ * from itself or from /cart alone is still an orphan.
+ */
+export function auditSiteProblems(htmlByRoute: Map<string, string>, knownRoutes: string[]): AuditProblem[] {
+  const problems: AuditProblem[] = [];
+  const known = new Set(knownRoutes);
+  const linkedFrom = new Set<string>();
+  const titles = new Map<string, string>();
+  const descriptions = new Map<string, string>();
+  const defined = new Set<string>(PEARLY_IDS);
+  const references: AuditProblem[] = [];
+
+  for (const [route, html] of htmlByRoute) {
+    for (const link of new Set(rawLinksOf(html))) {
+      if (!known.has(link)) problems.push({ route, message: `links to ${link}, which is not a route` });
+      if (link !== route && INDEXABLE_ROUTES.includes(route)) linkedFrom.add(link);
+    }
+
+    const title = titleOf(html);
+    const description = metaContent(html, "description") ?? "";
+    if (titles.has(title)) problems.push({ route, message: `title also used by ${titles.get(title)}` });
+    if (descriptions.has(description)) problems.push({ route, message: `description also used by ${descriptions.get(description)}` });
+    titles.set(title, route);
+    descriptions.set(description, route);
+
+    jsonLdBlocksOf(html).forEach((block, index) => {
+      const data = parseBlock(block);
+      if (data === undefined) problems.push({ route, message: `JSON-LD block ${index + 1} does not parse` });
+      walkNodes(data, (node) => {
+        const id = node["@id"];
+        if (typeof id !== "string") return;
+        if (Object.keys(node).length > 1) defined.add(id);
+        else references.push({ route, message: id });
+      });
+    });
+  }
+
+  for (const route of INDEXABLE_ROUTES) {
+    if (htmlByRoute.has(route) && !linkedFrom.has(route)) problems.push({ route, message: "orphan: no link from another sitemap page" });
+  }
+  for (const { route, message: id } of references) {
+    if (!defined.has(id)) problems.push({ route, message: `@id ${id} resolves to no node on any page` });
+  }
   return problems;
 }
 

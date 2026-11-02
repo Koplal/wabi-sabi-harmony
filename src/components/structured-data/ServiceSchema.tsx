@@ -59,7 +59,10 @@ export const ServiceSchema = ({
     "availableChannel": {
       "@type": "ServiceChannel",
       "serviceUrl": "https://wabisabiservices.ca/book",
-      "servicePhone": "+1-250-896-5971"
+      "servicePhone": {
+        "@type": "ContactPoint",
+        "telephone": "+1-250-896-5971"
+      }
     }
   };
 

@@ -16,6 +16,7 @@
  *     deployment, against production in the same sitting. With production as --base, the saved R1
  *     figure is the comparison
  *   npm run verify:browser -- --measure-lcp --base=<site>  saves production's lab LCP as the R1 figure
+ *     with --route=/a                             adds a route new to BROWSER.lcp to that record
  *   npm run verify:browser -- --write-render-baseline  saves each route's rendered text, from dist/ only
  *     with --route=/a,/b                          only these routes, keeping the rest
  *     with --from-prerendered --route=/a,/b       allows a prerendered build, which replaces R1 text,
@@ -224,7 +225,7 @@ async function settle(page: Page) {
 
 type PageReading = Pick<
   PageSnapshot,
-  "finalPath" | "h1s" | "canonicals" | "descriptions" | "jsonLd" | "areaLinks" | "hasNameField" | "clarityScript" | "clarityScriptSrc" | "gaConfigs"
+  "finalPath" | "h1s" | "canonicals" | "descriptions" | "title" | "jsonLd" | "areaLinks" | "hasNameField" | "clarityScript" | "clarityScriptSrc" | "gaConfigs"
 >;
 
 const readPage = (page: Page): Promise<PageReading> =>
@@ -235,6 +236,7 @@ const readPage = (page: Page): Promise<PageReading> =>
       h1s: [...document.querySelectorAll("h1")].map((heading) => (heading.textContent ?? "").replace(/\s+/g, " ").trim()).filter(Boolean),
       canonicals: [...document.querySelectorAll<HTMLLinkElement>('link[rel="canonical"]')].map((link) => link.getAttribute("href") ?? ""),
       descriptions: [...document.querySelectorAll<HTMLMetaElement>('meta[name="description"]')].map((meta) => meta.content),
+      title: document.title,
       jsonLd: [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) => script.textContent ?? ""),
       areaLinks: document.querySelectorAll('main a[href^="/areas/"]').length,
       hasNameField: Boolean(document.querySelector("#name")),
@@ -1038,16 +1040,26 @@ function loadRenderBaseline(): RenderBaseline {
   return JSON.parse(readFileSync(RENDER_BASELINE, "utf8")) as RenderBaseline;
 }
 
-/** R1 stops being live at the R2 deploy, so a saved figure is never replaced by accident. */
-async function writeLcpBaseline(browser: Browser, session: Session) {
+/**
+ * R1 stops being live at the R2 deploy, so a saved figure is never replaced by accident. A route new
+ * to BROWSER.lcp joins the saved record through --route, which leaves every saved route as it is.
+ */
+async function writeLcpBaseline(browser: Browser, session: Session, requested: string[] | undefined) {
   if (session.origin !== SITE) throw new UsageError(`The R1 figure must come from ${SITE}, not ${session.origin}`);
   const baseline = loadRenderBaseline();
-  if (baseline.mobileLcp.lab) throw new UsageError(`The R1 figure from ${baseline.mobileLcp.lab.measuredOn} is saved. To compare, use --rules=BR-LCP. To replace it, delete mobileLcp.lab by hand first.`);
-  const [measured] = await measureLcp(browser, [session], BROWSER.lcp.routes);
-  const short = BROWSER.lcp.routes.filter((route) => measured[route].runsMs.length < BROWSER.lcp.runs);
+  const saved = baseline.mobileLcp.lab;
+  if (saved && !requested) throw new UsageError(`The R1 figure from ${saved.measuredOn} is saved. To compare, use --rules=BR-LCP. To add a route, use --route. To replace it, delete mobileLcp.lab by hand first.`);
+  if (!saved && requested) throw new UsageError("--route adds to a saved R1 figure, and none is saved. Run --measure-lcp with no --route first.");
+  const wanted = requested ?? BROWSER.lcp.routes;
+  const unknown = wanted.filter((route) => !BROWSER.lcp.routes.includes(route));
+  if (unknown.length > 0) throw new UsageError(`Not in BROWSER.lcp.routes: ${unknown.join(", ")}`);
+  const taken = wanted.filter((route) => saved?.routes[route]);
+  if (taken.length > 0) throw new UsageError(`Already has a saved figure: ${taken.join(", ")}`);
+  const [measured] = await measureLcp(browser, [session], wanted);
+  const short = wanted.filter((route) => measured[route].runsMs.length < BROWSER.lcp.runs);
   if (short.length > 0) throw new UsageError(`Nothing saved: too few runs gave a figure on ${short.join(", ")}`);
-  const routes = Object.fromEntries(Object.entries(measured).map(([route, { runsMs, medianMs }]) => [route, { runsMs, medianMs }]));
-  const lab: LcpLab = { measuredOn: new Date().toISOString().slice(0, 10), target: session.origin, browser: browserName(browser), settings: BROWSER.lcp.settings, routes };
+  const routes = { ...saved?.routes, ...Object.fromEntries(Object.entries(measured).map(([route, { runsMs, medianMs }]) => [route, { runsMs, medianMs }])) };
+  const lab: LcpLab = saved ? { ...saved, routes } : { measuredOn: new Date().toISOString().slice(0, 10), target: session.origin, browser: browserName(browser), settings: BROWSER.lcp.settings, routes };
   writeFileSync(RENDER_BASELINE, `${JSON.stringify({ ...baseline, mobileLcp: { ...baseline.mobileLcp, lab } }, null, 2)}\n`);
   console.log(`Wrote the lab LCP to ${RENDER_BASELINE_FILE} from ${session.origin}`);
 }
@@ -1215,7 +1227,7 @@ async function run(): Promise<number> {
       return 0;
     }
     if (measuring) {
-      await writeLcpBaseline(browser, session);
+      await writeLcpBaseline(browser, session, requested);
       return 0;
     }
 

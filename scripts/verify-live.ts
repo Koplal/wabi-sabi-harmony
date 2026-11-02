@@ -4,10 +4,14 @@
  *   npm run verify:live                     the Release 1 rules, against production
  *   npm run verify:live -- --rules=<ids>    only these rules
  *   npm run verify:live -- --base=<url>     a preview instead of production
- *   npm run verify:live -- --local          every rule but LV-HOST, on dist/ through the local
- *     server, which applies vercel.json. Real 404s and redirects are proved on a deployment
+ *   npm run verify:live -- --local          every rule but LV-HOST and LV-HOPS, on dist/ through
+ *     the local server, which applies vercel.json. Real 404s and redirects are proved on a deployment
+ *   npm run verify:live -- --rules=LV-HOPS --www-slash=before  exact hops on production. --www-slash
+ *     names the www rule that is live, before or after its slash edit, and production needs it
  *
  * LV-HOST checks the production hosts, so it does not run with --base or --local.
+ * LV-HOPS does not run with --local. With --base it takes the https rows, on that host.
+ * LV-AUDIT reads every URL in the target's own sitemap, about 74 GETs, and never touches /api.
  * LV-SITEMAP compares each deployed date with src/data/lastmod.json in this checkout, and reads
  * this checkout's git, so it needs a full clone.
  * Exit codes: 0 pass, 1 findings, 2 usage or network error.
@@ -16,10 +20,10 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BROWSER, COPY_PAGES, LASTMOD_FILE, LIVE, PARITY_EXEMPT, RENDER_BASELINE_FILE } from "./verify/rules";
-import { type Finding, listValue, parseArgs, report, UsageError } from "./verify/lib";
+import { AUDIT, COPY_PAGES, LASTMOD_FILE, LIVE, PARITY_EXEMPT, RENDER_BASELINE_FILE } from "./verify/rules";
+import { type Finding, listValue, parseArgs, report, UsageError, visibleWords } from "./verify/lib";
 import type { RenderBaseline } from "./verify/dist-checks";
-import { type Chain, checkFile, checkHost, checkMissing, checkRaw, checkNotRedirected, checkRedirect, checkSitemapDates, checkUtility, describeChain } from "./verify/live-rules";
+import { type Chain, checkAudit, checkAuditRoutes, checkAuditSite, checkFile, checkHops, checkHost, checkMissing, checkRaw, checkNotRedirected, checkRedirect, checkSitemapDates, checkUtility, describeChain, headersFor, hopRows, sitemapPaths, type WwwSlash } from "./verify/live-rules";
 import { type RunningServer, startStaticServer } from "./verify/static-server";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -27,17 +31,13 @@ const RENDER_BASELINE = resolve(ROOT, RENDER_BASELINE_FILE);
 const LASTMODS = resolve(ROOT, LASTMOD_FILE);
 const MAX_HOPS = 6;
 const KNOWN_FLAGS = ["local"];
-const KNOWN_VALUES = ["base", "rules"];
+const KNOWN_VALUES = ["base", "rules", "www-slash"];
+const WWW_SLASH_VALUES = ["before", "after"];
 
 class PreviewProtected extends Error {}
 
-const headersFor = (url: string, base: string): Record<string, string> => {
-  const token = process.env.VERCEL_BYPASS_TOKEN;
-  return token && new URL(url).origin === new URL(base).origin ? { [BROWSER.bypassHeader]: token } : {};
-};
-
 async function get(url: string, base: string): Promise<Response> {
-  const response = await fetch(url, { method: "GET", redirect: "manual", headers: headersFor(url, base) });
+  const response = await fetch(url, { method: "GET", redirect: "manual", headers: headersFor(url, base, process.env.VERCEL_BYPASS_TOKEN) });
   if (response.status === 401) throw new PreviewProtected();
   return response;
 }
@@ -56,9 +56,10 @@ async function follow(start: string, base: string): Promise<Chain> {
   return chain;
 }
 
-async function page(url: string, base: string): Promise<{ status: number; html: string }> {
+async function page(url: string, base: string): Promise<{ status: number; html: string; chain: Chain }> {
   const response = await get(url, base);
-  return { status: response.status, html: await response.text() };
+  const location = response.headers.get("location") ?? undefined;
+  return { status: response.status, html: await response.text(), chain: [{ url: response.url || url, status: response.status, location }] };
 }
 
 function git(args: string[]): string {
@@ -85,7 +86,7 @@ function pageHistories(): string[] {
   return histories as string[];
 }
 
-const withoutHost = (rules: string[]) => rules.filter((rule) => rule !== "LV-HOST");
+const withoutHost = (rules: string[]) => rules.filter((rule) => rule !== "LV-HOST" && rule !== "LV-HOPS");
 
 async function run(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
@@ -99,18 +100,23 @@ async function run(): Promise<number> {
   const unknown = selected.filter((rule) => !LIVE.all.includes(rule));
   if (unknown.length > 0) throw new UsageError(`Unknown rule: ${unknown.join(", ")}`);
   if (preview && selected.includes("LV-HOST")) throw new UsageError("LV-HOST checks the production hosts, so it does not run with --base or --local");
-  if (!local) return check(args.values.get("base")?.replace(/\/+$/, "") ?? LIVE.apex, selected);
+  if (local && selected.includes("LV-HOPS")) throw new UsageError("LV-HOPS needs real redirects, so it does not run with --local");
+  const wwwSlash = args.values.get("www-slash");
+  if (wwwSlash !== undefined && !WWW_SLASH_VALUES.includes(wwwSlash)) throw new UsageError(`--www-slash must be one of ${WWW_SLASH_VALUES.join(", ")}`);
+  const target = args.values.get("base")?.replace(/\/+$/, "") ?? LIVE.apex;
+  if (selected.includes("LV-HOPS") && target === LIVE.apex && !wwwSlash) throw new UsageError("LV-HOPS on production needs --www-slash=before or --www-slash=after");
+  if (!local) return check(target, selected, wwwSlash as WwwSlash | undefined);
 
   if (!existsSync(resolve(ROOT, "dist/index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
   const server: RunningServer = await startStaticServer(ROOT);
   try {
-    return await check(server.origin, selected);
+    return await check(server.origin, selected, undefined);
   } finally {
     await server.close();
   }
 }
 
-async function check(base: string, selected: string[]): Promise<number> {
+async function check(base: string, selected: string[], wwwSlash: WwwSlash | undefined): Promise<number> {
   const findings: Finding[] = [];
   const say = (rule: string, chain: Chain) => console.log(`${rule}: ${describeChain(chain)}`);
 
@@ -129,10 +135,12 @@ async function check(base: string, selected: string[]): Promise<number> {
     }
   }
   if (selected.includes("LV-404")) {
-    const chain = await follow(`${base}${LIVE.missingPath}`, base);
-    say("LV-404", chain);
-    const { html } = await page(`${base}${LIVE.missingPath}`, base);
-    findings.push(...checkMissing(chain, html));
+    for (const path of LIVE.missingPaths) {
+      const chain = await follow(`${base}${path}`, base);
+      say("LV-404", chain);
+      const { html } = await page(`${base}${path}`, base);
+      findings.push(...checkMissing(path, chain, html));
+    }
   }
   if (selected.includes("LV-RAW")) {
     if (!existsSync(RENDER_BASELINE)) throw new UsageError(`${RENDER_BASELINE_FILE} not found`);
@@ -158,6 +166,28 @@ async function check(base: string, selected: string[]): Promise<number> {
     for (const route of LIVE.utilityRoutes) {
       const { status, html } = await page(`${base}${route}`, base);
       findings.push(...checkUtility(route, status, html));
+    }
+  }
+
+  if (selected.includes("LV-AUDIT")) {
+    const { status, html: sitemap } = await page(`${base}/sitemap.xml`, base);
+    const paths = sitemapPaths(sitemap);
+    findings.push(...checkAuditRoutes(status, paths));
+    const pages = new Map<string, string>();
+    for (const route of paths) {
+      const { chain, html } = await page(`${base}${route}`, base);
+      pages.set(route, html);
+      findings.push(...checkAudit(route, chain, html));
+      if (route in AUDIT.wordPending && visibleWords(html) >= AUDIT.minWords) console.log(`LV-AUDIT: ${route} now clears the word floor, so its listed exception can go`);
+    }
+    findings.push(...checkAuditSite(pages));
+    console.log(`LV-AUDIT: read ${pages.size} pages`);
+  }
+  if (selected.includes("LV-HOPS")) {
+    for (const row of hopRows(wwwSlash, base)) {
+      const chain = await follow(row.start, base);
+      say("LV-HOPS", chain);
+      findings.push(...checkHops(chain, row));
     }
   }
 
