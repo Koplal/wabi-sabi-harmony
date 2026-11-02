@@ -13,7 +13,7 @@ const EstateCollection = () => {
     <Layout>
       <SEO
         title="The Estate Collection | Autumn Pumpkin Package"
-        description="Our most involved autumn pumpkin installation: rare specimen varieties, a dedicated project manager, and professional photo and video for Greater Victoria estates."
+        description="Our most involved pumpkin installation: rare specimen varieties, a dedicated project manager, and professional photo and video for Greater Victoria estates."
         canonical="https://wabisabiservices.ca/seasoning/estate-collection"
       />
       <ProductSchema
