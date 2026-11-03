@@ -43,6 +43,7 @@ const BotanicalEstate = () => {
       />
       <ProductSchema
         name="The Botanical Estate"
+        image={heroImage}
         description="Expansive spring garden aesthetic for larger properties, with multiple wreaths, eight luxury planters, cherry blossom branches, and sculptural garden accents."
         offers={{
           price: "1424",

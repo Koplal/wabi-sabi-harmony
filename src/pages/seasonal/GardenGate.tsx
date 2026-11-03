@@ -43,6 +43,7 @@ const GardenGate = () => {
       />
       <ProductSchema
         name="The Garden Gate"
+        image={heroImage}
         description="Abundant spring display celebrating renewal and growth, with a 26-inch floral wreath, four seasonal planters, and natural wood and moss accents."
         offers={{
           price: "924",

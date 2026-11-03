@@ -43,6 +43,7 @@ const SummerStorefront = () => {
       />
       <ProductSchema
         name="The Summer Storefront"
+        image={heroImage}
         description="Fresh summer presentation for Victoria businesses, with a commercial wreath, four weather-resistant planter displays, coastal-inspired styling, and flexible installation."
         offers={{
           price: "799",

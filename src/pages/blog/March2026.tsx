@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import blogHero from "@/assets/blog-hero.jpg";
+import heroImage from "@/assets/blog-march-2026.jpg";
+
+/** Midnight in Victoria on the day the post went up, with that date's Pacific offset. */
+const PUBLISHED = "2026-03-01T00:00:00-08:00";
 
 const March2026 = () => {
   return (
@@ -15,12 +18,13 @@ const March2026 = () => {
         description="As cherry blossoms open across Victoria, refresh your home without harming the Island. A room-by-room guide, and ways to let things go."
         canonical="https://wabisabiservices.ca/blog/march-2026"
         ogType="article"
-        publishedTime="2026-03-01T00:00:00-08:00"
+        publishedTime={PUBLISHED}
       />
       <ArticleSchema
         headline="Spring Cleaning the Sustainable Way: A Guide for Eco-Conscious Victorians"
         description="A room-by-room guide and mindful ways to let things go, for a Victoria home and the Island around it."
-        datePublished="2026-03-01"
+        datePublished={PUBLISHED}
+        image={heroImage}
         url="https://wabisabiservices.ca/blog/march-2026"
       />
       <BreadcrumbSchema
@@ -42,7 +46,7 @@ const March2026 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${blogHero})`,
+            backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,

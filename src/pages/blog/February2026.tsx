@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import blogHero from "@/assets/blog-hero.jpg";
+import heroImage from "@/assets/blog-february-2026.jpg";
+
+/** Midnight in Victoria on the day the post went up, with that date's Pacific offset. */
+const PUBLISHED = "2026-02-01T00:00:00-08:00";
 
 const February2026 = () => {
   return (
@@ -15,12 +18,13 @@ const February2026 = () => {
         description="February is for tending love in all its forms, beginning with home. How a calm, cared-for Victoria space supports romance, family bonds, and self-care."
         canonical="https://wabisabiservices.ca/blog/february-2026"
         ogType="article"
-        publishedTime="2026-02-01T00:00:00-08:00"
+        publishedTime={PUBLISHED}
       />
       <ArticleSchema
         headline="Love Your Home: Creating Spaces That Nurture Relationships"
         description="How a calm, cared-for Victoria home supports romance, family bonds, and self-care in February and beyond."
-        datePublished="2026-02-01"
+        datePublished={PUBLISHED}
+        image={heroImage}
         url="https://wabisabiservices.ca/blog/february-2026"
       />
       <BreadcrumbSchema
@@ -42,7 +46,7 @@ const February2026 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${blogHero})`,
+            backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,

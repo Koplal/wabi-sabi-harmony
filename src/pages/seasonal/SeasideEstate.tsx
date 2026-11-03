@@ -43,6 +43,7 @@ const SeasideEstate = () => {
       />
       <ProductSchema
         name="The Seaside Estate"
+        image={heroImage}
         description="Resort-style summer elegance for waterfront properties, with a custom coastal wreath collection, twelve luxury arrangements, large driftwood installations, and a dedicated design process."
         offers={{
           price: "1924",

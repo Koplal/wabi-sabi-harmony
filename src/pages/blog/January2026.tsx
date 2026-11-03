@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import blogHero from "@/assets/blog-hero.jpg";
+import heroImage from "@/assets/blog-january-2026.jpg";
+
+/** Midnight in Victoria on the day the post went up, with that date's Pacific offset. */
+const PUBLISHED = "2026-01-01T00:00:00-08:00";
 
 const January2026 = () => {
   return (
@@ -15,12 +18,13 @@ const January2026 = () => {
         description="A January look at minimalism through wabi-sabi. How simpler spaces calm the mind, plus a gentle four-week path to a lighter, easier-to-keep home."
         canonical="https://wabisabiservices.ca/blog/january-2026"
         ogType="article"
-        publishedTime="2026-01-01T00:00:00-08:00"
+        publishedTime={PUBLISHED}
       />
       <ArticleSchema
         headline="The Art of Minimalism: How Less Stuff Means Less Stress"
         description="How simpler spaces calm the mind, and a gentle four-week path to a lighter, easier-to-keep home, through the lens of wabi-sabi."
-        datePublished="2026-01-01"
+        datePublished={PUBLISHED}
+        image={heroImage}
         url="https://wabisabiservices.ca/blog/january-2026"
       />
       <BreadcrumbSchema
@@ -42,7 +46,7 @@ const January2026 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${blogHero})`,
+            backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,

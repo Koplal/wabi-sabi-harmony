@@ -43,6 +43,7 @@ const BloomingManor = () => {
       />
       <ProductSchema
         name="The Blooming Manor"
+        image={heroImage}
         description="Our most generous spring installation for estate properties, with a custom floral wreath collection, twelve statement planters, garden lighting, and a dedicated design process."
         offers={{
           price: "1924",

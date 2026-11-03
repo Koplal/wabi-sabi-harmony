@@ -18,6 +18,7 @@ const BusinessWelcome = () => {
       />
       <ProductSchema
         name="The Business Welcome"
+        image={heroImage}
         description="Holiday styling for a Victoria business entrance, with a commercial-grade wreath, weatherproof planters, and brand-aligned design, installed and maintained."
         offers={{
           price: "799",

@@ -258,19 +258,24 @@ async function loadManifest(): Promise<RouteManifest> {
   return manifest;
 }
 
-function distFiles(): Map<string, string> {
+function distFiles(): { files: Map<string, string>; paths: Set<string> } {
   if (!existsSync(resolve(DIST, "index.html"))) throw new UsageError("dist/index.html not found: run npm run build first");
   const files = new Map<string, string>();
+  const paths = new Set<string>();
   walk(DIST, (absolute) => {
-    if (TEXT_EXTENSIONS.includes(extname(absolute))) files.set(toPosix(relative(DIST, absolute)), readFileSync(absolute, "utf8"));
+    const path = toPosix(relative(DIST, absolute));
+    paths.add(path);
+    if (TEXT_EXTENSIONS.includes(extname(absolute))) files.set(path, readFileSync(absolute, "utf8"));
   });
-  return files;
+  return { files, paths };
 }
 
 async function buildDistCtx(args: Args): Promise<DistCtx> {
   const renderBaseline = loadRenderBaseline();
+  const dist = distFiles();
   return {
-    files: distFiles(),
+    files: dist.files,
+    distPaths: dist.paths,
     routes: INDEXABLE_ROUTES,
     baseline: loadBaseline(),
     renderBaseline,
@@ -330,7 +335,7 @@ function selectRules(args: Args): { source: string[]; dist: string[] } {
 function writeRankBaseline() {
   const pages: RankBaseline["pages"] = {};
   const existing = existsSync(BASELINE) ? loadBaseline() : undefined;
-  const files = distFiles();
+  const { files } = distFiles();
   for (const route of RANK_ROUTES) {
     const file = route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
     const html = files.get(file);

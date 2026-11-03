@@ -43,6 +43,7 @@ const BeachsideManor = () => {
       />
       <ProductSchema
         name="The Beachside Manor"
+        image={heroImage}
         description="Expansive coastal-luxe summer styling for larger properties, with multiple coastal wreaths, eight statement planters, driftwood sculpture accents, and large hurricane lanterns."
         offers={{
           price: "1424",

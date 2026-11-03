@@ -18,6 +18,7 @@ const GrandCelebration = () => {
       />
       <ProductSchema
         name="The Grand Celebration"
+        image={heroImage}
         description="Our most involved holiday installation for estate properties, with extensive lighting and garland, a dedicated project manager, and weekly seasonal care."
         offers={{
           price: "1924",

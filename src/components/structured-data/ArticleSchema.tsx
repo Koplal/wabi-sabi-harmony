@@ -1,3 +1,4 @@
+import { absoluteUrl } from "./absoluteUrl";
 import { JsonLd } from "./JsonLd";
 
 interface ArticleSchemaProps {
@@ -6,7 +7,15 @@ interface ArticleSchemaProps {
   datePublished: string;
   dateModified?: string;
   url: string;
-  image?: string;
+  image: string;
+}
+
+/** A date with a time and a timezone, as Google's article rich result asks for. */
+const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+function dateTime(value: string): string {
+  if (!DATE_TIME.test(value)) throw new Error(`BlogPosting date ${value} needs a time and a timezone, such as 2026-07-01T00:00:00-07:00`);
+  return value;
 }
 
 /**
@@ -17,10 +26,10 @@ interface ArticleSchemaProps {
  *
  * @param headline - Article title
  * @param description - Article summary
- * @param datePublished - ISO 8601 publish date
- * @param dateModified - ISO 8601 last-modified date (defaults to datePublished)
+ * @param datePublished - ISO 8601 publish time with its Pacific offset, such as 2026-07-01T00:00:00-07:00
+ * @param dateModified - ISO 8601 last-modified time in the same form (defaults to datePublished)
  * @param url - Absolute canonical URL of the article (also used as mainEntityOfPage)
- * @param image - Absolute URL of a representative image
+ * @param image - The post's own photo, as an imported asset or a full URL, written as a full URL
  */
 export const ArticleSchema = ({
   headline,
@@ -35,8 +44,9 @@ export const ArticleSchema = ({
     "@type": "BlogPosting",
     "headline": headline,
     "description": description,
-    "datePublished": datePublished,
-    "dateModified": dateModified || datePublished,
+    "image": absoluteUrl(image),
+    "datePublished": dateTime(datePublished),
+    "dateModified": dateTime(dateModified || datePublished),
     "url": url,
     "mainEntityOfPage": url,
     "author": {
@@ -46,10 +56,6 @@ export const ArticleSchema = ({
       "@id": "https://wabisabiservices.ca/#organization"
     }
   };
-
-  if (image) {
-    schema.image = image;
-  }
 
   return <JsonLd data={schema} />;
 };

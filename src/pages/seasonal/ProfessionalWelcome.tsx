@@ -43,6 +43,7 @@ const ProfessionalWelcome = () => {
       />
       <ProductSchema
         name="The Professional Welcome"
+        image={heroImage}
         description="Spring presentation for Victoria businesses, with a commercial wreath, four weatherproof planter displays, brand-appropriate styling, and flexible installation."
         offers={{
           price: "799",

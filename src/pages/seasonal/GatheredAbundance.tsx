@@ -18,6 +18,7 @@ const GatheredAbundance = () => {
       />
       <ProductSchema
         name="The Gathered Abundance"
+        image={heroImage}
         description="A statement autumn pumpkin display with grand-prize centerpieces, rare varieties, and landscape-level installation."
         offers={{
           price: "1399",

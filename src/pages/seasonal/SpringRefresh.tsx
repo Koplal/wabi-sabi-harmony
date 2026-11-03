@@ -135,6 +135,7 @@ const SpringRefresh = () => {
         <ProductSchema
           key={pkg.name}
           name={pkg.name}
+          image={pkg.image}
           description={pkg.description}
           offers={{
             price: String(pkg.price),

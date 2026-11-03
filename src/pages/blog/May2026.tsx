@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import blogHero from "@/assets/blog-hero.jpg";
+import heroImage from "@/assets/may-mindfulness-hero.jpg";
+
+/** Midnight in Victoria on the day the post went up, with that date's Pacific offset. */
+const PUBLISHED = "2026-05-01T00:00:00-07:00";
 
 const May2026 = () => {
   return (
@@ -15,12 +18,13 @@ const May2026 = () => {
         description="May blooms in Victoria with rhododendrons and Mother's Day. How a clean, well-ordered home quietly supports sleep, nutrition, movement, and clearer minds."
         canonical="https://wabisabiservices.ca/blog/may-2026"
         ogType="article"
-        publishedTime="2026-05-01T00:00:00-07:00"
+        publishedTime={PUBLISHED}
       />
       <ArticleSchema
         headline="May Mindfulness: Creating Wellness Sanctuaries for Modern Families"
         description="How a clean, well-ordered Victoria home quietly supports sleep, nutrition, movement, and clearer minds for the whole family."
-        datePublished="2026-05-01"
+        datePublished={PUBLISHED}
+        image={heroImage}
         url="https://wabisabiservices.ca/blog/may-2026"
       />
       <BreadcrumbSchema
@@ -42,7 +46,7 @@ const May2026 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${blogHero})`,
+            backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,

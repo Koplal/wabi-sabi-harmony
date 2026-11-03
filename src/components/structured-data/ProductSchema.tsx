@@ -1,3 +1,4 @@
+import { absoluteUrl } from "./absoluteUrl";
 import { JsonLd } from "./JsonLd";
 
 interface ProductOffer {
@@ -10,7 +11,7 @@ interface ProductOffer {
 interface ProductSchemaProps {
   name: string;
   description: string;
-  image?: string;
+  image: string;
   offers?: ProductOffer;
 }
 
@@ -23,7 +24,8 @@ interface ProductSchemaProps {
  *
  * @param name - Package name
  * @param description - Package description
- * @param image - Absolute URL of a representative image
+ * @param image - The package's own photo, as an imported asset or a full URL. Google's
+ *   product rich result needs one, so it is required, and it is written as a full URL
  * @param offers - Optional offer details (price, priceCurrency, availability, url)
  */
 export const ProductSchema = ({
@@ -37,14 +39,11 @@ export const ProductSchema = ({
     "@type": "Product",
     "name": name,
     "description": description,
+    "image": absoluteUrl(image),
     "brand": {
       "@id": "https://wabisabiservices.ca/#organization"
     }
   };
-
-  if (image) {
-    schema.image = image;
-  }
 
   if (offers) {
     const offer: Record<string, any> = {

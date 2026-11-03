@@ -43,6 +43,7 @@ const CoastalCottage = () => {
       />
       <ProductSchema
         name="The Coastal Cottage"
+        image={heroImage}
         description="Breezy beach-inspired summer welcome with a nautical wreath, coastal planters, driftwood accents, and sea glass touches in ocean tones."
         offers={{
           price: "474",

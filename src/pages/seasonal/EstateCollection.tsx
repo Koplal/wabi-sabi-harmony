@@ -18,6 +18,7 @@ const EstateCollection = () => {
       />
       <ProductSchema
         name="The Estate Collection"
+        image={heroImage}
         description="Our most involved autumn pumpkin installation, with rare specimen varieties, a dedicated project manager, and professional photo and video."
         offers={{
           price: "1899",

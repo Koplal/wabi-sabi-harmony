@@ -295,12 +295,27 @@ function sitemapDate(route: string): string {
 
 const sitemapEntry = (route: string) => `<url><loc>${route === "/" ? `${SITE}/` : `${SITE}${route}`}</loc><lastmod>${sitemapDate(route)}</lastmod></url>`;
 
+/** A built image in the fixture dist, which the text files map does not hold. */
+const FIXTURE_IMAGE_PATH = "assets/fixture-photo-abc123.jpg";
+const FIXTURE_IMAGE = `${SITE}/${FIXTURE_IMAGE_PATH}`;
+const POST_ROUTE = "/blog/july-2026";
+const POST_HTML = htmlFileOfRoute(POST_ROUTE);
+const fixturePost = (): Record<string, unknown> => ({
+  "@type": "BlogPosting",
+  headline: "Fixture Post",
+  image: FIXTURE_IMAGE,
+  datePublished: "2026-07-01T00:00:00-07:00",
+  dateModified: "2026-07-01T00:00:00-07:00",
+  url: `${SITE}${POST_ROUTE}`,
+});
+
 function goodDist(): Files {
   const files: Files = new Map();
-  const product = { "@type": "Product", name: "The Fixture Package", offers: { price: "399" } };
+  const product = { "@type": "Product", name: "The Fixture Package", image: FIXTURE_IMAGE, offers: { price: "399" } };
   for (const route of INDEXABLE_ROUTES) {
     const path = route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
-    files.set(path, pageHtml(route, route === "/seasoning/quiet-grace" ? [product] : []));
+    const blocks = route === "/seasoning/quiet-grace" ? [product] : route === POST_ROUTE ? [fixturePost()] : [];
+    files.set(path, pageHtml(route, blocks));
   }
   for (const route of UTILITY_ROUTES) files.set(htmlFileOfRoute(route), builtUtilityPage(route));
   files.set("sitemap.xml", INDEXABLE_ROUTES.map(sitemapEntry).join("\n"));
@@ -379,6 +394,8 @@ interface DistOptions {
   shallowClone?: boolean;
   /** The tracked dates, by route. By default they match the sitemap. null means the file is unreadable. */
   lastmods?: Record<string, string> | null;
+  /** Every path in dist. By default the text files and the fixture image. */
+  distPaths?: Set<string>;
 }
 
 /** The tracked file a sitemap was built from. */
@@ -404,6 +421,7 @@ function distCtx(files: Files, options: DistOptions = {}): DistCtx {
   const lastCommitDate = (path: string) => (options.lastCommits && path in options.lastCommits ? options.lastCommits[path] : changedOn(path));
   return {
     files,
+    distPaths: options.distPaths ?? new Set([...files.keys(), FIXTURE_IMAGE_PATH]),
     routes: INDEXABLE_ROUTES,
     baseline: options.baseline ?? { capturedFrom: "fixture", pages },
     renderBaseline,
@@ -1053,6 +1071,34 @@ distCase("D-SCHEMA", "allows a ContactPoint", "pass", (files) => addBlock(files,
 distCase("D-SCHEMA", "reports a phone given as a string", fails("servicePhone is not a ContactPoint"), (files) => addBlock(files, ABOUT_HTML, serviceWith(NAP.phones[2])));
 distCase("D-SCHEMA", "reports a ContactPoint with no number", fails("servicePhone is not a ContactPoint"), (files) => addBlock(files, ABOUT_HTML, serviceWith({ "@type": "ContactPoint" })));
 distCase("D-SCHEMA", "reports a node of another type", fails("servicePhone is not a ContactPoint"), (files) => addBlock(files, ABOUT_HTML, serviceWith({ "@type": "Thing", telephone: NAP.phones[2] })));
+const QUIET_GRACE_HTML = htmlFileOfRoute("/seasoning/quiet-grace");
+const editNode = (files: Files, path: string, type: string, edit: (node: Record<string, unknown>) => void) => {
+  const html = files.get(path) as string;
+  const block = new RegExp(`<script[^>]*>({[^<]*"@type":"${type}"[^<]*)</script>`).exec(html)?.[1];
+  if (!block) throw new Error(`fixture ${type} block not found in ${path}`);
+  const node = JSON.parse(block) as Record<string, unknown>;
+  edit(node);
+  files.set(path, html.replace(block, () => JSON.stringify(node)));
+};
+const editProduct = (files: Files, edit: (node: Record<string, unknown>) => void) => editNode(files, QUIET_GRACE_HTML, "Product", edit);
+const editPost = (files: Files, edit: (node: Record<string, unknown>) => void) => editNode(files, POST_HTML, "BlogPosting", edit);
+distCase("D-SCHEMA", "reports a Product with no image", fails('Product "The Fixture Package" has no image'), (files) => editProduct(files, (node) => delete node.image));
+distCase("D-SCHEMA", "reports a Product with an empty image", fails("has no image"), (files) => editProduct(files, (node) => (node.image = "")));
+distCase("D-SCHEMA", "reports a Product image given as a path", fails("which is not a full"), (files) => editProduct(files, (node) => (node.image = `/${FIXTURE_IMAGE_PATH}`)));
+distCase("D-SCHEMA", "reports a Product image on another host", fails("which is not a full"), (files) => editProduct(files, (node) => (node.image = `https://example.com/${FIXTURE_IMAGE_PATH}`)));
+distCase("D-SCHEMA", "reports a Product image the build did not write", fails("which is not a file in dist"), (files) => editProduct(files, (node) => (node.image = `${SITE}/assets/other-photo.jpg`)));
+distCase("D-SCHEMA", "reports a Product image a later build renamed", fails("which is not a file in dist"), () => undefined, { distPaths: new Set(["assets/fixture-photo-def456.jpg"]) });
+distCase("D-SCHEMA", "allows an image given as a list", "pass", (files) => editProduct(files, (node) => (node.image = [FIXTURE_IMAGE])));
+distCase("D-SCHEMA", "reports a Product with reviews", fails("has review"), (files) => editProduct(files, (node) => (node.review = { "@type": "Review" })));
+distCase("D-SCHEMA", "reports a Product with a rating", fails("has aggregateRating"), (files) => editProduct(files, (node) => (node.aggregateRating = { "@type": "AggregateRating" })));
+distCase("D-SCHEMA", "reports a BlogPosting with no image", fails('BlogPosting "Fixture Post" has no image'), (files) => editPost(files, (node) => delete node.image));
+distCase("D-SCHEMA", "reports a BlogPosting date with no time", fails("datePublished 2026-07-01 has no time and timezone"), (files) => editPost(files, (node) => (node.datePublished = "2026-07-01")));
+distCase("D-SCHEMA", "reports a BlogPosting time with no timezone", fails("dateModified 2026-07-01T00:00:00 has no time and timezone"), (files) => editPost(files, (node) => (node.dateModified = "2026-07-01T00:00:00")));
+distCase("D-SCHEMA", "reports a BlogPosting with no dateModified", fails("has no dateModified"), (files) => editPost(files, (node) => delete node.dateModified));
+distCase("D-SCHEMA", "reports a winter offset on a summer date", fails("does not have Victoria's offset on that date, -07:00"), (files) => editPost(files, (node) => (node.datePublished = "2026-07-01T00:00:00-08:00")));
+distCase("D-SCHEMA", "reports a winter offset the day before the clocks go back", fails("-07:00"), (files) => editPost(files, (node) => (node.datePublished = "2025-11-01T00:00:00-08:00")));
+distCase("D-SCHEMA", "allows a winter offset on a winter date", "pass", (files) => editPost(files, (node) => (node.datePublished = "2026-03-01T00:00:00-08:00")));
+distCase("D-SCHEMA", "allows a time in UTC", "pass", (files) => editPost(files, (node) => (node.dateModified = "2026-07-02T18:30:00Z")));
 
 const seoPage = (attributes: string) => pageSource.replace('<SEO title="/seasoning/quiet-grace"', `<SEO ${attributes}`);
 distCase("D-PARITY", "compares a page with noBrandSuffix without the suffix", "pass", (files) => retitle(files, "/seasoning/quiet-grace", "Short Title"), { page: seoPage('title="Short Title" noBrandSuffix') });

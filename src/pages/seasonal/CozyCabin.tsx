@@ -18,6 +18,7 @@ const CozyCabin = () => {
       />
       <ProductSchema
         name="The Cozy Cabin"
+        image={heroImage}
         description="A warm winter entrance with a fresh evergreen wreath, door swag, and planter greens, styled and installed on site."
         offers={{
           price: "474",

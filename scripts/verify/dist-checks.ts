@@ -149,6 +149,8 @@ export interface RouteManifest {
 export interface DistCtx {
   /** Every file in dist, keyed by its path relative to dist. Text files only. */
   files: Map<string, string>;
+  /** Every file in dist, images too, by its path relative to dist. Undefined when unknown. */
+  distPaths?: Set<string>;
   routes: string[];
   baseline: RankBaseline;
   renderBaseline?: RenderBaseline;
@@ -853,16 +855,61 @@ export function checkAudit(ctx: DistCtx): Finding[] {
   return findings;
 }
 
-/** schema.org gives servicePhone the type ContactPoint, so a bare string is a validation error. */
+/** Google's product and article rich results warn or fail without an image, so these need one. */
+const IMAGE_TYPES = ["Product", "BlogPosting"];
+const POST_DATES = ["datePublished", "dateModified"];
+const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+const PACIFIC = new Intl.DateTimeFormat("en-US", { timeZone: "America/Vancouver", timeZoneName: "longOffset" });
+
+/** Victoria's offset from UTC at an instant, as -07:00 or -08:00. */
+const pacificOffset = (instant: Date) =>
+  (PACIFIC.formatToParts(instant).find((part) => part.type === "timeZoneName")?.value ?? "").replace(/^GMT/, "");
+
+/** An image must be a full URL on this site, and a file the build wrote when dist's paths are known. */
+function imageProblem(image: unknown, distPaths: Set<string> | undefined): string | undefined {
+  if (image === undefined || image === "" || (Array.isArray(image) && image.length === 0)) return "has no image";
+  const url = Array.isArray(image) ? image[0] : isNode(image) ? image.url : image;
+  if (typeof url !== "string" || !url.startsWith(`${SITE}/`)) return `has image ${JSON.stringify(url)}, which is not a full ${SITE} URL`;
+  if (distPaths && !distPaths.has(decodeURI(url.slice(SITE.length + 1)))) return `has image ${url}, which is not a file in dist`;
+  return undefined;
+}
+
+/** A post date needs a time and a timezone, and an offset must be Victoria's on that date. */
+function postDateProblem(key: string, value: unknown): string | undefined {
+  if (typeof value !== "string") return `has no ${key}`;
+  const zone = DATE_TIME.exec(value)?.[1];
+  if (zone === undefined) return `${key} ${value} has no time and timezone`;
+  const instant = new Date(value);
+  if (Number.isNaN(instant.getTime())) return `${key} ${value} is not a date`;
+  if (zone !== "Z" && zone !== pacificOffset(instant)) return `${key} ${value} does not have Victoria's offset on that date, ${pacificOffset(instant)}`;
+  return undefined;
+}
+
+/**
+ * schema.org gives servicePhone the type ContactPoint, so a bare string is a validation error.
+ * Every Product and BlogPosting names an image on this site, and a BlogPosting's
+ * dates carry a time and Victoria's offset. Neither node may claim reviews the site does not have.
+ */
 export function checkSchema(ctx: DistCtx): Finding[] {
   const findings: Finding[] = [];
   for (const { path, html } of htmlFiles(ctx)) {
+    const add = (message: string) => findings.push({ rule: "D-SCHEMA", file: path, message });
     for (const block of jsonLdBlocksOf(html)) {
       walkNodes(parseBlock(block), (node) => {
         const phone = node.servicePhone;
-        if (phone === undefined) return;
-        if (!isNode(phone) || !typesOf(phone).includes("ContactPoint") || !phone.telephone) {
-          findings.push({ rule: "D-SCHEMA", file: path, message: "servicePhone is not a ContactPoint with a telephone" });
+        if (phone !== undefined && (!isNode(phone) || !typesOf(phone).includes("ContactPoint") || !phone.telephone)) {
+          add("servicePhone is not a ContactPoint with a telephone");
+        }
+        const type = typesOf(node).find((name) => IMAGE_TYPES.includes(name));
+        if (!type) return;
+        const label = `${type} "${String(node.name ?? node.headline ?? "")}"`;
+        const image = imageProblem(node.image, ctx.distPaths);
+        if (image) add(`${label} ${image}`);
+        for (const key of ["review", "aggregateRating"]) if (node[key] !== undefined) add(`${label} has ${key}, but the site has no such reviews`);
+        if (type !== "BlogPosting") return;
+        for (const key of POST_DATES) {
+          const problem = postDateProblem(key, node[key]);
+          if (problem) add(`${label} ${problem}`);
         }
       });
     }

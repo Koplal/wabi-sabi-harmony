@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import blogHero from "@/assets/blog-hero.jpg";
+import heroImage from "@/assets/blog-june-2026.jpg";
+
+/** Midnight in Victoria on the day the post went up, with that date's Pacific offset. */
+const PUBLISHED = "2026-06-01T00:00:00-07:00";
 
 const June2026 = () => {
   return (
@@ -15,12 +18,13 @@ const June2026 = () => {
         description="Victoria is a pet-loving city. Which cleaning products put pets at risk, the gentler alternatives, and how to manage odours, hair, and messes safely."
         canonical="https://wabisabiservices.ca/blog/june-2026"
         ogType="article"
-        publishedTime="2026-06-01T00:00:00-07:00"
+        publishedTime={PUBLISHED}
       />
       <ArticleSchema
         headline="Pet-Friendly Cleaning: Keeping Your Home Fresh and Your Furry Friends Safe"
         description="Which common cleaning products put pets at risk, the gentler alternatives, and how to manage odours, hair, and messes safely."
-        datePublished="2026-06-01"
+        datePublished={PUBLISHED}
+        image={heroImage}
         url="https://wabisabiservices.ca/blog/june-2026"
       />
       <BreadcrumbSchema
@@ -42,7 +46,7 @@ const June2026 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${blogHero})`,
+            backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,

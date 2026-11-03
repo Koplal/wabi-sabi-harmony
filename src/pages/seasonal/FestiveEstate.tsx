@@ -18,6 +18,7 @@ const FestiveEstate = () => {
       />
       <ProductSchema
         name="The Festive Estate"
+        image={heroImage}
         description="A holiday display for multi-level entries and wide facades, with coordinated wreaths, railing garland, and abundant planter arrangements."
         offers={{
           price: "1424",

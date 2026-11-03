@@ -18,6 +18,7 @@ const MindfulMerchant = () => {
       />
       <ProductSchema
         name="The Mindful Merchant"
+        image={heroImage}
         description="Autumn storefront styling for Victoria businesses, with commercial-grade pumpkins, insured installation, and seasonal maintenance."
         offers={{
           price: "799",

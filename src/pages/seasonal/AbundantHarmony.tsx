@@ -18,6 +18,7 @@ const AbundantHarmony = () => {
       />
       <ProductSchema
         name="The Abundant Harmony"
+        image={heroImage}
         description="A generous autumn pumpkin display for larger porches and stepped entries, with heritage varieties, seasonal botanicals, and full installation."
         offers={{
           price: "899",

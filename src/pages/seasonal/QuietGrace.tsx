@@ -18,6 +18,7 @@ const QuietGrace = () => {
       />
       <ProductSchema
         name="The Quiet Grace"
+        image={heroImage}
         description="A restrained autumn pumpkin display for intimate porches and townhome entries, with heritage and heirloom varieties delivered to your door."
         offers={{
           price: "399",

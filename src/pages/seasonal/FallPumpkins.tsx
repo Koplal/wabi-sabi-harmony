@@ -130,6 +130,7 @@ const FallPumpkins = () => {
         <ProductSchema
           key={pkg.slug}
           name={pkg.name}
+          image={pkg.image}
           description={pkg.description}
           offers={{
             price: String(pkg.price),

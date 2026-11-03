@@ -18,6 +18,7 @@ const WinterWonderland = () => {
       />
       <ProductSchema
         name="The Winter Wonderland"
+        image={heroImage}
         description="A frost-inspired holiday entrance with premium evergreens, frosted branches, and warm lighting, installed on site."
         offers={{
           price: "924",

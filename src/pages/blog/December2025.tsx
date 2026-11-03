@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/structured-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import blogHero from "@/assets/blog-hero.jpg";
+import heroImage from "@/assets/blog-december-2025.jpg";
+
+/** Midnight in Victoria on the day the post went up, with that date's Pacific offset. */
+const PUBLISHED = "2025-12-01T00:00:00-08:00";
 
 const December2025 = () => {
   return (
@@ -15,12 +18,13 @@ const December2025 = () => {
         description="December in Victoria sparkles with lights and gatherings. A week-by-week plan for hosting with grace, plus natural scents and sustainable table settings."
         canonical="https://wabisabiservices.ca/blog/december-2025"
         ogType="article"
-        publishedTime="2025-12-01T00:00:00-08:00"
+        publishedTime={PUBLISHED}
       />
       <ArticleSchema
         headline="Holiday Harmony: Mindful Cleaning for December's Magic"
         description="A week-by-week plan for hosting with grace in a Victoria home, with natural scents and sustainable table settings."
-        datePublished="2025-12-01"
+        datePublished={PUBLISHED}
+        image={heroImage}
         url="https://wabisabiservices.ca/blog/december-2025"
       />
       <BreadcrumbSchema
@@ -42,7 +46,7 @@ const December2025 = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${blogHero})`,
+            backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.4,

@@ -43,6 +43,7 @@ const FreshStart = () => {
       />
       <ProductSchema
         name="The Fresh Start"
+        image={heroImage}
         description="Light and airy spring refresh with delicate floral touches, seasonal planters, and natural moss and twig elements, professionally placed."
         offers={{
           price: "474",

@@ -43,6 +43,7 @@ const IslandRetreat = () => {
       />
       <ProductSchema
         name="The Island Retreat"
+        image={heroImage}
         description="Relaxed summer aesthetic with tropical-inspired touches, a palm-element wreath, four summer planters, bamboo and rattan accents, and hurricane lanterns."
         offers={{
           price: "924",
